@@ -16,11 +16,11 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
   }
   let description = ``
   const sortedStats = res.data.data?.sort(
-    (a, b) => (b.count ?? 0) - (a.count ?? 0)
+    (a, b) => (b.count ?? 0) - (a.count ?? 0),
   )
   sortedStats?.forEach((v) => {
     description += `${getEmojiToken(
-      (v.chain?.currency as TokenEmojiKey) ?? ""
+      (v.chain?.currency as TokenEmojiKey) ?? "",
     )} **${v.chain?.short_name?.toUpperCase() ?? "NA"}**: ${
       v.count
     } collections\n\n`

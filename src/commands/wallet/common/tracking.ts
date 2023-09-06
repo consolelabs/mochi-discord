@@ -9,7 +9,7 @@ import { untrackWallet } from "../untrack/processor"
 
 export const machineConfig: (id: string, context?: any) => MachineConfig = (
   id,
-  context
+  context,
 ) => ({
   id,
   initial: id,

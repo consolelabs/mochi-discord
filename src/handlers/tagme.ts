@@ -17,7 +17,7 @@ class Tagme {
     guildId: string,
     msgURL: string,
     tagger: GuildMember,
-    description = ""
+    description = "",
   ) {
     if (!guildId) return
     const { ok, log, error, data } = await community.getTagme({
@@ -28,7 +28,7 @@ class Tagme {
     if (!ok) {
       // we don't want to throw and restart bot
       logger.warn(
-        `[Tagme] get config failed for user "${user.id}", log: ${log}, error: ${error}`
+        `[Tagme] get config failed for user "${user.id}", log: ${log}, error: ${error}`,
       )
       return
     }
@@ -57,7 +57,7 @@ class Tagme {
               .setStyle("SECONDARY")
               .setCustomId(`tagme_unsubscribe_${user.id}_${guildId}`)
               .setEmoji(getEmoji("REVOKE"))
-              .setLabel("Unsubscribe from this guild")
+              .setLabel("Unsubscribe from this guild"),
           ),
         ],
       })
@@ -77,7 +77,7 @@ class Tagme {
     })
     if (!ok) {
       logger.warn(
-        `[Tagme] unsubscribe failed for user: "${userId}", log: ${log}, error: ${error}`
+        `[Tagme] unsubscribe failed for user: "${userId}", log: ${log}, error: ${error}`,
       )
     }
 
@@ -93,8 +93,8 @@ class Tagme {
             .setCustomId(
               `tagme_${
                 isActive ? "unsubscribe" : "subscribe"
-              }_${userId}_${guildId}`
-            )
+              }_${userId}_${guildId}`,
+            ),
         ),
       ],
     })

@@ -80,7 +80,7 @@ export async function process(message: OriginalMessage) {
           current.is_active ? "In use" : "Deleted"
         }`,
       }),
-      { name: "", number: "", status: "" }
+      { name: "", number: "", status: "" },
     )
     const fields: EmbedFieldData[] = [
       { name: "Server name", value: name, inline: true },
@@ -100,7 +100,7 @@ export async function process(message: OriginalMessage) {
       new MessageSelectMenu()
         .setCustomId(serverSelectMenuId)
         .setPlaceholder("Select server")
-        .addOptions(serverOpts)
+        .addOptions(serverOpts),
     )
     return {
       embeds: [embed],
@@ -133,7 +133,7 @@ export async function process(message: OriginalMessage) {
       (previous: any, current: any, index: any) => {
         return `${previous}\n**${index + 1}.**  ${current.title}`
       },
-      "Type the number of the proposal you want to check."
+      "Type the number of the proposal you want to check.",
     )
     const embed = composeEmbedMessage(null, {
       title: `${guildName}'s proposals`,
@@ -155,7 +155,7 @@ export async function process(message: OriginalMessage) {
   }) => {
     const { data, ok, error, curl } = await community.getProposalResults(
       proposalId,
-      creatorId
+      creatorId,
     )
     if (!ok) {
       throw new APIError({ curl, description: error })
@@ -183,12 +183,12 @@ export async function process(message: OriginalMessage) {
     const timeStart = Math.floor(
       (data.proposal?.created_at
         ? Date.parse(data.proposal?.created_at)
-        : Date.now()) / 1000
+        : Date.now()) / 1000,
     )
     const timeClose = Math.floor(
       (data.proposal?.closed_at
         ? Date.parse(data.proposal.closed_at)
-        : Date.now()) / 1000
+        : Date.now()) / 1000,
     )
     const embed = composeEmbedMessage(null, {
       title: data.proposal?.title ?? "NA",
@@ -223,7 +223,7 @@ export async function process(message: OriginalMessage) {
         number: `${previous.number}\n${current.count}`,
         platform: `${previous.platform}\n${current.source}`,
       }),
-      { name: "", number: "", platform: "" }
+      { name: "", number: "", platform: "" },
     )
     const fields: EmbedFieldData[] = [
       { name: "DAO space", value: name, inline: true },
@@ -276,7 +276,7 @@ export async function process(message: OriginalMessage) {
   const collectPaginationButton = (msg: Message) => {
     const render = async (
       _message: OriginalMessage | undefined,
-      pageIdx: number
+      pageIdx: number,
     ) => {
       const { embeds, components } = await composeCurrentView(pageIdx)
       return {
@@ -292,7 +292,7 @@ export async function process(message: OriginalMessage) {
       render,
       false,
       true,
-      (i) => i.user.id === userId && i.customId.startsWith("page")
+      (i) => i.user.id === userId && i.customId.startsWith("page"),
     )
   }
 

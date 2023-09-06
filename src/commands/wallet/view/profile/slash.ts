@@ -24,18 +24,18 @@ const command: SlashCommand = {
         option
           .setName("user")
           .setDescription(
-            "Nickname or mention of wallet's owner. Example: @John"
+            "Nickname or mention of wallet's owner. Example: @John",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("wallet")
           .setDescription(
-            "The address or alias of the wallet you want to track"
+            "The address or alias of the wallet you want to track",
           )
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
   },
   autocomplete: async (i) => {
@@ -49,7 +49,7 @@ const command: SlashCommand = {
     const options = await Promise.all(
       [...wallets]
         .filter((w) =>
-          w.value.toLowerCase().startsWith(focusedValue.toLowerCase())
+          w.value.toLowerCase().startsWith(focusedValue.toLowerCase()),
         )
         .map(async (w) => {
           let value = w.value
@@ -65,7 +65,7 @@ const command: SlashCommand = {
               w.alias || (await lookUpDomains(w.value))
             } | $${w.total}`,
           }
-        })
+        }),
     )
 
     await i.respond(options).catch(() => null)
@@ -81,7 +81,7 @@ const command: SlashCommand = {
         type: BalanceType.Onchain,
         address,
         view: BalanceView.Compact,
-      }
+      },
     )
 
     const reply = await interaction.editReply(msgOpts)

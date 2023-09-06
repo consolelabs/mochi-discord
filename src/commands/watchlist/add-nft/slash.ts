@@ -17,9 +17,9 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription(
-            "The NFT which you wanna add to your watchlist. Example: Neko"
+            "The NFT which you wanna add to your watchlist. Example: Neko",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

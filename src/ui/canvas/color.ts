@@ -49,7 +49,7 @@ export function getHighestRoleColor(member: GuildMember) {
 
 export function getGradientColor(
   fromColor: string,
-  toColor: string
+  toColor: string,
 ): CanvasGradient {
   const canvas = createCanvas(100, 100)
   const ctx = canvas.getContext("2d")

@@ -42,7 +42,7 @@ export async function runVerifyRemove(guildId: string | null) {
         getSuccessEmbed({
           title: "Channel removed",
           description: `Instruction message removed\n**NOTE**: not having a channel for verification will limit the capabilities of Mochi, we suggest you set one by running ${await getSlashCommand(
-            "config verify set"
+            "config verify set",
           )}`,
         }),
       ],

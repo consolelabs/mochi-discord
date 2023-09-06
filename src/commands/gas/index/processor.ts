@@ -24,7 +24,7 @@ export async function render() {
             title: "No token found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Currently no token gas found`,
             color: msgColors.SUCCESS,
             footer: ["Type /feedback to report"],
@@ -36,16 +36,16 @@ export async function render() {
   const res = data.map((token: any, i: number) => {
     return {
       name: `${i > 1 ? "\u200b\n" : ""}${getEmoji(
-        currency[token.chain.toLowerCase()] ?? ""
+        currency[token.chain.toLowerCase()] ?? "",
       )} ${token.chain}`,
       value: `${getEmoji("SLOW")} Slow - ${ConvertSecondToMinute(
-        token.est_safe_time
+        token.est_safe_time,
       )} \`${token.safe_gas_price} Gwei\`\n${getEmoji(
-        "NORMAL"
+        "NORMAL",
       )} Normal - ${ConvertSecondToMinute(token.est_propose_time)} \`${
         token.propose_gas_price
       } Gwei\`\n${getEmoji("FAST")} Fast - ${ConvertSecondToMinute(
-        token.est_fast_time
+        token.est_fast_time,
       )} \`${token.fast_gas_price} Gwei\``,
       inline: true,
     }
@@ -88,7 +88,7 @@ export async function renderOne(chain: string) {
             title: "No token found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Currently no token gas found`,
             color: msgColors.SUCCESS,
           }),
@@ -100,13 +100,13 @@ export async function renderOne(chain: string) {
     {
       name: `${getEmoji(data.chain)} ${data.chain}`,
       value: `${getEmoji("SLOW")} Slow - ${ConvertSecondToMinute(
-        data.est_safe_time
+        data.est_safe_time,
       )} \`${data.safe_gas_price} Gwei\`\n${getEmoji(
-        "NORMAL"
+        "NORMAL",
       )} Normal - ${ConvertSecondToMinute(data.est_propose_time)} \`${
         data.propose_gas_price
       } Gwei\`\n${getEmoji("FAST")} Fast - ${ConvertSecondToMinute(
-        data.est_fast_time
+        data.est_fast_time,
       )} \`${data.fast_gas_price} Gwei\``,
       inline: true,
     },

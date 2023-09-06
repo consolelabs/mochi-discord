@@ -8,7 +8,7 @@ export async function list({ data, meta }: ResponseListGuildTokenRoles) {
     return {
       title: "Token role list",
       description: `No configuration was found! You can run ${await getSlashCommand(
-        "role token set"
+        "role token set",
       )} to set the new token role. `,
     }
   }
@@ -29,7 +29,7 @@ export async function list({ data, meta }: ResponseListGuildTokenRoles) {
       (c) =>
         `<@&${c.role_id}> - requires \`${
           c.required_amount
-        }\` tokens\n${tokenDescription(c.token)}`
+        }\` tokens\n${tokenDescription(c.token)}`,
     )
     .join("\n\n")
 
@@ -40,7 +40,7 @@ export async function list({ data, meta }: ResponseListGuildTokenRoles) {
   return {
     title: "Token role list",
     description: `You can run ${await getSlashCommand(
-      "role token set"
+      "role token set",
     )} to set the new role.\n\n${description}${metaDescription}`,
   }
 }

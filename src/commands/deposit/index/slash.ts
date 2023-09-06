@@ -13,7 +13,7 @@ import * as processor from "./processor"
 export const machineConfig: (
   token: string,
   amount: number,
-  context: any
+  context: any,
 ) => MachineConfig = (token, amount, context) => ({
   id: "deposit",
   initial: "depositList",
@@ -33,8 +33,8 @@ export const machineConfig: (
                 .setLabel("Token")
                 .setStyle("SHORT")
                 .setRequired(true)
-                .setPlaceholder("ETH, BNB, USDC, etc...")
-            )
+                .setPlaceholder("ETH, BNB, USDC, etc..."),
+            ),
           )
 
         await i.showModal(modal)
@@ -65,8 +65,8 @@ export const machineConfig: (
             i,
             amount,
             ctx.addresses.find((a: any) =>
-              equalIgnoreCase(a.address, i.values.at(0))
-            )
+              equalIgnoreCase(a.address, i.values.at(0)),
+            ),
           ),
         }
       },
@@ -90,7 +90,7 @@ export const machineConfig: (
 export const run = async (
   i: CommandInteraction | ButtonInteraction,
   tokenSymbol: string,
-  amount: number
+  amount: number,
 ) => {
   const { msgOpts, context } = await processor.deposit(i, tokenSymbol, amount)
   const reply = (await i.followUp({

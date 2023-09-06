@@ -46,7 +46,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/in-app-wallets/get-by-profile/${id}`,
       {
         method: "POST",
-      }
+      },
     )
   }
 
@@ -66,10 +66,10 @@ class MochiPay extends Fetcher {
 
   public async getPaymentRequestByProfile(
     profileId: string,
-    type: string
+    type: string,
   ): Promise<any[]> {
     const { data: res, ok } = await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/pay-requests?profile_id=${profileId}&type=${type}`
+      `${MOCHI_PAY_API_BASE_URL}/pay-requests?profile_id=${profileId}&type=${type}`,
     )
     let data = []
     if (ok) {
@@ -112,7 +112,7 @@ class MochiPay extends Fetcher {
           amount: undefined,
           amount_each: String(body.amount),
         },
-      }
+      },
     )
   }
 
@@ -140,7 +140,7 @@ class MochiPay extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -153,7 +153,7 @@ class MochiPay extends Fetcher {
           ...body,
           platform: "discord",
         },
-      }
+      },
     )
   }
 
@@ -165,11 +165,11 @@ class MochiPay extends Fetcher {
 
   async getListTx(
     profileId: string,
-    query: { action?: string; page?: number; size?: number }
+    query: { action?: string; page?: number; size?: number },
   ) {
     return await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/profile/${profileId}/transactions`,
-      { query }
+      { query },
     )
   }
 
@@ -182,7 +182,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/withdraw/transactions/recent`,
       {
         query,
-      }
+      },
     )
   }
 
@@ -198,7 +198,7 @@ class MochiPay extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -208,7 +208,7 @@ class MochiPay extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -222,7 +222,7 @@ class MochiPay extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -237,7 +237,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/earns/krystal/earn-balances`,
       {
         query,
-      }
+      },
     )
   }
 
@@ -250,7 +250,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/earns/krystal/history`,
       {
         query,
-      }
+      },
     )
   }
 
@@ -266,7 +266,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/approved`,
       {
         method: "POST",
-      }
+      },
     )
   }
 
@@ -282,7 +282,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/rejected`,
       {
         method: "POST",
-      }
+      },
     )
   }
 
@@ -306,7 +306,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL_V2}/withdraw/transactions/recent`,
       {
         query,
-      }
+      },
     )
   }
 }

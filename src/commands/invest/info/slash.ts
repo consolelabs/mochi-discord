@@ -51,7 +51,7 @@ const slashCmd: SlashCommand = {
           .setName("token")
           .setDescription("filter earn by token")
           .setRequired(false)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
 
     return data
@@ -62,7 +62,7 @@ const slashCmd: SlashCommand = {
     if (!ok) return await i.respond([])
 
     const symbols = uniq<string>(
-      data.map((d) => d.token?.symbol?.toLowerCase() ?? "")
+      data.map((d) => d.token?.symbol?.toLowerCase() ?? ""),
     )
     const options = symbols
       .filter((symbol: string) => symbol.includes(focusedValue.toLowerCase()))

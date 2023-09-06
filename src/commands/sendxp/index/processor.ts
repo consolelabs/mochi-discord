@@ -9,7 +9,7 @@ export function getSendXPSuccessEmbed(
   recipientsId: string[],
   authorId: string,
   amount: number,
-  each: boolean
+  each: boolean,
 ) {
   const usersMentions = recipientsId
     .map((userid) => {
@@ -34,7 +34,7 @@ export async function handleSendXp(
   msg: Message | CommandInteraction,
   mentions: string,
   amount: number,
-  each: boolean
+  each: boolean,
 ) {
   const authorId = msg instanceof Message ? msg.author.id : msg.user.id
   // user tip themselves alone

@@ -12,7 +12,7 @@ import { RunResult, MultipleResult } from "types/common"
 import { getEmoji, shortenHashOrAddress } from "utils/common"
 
 export async function handle(
-  msg: Message | CommandInteraction
+  msg: Message | CommandInteraction,
 ): Promise<
   RunResult<MessageOptions> | MultipleResult<Message | CommandInteraction>
 > {
@@ -25,7 +25,7 @@ export async function handle(
             label: "Proposal",
             customId: `proposal-info_proposal`,
             style: "SECONDARY",
-          })
+          }),
         ),
       ],
     },
@@ -33,10 +33,10 @@ export async function handle(
 }
 
 export async function composeDaoVoteInfoEmbed(
-  guildId: string
+  guildId: string,
 ): Promise<MessageEmbedOptions> {
   const { ok, data, log, curl } = await config.getGuildConfigDaoProposal(
-    guildId
+    guildId,
   )
   if (!ok) {
     throw new APIError({ curl, description: log })
@@ -46,7 +46,7 @@ export async function composeDaoVoteInfoEmbed(
       title: `${getEmoji("MAIL")} No information found!`,
       description: `You haven't set up any proposal!\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} You can set up your DAO voting channel by \`$proposal set <#channel> <network> <token_contract>\``,
     }
   }
@@ -61,15 +61,15 @@ export async function composeDaoVoteInfoEmbed(
     }>\n${getEmoji("ANIMATED_POINTING_RIGHT", true)} **Token**: ${
       data.symbol
     } (${shortenHashOrAddress(
-      data.address
+      data.address,
     )}) - ${data.chain.toUpperCase()}\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} **Proposal creator**: ${authority}\n${
       data.required_amount
         ? `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} **Minimum token amount**: ${data.required_amount}`
         : ""
     }`,

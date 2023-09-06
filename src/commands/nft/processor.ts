@@ -40,7 +40,7 @@ const buildDiscordMessage = (
   description: string,
   err = true,
   color?: ColorResolvable,
-  emojiUrl?: string
+  emojiUrl?: string,
 ) => {
   if (err) {
     return {
@@ -75,7 +75,7 @@ export async function callAPI(
   userId: string,
   guildId: string,
   msg: Message | CommandInteraction,
-  priorityFlag: boolean
+  priorityFlag: boolean,
 ) {
   const respCollection = await community.addNftCollection({
     chain_id: chainId,
@@ -93,7 +93,7 @@ export async function callAPI(
 export async function toEmbed(
   storeCollectionRes: any,
   supportedChainsRes: any,
-  msg?: Message | undefined
+  msg?: Message | undefined,
 ) {
   // get response and show discord message
   switch (storeCollectionRes.status) {
@@ -102,7 +102,7 @@ export async function toEmbed(
         msg,
         "NFT",
         "Successfully add new collection to queue",
-        false
+        false,
       )
     case 500:
       return buildDiscordMessage(msg, "NFT", "Internal Server Error")
@@ -113,7 +113,7 @@ export async function toEmbed(
         `The collection is already available. Let’s use $nft to check the NFT rarity!`,
         true,
         msgColors.GRAY,
-        getEmojiURL(emojis.NFT2)
+        getEmojiURL(emojis.NFT2),
       )
   }
 }
@@ -121,14 +121,14 @@ export async function toEmbed(
 export async function composeCollectionInfoEmbed(
   msg: Message,
   collectionAddress: string,
-  chain: TokenEmojiKey
+  chain: TokenEmojiKey,
 ) {
   if (chain === "SOL" || (chain as string) === "999") {
     collectionAddress = "solscan-" + collectionAddress
   }
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
     collectionAddress,
-    chain
+    chain,
   )
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, curl, description: log })
@@ -142,7 +142,7 @@ export async function composeCollectionInfoEmbed(
   const symbol = `${data.symbol?.toUpperCase() ?? "-"}`
   const address = data.address
     ? `[\`${shortenHashOrAddress(
-        data.address
+        data.address,
       )}\`](${getMarketplaceCollectionUrl(data.address)})`
     : "-"
   const name = `${data.name ?? "-"}`
@@ -218,11 +218,11 @@ export async function composeCollectionInfoEmbed(
 export async function composeCollectionSoulboundEmbed(
   msg: Message,
   collectionAddress: string,
-  chain: string
+  chain: string,
 ) {
   const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
     collectionAddress,
-    chain
+    chain,
   )
   if (!ok) {
     throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
@@ -309,7 +309,7 @@ export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
     })
 
   const images: Record<string, Image> = loadImages(
-    collectionList.map((col) => col.image)
+    collectionList.map((col) => col.image),
   )
   collectionList.forEach((item, idx) => {
     const colMaxWidth = 300
@@ -365,12 +365,12 @@ export async function renderSupportedNFTList(collectionList: NFTCollection[]) {
 }
 
 export function formatPriceWeiToEther(
-  priceObj: ResponseIndexerPrice | undefined
+  priceObj: ResponseIndexerPrice | undefined,
 ) {
   if (!priceObj) return "-"
   const { amount, token } = priceObj
   const convertedAmount = Number(
-    (+(amount ?? 0) / Math.pow(10, token?.decimals ?? 0)).toFixed(3)
+    (+(amount ?? 0) / Math.pow(10, token?.decimals ?? 0)).toFixed(3),
   )
   if (!convertedAmount) return `-`
   return `${getCompactFormatedNumber(convertedAmount)}`
@@ -382,7 +382,7 @@ export function buildSwitchViewActionRow(
     collectionAddress: string
     chain: string
     days?: number
-  }
+  },
 ) {
   const { chain, days = 90 } = params
   let collectionAddress = params.collectionAddress

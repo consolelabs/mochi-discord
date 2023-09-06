@@ -40,7 +40,7 @@ export function attachAuthorization(url: string, options: any) {
 }
 
 export function convertToSnakeCase<T extends Record<string | number, any>>(
-  obj: T
+  obj: T,
 ): T {
   const converted: Record<string | number, any> = {}
   for (const [key, value] of Object.entries(obj)) {

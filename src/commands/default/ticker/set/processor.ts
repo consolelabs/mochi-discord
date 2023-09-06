@@ -26,10 +26,10 @@ export async function runDefaultTicker(interaction: CommandInteraction) {
       msgOrInteraction: interaction,
       description: `**${symbol.toUpperCase()}** is invalid or hasn't been supported.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} or Please choose a valid fiat currency.`,
     })
   }
@@ -49,7 +49,7 @@ export async function runDefaultTicker(interaction: CommandInteraction) {
 
   const embeds = getSuccessEmbed({
     description: `Next time your server members use ${await getSlashCommand(
-      "ticker"
+      "ticker",
     )}, **${default_ticker}** will be the default selection.`,
   })
 

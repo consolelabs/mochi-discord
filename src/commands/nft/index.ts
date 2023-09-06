@@ -67,7 +67,7 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("nft")
       .setDescription(
-        "Show NFT rarity checker in real-time, including volume, ticker, and sales"
+        "Show NFT rarity checker in real-time, including volume, ticker, and sales",
       )
 
     data.addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())

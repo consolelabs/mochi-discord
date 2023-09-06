@@ -40,7 +40,7 @@ export const removeWatchlistToken = async ({
           title: `${symbolString(symbols)} has been removed from the watchlist`,
           description: `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} View watchlist with ${await getSlashCommand("wlv")}.`,
         }),
       ],

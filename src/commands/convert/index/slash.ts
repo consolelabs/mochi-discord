@@ -29,7 +29,7 @@ const run = async (i: CommandInteraction) => {
     i,
     from.toUpperCase(),
     to.toUpperCase(),
-    amount
+    amount,
   )
   const reply = (await i.editReply(msgOpts)) as Message
 

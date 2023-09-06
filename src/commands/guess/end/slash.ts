@@ -12,7 +12,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function cleanupAfterEndGame(
   thread: ThreadChannel,
-  gameCode: string
+  gameCode: string,
 ) {
   try {
     clearTimeout(timeouts.get(gameCode))
@@ -30,7 +30,7 @@ export async function announceResult(
   thread: ThreadChannel,
   gameCode: string,
   answer: string,
-  gameResult: any
+  gameResult: any,
 ) {
   const group = groupBy(gameResult, (r) => {
     const isLoser = r.final_amount.split("").at(0) === "-"
@@ -43,7 +43,7 @@ export async function announceResult(
   })
   embed.setTitle(`:crossed_swords: Result ${gameCode}`)
   embed.setDescription(
-    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \n\nHere is the result:"
+    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \n\nHere is the result:",
   )
 
   const winners =
@@ -51,7 +51,7 @@ export async function announceResult(
       ? ["No one"]
       : group.winners.map(
           (t) =>
-            `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`
+            `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`,
         )
 
   const losers =
@@ -59,7 +59,7 @@ export async function announceResult(
       ? ["No one"]
       : group.losers.map(
           (t) =>
-            `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`
+            `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`,
         )
 
   const embedFields: any[] = [
@@ -100,14 +100,14 @@ const slashCmd: SlashCommand = {
           .setName("code")
           .setDescription("game id")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("choice")
           .setDescription("yes/no")
           .setAutocomplete(true)
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   autocomplete: async (i) => {
@@ -121,14 +121,14 @@ const slashCmd: SlashCommand = {
       await i.respond(
         games
           .filter((g: any) =>
-            g.code.toLowerCase().includes(value.toLowerCase())
+            g.code.toLowerCase().includes(value.toLowerCase()),
           )
           .filter((g: any) => now() < moment(g.end_at).unix() * 1000)
           .map((g: any) => ({
             name: `${g.code} ${truncate(g.question, { length: 20 })}`,
             value: g.code,
           }))
-          .slice(0, 25)
+          .slice(0, 25),
       )
     } else {
       const code = i.options.getString("code", true) || ""
@@ -149,7 +149,7 @@ const slashCmd: SlashCommand = {
             name,
             value: opt.code,
           }
-        })
+        }),
       )
     }
   },
@@ -208,9 +208,9 @@ const slashCmd: SlashCommand = {
         thread,
         code,
         (game.options ?? []).find((opt: any) =>
-          equalIgnoreCase(optionCode, opt.code)
+          equalIgnoreCase(optionCode, opt.code),
         )?.option ?? "NA",
-        gameResult.data
+        gameResult.data,
       )
     }
 

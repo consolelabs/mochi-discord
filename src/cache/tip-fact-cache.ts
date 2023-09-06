@@ -17,7 +17,7 @@ export async function getTipsAndFacts() {
     contentCache.set("content", data)
   } else {
     Sentry.captureException(
-      new Error(`Product metadata tip & facts api error, status: ${status}`)
+      new Error(`Product metadata tip & facts api error, status: ${status}`),
     )
     contentCache.set("content", { description: { fact: [], tip: [] } })
     getTipsAndFacts()

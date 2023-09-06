@@ -11,10 +11,10 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
   const [groupId, name] = interaction.values[0].split("|")
   await Config.removeGuildNFTRoleGroupConfig(
     groupId,
-    msgOrInteraction.guildId ?? ""
+    msgOrInteraction.guildId ?? "",
   )
   const configs = await Config.getGuildNFTRoleConfigs(
-    msgOrInteraction.guildId ?? ""
+    msgOrInteraction.guildId ?? "",
   )
   if (configs.ok) {
     const { description } = await list(configs)
@@ -25,7 +25,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
             msg,
             title: `Successfully removed ${name}!`,
             description: `To set a new nft role, run ${await getSlashCommand(
-              "role nft set"
+              "role nft set",
             )}.\n\n${description}`,
           }),
         ],

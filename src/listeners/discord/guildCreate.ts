@@ -21,7 +21,7 @@ const event: DiscordEvent<"guildCreate"> = {
   once: false,
   execute: async (guild) => {
     logger.info(
-      `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
+      `Joined guild: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`,
     )
 
     await kafkaQueue?.produceAuditEvent(guild, "joined")
@@ -42,7 +42,7 @@ const event: DiscordEvent<"guildCreate"> = {
           })
           await introduceMochiToAdmin(guild)
         })
-      }
+      },
     )
   },
 }
@@ -63,16 +63,16 @@ async function introduceMochiToAdmin(guild: Guild) {
         name: `${getEmoji("CONFIG")} Start Here`,
         value: [
           `${DOT} ${await getSlashCommand(
-            "setup"
+            "setup",
           )} to let Mochi automatically bootstrap your server with all neccessary configs. You can always change this later.`,
           `${DOT} ${await getSlashCommand(
-            "quest-init"
+            "quest-init",
           )} to setup latest quests`,
           `${DOT} ${await getSlashCommand(
-            "dao-init"
+            "dao-init",
           )} creates DAO related configs`,
           `${DOT} ${await getSlashCommand(
-            "integrate"
+            "integrate",
           )} integrate with any token (fungile or non-fungile) and get monitoring metris (buy/sell, txns, hodlers, etc...)`,
         ].join("\n"),
         inline: false,
@@ -102,7 +102,7 @@ async function introduceMochiToAdmin(guild: Guild) {
         name: "\u200b",
         value: `[→ Visit our web](${HOMEPAGE_URL})`,
         inline: true,
-      }
+      },
     )
 
     guild.systemChannel

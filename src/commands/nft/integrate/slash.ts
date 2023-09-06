@@ -18,15 +18,15 @@ const command: SlashCommand = {
         option
           .setName("address")
           .setDescription(
-            "NFT address or marketplace link. Example: 0x7acee5d0acc520fab33b3ea25d4feef1ffebde73"
+            "NFT address or marketplace link. Example: 0x7acee5d0acc520fab33b3ea25d4feef1ffebde73",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("chain")
           .setDescription("NFT chain. Example: ftm")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -47,7 +47,7 @@ const command: SlashCommand = {
       chain,
       interaction.user.id,
       interaction.guildId,
-      interaction
+      interaction,
     )
   },
   help: async (interaction: CommandInteraction) => ({

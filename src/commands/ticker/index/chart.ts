@@ -66,17 +66,17 @@ export async function renderHistoricalMarketChart({
     container.x.from,
     container.y.from,
     container.w - 75,
-    container.h
+    container.h,
   )
 
   // bull/bear
   const isAsc = prices[prices.length - 1] >= prices[0]
   const leftObj = await loadImage(
-    `assets/images/${isAsc ? "blul" : "bera"}1.png`
+    `assets/images/${isAsc ? "blul" : "bera"}1.png`,
   )
   ctx.drawImage(leftObj, container.x.from, container.y.to - 230, 130, 230)
   const rightObj = await loadImage(
-    `assets/images/${isAsc ? "blul" : "bera"}2.png`
+    `assets/images/${isAsc ? "blul" : "bera"}2.png`,
   )
   ctx.drawImage(rightObj, container.x.to - 130, container.y.to - 230, 130, 230)
 
@@ -100,7 +100,7 @@ export async function renderCompareTokenChart({
     guildId ?? "",
     baseId,
     targetId,
-    days
+    days,
   )
   if (!ok) return { chart: null, ratio: 0 }
   const { times, ratios } = data

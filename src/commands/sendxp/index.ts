@@ -19,10 +19,10 @@ const textCmd: Command = {
         usage: `${PREFIX}sendxp <recipient(s)> <amount> [each]`,
         description: `You can send to recipients by:\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Role(s): \`@dev\`, \`@staff\``,
         examples: `${PREFIX}sendxp @john 5\n${PREFIX}sendxp @staff 5 XP`,
         document: SENDXP_GITBOOK,
@@ -46,22 +46,22 @@ const slashCmd: SlashCommand = {
         option
           .setName("recipients")
           .setDescription("users or roles Example: @John")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addIntegerOption((option) =>
         option
           .setName("amount")
           .setDescription("amount of xp to send. Example: 10")
           .setRequired(true)
-          .setMinValue(1)
+          .setMinValue(1),
       )
       .addBooleanOption((option) =>
         option
           .setName("each")
           .setDescription(
-            "true if amount is for each recipients, false if amount is divided equally"
+            "true if amount is for each recipients, false if amount is divided equally",
           )
-          .setRequired(false)
+          .setRequired(false),
       )
       .setDefaultPermission(false)
     return data
@@ -74,10 +74,10 @@ const slashCmd: SlashCommand = {
         usage: `${SLASH_PREFIX}sendxp <recipient(s)> <amount> [each]`,
         description: `You can send to recipients by:\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Username(s): \`@tom\`, \`@john\`\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Role(s): \`@dev\`, \`@staff\``,
         examples: `${SLASH_PREFIX}sendxp @john 5\n${SLASH_PREFIX}sendxp @staff 5 XP`,
       }),

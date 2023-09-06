@@ -41,14 +41,14 @@ const command: SlashCommand = {
         option
           .setName("address")
           .setDescription("Enter token contract address")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("chain")
           .setDescription("Select a network")
           .setChoices(choices)
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async (interaction: CommandInteraction) => {

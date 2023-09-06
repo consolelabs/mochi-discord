@@ -28,10 +28,10 @@ const slashCmd: SlashCommand = {
                   .filter(Boolean)
                   .map(
                     (channelId) =>
-                      `${getEmoji("BLANK")}${getEmoji("REPLY")}<#${channelId}>`
+                      `${getEmoji("BLANK")}${getEmoji("REPLY")}<#${channelId}>`,
                   )
                   .join("\n")
-          }`
+          }`,
       )
       .join("\n\n")
 
@@ -50,10 +50,10 @@ const slashCmd: SlashCommand = {
               isEmpty ? "`Not Set`" : list
             }\n\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Setup or change config by running \`/config logchannel set\`\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Use \`/config logchannel info\` to see more details\n[Read instructions](${HOMEPAGE_URL}) for a complete setup guide`,
           }),
         ],

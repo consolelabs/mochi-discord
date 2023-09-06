@@ -31,7 +31,7 @@ export function renderLevelRole(data: any) {
       cols: ["lvl", "minXp"],
       rowAfterFormatter: (f, i) =>
         `${f}${getEmoji("LINE")}<@&${data[i].role_id}>`,
-    }
+    },
   ).joined
 }
 
@@ -51,7 +51,7 @@ export function renderNftRole(data: any) {
       cols: ["symbol", "address", "amount"],
       rowAfterFormatter: (f, i) =>
         `${f}${getEmoji("LINE")}<@&${data[i].role_id}>`,
-    }
+    },
   ).joined
 }
 
@@ -63,7 +63,7 @@ export function renderReactionRole(_data: any, guildId: string) {
         reaction: c.reaction,
         role: `<@&${c.id}>`,
         messageUrl: `https://discord.com/channels/${guildId}/${d.channel_id}/${d.message_id}`,
-      }))
+      })),
     )
     .flat()
 
@@ -72,7 +72,7 @@ export function renderReactionRole(_data: any, guildId: string) {
       (d: any) =>
         `${d.reaction} [\`Message\`](${d.messageUrl})${getEmoji("LINE")}${
           d.role
-        }`
+        }`,
     )
     .join("\n")
 }
@@ -90,7 +90,7 @@ export function renderTokenRole(data: any) {
       cols: ["symbol", "amount"],
       rowAfterFormatter: (f, i) =>
         `${f}${getEmoji("LINE")}<@&${data[i].role_id}>`,
-    }
+    },
   ).joined
 }
 
@@ -129,7 +129,7 @@ export enum View {
 export async function render(
   i: CommandInteraction | ButtonInteraction,
   view: View,
-  data?: any
+  data?: any,
 ) {
   if (!i.guildId) {
     throw new GuildIdNotFoundError({})

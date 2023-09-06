@@ -26,7 +26,7 @@ export async function setConfigTokenRole(
   guildId: string,
   address: string,
   chain: string,
-  amount: number
+  amount: number,
 ) {
   const { ok, error } = await config.setConfigTokenRole({
     guild_id: guildId,
@@ -53,7 +53,7 @@ export async function setConfigTokenRole(
     dataProfile.id,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_TOKENROLE
+    MOCHI_ACTION_TOKENROLE,
   )
   kafkaMsg.activity.content.role_name = role.name
   sendActivityMsg(kafkaMsg)
@@ -64,7 +64,7 @@ export async function setConfigTokenRole(
         getSuccessEmbed({
           title: `Successfully set Token role to ${role.name}`,
           description: `You can run ${await getSlashCommand(
-            "role token set"
+            "role token set",
           )} to set a new token role.`,
           originalMsgAuthor: originAuthor,
         }),
@@ -75,7 +75,7 @@ export async function setConfigTokenRole(
 
 function handleError(
   msg: Message | MessageComponentInteraction | CommandInteraction | undefined,
-  error: string | null
+  error: string | null,
 ) {
   if (!msg) return
   let title = "Command Error"

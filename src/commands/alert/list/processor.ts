@@ -36,15 +36,15 @@ export async function handleAlertList({
       (item: any) =>
         (description += `**${item.symbol}** - ${item.frequency.replaceAll(
           "_",
-          " "
+          " ",
         )}\n${getEmoji("REPLY")} When ${item.alert_type.replaceAll(
           "_",
-          " "
+          " ",
         )} **${
           ["change_is_over", "change_is_under"].includes(item?.alert_type)
             ? item.value + "%"
             : item.value
-        }**\n`)
+        }**\n`),
     )
     return composeEmbedMessage(null, {
       title: `${getEmoji("ANIMATED_CHART_INCREASE", true)} Alert list`,

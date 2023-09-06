@@ -34,7 +34,7 @@ const routerCache = CacheManager.init({
 })
 
 function decorateWithActions(
-  states?: StatesConfig<any, any, any, BaseActionObject>
+  states?: StatesConfig<any, any, any, BaseActionObject>,
 ) {
   if (!states) return
   for (const state of Object.values(states)) {
@@ -87,7 +87,7 @@ export function paginationButtons(page: number, totalPage: number) {
         emoji: getEmoji("LEFT_ARROW"),
         label: "\u200b",
         customId: "prev_page",
-      })
+      }),
     )
   }
 
@@ -98,7 +98,7 @@ export function paginationButtons(page: number, totalPage: number) {
         emoji: getEmoji("RIGHT_ARROW"),
         label: "\u200b",
         customId: "next_page",
-      })
+      }),
     )
   }
   return [actionRow]
@@ -108,7 +108,7 @@ export function route(
   reply: Message,
   interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   config: MachineConfig,
-  options: MachineOptions = {}
+  options: MachineOptions = {},
 ) {
   // add a random fact
   if (PROD) {
@@ -155,20 +155,20 @@ export function route(
           if (!event.interaction || event.dry) return
           if (event.interaction.isButton()) {
             context.steps?.push(
-              `Click: button ${event.interaction.component.label} (id: ${event.interaction.customId})`
+              `Click: button ${event.interaction.component.label} (id: ${event.interaction.customId})`,
             )
             context.steps?.push(
-              `Transition: ${event.prevState} -> ${event.state}`
+              `Transition: ${event.prevState} -> ${event.state}`,
             )
           } else if (event.interaction.isSelectMenu()) {
             const [value] = event.interaction.values
             const label =
               event.interaction.component.options.find(
-                (opt: any) => opt.value === value
+                (opt: any) => opt.value === value,
               )?.label ?? "___"
             context.steps?.push(`Select: option ${label} (value: ${value})`)
             context.steps?.push(
-              `Transition: ${event.prevState} -> ${event.state}`
+              `Transition: ${event.prevState} -> ${event.state}`,
             )
           }
         },
@@ -211,7 +211,7 @@ export function route(
                   interaction,
                   event.type,
                   oldContext,
-                  modal[event.type]
+                  modal[event.type],
                 )
                 if (!result) return
                 const { context = {}, msgOpts } = result
@@ -233,8 +233,8 @@ export function route(
                         new MessageButton()
                           .setLabel("Back")
                           .setStyle("SECONDARY")
-                          .setCustomId("back")
-                      )
+                          .setCustomId("back"),
+                      ),
                     )
                   }
 
@@ -256,7 +256,7 @@ export function route(
           })
         },
       },
-    }
+    },
   )
 
   const aggregatedContext = aggregateContext(machine.states)

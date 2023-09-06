@@ -21,17 +21,17 @@ const command: SlashCommand = {
         option
           .setName("channel")
           .setDescription(
-            "enter channel which you want to welcome new members. #general"
+            "enter channel which you want to welcome new members. #general",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("message")
           .setDescription(
-            `enter message you want to send to new members. @name`
+            `enter message you want to send to new members. @name`,
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async (interaction: CommandInteraction) => {
@@ -49,7 +49,7 @@ const command: SlashCommand = {
     }
 
     const { isChannel, value: channelId } = parseDiscordToken(
-      interaction.options.getString("channel") ?? ""
+      interaction.options.getString("channel") ?? "",
     )
     if (!isChannel) {
       return {
@@ -91,7 +91,7 @@ const command: SlashCommand = {
     const newConfig = await config.updateWelcomeConfig(
       interaction.guild.id,
       channelId,
-      interaction.options.getString("message") ?? ""
+      interaction.options.getString("message") ?? "",
     )
     if (!newConfig.ok) {
       throw new Error(`Failed to update welcome message`)
@@ -104,7 +104,7 @@ const command: SlashCommand = {
     const embed = getSuccessEmbed({
       title: interaction.guild.name,
       description: `Successfully set <#${channelId}> as welcome channel.\nWelcome message:\n${parseWelcomeMessage(
-        newConfigData.welcome_message ?? ""
+        newConfigData.welcome_message ?? "",
       )}`,
       originalMsgAuthor: interaction.user,
     })

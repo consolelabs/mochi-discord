@@ -8,7 +8,7 @@ export async function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
     return {
       title: "No NFT roles found",
       description: `No NFT roles found! To set a new one, run ${await getSlashCommand(
-        "role nft set"
+        "role nft set",
       )}`,
     }
   }
@@ -26,16 +26,16 @@ export async function list({ data }: ResponseListGuildGroupNFTRolesResponse) {
                 nftCol.symbol?.toUpperCase() ?? ""
               } ${shortenHashOrAddress(nftCol.address ?? "")}${
                 nftCol.chain_name ? ` (${nftCol.chain_name.toUpperCase()})` : ""
-              }\`](${nftCol.explorer_url || HOMEPAGE_URL})`
+              }\`](${nftCol.explorer_url || HOMEPAGE_URL})`,
           )
-          .join("\n")}`
+          .join("\n")}`,
     )
     .join("\n\n")
 
   return {
     title: "NFT role list",
     description: `Run ${await getSlashCommand(
-      "role nft set"
+      "role nft set",
     )} to add an NFT role.\n\n${description}`,
   }
 }

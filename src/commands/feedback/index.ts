@@ -41,15 +41,15 @@ const slashCmd: SlashCommand = {
         option
           .setName("description")
           .setDescription("your feedback")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("command")
           .setDescription(
-            "a specific command to give feedback. Example: ticker"
+            "a specific command to give feedback. Example: ticker",
           )
-          .setRequired(false)
+          .setRequired(false),
       )
     return data
   },

@@ -13,7 +13,7 @@ const command: SlashCommand = {
         opt
           .setName("for_role")
           .setDescription("enter role to assign to verified users")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run,

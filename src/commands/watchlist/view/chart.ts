@@ -99,7 +99,7 @@ export async function renderChart(data: any[]) {
         const baseImage = await loadAndCacheImage(
           imageUrls[0],
           radius * 2,
-          radius * 2
+          radius * 2,
         )
         drawCircleImage({
           ctx,
@@ -113,7 +113,7 @@ export async function renderChart(data: any[]) {
         const targetImage = await loadAndCacheImage(
           imageUrls[1],
           radius * 2,
-          radius * 2
+          radius * 2,
         )
         drawCircleImage({
           ctx,

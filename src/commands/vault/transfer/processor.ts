@@ -97,18 +97,18 @@ export async function runTransferTreasurer({
       }`,
       `${getEmoji("NEWS")}\`Requester.     \` ${i.user}`,
       `${getEmoji("NFT2")}\`Amount.        \` ${getEmojiToken(
-        token.toUpperCase() as TokenEmojiKey
+        token.toUpperCase() as TokenEmojiKey,
       )} **${amount} ${token.toUpperCase()}**`,
       `${getEmoji("PRAY")}\`Recipient.     \` ${transferTarget}`,
       ...(isDm
         ? [
             `${getEmoji(
               "ANIMATED_STAR",
-              true
+              true,
             )}\`See request.   \` ${messageLink}`,
             `${getEmoji(
               "ANIMATED_VAULT",
-              true
+              true,
             )}\`Vault.         \` ${vaultName}`,
           ]
         : []),
@@ -145,7 +145,7 @@ export async function runTransferTreasurer({
           customId: `treaTransfer-rejected-${dataTransferTreasurerReq?.request.id}-${dataTransferTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${amount}-${token}-${chain}-${i.channelId}-${userId}`,
           style: "DANGER",
           label: "Reject",
-        })
+        }),
       )
 
       i.guild?.members.fetch(treasurer.user_discord_id).then((treasurer) => {
@@ -235,7 +235,7 @@ export async function handleTreasurerTransfer(i: ButtonInteraction) {
         getSuccessEmbed({
           title: "Successfully voted",
           description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
-            "ANIMATED_HEART"
+            "ANIMATED_HEART",
           )}`,
         }),
       ],

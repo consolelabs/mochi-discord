@@ -7,7 +7,7 @@ class Webhook extends Fetcher {
   public async pushDiscordWebhook(
     event: string,
     data: unknown,
-    profileId?: string
+    profileId?: string,
   ) {
     try {
       const body = {

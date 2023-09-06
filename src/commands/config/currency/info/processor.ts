@@ -7,7 +7,7 @@ import { getSlashCommand } from "utils/commands"
 
 export async function runCurrencyInfo(
   msg: Message | null,
-  guildId: string | null
+  guildId: string | null,
 ) {
   if (!guildId) {
     throw new GuildIdNotFoundError({ message: msg ?? undefined })
@@ -29,14 +29,14 @@ export async function runCurrencyInfo(
             author: ["Currency", getEmojiURL(emojis.APPROVE)],
             description: `You haven't set default currency for server.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} To set a new one, run ${await getSlashCommand(
-              "config currency set"
+              "config currency set",
             )}.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Then re-check your configuration using ${await getSlashCommand(
-              "config currency info"
+              "config currency info",
             )}`,
             color: msgColors.PINK,
           }),

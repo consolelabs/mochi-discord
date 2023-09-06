@@ -20,7 +20,7 @@ const slashCmd: SlashCommand = {
         opt
           .setName("expand")
           .setDescription("expand view, default view is compact")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: balanceSlash,

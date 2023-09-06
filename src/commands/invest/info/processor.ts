@@ -29,7 +29,7 @@ export async function renderInvestToken(token: string) {
       data
         .filter(
           (d: ResponseInvestItem) =>
-            d.token?.symbol?.toLowerCase() === token.toLowerCase()
+            d.token?.symbol?.toLowerCase() === token.toLowerCase(),
         )
         .map((d: ResponseInvestItem) => {
           return (d.platforms || [])
@@ -40,7 +40,7 @@ export async function renderInvestToken(token: string) {
                 chainName: d.chain?.name,
               }
             })
-        })
+        }),
     ) as EarningPlatform[]
   }
 
@@ -80,7 +80,7 @@ export async function renderInvestToken(token: string) {
     {
       cols: ["platform", "chain", "type", "apy"],
       separator: [VERTICAL_BAR, VERTICAL_BAR],
-    }
+    },
   )
 
   const embed = composeEmbedMessage(null, {
@@ -131,7 +131,7 @@ function groupByToken(data: ResponseInvestItem[]) {
 export async function renderInvestHome(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   page = 0,
-  availableTokens = [] as string[]
+  availableTokens = [] as string[],
 ) {
   const isByUser = availableTokens.length > 0
   let tokenData = [] as HomeEarn[]
@@ -175,7 +175,7 @@ export async function renderInvestHome(
       separator: [VERTICAL_BAR],
       rowAfterFormatter: (f, i) =>
         `${getEmojiToken((tokenData[i]?.symbol ?? "") as TokenEmojiKey)}${f}`,
-    }
+    },
   )
 
   const embed = composeEmbedMessage(null, {

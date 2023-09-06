@@ -38,7 +38,7 @@ const command: SlashCommand = {
             getErrorEmbed({
               title: `${interaction.guild.name}'s nft roles`,
               description: `No configuration found! To set a new one, run ${await getSlashCommand(
-                "role nft set"
+                "role nft set",
               )}.`,
               originalMsgAuthor: interaction.user,
             }),

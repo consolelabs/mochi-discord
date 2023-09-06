@@ -17,7 +17,7 @@ const command: SlashCommand = {
         option
           .setName("name")
           .setDescription("enter vault name")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) => {
         const o = option

@@ -20,7 +20,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription("token's symbol. Example: FTM")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -38,7 +38,7 @@ const command: SlashCommand = {
       isCompare,
       isFiat,
       false,
-      TickerView.Info
+      TickerView.Info,
     )
 
     const reply = (await interaction.editReply(msgOpts)) as Message

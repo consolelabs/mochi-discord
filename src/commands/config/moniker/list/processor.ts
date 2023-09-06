@@ -9,7 +9,7 @@ import { getSlashCommand } from "utils/commands"
 
 export async function handleMonikerList(
   guildId: string,
-  guildName = "This guild"
+  guildName = "This guild",
 ) {
   const {
     ok: defaultMonikerOk,
@@ -31,7 +31,7 @@ export async function handleMonikerList(
   }
 
   const defaultMonikers = _defaultMonikers.sort(
-    (a, b) => (b.value ?? 0) - (a.value ?? 0)
+    (a, b) => (b.value ?? 0) - (a.value ?? 0),
   )
   const { joined: defaultList } = formatDataTable(
     defaultMonikers.map((m) => ({
@@ -44,14 +44,14 @@ export async function handleMonikerList(
     {
       cols: ["value", "token", "usd"],
       separator: [VERTICAL_BAR, ` ${APPROX} `],
-    }
+    },
   )
   const defaultDescription = defaultList.length
     ? `**Default**\n${defaultList}\n`
     : ""
 
   const guildMonikers = _guildMonikers.sort(
-    (a, b) => (b.value ?? 0) - (a.value ?? 0)
+    (a, b) => (b.value ?? 0) - (a.value ?? 0),
   )
   let pages = paginate(guildMonikers, 10)
   pages = await Promise.all(
@@ -67,7 +67,7 @@ export async function handleMonikerList(
         {
           cols: ["value", "token", "usd"],
           separator: [VERTICAL_BAR, ` ${APPROX} `],
-        }
+        },
       )
       const description = guildList.length
         ? `**${guildName}'s monikers**\n${guildList}`
@@ -77,14 +77,14 @@ export async function handleMonikerList(
         thumbnail: getEmojiURL(emojis.MONIKER),
         description: `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Set up a new moniker configuration ${await getSlashCommand(
-          "moniker set"
+          "moniker set",
         )}\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Remove a configured moniker ${await getSlashCommand(
-          "moniker remove"
+          "moniker remove",
         )}`,
         footer: [`Page ${idx + 1} / ${pages.length}`],
       })
@@ -95,7 +95,7 @@ export async function handleMonikerList(
         inline: false,
       })
       return embed
-    })
+    }),
   )
   return pages
 }

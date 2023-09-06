@@ -64,7 +64,7 @@ export async function composeWatchlist(
   page = 0,
   view = WatchListViewType.Token,
   tokenView = WatchListTokenViewType.Text,
-  user: User = author
+  user: User = author,
 ) {
   const profileId = await getProfileIdByDiscord(user.id)
   const { data: res, ok } = await CacheManager.get({
@@ -97,10 +97,10 @@ export async function composeWatchlist(
     embed.setDescription(
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} No items in your watchlist.Run ${await getSlashCommand(
-        "watchlist add-nft"
-      )} to add one.\n\n`
+        "watchlist add-nft",
+      )} to add one.\n\n`,
     )
     return {
       msgOpts: {
@@ -121,7 +121,7 @@ export async function composeWatchlist(
         let tokenData = (data as ResponseGetWatchlistResponse["data"]) ?? []
         if (tokenView === WatchListTokenViewType.Text) {
           const group = groupBy(tokenData, (t) =>
-            Math.sign(t.price_change_percentage_24h ?? 0)
+            Math.sign(t.price_change_percentage_24h ?? 0),
           )
           group[1] = group[1]?.sort(sortPrice(1)) ?? []
           group["-1"] = group["-1"]?.sort(sortPrice(-1)) ?? []
@@ -142,21 +142,21 @@ export async function composeWatchlist(
               separator: [VERTICAL_BAR, VERTICAL_BAR],
               rowAfterFormatter: (f, i) =>
                 `${getEmojiToken(
-                  (tokenData[i].symbol ?? "") as TokenEmojiKey
+                  (tokenData[i].symbol ?? "") as TokenEmojiKey,
                 )}${f}${getEmoji(
                   (tokenData[i].price_change_percentage_24h ?? 0) < 0
                     ? "ARROW_DOWN"
-                    : "ARROW_UP"
+                    : "ARROW_UP",
                 )}`,
-            }
+            },
           )
 
           embed.setDescription(
             `**${getEmoji(
-              "CHART"
+              "CHART",
             )} All changes are in D1, sorted by price change**\n\n${segments
               .map((c) => c.join("\n"))
-              .join("\n")}`
+              .join("\n")}`,
           )
         } else {
           embed.setImage("attachment://watchlist.png")
@@ -175,7 +175,7 @@ export async function composeWatchlist(
         buildSwitchViewActionRow(view),
         ...paginationButtons(
           page,
-          Math.ceil(res.metadata?.total || 0 / PAGE_SIZE)
+          Math.ceil(res.metadata?.total || 0 / PAGE_SIZE),
         ),
       ],
       files,

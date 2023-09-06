@@ -14,13 +14,13 @@ const slashCmd: SlashCommand = {
         opt
           .setName("minrain")
           .setDescription("enter minimum USD amount that can be tipped")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addNumberOption((opt) =>
         opt
           .setName("maxtipped")
           .setDescription("enter maximum USD amount that can be tipped")
-          .setRequired(true)
+          .setRequired(true),
       )
 
     return data

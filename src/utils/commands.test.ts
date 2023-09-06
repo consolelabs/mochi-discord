@@ -47,7 +47,7 @@ test.each<
     const result = parseDiscordToken(input)
     expect(result[expectedType]).toBeTruthy()
     expect(result.value).toBe(expectedValue)
-  }
+  },
 )
 
 // isAcceptableCmdToHelp
@@ -74,7 +74,7 @@ test.each([
   ],
 ])("isAcceptableCmdToHelp(%o)", (input, output) => {
   expect(
-    isAcceptableCmdToHelp(input.cmd, input.aliases, input.action, input.msg)
+    isAcceptableCmdToHelp(input.cmd, input.aliases, input.action, input.msg),
   ).toStrictEqual(output)
 })
 

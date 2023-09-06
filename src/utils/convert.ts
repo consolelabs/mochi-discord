@@ -4,7 +4,7 @@ import defi from "../adapters/defi"
 export function convertString(
   amount: string,
   decimals: number,
-  toBigint?: boolean
+  toBigint?: boolean,
 ) {
   if (!decimals || !amount) return 0
   return toBigint

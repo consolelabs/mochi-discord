@@ -17,14 +17,14 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("gainer")
       .setDescription(
-        "Show top increasing tokens in last 1 hour, 24 hours, 7 days, 1 year"
+        "Show top increasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
       )
       .addStringOption((option) =>
         option
           .setName("time")
           .setDescription("time range you want")
           .setRequired(false)
-          .addChoices(Object.keys(TimeRange).map((c) => [c, c]))
+          .addChoices(Object.keys(TimeRange).map((c) => [c, c])),
       )
   },
   run: gainerSlash,

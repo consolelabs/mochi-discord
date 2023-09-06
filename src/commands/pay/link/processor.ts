@@ -60,10 +60,10 @@ export async function run({
       name: "\u200b",
       value: `Please choose a wallet to create a pay link ${getEmoji(
         "ANIMATED_POINTING_DOWN",
-        true
+        true,
       )}`,
       inline: false,
-    }
+    },
   )
   const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
@@ -138,7 +138,7 @@ export async function run({
           profileId,
           amount: parseUnits(
             amount.toLocaleString().replaceAll(",", ""),
-            decimal
+            decimal,
           ).toString(),
           token,
           note,
@@ -165,7 +165,7 @@ export async function run({
             note
               ? `with message ${getEmoji(
                   "ANIMATED_CHAT",
-                  true
+                  true,
                 )} \`\`\`${note}\`\`\``
               : ""
           }`,

@@ -14,10 +14,10 @@ export function listenForPaginateInteraction(
   interaction: CommandInteraction,
   render: (
     interaction: CommandInteraction,
-    pageIdx: number
+    pageIdx: number,
   ) => Promise<{ messageOptions: MessageOptions }>,
   withAttachmentUpdate?: boolean,
-  withMultipleComponents?: boolean
+  withMultipleComponents?: boolean,
 ) {
   const operators: Record<string, number> = {
     "+": 1,
@@ -67,11 +67,11 @@ export function listenForPaginateAction(
   originalMsg: Message | null,
   render: (
     msg: Message | undefined,
-    pageIdx: number
+    pageIdx: number,
   ) => Promise<{ messageOptions: MessageOptions }>,
   withAttachmentUpdate?: boolean,
   withMultipleComponents?: boolean,
-  filter?: CollectorFilter<[ButtonInteraction]>
+  filter?: CollectorFilter<[ButtonInteraction]>,
 ) {
   const operators: Record<string, number> = {
     "+": 1,

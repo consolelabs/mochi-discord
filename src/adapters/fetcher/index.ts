@@ -99,7 +99,7 @@ const defaultInit: RequestInit = {
 export class Fetcher {
   protected async jsonFetch<T>(
     url: string,
-    init: RequestInit = {}
+    init: RequestInit = {},
   ): FetchResult<T> {
     let mergedInit = deepmerge(defaultInit, init)
     mergedInit = deepmerge(mergedInit, {
@@ -110,7 +110,7 @@ export class Fetcher {
     const query = this.normalizeQuery(mergedInit)
     const fullUrl = querystring.stringifyUrl(
       { url, query },
-      { arrayFormat: "separator", arrayFormatSeparator: "|" }
+      { arrayFormat: "separator", arrayFormatSeparator: "|" },
     )
 
     // we only cache GET response and only if redis is connected, otherwise no cache
@@ -132,7 +132,7 @@ export class Fetcher {
 
         const { value } = await swr(
           cacheKey,
-          async () => await this.interalJsonFetch<T>(fullUrl, init)
+          async () => await this.interalJsonFetch<T>(fullUrl, init),
         )
 
         // const isFromCache = status === "fresh" || status === "stale"
@@ -185,7 +185,7 @@ export class Fetcher {
 
   private async interalJsonFetch<T>(
     url: string,
-    init: Required<RequestInit>
+    init: Required<RequestInit>,
   ): FetchResult<T> {
     let curl = "None"
     const nekoSad = getEmoji("NEKOSAD")
@@ -255,7 +255,7 @@ export class Fetcher {
               await store.msgOrInteraction.reply(somethingWentWrongPayload())
             } else if (!store.msgOrInteraction.isAutocomplete()) {
               await store.msgOrInteraction.editReply(
-                somethingWentWrongPayload()
+                somethingWentWrongPayload(),
               )
             }
           }
@@ -263,7 +263,7 @@ export class Fetcher {
 
         const json = await (res as ErrResponse)
           .json()
-          .catch(() => ({} as ErrPayload))
+          .catch(() => ({}) as ErrPayload)
         json.originalError = json.error
         json.error = capFirst(json.error)
         json.ok = false
@@ -278,7 +278,7 @@ export class Fetcher {
         }
         const json = await (res as OkResponse<T>)
           .json()
-          .catch(() => ({} as OkPayload))
+          .catch(() => ({}) as OkPayload)
         json.ok = true
         json.log = log
         json.curl = curl

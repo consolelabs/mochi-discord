@@ -22,7 +22,7 @@ import { getProfileIdByDiscord } from "../../../utils/profile"
 export async function untrackWallet(
   msg: OriginalMessage,
   author: User,
-  addressOrAlias: string
+  addressOrAlias: string,
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(addressOrAlias)
   if (resolvedAddress) {
@@ -69,10 +69,10 @@ export async function untrackWallet(
     title: "Wallet removed",
     description: `
 ${pointingright} To follow other wallets, ${await getSlashCommand(
-      "wallet follow"
+      "wallet follow",
     )}.
 ${pointingright} To track other wallets, use ${await getSlashCommand(
-      "wallet track"
+      "wallet track",
     )}.
 ${pointingright} To copy trade, use ${await getSlashCommand("wallet copy")}.
 ${pointingright} Click \`Wallets\` to view all tracked wallets.
@@ -83,7 +83,7 @@ ${pointingright} Click \`Wallets\` to view all tracked wallets.
       .setLabel("Wallets")
       .setStyle("PRIMARY")
       .setCustomId(`view_wallets`)
-      .setEmoji(emojis.WALLET_1)
+      .setEmoji(emojis.WALLET_1),
   )
   return { msgOpts: { embeds: [embed], components: [btnRow] } }
 }
@@ -126,7 +126,7 @@ export async function removeWalletConfirmation(i: ButtonInteraction) {
       emoji: getEmoji("REVOKE"),
       style: "SECONDARY",
       label: "Cancel",
-    })
+    }),
   )
   await i.editReply({ embeds: [embed], components: [buttonRow] })
 }

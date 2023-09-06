@@ -52,7 +52,7 @@ export async function runCreateChannel({
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("CHECK")} Vault log successfully created${getEmoji(
-      "BLANK"
+      "BLANK",
     ).repeat(5)}`,
     description: `All the requests will be posted in the <#${channel.id}>`,
     color: msgColors.BLUE,

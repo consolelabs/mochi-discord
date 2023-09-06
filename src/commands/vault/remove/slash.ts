@@ -18,16 +18,16 @@ const command: SlashCommand = {
           .setName("name")
           .setDescription("enter vault name")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addUserOption((option) =>
-        option.setName("user").setDescription("enter a user").setRequired(true)
+        option.setName("user").setDescription("enter a user").setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("message")
           .setDescription("enter message for user")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   autocomplete: async function (i) {
@@ -41,9 +41,9 @@ const command: SlashCommand = {
     await i.respond(
       data
         .filter((d: any) =>
-          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+          d.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
-        .map((d: any) => ({ name: d.name, value: d.name }))
+        .map((d: any) => ({ name: d.name, value: d.name })),
     )
   },
   run: async function (interaction: CommandInteraction) {

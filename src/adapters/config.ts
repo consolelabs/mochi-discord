@@ -40,7 +40,7 @@ class Config extends Fetcher {
         logger.info(
           `reloaded ${this.Guilds.data.length} guild configs: ${this.Guilds.data
             .map((g) => g.name)
-            .join(", ")}`
+            .join(", ")}`,
         )
       }, 3600000)
     }
@@ -92,7 +92,7 @@ class Config extends Fetcher {
   public async commandIsScoped(
     msg: Message,
     category: string,
-    command: string
+    command: string,
   ): Promise<boolean> {
     if (msg.channel.type === "DM") return true
     if (!msg.guildId) return false
@@ -130,13 +130,13 @@ class Config extends Fetcher {
   // TODO: remove after slash command migration done
   public async checkGuildCommandScopes(
     message: Message,
-    commandObject: Command
+    commandObject: Command,
   ) {
     if (commandObject.id === "help" || message.channel.type === "DM") return
     const isInScoped = await this.commandIsScoped(
       message,
       commandObject.category,
-      commandObject.command
+      commandObject.command,
     )
     if (!isInScoped) {
       throw new CommandIsNotScopedError({
@@ -150,7 +150,7 @@ class Config extends Fetcher {
   // TODO: remove after slash command migration done
   public async categoryIsScoped(
     msg: Message,
-    category: string
+    category: string,
   ): Promise<boolean> {
     if (msg.channel.type === "DM") return true
     if (!msg.guildId) return false
@@ -202,7 +202,7 @@ class Config extends Fetcher {
 
   public async getCurrentGmConfig(guildId: string) {
     const res = await fetch(
-      `${API_BASE_URL}/config-channels/gm?guild_id=${guildId}`
+      `${API_BASE_URL}/config-channels/gm?guild_id=${guildId}`,
     )
     if (res.status !== 200) {
       throw new Error(`failed to get current GM config - guild ${guildId}`)
@@ -221,7 +221,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -232,14 +232,14 @@ class Config extends Fetcher {
         query: {
           guildId,
         },
-      }
+      },
     )
   }
 
   public async updateWelcomeConfig(
     guild_id: string,
     channel_id: string,
-    welcome_message = ""
+    welcome_message = "",
   ) {
     return this.jsonFetch<ResponseGetWelcomeChannelConfigResponse>(
       `${API_BASE_URL}/config-channels/welcome`,
@@ -250,7 +250,7 @@ class Config extends Fetcher {
           channel_id,
           welcome_message,
         }),
-      }
+      },
     )
   }
 
@@ -265,7 +265,7 @@ class Config extends Fetcher {
 
   public async getCurrentSalesConfig(guildId: string) {
     const res = await fetch(
-      `${API_BASE_URL}/configs/sales-tracker?guild_id=${guildId}`
+      `${API_BASE_URL}/configs/sales-tracker?guild_id=${guildId}`,
     )
     if (res.status !== 200) {
       throw new Error(`failed to get current GM config - guild ${guildId}`)
@@ -306,7 +306,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: JSON.stringify(event),
-      }
+      },
     )
   }
 
@@ -323,7 +323,7 @@ class Config extends Fetcher {
         query: {
           guildId,
         },
-      }
+      },
     )
   }
 
@@ -333,11 +333,11 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: JSON.stringify(event),
-      }
+      },
     )
     if (res.status !== 200) {
       throw new Error(
-        `failed to handle reaction event - guild ${event.guild_id}`
+        `failed to handle reaction event - guild ${event.guild_id}`,
       )
     }
 
@@ -354,7 +354,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: JSON.stringify(req),
-      }
+      },
     )
   }
 
@@ -364,7 +364,7 @@ class Config extends Fetcher {
       {
         method: "DELETE",
         body: JSON.stringify(req),
-      }
+      },
     )
   }
 
@@ -421,7 +421,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: JSON.stringify(data),
-      }
+      },
     )
   }
 
@@ -430,7 +430,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config/role/${guildId}/level`,
       {
         method: "GET",
-      }
+      },
     )
   }
 
@@ -439,7 +439,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config/role/${guildId}/level?level=${level}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
@@ -467,7 +467,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: JSON.stringify(body),
-      }
+      },
     )
   }
 
@@ -478,7 +478,7 @@ class Config extends Fetcher {
         query: {
           guildId,
         },
-      }
+      },
     )
   }
 
@@ -493,7 +493,7 @@ class Config extends Fetcher {
 
   public async removeGuildNFTRoleGroupConfig(
     groupConfigId: string,
-    guildId: string
+    guildId: string,
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/config/role/${guildId}/nft/group`,
@@ -502,7 +502,7 @@ class Config extends Fetcher {
         query: {
           groupConfigId,
         },
-      }
+      },
     )
   }
 
@@ -522,14 +522,14 @@ class Config extends Fetcher {
   }
 
   public async CreateConfigRepostReactionStartStop(
-    req: RequestConfigRepostReactionConversation
+    req: RequestConfigRepostReactionConversation,
   ) {
     return this.jsonFetch(
       `${API_BASE_URL}/community/repost-reactions/conversation`,
       {
         method: "POST",
         body: JSON.stringify(req),
-      }
+      },
     )
   }
 
@@ -548,14 +548,14 @@ class Config extends Fetcher {
   }
 
   public async removeRepostReactionConversationConfig(
-    req: RequestConfigRepostReactionConversation
+    req: RequestConfigRepostReactionConversation,
   ) {
     return this.jsonFetch(
       `${API_BASE_URL}/community/repost-reactions/conversation`,
       {
         method: "DELETE",
         body: req,
-      }
+      },
     )
   }
 
@@ -579,11 +579,11 @@ class Config extends Fetcher {
       `${API_BASE_URL}/data/activities/${activity}?guild_id=${guildId}`,
       {
         method: "POST",
-      }
+      },
     )
     if (res.status !== 200) {
       throw new Error(
-        `failed to toggle activity config - activity ${activity} - guild ${guildId}: ${res.status}`
+        `failed to toggle activity config - activity ${activity} - guild ${guildId}: ${res.status}`,
       )
     }
 
@@ -600,7 +600,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/guilds/${guild_id}/custom-tokens`,
       {
         method: "GET",
-      }
+      },
     )
     if (res.status !== 200) {
       throw new Error(`failed to get all custom tokens of guild: ${guild_id}`)
@@ -640,7 +640,7 @@ class Config extends Fetcher {
     return await this.jsonFetch<{
       data: { default_ticker: string; query: string }
     }>(
-      `${API_BASE_URL}/config-defi/default-ticker?guild_id=${params.guild_id}&query=${params.query}`
+      `${API_BASE_URL}/config-defi/default-ticker?guild_id=${params.guild_id}&query=${params.query}`,
     )
   }
 
@@ -669,7 +669,7 @@ class Config extends Fetcher {
     query: string
   }) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/config-defi/default-symbol?guild_id=${params.guild_id}&query=${params.query}`
+      `${API_BASE_URL}/config-defi/default-symbol?guild_id=${params.guild_id}&query=${params.query}`,
     )
   }
 
@@ -693,7 +693,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/nfts/default-nft-ticker`,
       {
         query,
-      }
+      },
     )
   }
 
@@ -745,31 +745,31 @@ class Config extends Fetcher {
       {
         method: "PUT",
         body: req,
-      }
+      },
     )
   }
 
   public async setBlacklistChannelRepostConfig(
-    req: BlacklistChannelRepostConfigRequest
+    req: BlacklistChannelRepostConfigRequest,
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/community/repost-reactions/blacklist-channel`,
       {
         method: "POST",
         body: req,
-      }
+      },
     )
   }
 
   public async removeBlacklistChannelRepostConfig(
-    req: BlacklistChannelRepostConfigRequest
+    req: BlacklistChannelRepostConfigRequest,
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/community/repost-reactions/blacklist-channel`,
       {
         method: "DELETE",
         body: req,
-      }
+      },
     )
   }
 
@@ -780,13 +780,13 @@ class Config extends Fetcher {
         query: {
           guild_id,
         },
-      }
+      },
     )
   }
 
   public async getMonikerConfig(guild_id: string) {
     return await this.jsonFetch<ResponseMonikerConfigResponse>(
-      `${API_BASE_URL}/config-defi/monikers/${guild_id}`
+      `${API_BASE_URL}/config-defi/monikers/${guild_id}`,
     )
   }
 
@@ -806,7 +806,7 @@ class Config extends Fetcher {
 
   public async getDefaultMoniker() {
     return await this.jsonFetch<ResponseMonikerConfigResponse>(
-      `${API_BASE_URL}/config-defi/monikers/default`
+      `${API_BASE_URL}/config-defi/monikers/default`,
     )
   }
 
@@ -824,13 +824,13 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: req,
-      }
+      },
     )
   }
 
   public async getGuildConfigDaoProposal(guildId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/config-channels/${guildId}/proposal`
+      `${API_BASE_URL}/config-channels/${guildId}/proposal`,
     )
   }
 
@@ -840,7 +840,7 @@ class Config extends Fetcher {
       {
         method: "DELETE",
         body: req,
-      }
+      },
     )
   }
 
@@ -856,13 +856,13 @@ class Config extends Fetcher {
       {
         method: "POST",
         body: req,
-      }
+      },
     )
   }
 
   public async getConfigTokenRoleList(guild_id: string) {
     return await this.jsonFetch<ResponseListGuildTokenRoles>(
-      `${API_BASE_URL}/config/role/${guild_id}/token`
+      `${API_BASE_URL}/config/role/${guild_id}/token`,
     )
   }
 
@@ -871,7 +871,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config/role/guildId/token/${id}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
@@ -903,7 +903,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config-roles/mix-roles/${id}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
@@ -916,14 +916,14 @@ class Config extends Fetcher {
   public async getDaoTrackerUsageStats(query: { page: number; size: number }) {
     return await this.jsonFetch(
       `${API_BASE_URL}/data/usage-stats/dao-tracker`,
-      { query }
+      { query },
     )
   }
 
   public async vaultList(
     guildId: string,
     noFetchAmount?: boolean,
-    profileId?: string
+    profileId?: string,
   ) {
     const { data, ok } = await this.jsonFetch<ResponseGetVaultsResponse>(
       `${API_BASE_URL}/vault`,
@@ -933,18 +933,18 @@ class Config extends Fetcher {
           profileId,
           ...(noFetchAmount ? { noFetchAmount } : {}),
         },
-      }
+      },
     )
     if (!ok) return []
 
     return data.map((v) => {
       const allTotals = Object.keys(v).filter((k) =>
-        k.startsWith("total_amount")
+        k.startsWith("total_amount"),
       )
 
       const total = allTotals.reduce(
         (acc, c) => (acc += Number(v[c as keyof typeof v])),
-        0
+        0,
       )
 
       return {
@@ -990,7 +990,7 @@ class Config extends Fetcher {
 
   public async getVaultConfigThreshold(guildId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/vault/config/channel?guild_id=${guildId}`
+      `${API_BASE_URL}/vault/config/channel?guild_id=${guildId}`,
     )
   }
 
@@ -1022,7 +1022,7 @@ class Config extends Fetcher {
 
   public async getTreasurerRequest(requestId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/vault/treasurer/request/${requestId}`
+      `${API_BASE_URL}/vault/treasurer/request/${requestId}`,
     )
   }
 
@@ -1087,7 +1087,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config-defi/default-currency`,
       {
         query: { guild_id },
-      }
+      },
     )
   }
 
@@ -1097,7 +1097,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -1107,13 +1107,13 @@ class Config extends Fetcher {
       {
         method: "DELETE",
         query: { guild_id },
-      }
+      },
     )
   }
 
   public async getVaultDetail(vault_name: string, guild_id: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/vault/detail?vaultName=${vault_name}&guildId=${guild_id}`
+      `${API_BASE_URL}/vault/detail?vaultName=${vault_name}&guildId=${guild_id}`,
     )
   }
 
@@ -1133,7 +1133,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config-defi/tip-range/${guildId}`,
       {
         method: "GET",
-      }
+      },
     )
   }
 
@@ -1142,7 +1142,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config-defi/tip-range/${guild_id}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
@@ -1155,7 +1155,7 @@ class Config extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -1165,7 +1165,7 @@ class Config extends Fetcher {
       {
         method: "GET",
         query,
-      }
+      },
     )
   }
 
@@ -1174,7 +1174,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config/role/guildId/bot-manager/${id}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
@@ -1183,20 +1183,20 @@ class Config extends Fetcher {
       `${API_BASE_URL}/product-metadata/copy/${type}`,
       {
         method: "GET",
-      }
+      },
     )
   }
 
   public async setLogchannel(
     guildId: string,
-    body: { channel_id: string; log_type: string }
+    body: { channel_id: string; log_type: string },
   ) {
     return await this.jsonFetch(
       `${API_BASE_URL}/config/log-channel/${guildId}`,
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -1205,7 +1205,7 @@ class Config extends Fetcher {
       `${API_BASE_URL}/config/log-channel/${guildId}/${logType}`,
       {
         method: "GET",
-      }
+      },
     )
   }
 }

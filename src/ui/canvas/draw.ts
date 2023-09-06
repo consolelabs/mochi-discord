@@ -5,7 +5,7 @@ export function drawRectangle(
   ctx: CanvasRenderingContext2D,
   stats: RectangleStats,
   hexColor?: string,
-  borderColor?: string
+  borderColor?: string,
 ) {
   const { radius, x, y } = stats
   ctx.save()
@@ -38,7 +38,7 @@ export function drawRectangle(
 export function drawProgressBar(
   ctx: CanvasRenderingContext2D,
   pgBarContainer: RectangleStats,
-  progress: number
+  progress: number,
 ) {
   ctx.save()
   // --------------
@@ -49,7 +49,7 @@ export function drawProgressBar(
   const overlay = JSON.parse(JSON.stringify(pgBarContainer)) // deep copy
   overlay.x.to = Math.max(
     overlay.x.from + overlay.radius * 2,
-    overlay.x.from + overlay.w * progress
+    overlay.x.from + overlay.w * progress,
   )
   drawRectangle(ctx, overlay, pgBarContainer.overlayColor)
   // --------------
@@ -121,7 +121,7 @@ export async function drawCircleImage({
     stats.x - stats.radius,
     stats.y - stats.radius,
     stats.radius * 2,
-    stats.radius * 2
+    stats.radius * 2,
   )
   // --------------
   ctx.restore()
@@ -139,7 +139,7 @@ export function loadImages(urls: string[]) {
 export async function drawRectangleAvatar(
   ctx: CanvasRenderingContext2D,
   avatar: RectangleStats,
-  avatarURL: string
+  avatarURL: string,
 ) {
   ctx.save()
   // --------------
@@ -151,7 +151,7 @@ export async function drawRectangleAvatar(
     avatar.y.from,
     avatar.x.to,
     avatar.y.from + avatar.radius,
-    avatar.radius
+    avatar.radius,
   )
 
   ctx.arcTo(
@@ -159,7 +159,7 @@ export async function drawRectangleAvatar(
     avatar.y.to,
     avatar.x.to - avatar.radius,
     avatar.y.to,
-    avatar.radius
+    avatar.radius,
   )
 
   ctx.arcTo(
@@ -167,7 +167,7 @@ export async function drawRectangleAvatar(
     avatar.y.to,
     avatar.x.from,
     avatar.y.to - avatar.radius,
-    avatar.radius
+    avatar.radius,
   )
 
   ctx.arcTo(
@@ -175,7 +175,7 @@ export async function drawRectangleAvatar(
     avatar.y.from,
     avatar.x.from + avatar.radius,
     avatar.y.from,
-    avatar.radius
+    avatar.radius,
   )
   ctx.closePath()
   ctx.clip()
@@ -193,7 +193,7 @@ export function drawDivider(
   fromX: number,
   toX: number,
   y: number,
-  color?: string
+  color?: string,
 ) {
   ctx.save()
   ctx.beginPath()

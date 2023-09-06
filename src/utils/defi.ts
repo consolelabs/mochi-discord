@@ -8,7 +8,7 @@ import { getProfileIdByDiscord } from "./profile"
 import { COMMA, EMPTY } from "./constants"
 
 export function formatPercentDigit(
-  params: Parameters<typeof formatDigit>[0] | string | number
+  params: Parameters<typeof formatDigit>[0] | string | number,
 ) {
   if (typeof params === "string" || typeof params === "number") {
     return formatDigit({
@@ -24,7 +24,7 @@ export function formatPercentDigit(
 }
 
 export function formatUsdDigit(
-  params: Parameters<typeof formatDigit>[0] | string | number
+  params: Parameters<typeof formatDigit>[0] | string | number,
 ) {
   if (typeof params === "string" || typeof params === "number") {
     return formatDigit({
@@ -40,7 +40,7 @@ export function formatUsdDigit(
 }
 
 export function formatTokenDigit(
-  params: Parameters<typeof formatDigit>[0] | string | number
+  params: Parameters<typeof formatDigit>[0] | string | number,
 ) {
   if (typeof params === "string" || typeof params === "number") {
     return formatDigit({

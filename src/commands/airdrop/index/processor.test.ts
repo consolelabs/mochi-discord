@@ -30,7 +30,7 @@ describe("getAirdropArgs", () => {
       .mockResolvedValueOnce(isTokenSupportedRes)
     jest.spyOn(tipbot, "parseMoniker").mockResolvedValueOnce(parseMonikerRes)
     await expect(processor.getAirdropArgs(i)).rejects.toThrow(
-      new UnsupportedTokenError({ msgOrInteraction: i, symbol: "COFFEE" })
+      new UnsupportedTokenError({ msgOrInteraction: i, symbol: "COFFEE" }),
     )
   })
 
@@ -56,7 +56,7 @@ describe("getAirdropArgs", () => {
         title: "Invalid duration",
         description:
           "The duration must be in form of second (s), minute (m) or hours (h) and from 5s to 1h.",
-      })
+      }),
     )
   })
 
@@ -181,7 +181,7 @@ describe("airdrop", () => {
           required: 0.4,
           symbol: "BTC",
         },
-      })
+      }),
     )
   })
 })

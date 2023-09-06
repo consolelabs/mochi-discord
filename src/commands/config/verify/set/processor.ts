@@ -33,10 +33,10 @@ export async function runVerifySet({
         title: "Invalid channel",
         description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Type # to see the channel list.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} To add a new channel: 1. Create channel → 2. Confirm`,
       })
     }
@@ -50,10 +50,10 @@ export async function runVerifySet({
           title: "Invalid role",
           description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Type @ to see the role list.\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role.`,
         })
       }
@@ -82,7 +82,7 @@ export async function runVerifySet({
               existChannel.data.verify_channel_id
             }>.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} You need to remove the existing configuration first via \`verify remove\`, before setting a new one.`,
           }),
         ],
@@ -97,7 +97,7 @@ export async function runVerifySet({
   }
 
   const res = await community.createVerifyWalletChannel(
-    createVerifyWalletRequest
+    createVerifyWalletRequest,
   )
   if (!res.ok) {
     throw new APIError({
@@ -123,7 +123,7 @@ export async function runVerifySet({
     dataProfile.id,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_VERIFY
+    MOCHI_ACTION_VERIFY,
   )
   kafkaMsg.activity.content.channel_name = channel?.name
   sendActivityMsg(kafkaMsg)
