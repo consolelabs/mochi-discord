@@ -7,13 +7,13 @@ remove-infra:
 	docker-compose down
 
 install:
-	yarn install
+	pnpm install
 
 start:
-	yarn start
+	pnpm start
 
 dev:
-	yarn dev
+	pnpm dev
 
 RELEASE_BRANCH=master
 BETA_BRANCH=preview

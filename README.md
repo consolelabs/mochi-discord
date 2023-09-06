@@ -72,19 +72,19 @@ Change .env-sample file to .env, fill some required secrets
 Install packages
 
 ```
-yarn
+pnpm install
 ```
 
 Run bot in dev mode (incremental build on file changes)
 
 ```
-yarn dev
+pnpm dev
 ```
 
 Run tests
 
 ```
-yarn test
+pnpm test
 ```
 
 ## :scroll: Logging

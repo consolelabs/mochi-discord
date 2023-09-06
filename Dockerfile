@@ -14,8 +14,7 @@ COPY package.json ./
 COPY pnpm-lock.yaml ./
 # Install the dependencies
 RUN npm install -g pnpm && \
-    pnpm install -P && \
-    pnpm generate:types
+    pnpm install -P
 
 COPY . .
 
