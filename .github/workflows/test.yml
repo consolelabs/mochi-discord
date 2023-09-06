@@ -17,5 +17,5 @@ jobs:
         env:
           SWAGGER_URL: ${{ secrets.SWAGGER_URL_DEV }}
         run: |
-          yarn
-          yarn test:ci
+          pnpm
+          pnpm test:ci
