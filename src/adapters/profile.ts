@@ -235,7 +235,7 @@ class Profile extends Fetcher {
   ): Promise<any> {
     return await this.jsonFetch(
       `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${discordId}${
-        noFetchAmount ? "?no-fetch-amount=true" : ""
+        noFetchAmount ? "?no_fetch_amount=true" : ""
       }`
     )
   }
