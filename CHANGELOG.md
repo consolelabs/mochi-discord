@@ -1,3 +1,10 @@
+# [6.29.0-rc.12](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.11...v6.29.0-rc.12) (2023-09-07)
+
+
+### Bug Fixes
+
+* **general:** move missing module from optional to dependency ([45748ec](https://github.com/consolelabs/mochi-discord/commit/45748ec7a5e51f41d16b2741d7c9357ae785e3ab))
+
 # [6.29.0-rc.11](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.10...v6.29.0-rc.11) (2023-09-07)
 
 
