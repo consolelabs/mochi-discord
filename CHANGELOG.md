@@ -1,3 +1,10 @@
+# [6.29.0-rc.10](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.9...v6.29.0-rc.10) (2023-09-07)
+
+
+### Bug Fixes
+
+* **v:** reword command description to be more accurate ([7902e96](https://github.com/consolelabs/mochi-discord/commit/7902e9691ea4a3483a751284e1bb9ff1ce98b6c0))
+
 # [6.29.0-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.8...v6.29.0-rc.9) (2023-09-07)
 
 
