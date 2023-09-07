@@ -8,7 +8,7 @@ const slashCmd: SlashCommand = {
   prepare: () => {
     return new SlashCommandBuilder()
       .setName("v")
-      .setDescription("Check bot's version")
+      .setDescription("Check bot's version and running environment")
   },
   run: async function () {
     return {
