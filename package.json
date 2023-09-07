@@ -32,7 +32,6 @@
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "fetch-to-curl": "^0.5.2",
     "jest": "^27.3.1",
     "lefthook": "^1.4.5",
     "lint-staged": ">=10",
@@ -93,7 +92,8 @@
     "vite-tsconfig-paths": "^4.2.0",
     "vite-plugin-checker": "^0.6.1",
     "ws": "^8.12.0",
-    "xstate": "^4.37.2"
+    "xstate": "^4.37.2",
+    "fetch-to-curl": "^0.5.2"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix",
