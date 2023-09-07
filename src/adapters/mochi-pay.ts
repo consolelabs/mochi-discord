@@ -78,14 +78,7 @@ class MochiPay extends Fetcher {
     return data
   }
 
-  public async generatePaymentCode(body: {
-    profileId: string
-    amount: string
-    token: string
-    type: "paylink" | "payme"
-    note?: string
-    recipient_id?: string
-  }) {
+  public async generatePaymentCode(body: any) {
     return await this.jsonFetch(`${MOCHI_PAY_API_BASE_URL}/pay-requests`, {
       method: "POST",
       body: {
@@ -165,7 +158,7 @@ class MochiPay extends Fetcher {
 
   async getListTx(
     profileId: string,
-    query: { action?: string; page?: number; size?: number },
+    query: { status?: string; action?: string; page?: number; size?: number },
   ) {
     return await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/profile/${profileId}/transactions`,
