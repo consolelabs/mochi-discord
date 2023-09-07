@@ -1,3 +1,10 @@
+# [6.29.0-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.6...v6.29.0-rc.7) (2023-09-07)
+
+
+### Bug Fixes
+
+* **general:** bot to use different config when in prod/preview ([52f9e73](https://github.com/consolelabs/mochi-discord/commit/52f9e7348fb47fbc9a4c41545414c411a0796aa4))
+
 # [6.29.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.5...v6.29.0-rc.6) (2023-09-06)
 
 
