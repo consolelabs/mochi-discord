@@ -294,12 +294,14 @@ const txnsFetcher: Record<
     platform: string,
   ) => Promise<any>
 > = {
-  [BalanceType.Offchain]: (profileId) => mochiPay.getListTx(profileId, {}),
+  [BalanceType.Offchain]: (profileId) =>
+    mochiPay.getListTx(profileId, { status: "success" }),
   [BalanceType.Onchain]: (profileId, _, address, type) =>
     defi.getWalletTxns(profileId, address, type),
   [BalanceType.Cex]: (profile_id, platform) =>
     defi.getDexTxns(profile_id, platform),
-  [BalanceType.All]: (profileId) => mochiPay.getListTx(profileId, {}),
+  [BalanceType.All]: (profileId) =>
+    mochiPay.getListTx(profileId, { status: "success" }),
 }
 
 async function getTxns(

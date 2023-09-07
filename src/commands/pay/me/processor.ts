@@ -57,6 +57,8 @@ export async function run({
 
   const t = await getToken(token)
 
+  const parsedTarget = await parseTargetAndPlatform({ platform, target })
+
   const res: any = await mochiPay.generatePaymentCode({
     profileId,
     amount: parseUnits(
@@ -66,6 +68,8 @@ export async function run({
     token,
     type: "payme",
     note,
+    target: parsedTarget.target,
+    target_platform: parsedTarget.platform,
   })
   // api error
   if (!res.ok) {
@@ -184,6 +188,55 @@ export async function run({
       components: [composeButtonLink("See the DM", dm.url)],
     },
   })
+}
+
+async function parseTargetAndPlatform({
+  platform,
+  target,
+}: {
+  platform?: string
+  target?: string
+}) {
+  const res = { target: "", platform }
+  if (!platform || !target) return res
+  // discord
+  if (platform === "discord") {
+    const targetId = target.replaceAll(/<|>/g, "")
+    const pfRes = await profile.getByDiscord(targetId)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
+    }
+    res.target = pfRes.id
+  }
+
+  // telegram
+  if (platform === "telegram") {
+    const pfRes = await profile.getByTelegramUsername(target)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByTelegram] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
+    }
+    res.target = pfRes.id
+  }
+
+  //email
+  if (platform === "mail") {
+    const pfRes = await profile.getByEmail(target)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByEmail] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
+    }
+    res.target = pfRes.id
+  }
+
+  return res
 }
 
 // DO NOT DELETE: use this after mochi-notification support payme usecase
