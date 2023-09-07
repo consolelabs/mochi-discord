@@ -93,6 +93,7 @@ import chotot from "./chotot"
 import proposal from "./proposal"
 import guess from "./guess"
 import sup from "./sup"
+import v from "./v"
 
 CacheManager.init({
   ttl: 0,
@@ -167,6 +168,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   proposal: proposal.slashCmd,
   guess: guess.slashCmd,
   sup: sup.slashCmd,
+  v: v.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
