@@ -1,3 +1,10 @@
+# [6.29.0-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.8...v6.29.0-rc.9) (2023-09-07)
+
+
+### Features
+
+* **v:** add command /v to check the bot's current version ([410d851](https://github.com/consolelabs/mochi-discord/commit/410d851823517cb99b0ad61e867b3efad6b3fb30))
+
 # [6.29.0-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.7...v6.29.0-rc.8) (2023-09-07)
 
 
