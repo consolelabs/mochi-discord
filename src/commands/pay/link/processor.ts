@@ -140,7 +140,7 @@ export async function run({
             amount.toLocaleString().replaceAll(",", ""),
             decimal,
           ).toString(),
-          token,
+          tokenId: balance?.token.id,
           note,
           type: "paylink",
         })
