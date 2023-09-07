@@ -34,7 +34,7 @@ describe("parseTipArgs", () => {
         description:
           "Mochi cannot find the recipients. Type @ to choose valid roles or usernames!",
         msgOrInteraction: msg,
-      })
+      }),
     )
   })
 
@@ -66,7 +66,7 @@ describe("parseTipArgs", () => {
       .mockResolvedValueOnce(isTokenSupportedRes)
     jest.spyOn(tipbot, "parseMoniker").mockResolvedValueOnce(parseMonikerRes)
     await expect(processor.parseTipArgs(msg, args)).rejects.toThrow(
-      new UnsupportedTokenError({ msgOrInteraction: msg, symbol: "COFFEE" })
+      new UnsupportedTokenError({ msgOrInteraction: msg, symbol: "COFFEE" }),
     )
   })
 
@@ -260,7 +260,7 @@ describe("tip", () => {
           required: parseTipArgsRes.amount,
           symbol: parseTipArgsRes.symbol as TokenEmojiKey,
         },
-      })
+      }),
     )
   })
 
@@ -310,7 +310,7 @@ describe("tip", () => {
         discordId: msg.author.id,
         error: "No valid recipients found",
         message: msg,
-      })
+      }),
     )
   })
 
@@ -375,7 +375,7 @@ describe("tip", () => {
           required: parseTipArgsRes.amount,
           symbol: parseTipArgsRes.symbol as TokenEmojiKey,
         },
-      })
+      }),
     )
   })
 })

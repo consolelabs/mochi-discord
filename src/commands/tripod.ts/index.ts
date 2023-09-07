@@ -16,7 +16,7 @@ const textCmd: Command = {
           composeEmbedMessage(msg, {
             title: `${utilGetEmoji("GLOWINGHEDGE")} New Tripod Version`,
             description: `To bring you better experience with Tripod, we bring it on the [website](https://tripod-web.vercel.app/). Try it now! ${utilGetEmoji(
-              "MOONING"
+              "MOONING",
             )}`,
           }),
         ],

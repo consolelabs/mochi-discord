@@ -20,7 +20,7 @@ const command: SlashCommand = {
           .setName("name")
           .setDescription("enter vault name")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((option) => {
         const o = option
@@ -42,9 +42,9 @@ const command: SlashCommand = {
     await i.respond(
       data
         .filter((d: any) =>
-          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+          d.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
-        .map((d: any) => ({ name: d.name, value: d.name }))
+        .map((d: any) => ({ name: d.name, value: d.name })),
     )
   },
   run: async function (interaction: CommandInteraction) {

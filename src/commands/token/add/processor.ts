@@ -22,7 +22,7 @@ export async function process(
     message_id: string
     token_address: string
     token_chain: string
-  }
+  },
 ) {
   const { ok, error, log, curl, status } = await Defi.requestSupportToken(args)
   if (!ok) {
@@ -33,7 +33,7 @@ export async function process(
           title: "Token already exists",
           emojiUrl: getEmojiURL(emojis.ANIMATED_COIN_1),
           description: `You can use this token to ${await getSlashCommand(
-            "tip"
+            "tip",
           )} and ${await getSlashCommand("airdrop")}`,
         })
 
@@ -65,7 +65,7 @@ export async function process(
     dataProfile.id,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_TOKEN
+    MOCHI_ACTION_TOKEN,
   )
   kafkaMsg.activity.content.address = args.token_address
   sendActivityMsg(kafkaMsg)

@@ -13,7 +13,7 @@ registerFont("assets/fonts/whitneysemibold.otf", {
 
 export async function composeNFTListEmbed(
   msg: Message | undefined,
-  pageIdx: number
+  pageIdx: number,
 ) {
   const res = await Community.getNFTCollections({
     page: pageIdx,
@@ -32,7 +32,7 @@ export async function composeNFTListEmbed(
     }
   }
   const totalPage = Math.ceil(
-    (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1)
+    (res.data.metadata?.total || 0) / (res.data.metadata?.size || 1),
   )
   const embed = composeEmbedMessage(msg, {
     author: ["NFT collections list", getEmojiURL(emojis.NFTS)],

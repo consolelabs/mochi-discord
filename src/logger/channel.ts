@@ -20,10 +20,10 @@ export class ChannelLogger {
       const guild = client.guilds.cache.get(MOCHI_GUILD_ID)
       if (guild) {
         this.alertChannel = guild.channels.cache.get(
-          ALERT_CHANNEL_ID
+          ALERT_CHANNEL_ID,
         ) as TextChannel
         this.logChannel = guild.channels.cache.get(
-          LOG_CHANNEL_ID
+          LOG_CHANNEL_ID,
         ) as TextChannel
       }
     } catch (e: any) {
@@ -89,7 +89,7 @@ export class ChannelLogger {
           new MessageButton()
             .setStyle("LINK")
             .setURL(msg.url)
-            .setLabel("Jump to message")
+            .setLabel("Jump to message"),
         ),
       ],
     })

@@ -98,7 +98,7 @@ export async function validateAndShowConfirmation(
   ci: CommandInteraction,
   payload: TransferPayload,
   balance: any,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ) {
   const decimal = balance.token?.decimal ?? 0
   payload.decimal = decimal
@@ -157,7 +157,7 @@ function composeAirdropButtons() {
       emoji: getEmoji("REVOKE"),
       style: "DANGER",
       label: "Cancel",
-    })
+    }),
   )
 }
 
@@ -165,7 +165,7 @@ async function selectToken(
   ci: CommandInteraction,
   payload: TransferPayload,
   balances: any,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ) {
   const options = balances.map((b: any) => {
     return {
@@ -221,7 +221,7 @@ export const describeRunTime = (duration = 0) => {
 
 function showConfirmation(
   payload: TransferPayload,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ): RunResult<MessageOptions> {
   const tokenEmoji = getEmojiToken(payload.token as TokenEmojiKey)
   const usdAmount = payload.amount * (payload.token_price ?? 0)

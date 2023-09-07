@@ -44,7 +44,7 @@ const command: SlashCommand = {
             components: getPaginationRow(idx, pages.length),
           },
         }
-      }
+      },
     )
     return msgOpts
   },

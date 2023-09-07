@@ -42,7 +42,7 @@ describe("run", () => {
               .setStyle("SECONDARY")
               .setEmoji(getEmoji("CHECK"))
               .setCustomId("claim-rewards-daily_123123")
-              .setLabel("No rewards to claim")
+              .setLabel("No rewards to claim"),
           ),
         ],
       },

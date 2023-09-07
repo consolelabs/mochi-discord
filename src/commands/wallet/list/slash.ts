@@ -21,7 +21,7 @@ const command: SlashCommand = {
     route(
       reply as Message,
       i,
-      machineConfig("wallets", { isFromWalletList: true })
+      machineConfig("wallets", { isFromWalletList: true }),
     )
   },
   help: () => Promise.resolve({}),

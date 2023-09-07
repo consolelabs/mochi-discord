@@ -20,9 +20,9 @@ const command: SlashCommand = {
         option
           .setName("level")
           .setDescription(
-            "level which you want to remove configuration role. Example: 1"
+            "level which you want to remove configuration role. Example: 1",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

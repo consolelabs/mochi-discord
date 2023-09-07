@@ -35,7 +35,7 @@ const slashCmd: SlashCommand = {
   },
   run: async function (interaction: CommandInteraction) {
     return await slashActions[interaction.options.getSubcommand()].run(
-      interaction
+      interaction,
     )
   },
   help: (interaction: CommandInteraction) =>

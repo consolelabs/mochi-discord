@@ -23,7 +23,7 @@ export async function render(userDiscordId: string, page = 0) {
             title: "No activities found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} This user does not have any activities yet`,
             color: msgColors.ACTIVITY,
           }),
@@ -43,7 +43,7 @@ export async function render(userDiscordId: string, page = 0) {
             title: "No activities found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} This user does not have any activities yet`,
             color: msgColors.ACTIVITY,
           }),

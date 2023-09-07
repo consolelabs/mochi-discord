@@ -16,16 +16,19 @@ const slashCmd: SlashCommand = {
         option
           .setName("amount")
           .setDescription("Amount of token")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
-        option.setName("token").setDescription("Token to pay").setRequired(true)
+        option
+          .setName("token")
+          .setDescription("Token to pay")
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("target")
           .setDescription("Target to pay")
-          .setRequired(false)
+          .setRequired(false),
       )
       .addStringOption((option) =>
         option
@@ -36,13 +39,13 @@ const slashCmd: SlashCommand = {
             ["discord", "discord"],
             ["telegram", "telegram"],
             ["mail", "mail"],
-          ])
+          ]),
       )
       .addStringOption((option) =>
         option
           .setName("note")
           .setDescription("Note for the payment")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async (interaction) => {

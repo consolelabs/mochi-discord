@@ -13,7 +13,7 @@ import { addToWatchlistFromTicker } from "../../watchlist/add/processor"
 export const machineConfig: (
   swapTo: string,
   context: any,
-  initial: string
+  initial: string,
 ) => MachineConfig = (to, tickerCtx, initial) => {
   const swapStep1 = swapMachineConfig("swapStep1", { to })
   return {
@@ -26,7 +26,7 @@ export const machineConfig: (
           // coins = list defi.getCoin() of all token, baseCoin = defi.GetCoin() of 1 token
           if (ctx.coins && !ctx.baseCoin) {
             const data = ctx.coins.filter(
-              (c: any) => c.id === interaction.values.at(0)
+              (c: any) => c.id === interaction.values.at(0),
             )[0]
 
             return renderSingle(interaction, {
@@ -76,7 +76,7 @@ export const machineConfig: (
             interaction,
             interaction.user.id,
             ctx.to,
-            ctx.baseCoin.id
+            ctx.baseCoin.id,
           )
         },
       },
@@ -128,7 +128,7 @@ async function run(
   targetQ: string,
   isCompare: boolean,
   isFiat: boolean,
-  showAll: boolean
+  showAll: boolean,
 ) {
   const {
     context,
@@ -140,7 +140,7 @@ async function run(
     targetQ,
     isCompare,
     isFiat,
-    showAll
+    showAll,
   )
 
   const reply = (await interaction.editReply(msgOpts)) as Message
@@ -148,7 +148,7 @@ async function run(
   route(
     reply,
     interaction,
-    machineConfig(baseQ.toUpperCase(), context, initial)
+    machineConfig(baseQ.toUpperCase(), context, initial),
   )
 }
 

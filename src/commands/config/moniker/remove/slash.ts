@@ -19,7 +19,7 @@ const command: SlashCommand = {
         option
           .setName("moniker")
           .setDescription("enter moniker you want to remove")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

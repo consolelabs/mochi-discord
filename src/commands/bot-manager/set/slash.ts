@@ -21,9 +21,9 @@ const command: SlashCommand = {
         option
           .setName("role")
           .setDescription(
-            "the role which you wanna set as admin. Example: @admin"
+            "the role which you wanna set as admin. Example: @admin",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction) {
@@ -40,7 +40,7 @@ const command: SlashCommand = {
         msgOrInteraction: interaction,
         title: "The role has been set!",
         description: `Please choose another role, then run command ${await getSlashCommand(
-          "bot-manager set"
+          "bot-manager set",
         )}`,
       })
     }
@@ -54,12 +54,12 @@ const command: SlashCommand = {
             title: `Successfully set ${roleArg.name} as bot managers!`,
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} The bot managers can use all the server management feature, even when they don't have an admin role.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} You can check the bot managers role by running ${await getSlashCommand(
-              "bot-manager info"
+              "bot-manager info",
             )}`,
             originalMsgAuthor: interaction.user,
           }),

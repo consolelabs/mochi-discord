@@ -74,13 +74,13 @@ export const slashCmd: SlashCommand = {
             ["ended", "ended"],
             ["ignored", "ignore"],
           ])
-          .setRequired(false)
+          .setRequired(false),
       )
       .addStringOption((opt) =>
         opt
           .setName("keyword")
           .setDescription("search content, title, or id with prefix *#*")
-          .setRequired(false)
+          .setRequired(false),
       )
 
     return data
@@ -95,7 +95,7 @@ export const slashCmd: SlashCommand = {
     const { context, msgOpts } = await run(
       interaction.user.id,
       status as AirdropCampaignStatus,
-      keyword
+      keyword,
     )
 
     const reply = (await interaction.editReply(msgOpts)) as Message

@@ -9,7 +9,7 @@ import { logger } from "logger"
 const handleMessageReactionAdd = async (
   reaction: MessageReaction,
   user: User,
-  msg: Message
+  msg: Message,
 ) => {
   let user_roles: string[] = []
   await msg.guild?.members
@@ -37,7 +37,7 @@ const handleMessageReactionAdd = async (
     reaction: getReactionIdentifier(
       reaction.emoji.id,
       reaction.emoji.name,
-      reaction.emoji.identifier.toLowerCase()
+      reaction.emoji.identifier.toLowerCase(),
     ),
     reaction_count: reaction.count,
     user_id: user.id,
@@ -81,7 +81,7 @@ const event: DiscordEvent<"messageReactionAdd"> = {
 
                       await handleMessageReactionAdd(reaction, user, msg)
                     })
-                  }
+                  },
                 )
               })
               .catch(() => null)

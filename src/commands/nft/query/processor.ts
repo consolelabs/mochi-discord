@@ -79,13 +79,13 @@ function getRarityEmoji(rarity: string) {
 
 function getIcon(
   iconList: ResponseNftMetadataAttrIcon[],
-  iconName: EmojiKey
+  iconName: EmojiKey,
 ): string {
   if (!iconList) {
     return getEmoji(iconName)
   }
   const icon = iconList.find(
-    (i) => i.trait_type?.toLowerCase() === iconName.toLowerCase()
+    (i) => i.trait_type?.toLowerCase() === iconName.toLowerCase(),
   )
 
   if (icon) {
@@ -107,7 +107,7 @@ export function buildSwitchViewActionRow(
   symbol: string,
   collectionAddress: string,
   tokenId: string,
-  chain: TokenEmojiKey
+  chain: TokenEmojiKey,
 ) {
   const row = new MessageActionRow()
   // TODO(trkhoi): handle aptos address too long
@@ -188,7 +188,7 @@ async function switchView(i: ButtonInteraction, msg: Message) {
         symbol,
         hashCollectionAddress,
         tokenId,
-        chain as TokenEmojiKey
+        chain as TokenEmojiKey,
       )
       break
     case "ticker":
@@ -197,7 +197,7 @@ async function switchView(i: ButtonInteraction, msg: Message) {
         symbol,
         collectionAddress,
         tokenId,
-        chain as TokenEmojiKey
+        chain as TokenEmojiKey,
       )
       break
     case "soulbound":
@@ -206,7 +206,7 @@ async function switchView(i: ButtonInteraction, msg: Message) {
         symbol,
         collectionAddress,
         tokenId,
-        chain as TokenEmojiKey
+        chain as TokenEmojiKey,
       )
       break
     case "nft":
@@ -216,7 +216,7 @@ async function switchView(i: ButtonInteraction, msg: Message) {
         symbol,
         collectionAddress,
         tokenId,
-        chain as TokenEmojiKey
+        chain as TokenEmojiKey,
       )
       break
   }
@@ -229,12 +229,12 @@ async function composeCollectionInfo(
   symbol: string,
   collectionAddress: string,
   tokenId: string,
-  chain: TokenEmojiKey
+  chain: TokenEmojiKey,
 ) {
   const { messageOptions } = await composeCollectionInfoEmbed(
     msg,
     collectionAddress,
-    chain
+    chain,
   )
   return {
     ...messageOptions,
@@ -245,7 +245,7 @@ async function composeCollectionInfo(
         symbol,
         collectionAddress,
         tokenId,
-        chain
+        chain,
       ),
     ],
   }
@@ -256,12 +256,12 @@ async function composeCollectionSoulbound(
   symbol: string,
   collectionAddress: string,
   tokenId: string,
-  chain: TokenEmojiKey
+  chain: TokenEmojiKey,
 ) {
   const { messageOptions } = await composeCollectionSoulboundEmbed(
     msg,
     collectionAddress,
-    chain
+    chain,
   )
   return {
     ...messageOptions,
@@ -272,14 +272,14 @@ async function composeCollectionSoulbound(
         symbol,
         collectionAddress,
         tokenId,
-        chain
+        chain,
       ),
     ],
   }
 }
 
 async function renderNftTickerChart(
-  data: ResponseIndexerNFTCollectionTickersData
+  data: ResponseIndexerNFTCollectionTickersData,
 ) {
   if (!data?.tickers?.prices || !data?.tickers?.times) {
     return null
@@ -290,7 +290,7 @@ async function renderNftTickerChart(
   const fromLabel = dayjs(from).format("MMMM DD, YYYY")
   const toLabel = dayjs(to).format("MMMM DD, YYYY")
   const chartData = data.tickers.prices.map(
-    (p) => +(p.amount ?? 0) / Math.pow(10, p.token?.decimals ?? 0)
+    (p) => +(p.amount ?? 0) / Math.pow(10, p.token?.decimals ?? 0),
   )
   const chart = await renderChartImage({
     chartLabel: `Sold price (${token}) | ${fromLabel} - ${toLabel}`,
@@ -306,7 +306,7 @@ async function composeNFTTicker(
   symbol: string,
   collectionAddress: string,
   tokenId: string,
-  chain: TokenEmojiKey
+  chain: TokenEmojiKey,
 ) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(365, "day").unix() * 1000
@@ -387,7 +387,7 @@ async function composeNFTTicker(
     symbol,
     collectionAddress,
     tokenId,
-    chain
+    chain,
   )
   return {
     files: chart ? [chart] : [],
@@ -401,7 +401,7 @@ export async function fetchAndComposeNFTDetail(
   symbol: string,
   collectionAddress: string,
   tokenId: string,
-  chain: TokenEmojiKey
+  chain: TokenEmojiKey,
 ) {
   const collectionDetailRes = await community.getNFTCollectionDetail({
     collectionAddress,
@@ -411,7 +411,7 @@ export async function fetchAndComposeNFTDetail(
     collectionAddress,
     tokenId,
     msg.guildId ?? "",
-    true
+    true,
   )
   if (!res.ok) {
     throw new APIError({
@@ -423,14 +423,14 @@ export async function fetchAndComposeNFTDetail(
   const addSuggestioncomponents = addSuggestionIfAny(
     symbol,
     tokenId,
-    res.suggestions
+    res.suggestions,
   )
   const switchViewActionRow = buildSwitchViewActionRow(
     "nft",
     symbol,
     collectionAddress,
     tokenId,
-    chain
+    chain,
   )
   if (
     collectionDetailRes.ok &&
@@ -445,7 +445,7 @@ export async function fetchAndComposeNFTDetail(
           msg,
           collectionDetailRes.data.name,
           collectionDetailRes.data.image,
-          collectionDetailRes.data.chain?.name
+          collectionDetailRes.data.chain?.name,
         ),
       ],
       files: [],
@@ -469,7 +469,7 @@ export async function composeNFTDetail(
   msg: Message,
   colName: string,
   colImage: string,
-  chainName?: string
+  chainName?: string,
 ) {
   if (!icons) {
     const res = await community.getNFTMetadataAttrIcon()
@@ -503,7 +503,7 @@ export async function composeNFTDetail(
   const attributesFiltered = attributes.filter(
     (obj: { trait_type: string }) => {
       return obj.trait_type !== ""
-    }
+    },
   )
 
   // handle soulbound
@@ -511,7 +511,7 @@ export async function composeNFTDetail(
   const soulboundObj = attributesFiltered.find(
     (obj: { trait_type: string }) => {
       return obj.trait_type === "soulbound"
-    }
+    },
   )
   if (typeof soulboundObj !== "undefined") {
     if (soulboundObj.value === "True") {
@@ -543,7 +543,7 @@ export async function composeNFTDetail(
         }`
         return {
           name: `${getIcon(icons, attr.trait_type)} ${capFirst(
-            attr.trait_type?.replaceAll("_", " ")
+            attr.trait_type?.replaceAll("_", " "),
           )}`,
           value: `${val ? val : "-"}`,
           inline: true,
@@ -581,7 +581,7 @@ export async function composeNFTDetail(
       const event = tx.event_type
       const soldPriceAmount = Math.round(
         +(tx.sold_price_obj?.amount ?? 0) /
-          Math.pow(10, tx.sold_price_obj?.token?.decimals ?? 0)
+          Math.pow(10, tx.sold_price_obj?.token?.decimals ?? 0),
       )
 
       const toAddress =
@@ -589,9 +589,8 @@ export async function composeNFTDetail(
       const time = getTimeFromNowStr(tx.created_time ?? "")
       return `**${
         txHistoryEmojiMap[event?.toLowerCase() ?? ""] ?? DOT
-      }** ${capitalizeFirst(event ?? "")} ${soldPriceAmount} ${
-        tx.sold_price_obj?.token?.symbol
-      } to ${toAddress} (${time})`
+      }** ${capitalizeFirst(event ?? "")} ${soldPriceAmount} ${tx.sold_price_obj
+        ?.token?.symbol} to ${toAddress} (${time})`
     })
     .join("\n")
   const txHistoryFields: EmbedFieldData[] = [
@@ -615,9 +614,9 @@ export async function composeNFTDetail(
     return `[${getEmoji(m.platform_name)} **${capFirst(m.platform_name)}**](${
       m.item_url
     })\n${getEmoji("REPLY")}${getEmoji(
-      m.payment_token
+      m.payment_token,
     )} ${getCompactFormatedNumber(m.listing_price)} (${getEmoji(
-      "FLOORPRICE"
+      "FLOORPRICE",
     )} ${getCompactFormatedNumber(m.floor_price)})`
   }
 
@@ -644,7 +643,7 @@ export async function composeNFTDetail(
                   inline: true,
                 },
               ]
-            : []
+            : [],
         )
       : []),
   ]
@@ -668,7 +667,7 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
     msg: i.message as Message,
     title: "Default NFT symbol ENABLED",
     description: `Next time your server members use $nft with \`${symbol}\`, **${symbol} (${shortenHashOrAddress(
-      address
+      address,
     )}/${chain.toUpperCase()})** will be the default selection`,
   })
   i.editReply({
@@ -680,7 +679,7 @@ export async function setDefaultSymbol(i: ButtonInteraction) {
 export function addSuggestionIfAny(
   symbol: string,
   tokenId: string,
-  _suggestions?: Array<NFTSymbol>
+  _suggestions?: Array<NFTSymbol>,
 ) {
   const suggestions = _suggestions ?? []
   const duplicatedSymbols =
@@ -695,10 +694,10 @@ export function addSuggestionIfAny(
       emoji:
         i > 8
           ? `${getEmoji(`NUM_${Math.floor(i / 9)}` as EmojiKey)}${getEmoji(
-              `NUM_${i % 9}` as EmojiKey
+              `NUM_${i % 9}` as EmojiKey,
             )}`
           : getEmoji(`NUM_${i + 1}` as EmojiKey),
-    }))
+    })),
   )
 
   return components ? [components] : []
@@ -707,13 +706,13 @@ export function addSuggestionIfAny(
 async function composeResponse(
   msgOrInteraction: Message,
   symbol: string,
-  tokenId: string
+  tokenId: string,
 ) {
   const nftDetailRes = await community.getNFTDetail(
     symbol,
     tokenId,
     msgOrInteraction.guildId ?? "",
-    false
+    false,
   )
   if (!nftDetailRes.ok) {
     const { curl, status, log } = nftDetailRes
@@ -749,14 +748,14 @@ async function composeResponse(
       msgOrInteraction,
       collection.name,
       collection.image,
-      collection.chain?.name
+      collection.chain?.name,
     )
     const buttonRow = buildSwitchViewActionRow(
       "nft",
       symbol,
       nft.collection_address,
       tokenId,
-      (collection.chain?.short_name.toUpperCase() as TokenEmojiKey) ?? ""
+      (collection.chain?.short_name.toUpperCase() as TokenEmojiKey) ?? "",
     )
     return {
       messageOptions: {
@@ -775,7 +774,7 @@ async function composeResponse(
       name,
       address,
       tokenId,
-      chain.toUpperCase() as TokenEmojiKey
+      chain.toUpperCase() as TokenEmojiKey,
     )
     return { messageOptions, defaultCollection }
   }
@@ -798,8 +797,8 @@ async function composeResponse(
         (s) =>
           `[\`${s.chain.toUpperCase()}\` - \`${s.name} (${
             s.symbol
-          })\`](${getMarketplaceCollectionUrl(s.address)})`
-      )
+          })\`](${getMarketplaceCollectionUrl(s.address)})`,
+      ),
     )}`,
   })
   const suggestionRow = addSuggestionIfAny(symbol, tokenId, suggestions)
@@ -814,10 +813,10 @@ async function composeResponse(
 
 function suggestionHandler(
   msg: Message,
-  defaultCollection: NFTSymbol | undefined
+  defaultCollection: NFTSymbol | undefined,
 ) {
   const handler = async (
-    i: SelectMenuInteraction
+    i: SelectMenuInteraction,
   ): Promise<RunResult<MessageOptions>> => {
     const [address, tokenId, symbol, chain, hasDuplicatedSymbols] =
       i.values[0].split("/")
@@ -832,7 +831,7 @@ function suggestionHandler(
       address,
       tokenId,
       msg.guildId ?? "",
-      true
+      true,
     )
     if (!nftDetailRes.ok) {
       const { curl, log } = nftDetailRes
@@ -864,7 +863,7 @@ function suggestionHandler(
             msg,
             collection.name,
             collection.image,
-            collection.chain?.name
+            collection.chain?.name,
           ),
         ],
         components: [
@@ -874,7 +873,7 @@ function suggestionHandler(
             symbol,
             collection.address,
             tokenId,
-            (collection.chain?.short_name as TokenEmojiKey) ?? ""
+            (collection.chain?.short_name as TokenEmojiKey) ?? "",
           ),
         ],
       },
@@ -892,7 +891,7 @@ async function askToSetDefault(
   i: SelectMenuInteraction,
   address: string,
   symbol: string,
-  chain: string
+  chain: string,
 ) {
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -900,7 +899,7 @@ async function askToSetDefault(
       emoji: getEmoji("CHECK"),
       style: "SUCCESS",
       label: "Confirm",
-    })
+    }),
   )
   const ephemeral = await i
     .editReply({

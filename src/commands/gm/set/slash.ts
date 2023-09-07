@@ -19,21 +19,21 @@ const command: SlashCommand = {
         option
           .setName("channel")
           .setDescription(
-            "the channel which you wanna set as gm. Example: #general"
+            "the channel which you wanna set as gm. Example: #general",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("msg")
           .setDescription("the msg which you wanna set as gm. Example: gm")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("emoji")
           .setDescription("the emoji which you wanna set as gm. Example: 🎲")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -64,7 +64,7 @@ const command: SlashCommand = {
       interaction.options.getString("msg", true),
       interaction.options.getString("emoji", true),
       // TODO(trkhoi): find way to set sticker with slash command
-      ""
+      "",
     )
   },
   help: async (interaction: CommandInteraction) => ({

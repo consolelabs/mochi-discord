@@ -16,7 +16,7 @@ export async function render() {
             title: "No trending search now!",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Currently no token found`,
             color: msgColors.SUCCESS,
           }),

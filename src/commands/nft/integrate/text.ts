@@ -27,7 +27,7 @@ const command: Command = {
       args[3],
       msg.author.id,
       msg.guildId ?? "",
-      msg
+      msg,
     )
     return null
   },

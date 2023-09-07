@@ -35,7 +35,7 @@ const command: Command = {
               title: "Proposal channel already set!",
               description: `${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} Run \`${PREFIX}proposal remove\` to remove existing config before setting a new one.`,
             }),
           ],
@@ -69,10 +69,10 @@ const command: Command = {
               title: `${getEmoji("REVOKE")} Invalid channels`,
               description: `Your channel is invalid. Make sure that the channel exists, or that you have entered it correctly.\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} Type # to see the channel list.\n${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} To add a new channel: 1. Create channel → 2. Confirm`,
             }),
           ],
@@ -103,7 +103,7 @@ const command: Command = {
         embeds: [
           composeEmbedMessage(null, {
             description: `${getEmoji(
-              "DEFI"
+              "DEFI",
             )} Please choose who can post proposals`,
           }),
         ],
@@ -149,7 +149,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           composeEmbedMessage(null, {
             title: `${getEmoji("CHECK")} Successfully set`,
             description: `${getEmoji(
-              "POINTINGRIGHT"
+              "POINTINGRIGHT",
             )} All proposals will be posted and voted in the <#${channelId}>`,
             color: msgColors.SUCCESS,
           }),
@@ -203,7 +203,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       composeEmbedMessage(null, {
         title: `${getEmoji(
           "ANIMATED_QUESTION_MARK",
-          true
+          true,
         )} Please enter the minimum token amount to post the proposal`,
       }),
     ],
@@ -263,7 +263,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
                 title: `${getEmoji("REVOKE")} Unsupported network`,
                 description: `${getEmoji(
                   "ANIMATED_POINTING_RIGHT",
-                  true
+                  true,
                 )} Only tokens on EVM, Polygon, and Solana are supported. You can choose one of these networks.`,
               }),
             ],
@@ -290,7 +290,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
           title: `${getEmoji("CHECK")} Successfully set`,
           description: `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} All proposals will be posted and voted in the <#${channelId}>`,
           color: msgColors.SUCCESS,
         }),

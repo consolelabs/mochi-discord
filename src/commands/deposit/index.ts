@@ -16,13 +16,13 @@ const slashCmd: SlashCommand = {
         option
           .setName("token")
           .setDescription("the token symbol which you wanna deposit")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addNumberOption((opt) =>
         opt
           .setName("amount")
           .setDescription("the amount you want to deposit")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async function (interaction: CommandInteraction) {

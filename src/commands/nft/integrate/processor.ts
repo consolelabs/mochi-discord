@@ -11,7 +11,7 @@ export async function executeNftIntegrateCommand(
   chainId: string,
   authorId: string,
   guildId: string,
-  msgOrInteraction: Message | CommandInteraction
+  msgOrInteraction: Message | CommandInteraction,
 ) {
   let response
   const msg = msgOrInteraction instanceof Message ? msgOrInteraction : undefined
@@ -28,7 +28,7 @@ export async function executeNftIntegrateCommand(
       authorId,
       guildId,
       msgOrInteraction,
-      false
+      false,
     )
     // return early if the `add` command didn't succeed
     if (storeCollectionRes.status !== 200) {
@@ -43,7 +43,7 @@ export async function executeNftIntegrateCommand(
       title: "Can't find the NFT collection",
       description: `The NFT Address and NFT Chain must be valid. Go to the collection's official website/marketplace to find this information.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} **Marketplace Examples:** [Opensea](http://Opensea.io), [Nftkey](https://nftkey.app/), [Paintswap](https://paintswap.finance/)`,
     })
   }

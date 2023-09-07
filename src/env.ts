@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 dotenv.config()
 
 export const PROD = process.env.NODE_ENV === "production"
+export const PREVIEW = process.env.NODE_ENV === "preview"
 export const TEST = process.env.NODE_ENV === "test"
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN || ""
 export const APPLICATION_ID = process.env.APPLICATION_ID || ""

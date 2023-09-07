@@ -66,7 +66,7 @@ function parseTradeRoute(routeSummary: RouteSummary) {
 
     hops.forEach((hop, i) => {
       const routeHop = route.hops.find(
-        (h) => h.tokenIn === hop.tokenIn && h.tokenOut === hop.tokenOut
+        (h) => h.tokenIn === hop.tokenIn && h.tokenOut === hop.tokenOut,
       )
 
       if (i === 0) {
@@ -137,7 +137,7 @@ function calculatePercentage({
           p.percent = `${BigNumber.from(100).sub(subtotal)}%`
         } else {
           const num = Math.round(
-            p.swapAmount.mul(1000).div(previousHop).toNumber() / 10
+            p.swapAmount.mul(1000).div(previousHop).toNumber() / 10,
           )
           subtotal = subtotal.add(num)
           p.percent = `${num}%`
@@ -218,7 +218,7 @@ export const SWAP_ROUTE_PROVIDERS = {
 export async function aggregateTradeRoute(
   tokenIn: string,
   routeSummary: RouteSummary,
-  provider: keyof typeof SWAP_ROUTE_PROVIDERS
+  provider: keyof typeof SWAP_ROUTE_PROVIDERS,
 ) {
   const routes = await parseTradeRoute(routeSummary)
     .then(calculatePercentage)

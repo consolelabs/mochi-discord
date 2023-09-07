@@ -24,7 +24,7 @@ export async function runCurrencyRemove(guildId: string | null) {
           composeEmbedMessage(null, {
             title: "No config found",
             description: `No default currency to remove, to set one run ${await getSlashCommand(
-              "config currency set"
+              "config currency set",
             )}`,
           }),
         ],

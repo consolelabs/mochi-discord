@@ -24,7 +24,7 @@ export async function runTipRangeRemove(guildId: string | null) {
           composeEmbedMessage(null, {
             title: "No config found",
             description: `No tip range to remove, to set one run ${await getSlashCommand(
-              "config tiprange set"
+              "config tiprange set",
             )}`,
           }),
         ],

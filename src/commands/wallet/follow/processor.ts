@@ -20,7 +20,7 @@ export async function followWallet(
   msg: OriginalMessage,
   author: User,
   address: string,
-  alias = ""
+  alias = "",
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(address)
   if (resolvedAddress) {
@@ -66,7 +66,7 @@ export async function followWallet(
 async function renderTrackingResult(
   user: User,
   address: string,
-  alias: string
+  alias: string,
 ) {
   return {
     context: {
@@ -84,15 +84,15 @@ async function renderTrackingResult(
           color: msgColors.SUCCESS,
           description: `
 ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
-            "wallet alias set"
+            "wallet alias set",
           )} to assign name for any tracking wallet.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
-  true
+  true,
 )} View list tracking wallet by clicking on button \`Wallets\` below.
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
-  true
+  true,
 )} Pick any other buttons if you change your decision.
             `,
         }),
@@ -118,7 +118,7 @@ ${getEmoji(
             .setLabel("Unfollow")
             .setStyle("SECONDARY")
             .setCustomId("untrack_wallet")
-            .setEmoji(emojis.REVOKE)
+            .setEmoji(emojis.REVOKE),
         ),
       ],
     },

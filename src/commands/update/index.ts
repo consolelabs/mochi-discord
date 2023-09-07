@@ -30,21 +30,21 @@ const slashCmd: SlashCommand = {
       .setDescription("Update your user setting")
 
     data.addSubcommand(
-      <SlashCommandSubcommandBuilder>profile.slashCmd.prepare()
+      <SlashCommandSubcommandBuilder>profile.slashCmd.prepare(),
     )
     data.addSubcommand(<SlashCommandSubcommandBuilder>email.slashCmd.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>apiKey.slashCmd.prepare())
     data.addSubcommand(
-      <SlashCommandSubcommandBuilder>binance.slashCmd.prepare()
+      <SlashCommandSubcommandBuilder>binance.slashCmd.prepare(),
     )
     data.addSubcommand(
-      <SlashCommandSubcommandBuilder>coinbase.slashCmd.prepare()
+      <SlashCommandSubcommandBuilder>coinbase.slashCmd.prepare(),
     )
     data.addSubcommand(
-      <SlashCommandSubcommandBuilder>twitter.slashCmd.prepare()
+      <SlashCommandSubcommandBuilder>twitter.slashCmd.prepare(),
     )
     data.addSubcommand(
-      <SlashCommandSubcommandBuilder>telegram.slashCmd.prepare()
+      <SlashCommandSubcommandBuilder>telegram.slashCmd.prepare(),
     )
 
     return data

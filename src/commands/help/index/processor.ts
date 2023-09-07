@@ -93,31 +93,31 @@ export const pagination = (currentPage: PageType) => [
             customId: "dao",
             emoji: getEmoji("PROPOSAL"),
           }),
-        ])
+        ]),
   ),
 ]
 
 export async function buildHelpInterface(
   embed: MessageEmbed,
-  page: Exclude<PageType, "profile">
+  page: Exclude<PageType, "profile">,
 ) {
   if (page === "index") {
     embed.setDescription(
-      "Mochi is your Web3 assistant to maximize your earnings."
+      "Mochi is your Web3 assistant to maximize your earnings.",
     )
     embed.addFields(
       {
         name: "\u200b\nGetting Started",
         value: [
           `<:_:1110865581617463346> ${await getSlashCommand(
-            "profile"
+            "profile",
           )} build up your profile`,
           `<:_:1093577916434104350> ${await getSlashCommand(
-            "earn"
+            "earn",
           )} like a chad`,
           `<a:_:854902183714619412> follow and copy top alphas`,
           `<a:_:902558994437144646> ${await getSlashCommand(
-            "watchlist view"
+            "watchlist view",
           )} track your favorite tokens`,
         ].join("\n"),
         inline: false,
@@ -127,16 +127,16 @@ export async function buildHelpInterface(
         value: [
           `<:_:850050324135673937> drive growth and engagement`,
           `<:_:885513214538952765> ${await getSlashCommand(
-            "quest daily"
+            "quest daily",
           )} engage your holders`,
           `${getEmoji("ANIMATED_OPEN_VAULT", true)} ${await getSlashCommand(
-            "vault list"
+            "vault list",
           )} manage DAO treasuries`,
           `<:_:1093575214228574390> ${await getSlashCommand(
-            "nftrole set"
+            "nftrole set",
           )} setup gated channels`,
           `<a:_:907658084296560721> ${await getSlashCommand(
-            "sales list"
+            "sales list",
           )} buy/sell report`,
         ].join("\n"),
         inline: false,
@@ -158,7 +158,7 @@ export async function buildHelpInterface(
           `[**Discord**](${DISCORD_URL})`,
         ].join("\n"),
         inline: true,
-      }
+      },
     )
   } else {
     const commandsByCategory = allCommands[page]
@@ -175,7 +175,7 @@ export async function buildHelpInterface(
                   ? `${await getSlashCommand(c.value)}`
                   : `[\`$${c.value}\`](${HOMEPAGE_URL})`
               }: ${c.description}`
-            })
+            }),
           )
         ).join("\n")}`,
         inline: false,

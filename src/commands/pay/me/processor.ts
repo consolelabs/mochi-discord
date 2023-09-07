@@ -61,7 +61,7 @@ export async function run({
     profileId,
     amount: parseUnits(
       amount.toLocaleString().replaceAll(",", ""),
-      t?.decimal ?? 0
+      t?.decimal ?? 0,
     ).toString(),
     token,
     type: "payme",
@@ -106,7 +106,7 @@ export async function run({
     [
       ...mochiWallets
         .filter((mw) =>
-          walletType === "evm-chain" ? mw.chain?.is_evm : !mw.chain?.is_evm
+          walletType === "evm-chain" ? mw.chain?.is_evm : !mw.chain?.is_evm,
         )
         .map((mw) => ({
           platform_identifier: mw.wallet_address,
@@ -119,7 +119,7 @@ export async function run({
         .map((a: any) => ({
           ...a,
           chain: walletType === "evm-chain" ? "EVM-based" : "SOL",
-        }))
+        })),
     ) ?? []
   let longest = 0
   for (const w of wallets) {
@@ -128,8 +128,8 @@ export async function run({
   const walletsText = wallets.map(
     (w, i: number) =>
       `${getEmoji(`NUM_${i + 1}` as EmojiKey)} \`${w.chain}${" ".repeat(
-        longest - w.chain.length
-      )} | ${w.platform_identifier}\``
+        longest - w.chain.length,
+      )} | ${w.platform_identifier}\``,
   )
 
   const lines = [
@@ -141,7 +141,7 @@ export async function run({
     `You can pay me via ${paylink}`,
     walletsText.length &&
       `Or you can send to these wallet addresses below\n${walletsText.join(
-        "\n"
+        "\n",
       )}`,
   ].filter(Boolean)
   const text = lines.join("\n")
@@ -244,7 +244,7 @@ async function sendNotification({
 export function preprocessTarget(
   interaction: CommandInteraction,
   target?: string,
-  platform?: string
+  platform?: string,
 ): string | undefined {
   if (!target && !platform) {
     return

@@ -55,7 +55,7 @@ export default async function run(i: CommandInteraction) {
     originalMsgAuthor: i.user,
   }).addFields(
     { name: "Minrain", value: `$${min}`, inline: true },
-    { name: "Maxtipped", value: `$${max}`, inline: true }
+    { name: "Maxtipped", value: `$${max}`, inline: true },
   )
   await reply(i, { messageOptions: { embeds: [embed] } })
 }

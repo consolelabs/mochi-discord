@@ -26,14 +26,14 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
             author: ["Verify", getEmojiURL(emojis.APPROVE)],
             description: `You haven't set a channel for verification.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} To set a new one, run ${await getSlashCommand(
-              "config verify set"
+              "config verify set",
             )}.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Then re-check your configuration using ${await getSlashCommand(
-              "config verify info"
+              "config verify info",
             )}`,
             color: msgColors.PINK,
           }),

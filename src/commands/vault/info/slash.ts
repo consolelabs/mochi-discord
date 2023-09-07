@@ -46,7 +46,7 @@ const command: SlashCommand = {
           .setName("name")
           .setDescription("enter vault name")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
   },
   autocomplete: async function (i) {
@@ -60,15 +60,15 @@ const command: SlashCommand = {
     await i.respond(
       data
         .filter((d: any) =>
-          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+          d.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
-        .map((d: any) => ({ name: d.name, value: d.name }))
+        .map((d: any) => ({ name: d.name, value: d.name })),
     )
   },
   run: async function (interaction: CommandInteraction) {
     const { context, msgOpts } = await runGetVaultDetail(
       interaction.options.getString("name", true),
-      interaction
+      interaction,
     )
 
     const reply = (await interaction.editReply(msgOpts)) as Message
@@ -122,8 +122,8 @@ const command: SlashCommand = {
                       i,
                       1,
                       ctx.addresses.find((a: any) =>
-                        equalIgnoreCase(a.address, i.values.at(0))
-                      )
+                        equalIgnoreCase(a.address, i.values.at(0)),
+                      ),
                     ),
                   }
                 },

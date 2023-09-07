@@ -27,7 +27,7 @@ export function throwOnInvalidEmoji(emoji: string, msg: OriginalMessage) {
       title: "Unsupported emojis",
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Please use an emoji from this server or in the Discord default list.`,
     })
   }

@@ -31,7 +31,7 @@ const running: any = {}
 
 export const machineConfig: (id: string, ctx: any) => MachineConfig = (
   id,
-  ctx
+  ctx,
 ) => ({
   id: `setup-1-click-${id}`,
   initial: "ask",
@@ -63,7 +63,7 @@ async function execute(i: ButtonInteraction, ctx: Context) {
       if (done[ctx.id][opt.value]) return
       if (running[ctx.id].length === opts.length) {
         Promise.all(running[ctx.id]).then(() =>
-          execute(i, { ...ctx, allDone: true })
+          execute(i, { ...ctx, allDone: true }),
         )
         return
       }
@@ -75,7 +75,7 @@ async function execute(i: ButtonInteraction, ctx: Context) {
               done[ctx.id][s.value] = true
               execute(i, ctx)
             })
-          })
+          }),
         ).then(() => {
           done[ctx.id][opt.value] = true
           execute(i, ctx)
@@ -130,7 +130,7 @@ async function execute(i: ButtonInteraction, ctx: Context) {
 
 export async function render(
   i: SelectMenuInteraction | CommandInteraction,
-  ctx: Context
+  ctx: Context,
 ) {
   done[ctx.id] = {}
   running[ctx.id] = []
@@ -172,7 +172,7 @@ export async function render(
                     })
                     .join("\n")
                 : ""
-            }`
+            }`,
         )
         .join("\n"),
       components: [
@@ -183,7 +183,7 @@ export async function render(
                   placeholder: "Select options",
                   options: nonRequiredOptions,
                   customId: "select_option",
-                })
+                }),
               ),
             ]
           : []),
@@ -193,7 +193,7 @@ export async function render(
             style: "SECONDARY",
             label: "Run",
             disabled: !newOptions.length,
-          })
+          }),
         ),
       ],
     },

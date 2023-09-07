@@ -96,7 +96,7 @@ export async function runRemoveTreasurer({
           customId: `treasurerRemove-rejected-${dataAddTreasurerReq?.request.id}-${dataAddTreasurerReq?.request.vault_id}-${treasurer.user_profile_id}-${dataAddTreasurerReq?.request.user_profile_id}-${i.channelId}`,
           style: "DANGER",
           label: "Reject",
-        })
+        }),
       )
 
       i.guild?.members
@@ -109,12 +109,12 @@ export async function runRemoveTreasurer({
                 description: `<@${
                   i.user.id
                 }> has submitted the request in ${vaultName} vault \n${getEmoji(
-                  "TREASURER_REMOVE"
+                  "TREASURER_REMOVE",
                 )} Remove <@${
                   user.id
                 }> from **${vaultName}**\n\nMessage ${getEmoji(
                   "ANIMATED_CHAT",
-                  true
+                  true,
                 )}\n \`\`\`${dataAddTreasurerReq?.request.message}\`\`\``,
                 color: msgColors.BLUE,
                 thumbnail: getEmojiURL(emojis.TREASURER_ADD),
@@ -133,10 +133,9 @@ export async function runRemoveTreasurer({
       user.id
     }> from **${vaultName} vault**\n\nMessage ${getEmoji(
       "ANIMATED_CHAT",
-      true
-    )}\n\`\`\`${
-      dataAddTreasurerReq?.request.message
-    }\`\`\`\nWe'll notify you once all treasurers have accepted the request.`,
+      true,
+    )}\n\`\`\`${dataAddTreasurerReq?.request
+      .message}\`\`\`\nWe'll notify you once all treasurers have accepted the request.`,
     color: msgColors.BLUE,
     thumbnail:
       "https://cdn.discordapp.com/attachments/1090195482506174474/1092755046556516394/image.png",
@@ -209,7 +208,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
         getSuccessEmbed({
           title: "Successfully voted",
           description: `You have updated your vote successfully. Thank you for your vote ${getEmoji(
-            "ANIMATED_HEART"
+            "ANIMATED_HEART",
           )}`,
         }),
       ],

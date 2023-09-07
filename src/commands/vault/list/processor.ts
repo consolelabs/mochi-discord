@@ -24,7 +24,7 @@ import { ModelVault } from "types/api"
 
 export function formatVaults(
   vaults: Array<ModelVault & { total?: string }>,
-  guildId: string
+  guildId: string,
 ) {
   return formatDataTable(
     vaults.map((v) => ({
@@ -41,7 +41,7 @@ export function formatVaults(
       cols: ["name", "address", "threshold", "balance"],
       rowAfterFormatter: (f) =>
         `${getEmoji("ANIMATED_VAULT", true)}${f}${getEmoji("CASH")}`,
-    }
+    },
   ).joined
 }
 
@@ -57,7 +57,7 @@ export async function runVaultList(interaction: CommandInteraction) {
       title: "Empty list vault",
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} This guild does not have any vault yet`,
     })
   }
@@ -67,7 +67,7 @@ export async function runVaultList(interaction: CommandInteraction) {
 
   description += `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
-    true
+    true,
   )} View detail of the vault ${await getSlashCommand("vault info")}\n\n`
 
   description += formatVaults(data, interaction.guildId || "")
@@ -95,7 +95,7 @@ export async function runVaultList(interaction: CommandInteraction) {
       new MessageSelectMenu()
         .setPlaceholder("💰 View a vault")
         .setCustomId("view_vault")
-        .addOptions(options)
+        .addOptions(options),
     ),
   ]
 
@@ -136,7 +136,7 @@ function collectSelection(reply: Message, author: User, components: any) {
             new MessageButton()
               .setLabel("Back")
               .setStyle("SECONDARY")
-              .setCustomId("back")
+              .setCustomId("back"),
           ),
         ] as any
         const edited = (await i.editReply(msgOpts)) as Message

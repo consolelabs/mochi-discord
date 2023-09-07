@@ -47,7 +47,7 @@ import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
-  args: string[]
+  args: string[],
 ) {
   if (!msgOrInteraction.guildId) {
     throw new GuildIdNotFoundError({ message: msgOrInteraction })
@@ -124,7 +124,7 @@ export async function tip(
 export async function selectToken(
   msgOrInteraction: Message | CommandInteraction,
   balances: any,
-  payload: any
+  payload: any,
 ) {
   const author = getAuthor(msgOrInteraction)
 
@@ -135,7 +135,7 @@ export async function selectToken(
     const balance = balances.find(
       (b: any) =>
         equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chain_id === b.token?.chain?.chain_id
+        payload.chain_id === b.token?.chain?.chain_id,
     )
     return validateAndTransfer(msgOrInteraction, payload, balance)
   }
@@ -149,7 +149,7 @@ export async function selectToken(
 
 function composeTokenSelectionResponse(
   author: User,
-  balances: any
+  balances: any,
 ): RunResult<MessageOptions> {
   const options = balances.map((b: any) => {
     return {
@@ -182,14 +182,14 @@ function composeTokenSelectionResponse(
 
 async function transfer(
   msgOrInteraction: Message | CommandInteraction,
-  payload: any
+  payload: any,
 ) {
   // send transfer request
   const { data, ok, curl, log } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
     recipients: await Promise.all(
-      payload.recipients.map((r: string) => getProfileIdByDiscord(r))
+      payload.recipients.map((r: string) => getProfileIdByDiscord(r)),
     ),
   })
   if (!ok) {
@@ -206,15 +206,15 @@ async function transfer(
 function showSuccesfulResponse(
   payload: any,
   res: any,
-  senderStr?: string
+  senderStr?: string,
 ): RunResult<MessageOptions> {
   const users = payload.recipients.map((r: string) => `<@${r}>`).join(", ")
   const isOnline = payload.targets.includes("online")
   const hasRole = payload.targets.some(
-    (t: string) => parseDiscordToken(t).isRole
+    (t: string) => parseDiscordToken(t).isRole,
   )
   const hasChannel = payload.targets.some(
-    (t: string) => parseDiscordToken(t).isChannel
+    (t: string) => parseDiscordToken(t).isChannel,
   )
   let recipientDescription = users
   if (hasRole || hasChannel || isOnline) {
@@ -227,7 +227,7 @@ function showSuccesfulResponse(
             .filter((t: string) => t.toLowerCase() !== "online")
             .filter(
               (t: string) =>
-                parseDiscordToken(t).isChannel || parseDiscordToken(t).isRole
+                parseDiscordToken(t).isChannel || parseDiscordToken(t).isRole,
             )
             .join(", ")}`
     }`
@@ -240,17 +240,17 @@ function showSuccesfulResponse(
 
   const amountApprox = `(${APPROX} $${roundFloatNumber(
     res.amount_each * payload.token_price,
-    4
+    4,
   )})`
 
   let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${
     res.tx_id ?? "N/A"
   }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
-    payload.token
+    payload.token,
   )} **${amount}** ${amountApprox} ${
     payload.recipients.length > 1 ? "each" : ""
   }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
-    payload.sender
+    payload.sender,
   )}\n${getEmoji("SHARE")}\`Receiver. \`${recipientDescription}`
   if (payload.message) {
     description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
@@ -272,9 +272,9 @@ function showSuccesfulResponse(
   return {
     messageOptions: {
       content: `${userMention(
-        payload.sender
+        payload.sender,
       )} has sent ${recipientDescription} ${getEmojiToken(
-        payload.token
+        payload.token,
       )} **${amount}** ${amountApprox}${
         payload.recipients.length > 1 ? " each" : ""
       }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
@@ -287,7 +287,7 @@ function showSuccesfulResponse(
 
 export async function parseTipArgs(
   msgOrInteraction: Message | CommandInteraction,
-  args: string[]
+  args: string[],
 ): Promise<{
   targets: string[]
   amount: number
@@ -359,7 +359,7 @@ export async function parseTipArgs(
 export async function validateAndTransfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: TransferPayload,
-  balance: any
+  balance: any,
 ) {
   const decimal = balance.token?.decimal ?? 0
   const current = +balance.amount / Math.pow(10, decimal)

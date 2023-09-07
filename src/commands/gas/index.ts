@@ -40,7 +40,7 @@ const slashCmd: SlashCommand = {
         option
           .setName("chain")
           .setDescription("gas price of many networks")
-          .setRequired(false)
+          .setRequired(false),
       )
     return data
   },

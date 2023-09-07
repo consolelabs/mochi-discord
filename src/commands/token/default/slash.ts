@@ -17,7 +17,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription("token's symbol. Example: FTM")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

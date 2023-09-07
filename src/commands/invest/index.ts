@@ -37,14 +37,14 @@ const slashCmd: SlashCommand = {
       .setDescription("Let money work for you")
     for (const action in slashActions) {
       data.addSubcommand(
-        <SlashCommandSubcommandBuilder>slashActions[action].prepare()
+        <SlashCommandSubcommandBuilder>slashActions[action].prepare(),
       )
     }
     return data
   },
   run: async function (interaction: CommandInteraction) {
     return await slashActions[interaction.options.getSubcommand()].run(
-      interaction
+      interaction,
     )
   },
   help: (interaction: CommandInteraction) =>

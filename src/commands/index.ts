@@ -205,7 +205,7 @@ export const adminCategories: Record<Category, boolean> = {
  */
 export async function preauthorizeCommand(
   message: Message,
-  commandObject: Command
+  commandObject: Command,
 ) {
   if (!commandObject) {
     return
@@ -232,7 +232,7 @@ function validateCommand(
   cmd: Command,
   args: string[],
   isActionCommand: boolean,
-  isSpecificHelpCommand: boolean
+  isSpecificHelpCommand: boolean,
 ) {
   if (isSpecificHelpCommand) return true
   let valid = cmd.canRunWithoutAction || isActionCommand
@@ -244,7 +244,7 @@ async function executeCommand(
   message: Message,
   commandObject: Command,
   action: string,
-  isSpecificHelpCommand?: boolean
+  isSpecificHelpCommand?: boolean,
 ) {
   const benchmarkStart = process.hrtime()
 
@@ -297,7 +297,7 @@ async function executeCommand(
           components: [
             composeButtonLink(
               `Customize your ad with Mochi`,
-              "https://discord.gg/SUuF8W68"
+              "https://discord.gg/SUuF8W68",
             ),
           ],
         })
@@ -399,7 +399,7 @@ export async function handlePrefixedCommand(message: Message) {
   logger.info(
     `[${message.guild?.name ?? "DM"}][${
       message.author.username
-    }] executing command: ${args}`
+    }] executing command: ${args}`,
   )
 
   const metadata = getCommandMetadata(commands, message)
@@ -416,7 +416,7 @@ export async function handlePrefixedCommand(message: Message) {
       fuzzySet,
       commandKey,
       commands,
-      slashCommands
+      slashCommands,
     )
     if (embedProps) {
       await message
@@ -449,13 +449,13 @@ export async function handlePrefixedCommand(message: Message) {
     commandObject.command,
     commandObject.aliases ?? [],
     actionObject?.command ?? "",
-    message.content
+    message.content,
   )
   const valid = validateCommand(
     finalCmd,
     args,
     !!actionObject,
-    isSpecificHelpCommand ?? false
+    isSpecificHelpCommand ?? false,
   )
   if (shouldShowHelp && !valid) {
     message.content = `${HELP} ${commandKey} ${action}`.trimEnd()
@@ -471,6 +471,6 @@ export async function handlePrefixedCommand(message: Message) {
     message,
     finalCmd,
     action,
-    isSpecificHelpCommand ?? false
+    isSpecificHelpCommand ?? false,
   )
 }

@@ -13,7 +13,7 @@ import swapSlash from "./index/slash"
 
 export const machineConfig: (initial: string, context: any) => MachineConfig = (
   initial,
-  context
+  context,
 ) => ({
   id: "swap",
   initial,
@@ -33,8 +33,8 @@ export const machineConfig: (initial: string, context: any) => MachineConfig = (
                   .setLabel("Value")
                   .setStyle("SHORT")
                   .setRequired(true)
-                  .setPlaceholder("10, 100, 50%, all, etc...")
-              )
+                  .setPlaceholder("10, 100, 50%, all, etc..."),
+              ),
             )
 
           await i.showModal(modal)
@@ -121,20 +121,20 @@ const slashCmd: SlashCommand = {
         option
           .setName("to")
           .setDescription("the token you want to buy")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("from")
           .setDescription("the token you want to sell")
-          .setRequired(false)
+          .setRequired(false),
       )
       .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("the amount of token you want to sell")
           .setMinValue(0)
-          .setRequired(false)
+          .setRequired(false),
       )
 
     return data

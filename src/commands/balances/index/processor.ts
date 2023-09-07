@@ -81,7 +81,7 @@ export const balanceEmbedProps: Record<
     discordId: string,
     profileId: string,
     address: string,
-    interaction: Interaction
+    interaction: Interaction,
   ) => Promise<{
     title: string
     emoji: string
@@ -97,10 +97,10 @@ export const balanceEmbedProps: Record<
     emoji: getEmojiURL(emojis.NFT2),
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} You can withdraw using ${await getSlashCommand("withdraw")}.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
   }),
   [BalanceType.Onchain]: async (_, profileId, addressOrAlias, interaction) => {
@@ -146,12 +146,12 @@ export const balanceEmbedProps: Record<
       emoji: getEmojiURL(emojis.WALLET_2),
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} You can withdraw using ${await getSlashCommand(
-        "withdraw"
+        "withdraw",
       )}.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
     }
   },
@@ -169,10 +169,10 @@ export const balanceEmbedProps: Record<
     emoji: getEmojiURL(emojis.NFT2),
     description: `${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} You can withdraw using ${await getSlashCommand("withdraw")}.\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} You can send tokens to other using ${await getSlashCommand("tip")}.`,
   }),
 }
@@ -184,7 +184,7 @@ const balancesFetcher: Record<
     discordId: string,
     address: string,
     type: string,
-    platform: string
+    platform: string,
   ) => Promise<any>
 > = {
   [BalanceType.Offchain]: (profileId) => mochiPay.getBalances({ profileId }),
@@ -201,7 +201,7 @@ export async function getBalances(
   type: BalanceType,
   msg: Interaction,
   address: string,
-  addressType = "evm"
+  addressType = "evm",
 ) {
   const fetcher = balancesFetcher[type]
   const res = await fetcher(profileId, discordId, address, addressType, "")
@@ -291,7 +291,7 @@ const txnsFetcher: Record<
     discordId: string,
     address: string,
     type: string,
-    platform: string
+    platform: string,
   ) => Promise<any>
 > = {
   [BalanceType.Offchain]: (profileId) => mochiPay.getListTx(profileId, {}),
@@ -308,7 +308,7 @@ async function getTxns(
   type: BalanceType,
   msg: Interaction,
   address: string,
-  addressType = "evm"
+  addressType = "evm",
 ) {
   // TODO: implement later
   if (type === BalanceType.Cex) {
@@ -320,7 +320,7 @@ async function getTxns(
     discordId,
     address,
     addressType,
-    ""
+    "",
   )
   if (!ok) {
     throw new APIError({
@@ -341,13 +341,14 @@ async function getTxns(
           d.has_transfer &&
           d.successful &&
           d.actions?.some(
-            (a: any) => a.native_transfer || equalIgnoreCase(a.name, "Transfer")
-          )
+            (a: any) =>
+              a.native_transfer || equalIgnoreCase(a.name, "Transfer"),
+          ),
       )
       .map((d: any) => {
         const date = d.signed_at
         const firstAction = d.actions?.find(
-          (a: any) => a.native_transfer || a.name === "Transfer"
+          (a: any) => a.native_transfer || a.name === "Transfer",
         )
         if (!firstAction) return
         if (isValidRoninAddress(address)) {
@@ -420,7 +421,7 @@ export function formatView(
     }
     amount: string
   }[],
-  page: number
+  page: number,
 ) {
   let totalWorth = 0
   const isDuplicateSymbol = (s: string) =>
@@ -476,7 +477,7 @@ export function formatView(
         separator: [` ${APPROX} `],
         rowAfterFormatter: (formatted, i) =>
           `${formattedBal[i].emoji}${formatted}`,
-      }
+      },
     )
     return { totalWorth, text, totalPage: paginated.length }
   } else {
@@ -519,7 +520,7 @@ export function formatView(
                 : ""
             } `,
           value: `${getEmojiToken(
-            symbol.toUpperCase() as TokenEmojiKey
+            symbol.toUpperCase() as TokenEmojiKey,
           )} ${value} ${symbol} \`$${usdWorth}\` ${getEmoji("BLANK")}`,
           inline: true,
         }
@@ -551,15 +552,15 @@ async function switchView(
   showFullEarn: boolean,
   isViewingOther: boolean,
   page: number,
-  profileId: string
+  profileId: string,
 ) {
   const wallet = await defi.findWallet(profileId, props.address)
   const trackingType = wallet?.data?.type
   const { mochiWallets, wallets, cexes } = await profile.getUserWallets(
-    discordId
+    discordId,
   )
   let isOwnWallet = wallets.some((w) =>
-    props.address.toLowerCase().includes(w.value.toLowerCase())
+    props.address.toLowerCase().includes(w.value.toLowerCase()),
   )
   isOwnWallet = isOwnWallet && !isViewingOther
 
@@ -588,9 +589,9 @@ async function switchView(
     } else {
       emptyText = `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} You have nothing yet, use ${await getSlashCommand(
-        "earn"
+        "earn",
       )} or ${await getSlashCommand("deposit")}\n\n`
     }
   } else {
@@ -644,13 +645,13 @@ async function switchView(
     // farming
     const { field: farmingField, total: totalFarm } = buildFarmingField(
       balances.farming,
-      showFullEarn
+      showFullEarn,
     )
     // staking
     const { field: stakingField, total: totalStake } = buildEarnField(
       "Staking",
       balances.staking,
-      showFullEarn
+      showFullEarn,
     )
     totalWorth += totalFarm + totalStake
 
@@ -682,7 +683,7 @@ async function switchView(
     const { field: stakingField } = buildEarnField(
       "Staking",
       balances.staking,
-      showFullEarn
+      showFullEarn,
     )
 
     if (stakingField) {
@@ -692,7 +693,7 @@ async function switchView(
     const { field: lendingField } = buildEarnField(
       "Flexible",
       balances.lending,
-      showFullEarn
+      showFullEarn,
     )
 
     if (lendingField) {
@@ -710,14 +711,14 @@ async function switchView(
     {
       name: `Total (U.S dollar)`,
       value: `${getEmoji("CASH")} \`$${formatUsdDigit(
-        totalWorth.toString()
+        totalWorth.toString(),
       )}\`${
         balanceType === BalanceType.Onchain && balances.pnl !== 0
           ? ` (${getEmoji(
               Math.sign(balances.pnl) === -1
                 ? "ANIMATED_ARROW_DOWN"
                 : "ANIMATED_ARROW_UP",
-              true
+              true,
             )}${formatPercentDigit(Math.abs(balances.pnl))}%)`
           : ""
       }`,
@@ -758,11 +759,11 @@ function buildFarmingField(farming: any[], showFull = false) {
     ?.filter(
       (i) =>
         i.liquidityTokenBalance !== "0" ||
-        !BigNumber.from(i.liquidityTokenBalance.split(".").at(0)).isZero()
+        !BigNumber.from(i.liquidityTokenBalance.split(".").at(0)).isZero(),
     )
     .map((i) => {
       const liquidityBal = BigNumber.from(
-        i.liquidityTokenBalance.split(".").at(0)
+        i.liquidityTokenBalance.split(".").at(0),
       )
       const [symbol0, symbol1] = [i.pair.token0.symbol, i.pair.token1.symbol]
       const amount = `${formatDigit({
@@ -800,7 +801,7 @@ function buildFarmingField(farming: any[], showFull = false) {
             amount: reward,
             usdWorth: rewardUsdWorth,
             reward: "",
-          }
+          },
         )
       } else {
         record.push({
@@ -889,7 +890,7 @@ function buildEarnField(title: string, earning: any[], showFull = false) {
             amount: reward,
             usdWorth: rewardUsdWorth,
             reward: "",
-          }
+          },
         )
       } else {
         record.push({
@@ -956,7 +957,7 @@ export async function renderBalances(
     balances?: any
     txns?: any
     page?: number
-  }
+  },
 ) {
   // handle name service
   const resolvedAddress = (await resolveNamingServiceDomain(address)) || address
@@ -966,7 +967,7 @@ export async function renderBalances(
       discordId,
       profileId,
       resolvedAddress,
-      interaction
+      interaction,
     )) ?? {}
   const [balances, txns] = await Promise.all([
     // reuse data if there is data and not on 1st page
@@ -978,7 +979,7 @@ export async function renderBalances(
           type,
           interaction,
           resolvedAddress,
-          addressType
+          addressType,
         ),
     ctxTxns && page !== 0
       ? ctxTxns
@@ -988,7 +989,7 @@ export async function renderBalances(
           type,
           interaction,
           resolvedAddress,
-          addressType
+          addressType,
         ),
   ])
   const isViewingOther = interaction.user.id !== discordId
@@ -1003,7 +1004,7 @@ export async function renderBalances(
     showFullEarn,
     isViewingOther,
     page,
-    profileId
+    profileId,
   )
   return {
     context: {
@@ -1028,7 +1029,7 @@ export async function renderBalances(
                   .setEmoji("<a:brrr:902558248907980871>")
                   .setCustomId(`view_earn`)
                   .setLabel("Earn"),
-                ...getButtons()
+                ...getButtons(),
               ),
             ]),
         ...(type === BalanceType.Onchain
@@ -1044,7 +1045,7 @@ export async function renderBalances(
                   .setStyle("PRIMARY")
                   .setEmoji(getEmoji("NFT2"))
                   .setCustomId(`view_nft`)
-                  .setLabel("NFT")
+                  .setLabel("NFT"),
               ),
             ]
           : []),
@@ -1060,7 +1061,7 @@ export function unLinkOnChainWalletButtons() {
     new MessageButton()
       .setLabel("Unlink")
       .setStyle("SECONDARY")
-      .setCustomId("unlink_wallet")
+      .setCustomId("unlink_wallet"),
   )
 
   return buttons
@@ -1075,7 +1076,7 @@ function getGuestWalletButtons(trackingType: string) {
         .setLabel("Unfollow")
         .setStyle("SECONDARY")
         .setCustomId("untrack_wallet")
-        .setEmoji(getEmoji("REVOKE"))
+        .setEmoji(getEmoji("REVOKE")),
     )
   } else {
     buttons.addComponents(
@@ -1083,7 +1084,7 @@ function getGuestWalletButtons(trackingType: string) {
         .setLabel("Follow")
         .setStyle("SECONDARY")
         .setCustomId("follow_wallet")
-        .setEmoji(getEmoji("PLUS"))
+        .setEmoji(getEmoji("PLUS")),
     )
   }
 
@@ -1093,7 +1094,7 @@ function getGuestWalletButtons(trackingType: string) {
         .setLabel("Untrack")
         .setStyle("SECONDARY")
         .setCustomId("untrack_wallet")
-        .setEmoji(getEmoji("REVOKE"))
+        .setEmoji(getEmoji("REVOKE")),
     )
   } else {
     buttons.addComponents(
@@ -1101,7 +1102,7 @@ function getGuestWalletButtons(trackingType: string) {
         .setLabel("Track")
         .setStyle("SECONDARY")
         .setCustomId("track_wallet")
-        .setEmoji(getEmoji("ANIMATED_STAR", true))
+        .setEmoji(getEmoji("ANIMATED_STAR", true)),
     )
   }
 
@@ -1111,7 +1112,7 @@ function getGuestWalletButtons(trackingType: string) {
         .setLabel("Uncopy")
         .setStyle("SECONDARY")
         .setCustomId("untrack_wallet")
-        .setEmoji(getEmoji("REVOKE"))
+        .setEmoji(getEmoji("REVOKE")),
     )
   } else {
     buttons.addComponents(
@@ -1119,7 +1120,7 @@ function getGuestWalletButtons(trackingType: string) {
         .setLabel("Copy")
         .setStyle("SECONDARY")
         .setCustomId("copy_wallet")
-        .setEmoji(getEmoji("SWAP_ROUTE"))
+        .setEmoji(getEmoji("SWAP_ROUTE")),
     )
   }
 
@@ -1156,7 +1157,7 @@ export async function getBalanceTokens(i: ButtonInteraction) {
       discordId,
       profileId,
       "",
-      i
+      i,
     )) ?? {}
   const balances = await getBalances(
     profileId,
@@ -1164,7 +1165,7 @@ export async function getBalanceTokens(i: ButtonInteraction) {
     BalanceType.Offchain,
     i,
     "",
-    addressType
+    addressType,
   )
 
   const availableTokens = balances.data.map(
@@ -1174,7 +1175,7 @@ export async function getBalanceTokens(i: ButtonInteraction) {
       token: {
         symbol: string
       }
-    }) => symbol
+    }) => symbol,
   )
 
   return availableTokens
@@ -1183,12 +1184,12 @@ export async function getBalanceTokens(i: ButtonInteraction) {
 export async function unlinkWallet(
   msg: OriginalMessage,
   author: User,
-  addressOrAlias: string
+  addressOrAlias: string,
 ) {
   const profileId = await getProfileIdByDiscord(author.id)
   const { ok, status, log, curl } = await profile.disconnectOnChainWallet(
     profileId,
-    addressOrAlias
+    addressOrAlias,
   )
   // wallet not found
   if (!ok && status === 404) {
@@ -1207,7 +1208,7 @@ export async function unlinkWallet(
     description: [
       `${pointingright} This wallet has been removed from your profile.`,
       `${pointingright} To add wallets, refer to ${await getSlashCommand(
-        "wallet add"
+        "wallet add",
       )}.`,
     ].join("\n"),
   })
@@ -1236,7 +1237,7 @@ export async function renderInitialNftView({
     type,
     interaction,
     resolvedAddress,
-    addressType
+    addressType,
   )
 
   const nfts: any[] = (data.nfts || [])
@@ -1247,7 +1248,7 @@ export async function renderInitialNftView({
     ? `${nfts
         .map(
           (nft, idx) =>
-            `${getEmoji(`NUM_${idx + 1}` as EmojiKey)} ${nft.collection_name}`
+            `${getEmoji(`NUM_${idx + 1}` as EmojiKey)} ${nft.collection_name}`,
         )
         .join("\n")}`
     : "No NFT data found"
@@ -1278,8 +1279,8 @@ export async function renderInitialNftView({
                       label: nft.collection_name,
                       value: nft.collection_name,
                     }
-                  })
-                )
+                  }),
+                ),
               ),
             ]
           : []),
@@ -1289,7 +1290,7 @@ export async function renderInitialNftView({
             .setEmoji("<a:brrr:902558248907980871>")
             .setCustomId(`view_earn`)
             .setLabel("Earn"),
-          ...getButtons()
+          ...getButtons(),
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
@@ -1302,7 +1303,7 @@ export async function renderInitialNftView({
             .setEmoji(getEmoji("NFT2"))
             .setCustomId(`view_nft`)
             .setLabel("NFT")
-            .setDisabled(true)
+            .setDisabled(true),
         ),
       ],
     },
@@ -1330,7 +1331,7 @@ export async function renderSelectedNft({
       (t: any, idx: number) =>
         `${getEmoji(`NUM_${idx + 1}` as EmojiKey)} [${t.token_name}](${
           t.marketplace_url
-        })`
+        })`,
     )
     .join("\n")}${
     selectedNft.total > 8
@@ -1365,8 +1366,8 @@ export async function renderSelectedNft({
                 value: nft.collection_name,
                 default: equalIgnoreCase(nft.collection_name, collection),
               }
-            })
-          )
+            }),
+          ),
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
@@ -1374,7 +1375,7 @@ export async function renderSelectedNft({
             .setEmoji("<a:brrr:902558248907980871>")
             .setCustomId(`view_earn`)
             .setLabel("Earn"),
-          ...getButtons()
+          ...getButtons(),
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
@@ -1387,7 +1388,7 @@ export async function renderSelectedNft({
             .setEmoji(getEmoji("NFT2"))
             .setCustomId(`view_nft`)
             .setLabel("NFT")
-            .setDisabled(true)
+            .setDisabled(true),
         ),
       ],
     },

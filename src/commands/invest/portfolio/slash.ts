@@ -18,7 +18,7 @@ import { getSlashCommand } from "utils/commands"
 import { composeInvestPortfolio } from "./processor"
 
 export const machineConfig: (
-  filter?: InvestPortfolioFilter
+  filter?: InvestPortfolioFilter,
 ) => MachineConfig = (filter) => ({
   id: "investPortfolio",
   context: {
@@ -50,14 +50,14 @@ const slashCmd: SlashCommand = {
             ["Fantom", "250"],
             ["Arbitrum", "42161"],
             ["Optimism", "10"],
-          ])
+          ]),
       )
       .addStringOption((opt) =>
         opt
           .setName("platform")
           .setDescription("filter earn by platform")
           .setRequired(false)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
 
     return data
@@ -86,12 +86,13 @@ const slashCmd: SlashCommand = {
     })
     const platforms = data[0].platforms
     const options = platforms
-      ?.filter((p: ResponseInvestPlatforms) =>
-        p?.name?.toLowerCase().includes(focusedValue.toLowerCase())
+      ?.filter(
+        (p: ResponseInvestPlatforms) =>
+          p?.name?.toLowerCase().includes(focusedValue.toLowerCase()),
       )
       .map((p: ResponseInvestPlatforms) => ({
         name: `[${p.name?.toUpperCase()}] APY: ${p.apy?.toFixed(
-          2
+          2,
         )}% - TVL: ${formatter.format(p.tvl ?? 0)}`,
         value: p.name ?? "NA",
       }))
@@ -119,7 +120,7 @@ export type InvestPortfolioFilter = {
 
 async function renderInvestPortfolio(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
-  filter?: InvestPortfolioFilter
+  filter?: InvestPortfolioFilter,
 ) {
   const { chainId, platform } = filter ?? { chainId: "", platform: "" }
   const profileId = await getProfileIdByDiscord(i.user.id)
@@ -145,9 +146,9 @@ async function renderInvestPortfolio(
             title: "No earning portfolio",
             description: `You have no earning portfolio!/n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )}You can start earning by using the ${await getSlashCommand(
-              "invest stake"
+              "invest stake",
             )}`,
           }),
         ],

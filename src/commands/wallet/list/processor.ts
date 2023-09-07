@@ -48,13 +48,13 @@ export async function render(user: User) {
     author: [`Your favorite wallets`, getEmojiURL(emojis.ANIMATED_STAR)],
     description: [
       `${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
-        "wallet follow"
+        "wallet follow",
       )} to add a wallet to favorite list`,
       `${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
-        "wallet track"
+        "wallet track",
       )} to be notified of this wallet's txns`,
       `${getEmoji("ANIMATED_POINTING_RIGHT", true)} ${await getSlashCommand(
-        "wallet copy"
+        "wallet copy",
       )} to copy every move this wallet makes`,
     ].join("\n"),
   })
@@ -63,7 +63,7 @@ export async function render(user: User) {
     if (!e[1].length) return
     embed.addFields({
       name: `${emojiMap[e[0] as keyof typeof emojiMap]} ${capitalizeFirst(
-        e[0]
+        e[0],
       )}`,
       value: formatDataTable(
         await Promise.all(
@@ -80,16 +80,16 @@ export async function render(user: User) {
                     : d.alias ?? "",
                 usd: `$${formatUsdDigit(d.net_worth ?? 0)}`,
               }
-            })
+            }),
         ),
         {
           cols: ["chainType", "address", "alias", "usd"],
           separator: [VERTICAL_BAR, VERTICAL_BAR, ` ${APPROX} `],
           rowAfterFormatter: (f, i) =>
             `${getEmoji(e[1][i].chain_type.toUpperCase())} ${f}${getEmoji(
-              "CASH"
+              "CASH",
             )}`,
-        }
+        },
       ).joined,
       inline: false,
     })
@@ -110,7 +110,7 @@ export async function render(user: User) {
             }
           })
       })
-      .flat()
+      .flat(),
   )
 
   if (!options.length) {
@@ -126,7 +126,7 @@ export async function render(user: User) {
               new MessageSelectMenu()
                 .setPlaceholder("💰 View a wallet")
                 .setCustomId("view_wallet")
-                .addOptions(options)
+                .addOptions(options),
             ),
           ]
         : [],

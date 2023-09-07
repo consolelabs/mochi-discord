@@ -53,8 +53,8 @@ const renderAirdropCampaignDetail = (campaign: ModelAirdropCampaign) => {
                 label: capitalizeFirst(status.split("_").join(" ")),
                 value: status,
                 default: campaign.profile_campaign_status === status,
-              }))
-            )
+              })),
+            ),
         ),
       ],
     },
@@ -98,7 +98,7 @@ export async function setAirdropStatus(i: SelectMenuInteraction, ctx: any) {
   if (ok) {
     const { data: res, ok: getOk } = await community.getAirdropCampaignById(
       ctx.campaignId,
-      { profileId }
+      { profileId },
     )
     if (getOk) {
       const data = res as ModelAirdropCampaign
@@ -136,7 +136,7 @@ const renderStatusTabs = (status: AirdropCampaignStatus) => {
         label: "Ignored",
         customId: "view_ignored",
         disabled: status === AirdropCampaignStatus.Ignored,
-      })
+      }),
     ),
   ]
 }
@@ -145,7 +145,7 @@ export async function run(
   userId: string,
   status = AirdropCampaignStatus.Live,
   keyword = "",
-  page = 0
+  page = 0,
 ) {
   let data = [] as ModelAirdropCampaign[]
   let total = 0
@@ -176,7 +176,7 @@ export async function run(
     data =
       status === AirdropCampaignStatus.Ignored
         ? (res.data.map(
-            (i: ModelProfileAirdropCampaign) => i.airdrop_campaign
+            (i: ModelProfileAirdropCampaign) => i.airdrop_campaign,
           ) as ModelAirdropCampaign[])
         : (res.data as ModelAirdropCampaign[])
     total = res.metadata?.total || 0
@@ -204,7 +204,7 @@ export async function run(
     }
   } else {
     embed.setDescription(
-      `**${PAGE_SIZE * page + data.length}**/${total} ${status} airdrops.`
+      `**${PAGE_SIZE * page + data.length}**/${total} ${status} airdrops.`,
     )
 
     embed.fields = data.map((d: any) => {
@@ -230,8 +230,8 @@ export async function run(
                 emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
                 label: `#${campaign.id}. ${campaign.title}`,
                 value: campaign.id?.toString() || "0",
-              }))
-            )
+              })),
+            ),
         ),
         ...paginationButtons(page, totalPage),
       ],

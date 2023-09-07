@@ -22,32 +22,32 @@ const slashCmd: SlashCommand = {
         option
           .setName("amount")
           .setDescription("amount you want to airdrop. Example: 5, all, etc.")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("token")
           .setDescription("symbol of token. Example: ftm")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("duration")
           .setDescription(
-            "duration in seconds, minutes (default) or hour (max 1 hour). Example: 5m, 1hr, 20m 10secs, etc..."
-          )
+            "duration in seconds, minutes (default) or hour (max 1 hour). Example: 5m, 1hr, 20m 10secs, etc...",
+          ),
       )
       .addIntegerOption((option) =>
         option
           .setName("entries")
           .setDescription("max entries count. Example: 5")
-          .setMinValue(1)
+          .setMinValue(1),
       )
       .addBooleanOption((opt) =>
         opt
           .setName("use_qr")
           .setRequired(false)
-          .setDescription("join airdrop by scanning a qrcode")
+          .setDescription("join airdrop by scanning a qrcode"),
       )
   },
   run: async function (interaction: CommandInteraction) {

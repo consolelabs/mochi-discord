@@ -16,21 +16,21 @@ const command: SlashCommand = {
         option
           .setName("message_link")
           .setDescription(
-            "link of message which you want to configure for role"
+            "link of message which you want to configure for role",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("emoji")
           .setDescription("emoji which you want to configure for role")
-          .setRequired(false)
+          .setRequired(false),
       )
       .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role which you want to configure")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async (interaction: CommandInteraction) => {

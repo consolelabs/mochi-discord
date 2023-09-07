@@ -21,7 +21,7 @@ export const handleNormalMessage = async (message: Message) => {
     const stickers = Array.from(message.stickers.values())
 
     const profileRes = await fetch(
-      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${message.author.id}?no_fetch_amount=true`
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${message.author.id}?no_fetch_amount=true`,
     )
     const profileId = (await profileRes.json())?.id
     const body = {
@@ -75,7 +75,7 @@ const events: DiscordEvent<"messageCreate"> = {
           tagme.handle(message)
           await handleNormalMessage(message)
         })
-      }
+      },
     )
   },
 }

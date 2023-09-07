@@ -25,14 +25,14 @@ const slashCmd: SlashCommand = {
             ["level up", "level_up"],
             ["gm/gn", "gm_gn"],
           ])
-          .setRequired(true)
+          .setRequired(true),
       )
       .addChannelOption((option) =>
         option
           .setName("log_channel")
           .setDescription("The channel that will receive the logs")
           .setRequired(true)
-          .addChannelType(0)
+          .addChannelType(0),
       )
 
     return data
@@ -74,14 +74,15 @@ const slashCmd: SlashCommand = {
             ],
             thumbnail:
               "https://media.discordapp.net/attachments/1052079279619457095/1090579158482038814/menu.png?width=322&height=320",
-            description: `All ${formatOutput.activity} activities of **${
-              i.guild?.name
-            }** will be monitored in the ${formatOutput.channel}\n\n${getEmoji(
+            description: `All ${formatOutput.activity} activities of **${i.guild
+              ?.name}** will be monitored in the ${
+              formatOutput.channel
+            }\n\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Setup or change config by running \`/config logchannel set\`\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Use \`/config logchannel info\` to see more details`,
           }),
         ],

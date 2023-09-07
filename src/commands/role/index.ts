@@ -41,12 +41,12 @@ const slashCmd: SlashCommand = {
         .setName("default")
         .setDescription("Set default role for your guild")
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>defaultRole.info.prepare()
+          <SlashCommandSubcommandBuilder>defaultRole.info.prepare(),
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>defaultRole.set.prepare())
         .addSubcommand(
-          <SlashCommandSubcommandBuilder>defaultRole.remove.prepare()
-        )
+          <SlashCommandSubcommandBuilder>defaultRole.remove.prepare(),
+        ),
     )
 
     data.addSubcommandGroup((subcommandGroup) =>
@@ -55,18 +55,18 @@ const slashCmd: SlashCommand = {
         .setDescription("Set level role for your guild")
         .addSubcommand(<SlashCommandSubcommandBuilder>level.list.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>level.set.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>level.remove.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>level.remove.prepare()),
     )
 
     data.addSubcommandGroup((subcommandGroup) =>
       subcommandGroup
         .setName("nft")
         .setDescription(
-          "Asssign role to a user once they hold a certain amount of NFT"
+          "Asssign role to a user once they hold a certain amount of NFT",
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>nft.list.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>nft.set.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>nft.remove.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>nft.remove.prepare()),
     )
 
     data.addSubcommandGroup((subcommandGroup) =>
@@ -75,18 +75,20 @@ const slashCmd: SlashCommand = {
         .setDescription("Assign a role corresponding to users' reaction")
         .addSubcommand(<SlashCommandSubcommandBuilder>reaction.list.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>reaction.set.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>reaction.remove.prepare())
+        .addSubcommand(
+          <SlashCommandSubcommandBuilder>reaction.remove.prepare(),
+        ),
     )
 
     data.addSubcommandGroup((subcommandGroup) =>
       subcommandGroup
         .setName("token")
         .setDescription(
-          "Assign role to a user once they hold a certain amount of Token"
+          "Assign role to a user once they hold a certain amount of Token",
         )
         .addSubcommand(<SlashCommandSubcommandBuilder>token.list.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>token.set.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>token.remove.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>token.remove.prepare()),
     )
 
     return data

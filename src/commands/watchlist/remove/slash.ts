@@ -17,9 +17,9 @@ const command: SlashCommand = {
         option
           .setName("symbols")
           .setDescription(
-            "The token which you wanna remove from your watchlist. Example: FTM ETH/USDT BTC/SOL"
+            "The token which you wanna remove from your watchlist. Example: FTM ETH/USDT BTC/SOL",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

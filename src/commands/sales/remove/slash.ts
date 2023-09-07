@@ -17,9 +17,9 @@ const command: SlashCommand = {
         option
           .setName("address")
           .setDescription(
-            "NFT address. Example: 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73"
+            "NFT address. Example: 0x7aCeE5D0acC520faB33b3Ea25D4FEEF1FfebDE73",
           )
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async function (interaction: CommandInteraction) {
@@ -31,7 +31,7 @@ const command: SlashCommand = {
       interaction,
       interaction.guildId,
       address ?? "",
-      interaction.user.id
+      interaction.user.id,
     )
   },
   help: async (interaction: CommandInteraction) => ({

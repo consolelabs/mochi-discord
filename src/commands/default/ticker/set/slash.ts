@@ -19,14 +19,14 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription("enter token symbol")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("default")
           .setDescription("enter a default value for ticker")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
   },
   autocomplete: async function (i) {
@@ -45,9 +45,9 @@ const command: SlashCommand = {
     await i.respond(
       coins
         .filter((d: any) =>
-          d.name.toLowerCase().includes(focusedValue.toLowerCase())
+          d.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
-        .map((d: any) => ({ name: d.name, value: d.id }))
+        .map((d: any) => ({ name: d.name, value: d.id })),
     )
   },
   run: async function (interaction: CommandInteraction) {

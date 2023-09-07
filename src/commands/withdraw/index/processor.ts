@@ -63,7 +63,7 @@ CacheManager.init({
 export function checkCommitableOperation(
   tokenAmount: string,
   amount: string,
-  token: any
+  token: any,
 ) {
   const tokenDecimal = token.decimal ?? 0
 
@@ -102,7 +102,7 @@ function renderPreview(params: {
         `${getEmoji("WALLET_1")}\`Address.  ${shortenHashOrAddress(
           params.address,
           5,
-          5
+          5,
         )}\``,
       params.network &&
         `${getEmoji("SWAP_ROUTE")}\`Network.  \`${params.network}`,
@@ -112,7 +112,7 @@ function renderPreview(params: {
       params.token &&
         params.amount &&
         `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
-          params.token as TokenEmojiKey
+          params.token as TokenEmojiKey,
         )} **${params.amount} ${params.token}**`,
       params.fee &&
         params.token &&
@@ -142,7 +142,7 @@ async function savePayload(
     tokenId: string
     chainId: string
     decimal: number
-  }
+  },
 ) {
   const profileId = await getProfileIdByDiscord(i.user.id)
   const amount = _amount.replaceAll(",", "")
@@ -172,12 +172,12 @@ async function savePayload(
 // enter address
 export async function withdrawStep3(
   interaction: CommandInteraction | MessageComponentInteraction,
-  params: Params = {}
+  params: Params = {},
 ) {
   const balances = await getBalances({ msgOrInteraction: interaction })
 
   const filteredBals = balances.filter(
-    (b: any) => !params.token || equalIgnoreCase(b.token.symbol, params.token)
+    (b: any) => !params.token || equalIgnoreCase(b.token.symbol, params.token),
   )
 
   // straight from command
@@ -207,7 +207,7 @@ export async function withdrawStep3(
   const { valid, error } = checkCommitableOperation(
     tokenObj.amount,
     params.amount ?? "0",
-    tokenObj.token
+    tokenObj.token,
   )
   if (error) {
     const { msgOpts } = await withdrawStep2(interaction, {
@@ -239,7 +239,7 @@ export async function withdrawStep3(
   }
 
   const listWalletsRecentlyUsed = Array.from(
-    new Set(recentTxns.map((tx) => tx.other_profile_source))
+    new Set(recentTxns.map((tx) => tx.other_profile_source)),
   )
 
   const { valid: validAddress } = isAddress(params.address ?? "")
@@ -266,7 +266,7 @@ export async function withdrawStep3(
       token: tokenObj.token.symbol,
       amount: params.amount,
       network: tokenObj.token.chain.name,
-    })
+    }),
   )
 
   return {
@@ -287,8 +287,8 @@ export async function withdrawStep3(
                     listWalletsRecentlyUsed.slice(0, 25).map((a) => ({
                       label: `🔹 ${shortenHashOrAddress(a, 5, 5)}`,
                       value: a,
-                    }))
-                  )
+                    })),
+                  ),
               ),
             ]
           : []),
@@ -305,7 +305,7 @@ export async function withdrawStep3(
             label: `${params.address ? "Change" : "Enter"} address`,
             style: "SECONDARY",
             customId: "enter_address",
-          })
+          }),
         ),
       ],
     },
@@ -315,7 +315,7 @@ export async function withdrawStep3(
 // select withdraw amount
 export async function withdrawStep2(
   interaction: CommandInteraction | MessageComponentInteraction,
-  params: Params
+  params: Params,
 ) {
   const balances = await getBalances({ msgOrInteraction: interaction })
 
@@ -339,9 +339,9 @@ export async function withdrawStep2(
       getPercentage(
         params.amount?.toLowerCase() === "all"
           ? 100
-          : Number(params.amount?.slice(1))
+          : Number(params.amount?.slice(1)),
       ),
-      tokenDecimal
+      tokenDecimal,
     )
     amount = formatDigit({
       value: formatted,
@@ -352,7 +352,7 @@ export async function withdrawStep2(
     ;({ valid, error } = checkCommitableOperation(
       tokenObj.amount,
       params.amount ?? "0",
-      tokenObj.token
+      tokenObj.token,
     ))
 
     if (valid) {
@@ -364,9 +364,9 @@ export async function withdrawStep2(
   const isNotEmpty = !!text
   const emptyText = `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
-    true
+    true,
   )} You have nothing yet, use ${await getSlashCommand(
-    "earn"
+    "earn",
   )} or ${await getSlashCommand("deposit")} `
 
   const embed = composeEmbedMessage(null, {
@@ -380,7 +380,7 @@ export async function withdrawStep2(
       network: tokenObj.token.chain.name,
       token: tokenObj.token.symbol,
       amount: String(error ? 0 : amount),
-    })
+    }),
   )
 
   return {
@@ -408,7 +408,7 @@ export async function withdrawStep2(
             new MessageButton()
               .setLabel(`${p}%`)
               .setStyle("SECONDARY")
-              .setCustomId(`select_amount_${p}`)
+              .setCustomId(`select_amount_${p}`),
           ),
           new MessageButton()
             .setLabel("All")
@@ -417,14 +417,14 @@ export async function withdrawStep2(
           new MessageButton()
             .setLabel("Custom")
             .setStyle("SECONDARY")
-            .setCustomId("enter_amount")
+            .setCustomId("enter_amount"),
         ),
         new MessageActionRow().addComponents(
           new MessageButton()
             .setLabel("Continue (2/3)")
             .setCustomId("continue")
             .setStyle("PRIMARY")
-            .setDisabled(!!error || Number(amount) <= 0)
+            .setDisabled(!!error || Number(amount) <= 0),
         ),
       ],
     },
@@ -434,12 +434,12 @@ export async function withdrawStep2(
 // select token
 export async function withdrawStep1(
   interaction: CommandInteraction | SelectMenuInteraction,
-  filterSymbol?: string
+  filterSymbol?: string,
 ) {
   const balances = await getBalances({ msgOrInteraction: interaction })
 
   const filteredBals = balances.filter(
-    (b: any) => !filterSymbol || equalIgnoreCase(b.token.symbol, filterSymbol)
+    (b: any) => !filterSymbol || equalIgnoreCase(b.token.symbol, filterSymbol),
   )
 
   if (interaction.isSelectMenu() || filteredBals.length === 1) {
@@ -476,9 +476,9 @@ export async function withdrawStep1(
         embeds: [
           new MessageEmbed({
             description: `${getEmoji(
-              "NO"
+              "NO",
             )} You have no balance. Try ${await getSlashCommand(
-              "deposit"
+              "deposit",
             )} first`,
             color: msgColors.ERROR,
           }),
@@ -492,7 +492,7 @@ export async function withdrawStep1(
     "compact",
     "filter-dust",
     filteredBals.length ? filteredBals : balances,
-    0
+    0,
   )
 
   const embed = composeEmbedMessage(null, {
@@ -501,7 +501,7 @@ export async function withdrawStep1(
   }).addFields(
     renderPreview({
       ...(filterSymbol && filteredBals.length ? { token: filterSymbol } : {}),
-    })
+    }),
   )
 
   const isDuplicateSymbol = (s: string) =>
@@ -518,7 +518,7 @@ export async function withdrawStep1(
           ? [
               new MessageEmbed({
                 description: `${getEmoji("NO")} No token ${getEmojiToken(
-                  filterSymbol as TokenEmojiKey
+                  filterSymbol as TokenEmojiKey,
                 )} **${filterSymbol}** found in your balance.`,
                 color: msgColors.ERROR,
               }),
@@ -539,8 +539,8 @@ export async function withdrawStep1(
                 }`,
                 value: b.id,
                 emoji: getEmojiToken(b.token.symbol),
-              }))
-            )
+              })),
+            ),
         ),
       ],
     },
@@ -560,7 +560,7 @@ function composeWithdrawEmbed() {
 
 export async function executeWithdraw(
   interaction: ButtonInteraction,
-  params: Params
+  params: Params,
 ) {
   const payload = await CacheManager.get({
     pool: "withdraw-request-payload",
@@ -571,7 +571,7 @@ export async function executeWithdraw(
   // withdraw
   const amount = parseUnits(
     payload.amount.toLocaleString().replaceAll(",", ""),
-    payload.decimal
+    payload.decimal,
   ).toString()
   const { ok, error, log, curl } = await mochiPay.withdrawV2({
     ...payload,
@@ -590,7 +590,7 @@ export async function executeWithdraw(
     payload.profileId,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_WITHDRAW
+    MOCHI_ACTION_WITHDRAW,
   )
   kafkaMsg.activity.content.amount = payload.amount
   kafkaMsg.activity.content.token = payload.token
@@ -608,7 +608,7 @@ export async function executeWithdraw(
       msgOpts: {
         embeds: [
           enableDMMessage(
-            "Your request has been submitted and result will be sent to your DM, but "
+            "Your request has been submitted and result will be sent to your DM, but ",
           ),
         ],
       },

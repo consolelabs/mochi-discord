@@ -36,7 +36,7 @@ const getClaimButton = (disabled = false, authorId: string) => {
           .setStyle("SECONDARY")
           .setEmoji(getEmoji("CHECK"))
           .setCustomId(`claim-rewards-daily_${authorId}`)
-          .setLabel(disabled ? "No rewards to claim" : "Claim rewards")
+          .setLabel(disabled ? "No rewards to claim" : "Claim rewards"),
       ),
     ],
   }
@@ -117,7 +117,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
           .setCustomId(`back-to-quest-list_${authorId}`)
           .setEmoji(getEmoji("LEFT_ARROW"))
           .setStyle("SECONDARY")
-          .setLabel("Back to quest list")
+          .setLabel("Back to quest list"),
       ),
     ],
   })
@@ -153,7 +153,7 @@ export async function run(userId: string, msg?: Message) {
   embed.fields = res.data
     .filter(
       (d: any) =>
-        d.action !== "bonus" && d.action !== "trade" && d.action !== "vote"
+        d.action !== "bonus" && d.action !== "trade" && d.action !== "vote",
     )
     .map((d: any) => {
       const rewards = d.quest.rewards
@@ -161,14 +161,14 @@ export async function run(userId: string, msg?: Message) {
           const isRewardXP = r.reward_type.name.toLowerCase() === "xp"
           return `${getEmoji(
             isRewardXP ? "ANIMATED_XP" : r.reward_type.name,
-            isRewardXP
+            isRewardXP,
           )} \`${r.reward_amount}\` ${r.reward_type.name}`
         })
         .join(" and ")
       return {
         name: `**${d.quest.title}**`,
         value: `${getEmoji(
-          d.is_completed ? "APPROVE" : "APPROVE_GREY"
+          d.is_completed ? "APPROVE" : "APPROVE_GREY",
         )} ${buildProgressBar({
           emoji,
           total: d.target,

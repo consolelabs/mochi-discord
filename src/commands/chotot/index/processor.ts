@@ -92,7 +92,7 @@ export async function renderAdDetail(i: SelectMenuInteraction) {
 export async function renderListAds(
   i: CommandInteraction | ButtonInteraction,
   queryString: string,
-  page = 1
+  page = 1,
 ) {
   const queryObj = qs.parse(queryString)
   const searchTerm = queryObj.query_term || queryString
@@ -134,7 +134,7 @@ export async function renderListAds(
   embed.fields = res.ads.map(
     (
       { subject, price_string, date, list_id, condition_ad_name }: ChoTotAds,
-      i
+      i,
     ) => {
       const num = (page - 1) * PAGE_SIZE + i + 1
 
@@ -153,7 +153,7 @@ export async function renderListAds(
         value: postDetail,
         inline: false,
       }
-    }
+    },
   )
 
   return {
@@ -172,8 +172,8 @@ export async function renderListAds(
               res.ads.map(({ subject, list_id }: ChoTotAds, i) => ({
                 label: `${(page - 1) * PAGE_SIZE + i + 1}. ${subject}`,
                 value: list_id.toString(),
-              }))
-            )
+              })),
+            ),
         ),
         ...paginationButtons(page, totalPage),
       ],

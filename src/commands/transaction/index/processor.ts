@@ -9,7 +9,7 @@ import UI, { Platform, PageSize } from "@consolelabs/mochi-ui"
 
 export async function render(
   i: CommandInteraction | ButtonInteraction,
-  page = 0
+  page = 0,
 ) {
   const userDiscordId = i.user.id
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -30,7 +30,7 @@ export async function render(
             title: "No transactions found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} This user does not have any transactions yet`,
             color: msgColors.SUCCESS,
           }),
@@ -60,7 +60,7 @@ export async function render(
             title: "No transactions found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} This user does not have any transactions yet`,
             color: msgColors.ACTIVITY,
           }),

@@ -34,7 +34,7 @@ function collectPlayerChoice(data: any, referee: User) {
     const { ok, error } = await mochiGuess.joinGame(
       data.code,
       i.user.id,
-      optionCode
+      optionCode,
     )
     if (!ok) {
       await i.editReply({
@@ -56,7 +56,7 @@ function renderProgress(
   code: string,
   options: any[],
   bet_default_value: number,
-  token_name: string
+  token_name: string,
 ) {
   const time = end <= Date.now() ? "0" : Math.round(end / 1000)
   const msg1 = `:warning: The game will be closed <t:${time}:R>.\nPlease make sure you have submitted the answer and approved the mochi transaction.`
@@ -68,7 +68,7 @@ function renderProgress(
     `:police_officer: \`Referee.    \` <@${referee.id}>`,
     `:moneybag: \`Bet Amount. \` ${bet_default_value} ${getEmojiToken(
       token_name as TokenEmojiKey,
-      false
+      false,
     )} `,
     `:question: \`Question.   \` ${question}`,
     "",
@@ -84,7 +84,7 @@ function renderProgress(
           opt.game_player
             ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
             : ""
-        }`
+        }`,
     ),
   ].join("\n")
 }
@@ -96,35 +96,35 @@ const slashCmd: SlashCommand = {
       .setName("new")
       .setDescription("new game")
       .addUserOption((opt) =>
-        opt.setName("referee").setDescription("referee").setRequired(true)
+        opt.setName("referee").setDescription("referee").setRequired(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("question")
           .setDescription("a yes or no question")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addIntegerOption((opt) =>
         opt
           .setName("duration")
           .setDescription(
-            "duration to run the game in minutes (default 30 minutes)"
+            "duration to run the game in minutes (default 30 minutes)",
           )
           .setMaxValue(60)
           .setMinValue(1)
-          .setRequired(false)
+          .setRequired(false),
       )
       .addStringOption((opt) =>
         opt
           .setName("yes_label")
           .setDescription("the label for yes option (optional)")
-          .setRequired(false)
+          .setRequired(false),
       )
       .addStringOption((opt) =>
         opt
           .setName("no_label")
           .setDescription("the label for no option (optional)")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async (i) => {
@@ -195,7 +195,7 @@ const slashCmd: SlashCommand = {
             data.code,
             options,
             data.bet_default_value,
-            data.token_name
+            data.token_name,
           ),
         })
         .catch(() => null)
@@ -208,10 +208,10 @@ const slashCmd: SlashCommand = {
     }
 
     const yesCode = data.options.find((opt: any) =>
-      equalIgnoreCase(opt.option, yesLabel)
+      equalIgnoreCase(opt.option, yesLabel),
     ).code
     const noCode = data.options.find((opt: any) =>
-      equalIgnoreCase(opt.option, noLabel)
+      equalIgnoreCase(opt.option, noLabel),
     ).code
 
     const options: Record<string, string> = {
@@ -230,7 +230,7 @@ const slashCmd: SlashCommand = {
           label: noLabel,
           style: "SECONDARY",
           customId: noCode,
-        })
+        }),
       ),
     ]
 
@@ -242,63 +242,66 @@ const slashCmd: SlashCommand = {
         data.code,
         data.options,
         data.bet_default_value,
-        data.token_name
+        data.token_name,
       ),
       components: choices,
     })
 
     timeouts.set(
       data.code,
-      setTimeout(async () => {
-        await updatePlayers()
-        const embed = composeEmbedMessage(null, {
-          color: "RED",
-        })
-        embed.setTitle(":loudspeaker: Judgement")
-        embed.setDescription(
-          `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`
-        )
-
-        const msg = await thread
-          .send({
-            embeds: [embed],
-            components: choices,
+      setTimeout(
+        async () => {
+          await updatePlayers()
+          const embed = composeEmbedMessage(null, {
+            color: "RED",
           })
-          .catch(() => null)
+          embed.setTitle(":loudspeaker: Judgement")
+          embed.setDescription(
+            `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`,
+          )
 
-        msg
-          ?.createMessageComponentCollector({
-            componentType: "BUTTON",
-            // 10 minutes to decide
-            time: 10 * 60 * 1000,
-          })
-          .on("collect", async (i) => {
-            await i.deferReply({ ephemeral: true }).catch(() => null)
-            if (i.user.id !== referee.id) {
-              await i.editReply({
-                content: "Only referee can decide the result of this game",
-              })
-              return
-            }
+          const msg = await thread
+            .send({
+              embeds: [embed],
+              components: choices,
+            })
+            .catch(() => null)
 
-            await i.update({ components: [] }).catch(() => null)
+          msg
+            ?.createMessageComponentCollector({
+              componentType: "BUTTON",
+              // 10 minutes to decide
+              time: 10 * 60 * 1000,
+            })
+            .on("collect", async (i) => {
+              await i.deferReply({ ephemeral: true }).catch(() => null)
+              if (i.user.id !== referee.id) {
+                await i.editReply({
+                  content: "Only referee can decide the result of this game",
+                })
+                return
+              }
 
-            const gameResult = await mochiGuess
-              .endGame(data.code, i.user.id, i.customId)
-              .catch(() => null)
-            await i.deleteReply().catch(() => null)
-            if (gameResult?.data) {
-              await announceResult(
-                thread,
-                data.code,
-                options[i.customId as keyof typeof options],
-                gameResult.data
-              )
-            }
+              await i.update({ components: [] }).catch(() => null)
 
-            await cleanupAfterEndGame(thread, data.code)
-          })
-      }, durationMs + 30 * 1000) // + more 30s to make sure all transactions are committed
+              const gameResult = await mochiGuess
+                .endGame(data.code, i.user.id, i.customId)
+                .catch(() => null)
+              await i.deleteReply().catch(() => null)
+              if (gameResult?.data) {
+                await announceResult(
+                  thread,
+                  data.code,
+                  options[i.customId as keyof typeof options],
+                  gameResult.data,
+                )
+              }
+
+              await cleanupAfterEndGame(thread, data.code)
+            })
+        },
+        durationMs + 30 * 1000,
+      ), // + more 30s to make sure all transactions are committed
     )
 
     timers.set(data.code, setInterval(updatePlayers, 10 * 1000))

@@ -44,7 +44,7 @@ const event: DiscordEvent<"messageDelete"> = {
 
           await webhook.pushDiscordWebhook("messageDelete", body)
         })
-      }
+      },
     )
   },
 }

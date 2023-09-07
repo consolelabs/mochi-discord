@@ -76,18 +76,18 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
   const baseCoinCap = Number(baseCoin.market_data?.market_cap?.usd ?? 0)
 
   const targetCoinPrice = Number(
-    targetCoin.market_data?.current_price?.usd ?? 0
+    targetCoin.market_data?.current_price?.usd ?? 0,
   )
   const targetCoinCap = Number(targetCoin.market_data?.market_cap?.usd ?? 0)
 
   return [
     {
       name: `\n${DIVIDER}\n${getEmojiToken(
-        baseCoin.symbol.toUpperCase() as TokenEmojiKey
+        baseCoin.symbol.toUpperCase() as TokenEmojiKey,
       )} ${baseCoin.symbol.toUpperCase()}`,
       value: [
         `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatUsdDigit(
-          baseCoinPrice
+          baseCoinPrice,
         )}\``,
         `${getEmoji("CHART")} Cap: \`$${formatDigit({
           value: baseCoinCap,
@@ -99,11 +99,11 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
     },
     {
       name: `\u200b\n${getEmojiToken(
-        targetCoin.symbol.toUpperCase() as TokenEmojiKey
+        targetCoin.symbol.toUpperCase() as TokenEmojiKey,
       )} ${targetCoin.symbol.toUpperCase()}`,
       value: [
         `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatUsdDigit(
-          targetCoinPrice
+          targetCoinPrice,
         )}\``,
         `${getEmoji("CHART")} Cap: \`$${formatDigit({
           value: targetCoinCap,
@@ -118,7 +118,7 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
 
 export async function renderSingle(
   interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
-  { days, baseCoin: coin, type }: Context
+  { days, baseCoin: coin, type }: Context,
 ) {
   days = days ?? (type === ChartType.Dominance ? 365 : 30)
   const {
@@ -133,7 +133,7 @@ export async function renderSingle(
     type === ChartType.Dominance
       ? `${formatDigit({
           value: String(
-            (market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY]
+            (market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY],
           ),
           fractionDigits: 2,
         })}%`
@@ -187,7 +187,7 @@ export async function renderSingle(
     {
       name: "Change (W1)",
       value: getChangePercentage(
-        price_change_percentage_7d_in_currency.usd ?? 0
+        price_change_percentage_7d_in_currency.usd ?? 0,
       ),
       inline: true,
     },
@@ -204,9 +204,9 @@ export async function renderSingle(
     Object.values(
       type === ChartType.Dominance
         ? DominanceChartViewTimeOption
-        : ChartViewTimeOption
+        : ChartViewTimeOption,
     ).filter((opt) => typeof opt === "number"),
-    days
+    days,
   )
 
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
@@ -272,7 +272,7 @@ function buildSwitchViewActionRow(currentView: string, added: boolean) {
 
 export async function renderTokenInfo(
   interaction: ButtonInteraction | CommandInteraction,
-  { baseCoin: coin, ...rest }: Context
+  { baseCoin: coin, ...rest }: Context,
 ) {
   const { data, status } = await CacheManager.get({
     pool: "ticker",
@@ -286,10 +286,10 @@ export async function renderTokenInfo(
       msgOrInteraction: interaction,
       description: `Token is invalid or hasn't been supported.\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} or Please choose a valid fiat currency.`,
     })
   }
@@ -325,7 +325,7 @@ export async function renderTokenInfo(
           data.asset_platform?.shortname ||
           data.name,
         inline: true,
-      }
+      },
     )
   }
 
@@ -389,7 +389,7 @@ export async function renderTokenInfo(
       name: `${getEmoji("WAVING_HAND")} Communities`,
       value: data.communities
         .map(
-          (c: any) => `${getEmoji(c.key as EmojiKey)} [${c.key}](${c.value})`
+          (c: any) => `${getEmoji(c.key as EmojiKey)} [${c.key}](${c.value})`,
         )
         .join("\n"),
       inline: true,
@@ -441,7 +441,7 @@ function parseQuery(query: string) {
 
 export async function renderPair(
   interaction: CommandInteraction | SelectMenuInteraction,
-  { baseCoin, targetCoin, type, days }: Context
+  { baseCoin, targetCoin, type, days }: Context,
 ) {
   if (!targetCoin) return renderSingle(interaction, { baseCoin, type, days })
   const { chart, ratio } = await renderCompareTokenChart({
@@ -462,9 +462,9 @@ export async function renderPair(
     Object.values(
       type === ChartType.Dominance
         ? DominanceChartViewTimeOption
-        : ChartViewTimeOption
+        : ChartViewTimeOption,
     ).filter((opt) => typeof opt === "number"),
-    days
+    days,
   )
 
   return {
@@ -502,9 +502,9 @@ export async function renderFiatPair({
   const selectRow = composeDaysSelectMenu(
     "change_time_option",
     Object.values(ChartViewTimeOption).filter(
-      (opt) => typeof opt === "number"
+      (opt) => typeof opt === "number",
     ) as number[],
-    days
+    days,
   )
 
   return {
@@ -525,7 +525,7 @@ export async function renderFiatPair({
 export async function renderAllTicker(
   baseQ: string,
   baseCoin: any,
-  { days, type }: Context
+  { days, type }: Context,
 ) {
   const coins = []
   for (let i = 0; i < baseCoin.length; i++) {
@@ -541,10 +541,10 @@ export async function renderAllTicker(
         // msgOrInteraction: null,
         description: `Token is invalid or hasn't been supported.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} or Please choose a valid fiat currency.`,
       })
     }
@@ -565,7 +565,7 @@ export async function renderAllTicker(
     description: [
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Below is all available tokens with given ticker.`,
       getEmoji("LINE").repeat(5),
       "```",
@@ -589,7 +589,7 @@ export async function renderAllTicker(
               label: `${a.name} | $${a.market_data.current_price.usd}`,
               value: a.id,
             })),
-          })
+          }),
         ),
       ],
     },
@@ -608,7 +608,7 @@ export async function run(
   isCompare: boolean,
   isFiat: boolean,
   showAll: boolean,
-  view = TickerView.Chart
+  view = TickerView.Chart,
 ) {
   if (isFiat)
     return renderFiatPair({
@@ -661,10 +661,10 @@ export async function run(
             msgOrInteraction: interaction,
             description: `Token is invalid or hasn't been supported.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} or Please choose a valid fiat currency.`,
           })
         }
@@ -680,17 +680,17 @@ export async function run(
             msgOrInteraction: interaction,
             description: `Token is invalid or hasn't been supported.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Please choose a token that is listed on [CoinGecko](https://www.coingecko.com).\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} or Please choose a valid fiat currency.`,
           })
         }
       }
 
       return data
-    })
+    }),
   )
 
   const type = parseQuery(baseQ).isDominanceChart

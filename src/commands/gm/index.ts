@@ -59,7 +59,7 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("gm")
       .setDescription(
-        "Configure a good morning/good night channel for users to engage and keep streaks"
+        "Configure a good morning/good night channel for users to engage and keep streaks",
       )
 
     data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())

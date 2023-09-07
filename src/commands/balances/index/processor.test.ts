@@ -119,9 +119,9 @@ describe("balances", () => {
       author: ["Mochi wallet", getEmojiURL(emojis.NFT2)],
       description: `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} You have nothing yet, use ${await getSlashCommand(
-        "earn"
+        "earn",
       )} or ${await getSlashCommand("deposit")}\n\n**Wallets**\n\n\n`,
     })
     const { msgOpts } = await renderBalances(i.user.id, {

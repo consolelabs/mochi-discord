@@ -13,7 +13,7 @@ const command: SlashCommand = {
       .setName("channel")
       .setDescription("enter channel")
       .addChannelOption((option) =>
-        option.setName("channel").setDescription("enter channel")
+        option.setName("channel").setDescription("enter channel"),
       )
   },
   run: async function (interaction: CommandInteraction) {

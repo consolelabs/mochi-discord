@@ -19,7 +19,7 @@ const slashCmd: SlashCommand = {
           .setName("name")
           .setDescription("enter currency")
           .setRequired(true)
-          .addChoices(choices.map((c) => [c, c.toLowerCase()]))
+          .addChoices(choices.map((c) => [c, c.toLowerCase()])),
       )
 
     return data

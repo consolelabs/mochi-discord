@@ -49,7 +49,7 @@ dayjs.extend(relativeTime)
 
 export function confirmationHandler(
   payload: TransferPayload,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ) {
   return async (i: ButtonInteraction) => {
     switch (i.customId) {
@@ -82,7 +82,7 @@ async function generateQRairdrop(
     entries?: number
     duration: number
     chain_id: string
-  }
+  },
 ): Promise<RunResult<MessageOptions>> {
   const res = await mochiPay.generateQRpaymentCode(createAirdropParams)
   if (!res.ok || !res.data?.id)
@@ -96,7 +96,7 @@ async function generateQRairdrop(
     `https://mochi.gg/airdrop/${res.data.id}`,
     {
       width: 400,
-    }
+    },
   )
 
   embed.setImage("attachment://qr.png")
@@ -113,7 +113,7 @@ async function generateQRairdrop(
 async function confirmAirdrop(
   i: ButtonInteraction,
   payload: TransferPayload,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ): Promise<RunResult<MessageOptions>> {
   await i.deferUpdate()
 
@@ -123,9 +123,7 @@ async function confirmAirdrop(
   const { amount, token, token_price = 0 } = payload
   const usdAmount = token_price * amount
   const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
-  const endTime = dayjs()
-    .add(+duration, "second")
-    .toDate()
+  const endTime = dayjs().add(+duration, "second").toDate()
   const airdropEmbed = composeEmbedMessage(null, {
     author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
     description: `${author} left an airdrop of ${tokenEmoji} **${formatDigit({
@@ -152,8 +150,8 @@ async function confirmAirdrop(
         value: amount.toString(),
       })} ${token}** (${APPROX} $${roundFloatNumber(
         usdAmount,
-        4
-      )}) in ${describeRunTime(duration)}.`
+        4,
+      )}) in ${describeRunTime(duration)}.`,
     )
     return await generateQRairdrop(i, airdropEmbed, {
       amount,
@@ -179,7 +177,7 @@ async function confirmAirdrop(
       label: "Enter airdrop",
       style: "SECONDARY",
       emoji: getEmoji("ANIMATED_PARTY_POPPER", true),
-    })
+    }),
   )
 
   return {
@@ -195,7 +193,7 @@ function checkExpiredAirdrop(
   i: ButtonInteraction,
   cacheKey: string,
   payload: TransferPayload,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ) {
   const { token, amount_string = "", token_price = 0 } = payload
   const amount = +amount_string
@@ -226,10 +224,10 @@ function checkExpiredAirdrop(
           i.user
         }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
           usdAmount,
-          4
+          4,
         )}) has not been collected by anyone ${getEmoji(
           "ANIMATED_SHRUGGING",
-          true
+          true,
         )}.`
         embed.setDescription(description)
         msg.edit({ embeds: [embed], components: [] })
@@ -243,7 +241,7 @@ function checkExpiredAirdrop(
         ...payload,
         sender: await getProfileIdByDiscord(payload.sender),
         recipients: await Promise.all(
-          payload.recipients.map((r: string) => getProfileIdByDiscord(r))
+          payload.recipients.map((r: string) => getProfileIdByDiscord(r)),
         ),
         platform: "discord",
       })
@@ -273,7 +271,7 @@ function checkExpiredAirdrop(
         i.user
       }'s airdrop of ${tokenEmoji} **${amount} ${token}** (${APPROX} $${roundFloatNumber(
         usdAmount,
-        4
+        4,
       )}) has been collected by ${participants.join(",")}!`
       embed.setDescription(description)
       msg.edit({ embeds: [embed], components: [] })
@@ -285,13 +283,13 @@ function sendAuthorDm(
   i: ButtonInteraction,
   pNum: number,
   token: string,
-  amountStr: string
+  amountStr: string,
 ) {
   const aPointingRight = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const embed = composeEmbedMessage(null, {
     author: ["The airdrop has ended!", getEmojiURL(emojis.AIRDROP)],
     description: `\n${aPointingRight} You have airdropped ${getEmoji(
-      token as TokenEmojiKey
+      token as TokenEmojiKey,
     )} ${amountStr} ${token} for ${pNum} users at ${
       i.channel
     }\n${aPointingRight} Let's check your </balances:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
@@ -305,7 +303,7 @@ function sendRecipientsDm(
   i: ButtonInteraction,
   participants: string[],
   token: string,
-  amountEach: string
+  amountEach: string,
 ) {
   participants.forEach(async (p) => {
     const { value } = parseDiscordToken(p)
@@ -316,12 +314,12 @@ function sendRecipientsDm(
         getEmojiURL(emojis.ANIMATED_COIN_3),
       ],
       description: `You have received ${APPROX} ${getEmoji(
-        token as TokenEmojiKey
+        token as TokenEmojiKey,
       )} ${formatDigit({ value: amountEach })} ${token} from ${
         i.user
       }'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
         "ANIMATED_WITHDRAW",
-        true
+        true,
       )}`,
       color: msgColors.ACTIVITY,
     })
@@ -340,7 +338,7 @@ async function enterAirdrop(
   i: ButtonInteraction,
   opts: AirdropOptions,
   author: User,
-  cacheKey: string
+  cacheKey: string,
 ) {
   const participants: string[] = airdropCache.get(cacheKey) ?? []
 
@@ -412,7 +410,7 @@ async function enterAirdrop(
 export function entranceHandler(
   opts: AirdropOptions,
   author: User,
-  cacheKey: string
+  cacheKey: string,
 ) {
   return async (i: ButtonInteraction) =>
     await enterAirdrop(i, opts, author, cacheKey)
@@ -422,7 +420,7 @@ export function tokenSelectionHandler(
   ci: CommandInteraction,
   payload: TransferPayload,
   balances: any,
-  opts: AirdropOptions
+  opts: AirdropOptions,
 ) {
   return async (i: SelectMenuInteraction) => {
     await i.deferUpdate()
@@ -430,7 +428,7 @@ export function tokenSelectionHandler(
     const balance = balances.find(
       (b: any) =>
         equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chain_id === b.token?.chain?.chain_id
+        payload.chain_id === b.token?.chain?.chain_id,
     )
     return validateAndShowConfirmation(ci, payload, balance, opts)
   }

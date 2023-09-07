@@ -45,7 +45,7 @@ export function classifyTipSyntaxTargets(msgContent: string): {
   let selector
   while (
     (selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find((s) =>
-      content.toLowerCase().includes(s[0])
+      content.toLowerCase().includes(s[0]),
     )) !== undefined
   ) {
     const [s, translatedSelector] = selector
@@ -75,7 +75,7 @@ export function classifyTipSyntaxTargets(msgContent: string): {
 export async function parseRecipients(
   msg: Message | CommandInteraction,
   targets: string[],
-  fromDiscordId: string
+  fromDiscordId: string,
 ) {
   const isOnline = targets.includes("online")
   return Array.from(
@@ -118,7 +118,7 @@ export async function parseRecipients(
                     channel.members
                       .filter(isNotBot)
                       .filter(isStatus(isOnline))
-                      .keys()
+                      .keys(),
                   )
                 }
                 return []
@@ -128,7 +128,7 @@ export async function parseRecipients(
                 targets.every(
                   (t) =>
                     !parseDiscordToken(t).isChannel &&
-                    !parseDiscordToken(t).isRole
+                    !parseDiscordToken(t).isRole,
                 ): {
                 if (!msg.guild?.members) return []
                 const members = (await msg.guild.members.fetch())
@@ -137,7 +137,7 @@ export async function parseRecipients(
                     (mem) =>
                       Boolean(mem.presence?.status) &&
                       mem.presence?.status !== "offline" &&
-                      mem.presence?.status !== "invisible"
+                      mem.presence?.status !== "invisible",
                   )
                 return members.map((member) => member.user.id)
               }
@@ -156,7 +156,7 @@ export async function parseRecipients(
                   members
                     .filter((m) => m.voice.channelId === voiceChannelId)
                     .mapValues((m) => m.user.id)
-                    .values()
+                    .values(),
                 )
                 return recipients
               }
@@ -172,20 +172,22 @@ export async function parseRecipients(
                       mem.roles.cache
                         .map((role) => role.name)
                         .includes("@everyone") ||
-                      mem.roles.cache.map((role) => role.name).includes("@here")
+                      mem.roles.cache
+                        .map((role) => role.name)
+                        .includes("@here"),
                   )
                 return members.map((member) => member.user.id)
               }
             }
             return []
-          })
+          }),
         )
       )
         .flat()
         .filter(
-          (toDiscordId) => toDiscordId !== "" && toDiscordId !== fromDiscordId
-        )
-    )
+          (toDiscordId) => toDiscordId !== "" && toDiscordId !== fromDiscordId,
+        ),
+    ),
   )
 }
 
@@ -282,7 +284,8 @@ export function getTargets(args: string[]): {
   for (const [idx, a] of args.entries()) {
     const selector = TIP_TARGET_TEXT_SELECTOR_MAPPINGS.find(
       (s) =>
-        s[0].startsWith(a.toLowerCase()) && content.toLowerCase().includes(s[0])
+        s[0].startsWith(a.toLowerCase()) &&
+        content.toLowerCase().includes(s[0]),
     )
     // target is one of the selectors "TIP_TARGET_TEXT_SELECTOR_MAPPINGS"
     if (selector) {
@@ -371,7 +374,7 @@ const amountUnitNoSpaceRegEx = /^(\d+\.*\d*)(\D+)$/i
 
 export function parseTipAmount(
   msgOrInteraction: Message | CommandInteraction,
-  amountArg: string
+  amountArg: string,
 ): { all: boolean; amount: number; unit?: string } {
   const author = getAuthor(msgOrInteraction)
   const result: { all: boolean; amount: number; unit?: string } = {
@@ -454,10 +457,10 @@ export function truncateAmountDecimal(amountArg: string, decimal = 18): string {
 
 export async function isInTipRange(
   msgOrInteraction: Message | CommandInteraction,
-  usdVal: number
+  usdVal: number,
 ) {
   const { data: tipRange } = await config.getTipRangeConfig(
-    msgOrInteraction.guildId ?? ""
+    msgOrInteraction.guildId ?? "",
   )
   const { min, max } = tipRange ?? {}
   const amountOor = (min && usdVal < min) || (max && usdVal > max)

@@ -15,7 +15,7 @@ const slashCmd: SlashCommand = {
           .setName("code")
           .setDescription("game id")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((opt) =>
         opt
@@ -25,7 +25,7 @@ const slashCmd: SlashCommand = {
             ["yes", "1"],
             ["no", "2"],
           ])
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   autocomplete: async (i) => {
@@ -44,7 +44,7 @@ const slashCmd: SlashCommand = {
           name: `${g.code} ${truncate(g.question, { length: 20 })}`,
           value: g.code,
         }))
-        .slice(0, 25)
+        .slice(0, 25),
     )
   },
   run: async (i) => {

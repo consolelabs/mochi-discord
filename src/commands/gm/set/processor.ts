@@ -8,7 +8,7 @@ export async function handle(
   channelId: string,
   msg: string,
   emoji: string,
-  sticker: string
+  sticker: string,
 ) {
   const config = await Config.updateGmConfig({
     guild_id: guildId,
@@ -26,7 +26,7 @@ export async function handle(
         composeEmbedMessage(null, {
           author: ["Successfully set", getEmojiURL(emojis["APPROVE"])],
           description: `${getEmoji(
-            "GOOD_MORNING"
+            "GOOD_MORNING",
           )} Let your members repeat the phrase "${msg}", or ${emoji} in <#${channelId}> to join the streak.`,
         }),
       ],
