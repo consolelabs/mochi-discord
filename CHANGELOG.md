@@ -1,3 +1,10 @@
+# [6.29.0-rc.13](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.12...v6.29.0-rc.13) (2023-09-07)
+
+
+### Bug Fixes
+
+* **payme,paylink,balances:** pay request payload ([#1479](https://github.com/consolelabs/mochi-discord/issues/1479)) ([0db6008](https://github.com/consolelabs/mochi-discord/commit/0db6008ec30ca74f618880ee3b6a147ec8874309))
+
 # [6.29.0-rc.12](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.11...v6.29.0-rc.12) (2023-09-07)
 
 
