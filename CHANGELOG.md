@@ -1,3 +1,10 @@
+# [6.29.0-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.7...v6.29.0-rc.8) (2023-09-07)
+
+
+### Features
+
+* **guess:** allow guess game to be played inside a thread or played outside in a channel ([#1478](https://github.com/consolelabs/mochi-discord/issues/1478)) ([3d19e32](https://github.com/consolelabs/mochi-discord/commit/3d19e32f1d3da7c6ded94bfe4144ecb772804d5b))
+
 # [6.29.0-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.6...v6.29.0-rc.7) (2023-09-07)
 
 
