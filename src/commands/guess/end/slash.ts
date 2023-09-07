@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, userMention } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
-import { ThreadChannel, MessageOptions } from "discord.js"
+import { ThreadChannel, MessageOptions, Message } from "discord.js"
 import { now, truncate, groupBy } from "lodash"
 import { logger } from "logger"
 import moment from "moment-timezone"
@@ -27,7 +27,7 @@ export async function cleanupAfterEndGame(
 }
 
 export async function announceResult(
-  thread: ThreadChannel,
+  messageContext: ThreadChannel | Message["channel"],
   gameCode: string,
   answer: string,
   gameResult: any,
@@ -41,7 +41,7 @@ export async function announceResult(
   const embed = composeEmbedMessage(null, {
     color: "GREEN",
   })
-  embed.setTitle(`:crossed_swords: Result ${gameCode}`)
+  embed.setTitle(`:crossed_swords: Result - ${gameCode}`)
   embed.setDescription(
     "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \n\nHere is the result:",
   )
@@ -86,7 +86,7 @@ export async function announceResult(
     embeds: [embed],
   }
 
-  await thread.send(msgOpt).catch(() => null)
+  await messageContext.send(msgOpt).catch(() => null)
 }
 
 const slashCmd: SlashCommand = {

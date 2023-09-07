@@ -126,6 +126,12 @@ const slashCmd: SlashCommand = {
           .setDescription("the label for no option (optional)")
           .setRequired(false),
       )
+      .addBooleanOption((opt) =>
+        opt
+          .setName("thread")
+          .setDescription("game played in thread (default false)")
+          .setRequired(false),
+      )
   },
   run: async (i) => {
     if (i.channel?.type !== "GUILD_TEXT") {
@@ -152,15 +158,22 @@ const slashCmd: SlashCommand = {
       }
     }
 
+    const threadMode = i.options.getBoolean("thread", false)
+
     const reply = (await i.editReply({
-      content: [`${i.user} asked:`, `> ${question}`].join("\n"),
+      content: [`Hey @here, ${i.user}'s popped new Quiz.`].join("\n"),
     })) as Message
 
-    const thread = await reply.startThread({
-      name: truncate(question, { length: 100 }),
-    })
-
-    await thread.members.add(referee)
+    let messageContext: any = reply.channel
+    let flowID = reply.channel.id
+    if (threadMode) {
+      const thread = await reply.startThread({
+        name: truncate(question, { length: 100 }),
+      })
+      await thread.members.add(referee)
+      messageContext = thread
+      flowID = thread.id
+    }
 
     const game = {
       duration: durationMin,
@@ -168,7 +181,7 @@ const slashCmd: SlashCommand = {
       options: [yesLabel, noLabel],
       question,
       referee_id: referee.id,
-      thread_id: thread.id,
+      thread_id: flowID,
     }
     const { ok, data, originalError, error } = await mochiGuess.createGame(game)
     if (!ok) {
@@ -176,34 +189,6 @@ const slashCmd: SlashCommand = {
         messageOptions: {
           content: capitalizeFirst(originalError || error),
         },
-      }
-    }
-
-    const start = Date.now(),
-      end = start + durationMs
-    const updatePlayers = async function () {
-      const { ok, data: game } = await mochiGuess.getGameProgress(data.code)
-      if (!ok) return
-      const options = game.options
-
-      msg
-        .edit({
-          content: renderProgress(
-            referee,
-            question,
-            end,
-            data.code,
-            options,
-            data.bet_default_value,
-            data.token_name,
-          ),
-        })
-        .catch(() => null)
-
-      // buffer 30s more to ensure all transactions are committed
-      if (now() >= moment(game.end_at).unix() * 1000 + 30 * 1000) {
-        clearInterval(timers.get(game.code))
-        return
       }
     }
 
@@ -234,7 +219,35 @@ const slashCmd: SlashCommand = {
       ),
     ]
 
-    const msg = await thread.send({
+    const start = Date.now(),
+      end = start + durationMs
+    const updatePlayers = async function () {
+      const { ok, data: game } = await mochiGuess.getGameProgress(data.code)
+      if (!ok) return
+      const options = game.options
+
+      msg
+        .edit({
+          content: renderProgress(
+            referee,
+            question,
+            end,
+            data.code,
+            options,
+            data.bet_default_value,
+            data.token_name,
+          ),
+        })
+        .catch(() => null)
+
+      // buffer 30s more to ensure all transactions are committed
+      if (now() >= moment(game.end_at).unix() * 1000 + 30 * 1000) {
+        clearInterval(timers.get(game.code))
+        return
+      }
+    }
+
+    const msg = await messageContext.send({
       content: renderProgress(
         referee,
         question,
@@ -255,12 +268,12 @@ const slashCmd: SlashCommand = {
           const embed = composeEmbedMessage(null, {
             color: "RED",
           })
-          embed.setTitle(":loudspeaker: Judgement")
+          embed.setTitle(`:loudspeaker: Judgement - ${data.code}`)
           embed.setDescription(
             `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`,
           )
 
-          const msg = await thread
+          const msg = await messageContext
             .send({
               embeds: [embed],
               components: choices,
@@ -273,7 +286,7 @@ const slashCmd: SlashCommand = {
               // 10 minutes to decide
               time: 10 * 60 * 1000,
             })
-            .on("collect", async (i) => {
+            .on("collect", async (i: any) => {
               await i.deferReply({ ephemeral: true }).catch(() => null)
               if (i.user.id !== referee.id) {
                 await i.editReply({
@@ -290,14 +303,16 @@ const slashCmd: SlashCommand = {
               await i.deleteReply().catch(() => null)
               if (gameResult?.data) {
                 await announceResult(
-                  thread,
+                  messageContext,
                   data.code,
                   options[i.customId as keyof typeof options],
                   gameResult.data,
                 )
               }
 
-              await cleanupAfterEndGame(thread, data.code)
+              if (threadMode) {
+                await cleanupAfterEndGame(messageContext, data.code)
+              }
             })
         },
         durationMs + 30 * 1000,
@@ -306,19 +321,21 @@ const slashCmd: SlashCommand = {
 
     timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
 
-    const editedReply = await reply
-      .edit({
-        content: [`${i.user} asked:`, `> ${question}`].join("\n"),
-        components: choices,
-      })
-      .catch(() => null)
+    if (threadMode) {
+      const editedReply = await reply
+        .edit({
+          content: [`${i.user} asked:`, `> ${question}`].join("\n"),
+          components: choices,
+        })
+        .catch(() => null)
 
-    editedReply
-      ?.createMessageComponentCollector({
-        componentType: "BUTTON",
-        time: durationMs,
-      })
-      .on("collect", collectPlayerChoice(data, referee))
+      editedReply
+        ?.createMessageComponentCollector({
+          componentType: "BUTTON",
+          time: durationMs,
+        })
+        .on("collect", collectPlayerChoice(data, referee))
+    }
 
     msg
       .createMessageComponentCollector({
