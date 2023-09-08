@@ -3,7 +3,7 @@ import { CommandInteraction } from "discord.js"
 
 export async function setOffchainTip(
   i: CommandInteraction,
-  channel_id: string
+  channel_id: string,
 ) {
   if (!i.guildId) return
   await config.setLogchannel(i.guildId, {
@@ -19,7 +19,7 @@ export async function setLogChannel(i: CommandInteraction, logChannel: string) {
 
 export async function setLevelMessageChannel(
   i: CommandInteraction,
-  logChannel: string
+  logChannel: string,
 ) {
   if (!i.guildId) return
   await config.setLogchannel(i.guildId, {
@@ -30,7 +30,7 @@ export async function setLevelMessageChannel(
 
 export async function setGmGnMessageChannel(
   i: CommandInteraction,
-  logChannel: string
+  logChannel: string,
 ) {
   if (!i.guildId) return
   await config.setLogchannel(i.guildId, {

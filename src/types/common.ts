@@ -61,7 +61,7 @@ export type RunResult<T = MessageOptions | MessageEditOptions> = {
   }
   selectMenuCollector?: {
     handler: (
-      i: SelectMenuInteraction
+      i: SelectMenuInteraction,
     ) => Promise<RunResult<MessageOptions> | undefined> | Promise<void>
     options?: MessageCollectorOptionsParams<"SELECT_MENU">
   }
@@ -111,14 +111,14 @@ export type SlashCommand = {
   experimental?: boolean
   autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
   prepare: (
-    alias?: string
+    alias?: string,
   ) =>
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
     | SlashCommandSubcommandBuilder
     | SlashCommandSubcommandGroupBuilder
     | SlashCommandSubcommandsOnlyBuilder
   run: (
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) => Promise<CommandResponse<CommandInteraction>>
   help: (interaction: CommandInteraction) => Promise<MessageOptions>
   ephemeral?: boolean
@@ -135,12 +135,12 @@ export type Command = {
   run: (
     msg: Message,
     action?: string,
-    isAdmin?: boolean
+    isAdmin?: boolean,
   ) => Promise<CommandResponse<Message>>
   getHelpMessage: (
     msg: Message,
     action?: string,
-    isAdmin?: boolean
+    isAdmin?: boolean,
   ) => Promise<MessageOptions>
   aliases?: string[]
   canRunWithoutAction?: boolean

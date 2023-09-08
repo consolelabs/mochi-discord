@@ -2,6 +2,7 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message, MessageOptions } from "discord.js"
 import { APIError } from "errors"
+import { parseUnits } from "ethers/lib/utils"
 import fs from "fs"
 import * as qrcode from "qrcode"
 import { RunResult } from "types/common"
@@ -21,6 +22,7 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import { reply } from "utils/discord"
+import { getToken } from "../../../utils/tip-bot"
 
 export async function run({
   msgOrInteraction,
@@ -53,7 +55,7 @@ export async function run({
             inline: false,
           },
         ]
-      : [])
+      : []),
   )
   const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
@@ -87,10 +89,16 @@ export async function run({
           await i.deferUpdate()
           return
         }
+
+        const t = await getToken(token)
+
         await i.deferReply({ ephemeral: true })
         const res: any = await mochiPay.generatePaymentCode({
           profileId,
-          amount: amount.toString(),
+          amount: parseUnits(
+            amount.toLocaleString().replaceAll(",", ""),
+            t?.decimal ?? 0,
+          ).toString(),
           token,
           note,
           type: "paylink",
@@ -129,7 +137,7 @@ export async function run({
             note
               ? `with message ${getEmoji(
                   "ANIMATED_CHAT",
-                  true
+                  true,
                 )} \`\`\`${note}\`\`\``
               : ""
           }`,

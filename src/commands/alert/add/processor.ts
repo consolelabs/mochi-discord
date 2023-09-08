@@ -15,7 +15,7 @@ import { logger } from "logger"
 
 export const handlePriceAlertAdd = async (
   msgOrInteraction: Message | CommandInteraction,
-  symbol: string
+  symbol: string,
 ) => {
   const authorId =
     msgOrInteraction instanceof Message
@@ -31,7 +31,7 @@ export const handlePriceAlertAdd = async (
             description: `
               **${symbol.toUpperCase()}** is invalid or hasn't been supported.
               ${getEmoji(
-                "ANIMATED_POINTING_RIGHT"
+                "ANIMATED_POINTING_RIGHT",
               )} Please choose a token that is listed on [Binance Exchange](binance.com)
               `,
           }),
@@ -72,7 +72,7 @@ export const handlePriceAlertAdd = async (
         composeEmbedMessage(null, {
           title: `${getEmoji(
             "ANIMATED_CHART_INCREASE",
-            true
+            true,
           )} Please choose the price alert`,
         }),
       ],
@@ -94,7 +94,7 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
   const currentPrice = parseFloat(data?.price)
   let title = `${getEmoji(
     "ANIMATED_CHART_INCREASE",
-    true
+    true,
   )} Please enter the value in USD`
   let description = `The current price of **${
     symbol ? symbol.toUpperCase() : ""
@@ -108,7 +108,7 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
   if (alertType === "change_is_over" || alertType === "change_is_under") {
     title = `${getEmoji(
       "ANIMATED_CHART_INCREASE",
-      true
+      true,
     )} Please enter the value in percentage (%)`
     description += `You will get alert if ${alertType.replaceAll("_", " ")}:`
   }
@@ -206,7 +206,7 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
         composeEmbedMessage(null, {
           title: `${getEmoji(
             "ANIMATED_CHART_INCREASE",
-            true
+            true,
           )} Please choose the alert frequency`,
         }),
       ],
@@ -222,7 +222,7 @@ const handleFrequency: InteractionHandler = async (msgOrInteraction) => {
   const [frequency, amount, alertType, symbol, userDiscordId] = input.split("-")
 
   const isPercentageValue = ["change_is_over", "change_is_under"].includes(
-    alertType
+    alertType,
   )
   const value = +amount
 
@@ -245,7 +245,7 @@ const handleFrequency: InteractionHandler = async (msgOrInteraction) => {
           title: "Successfully added a price alert",
           description: `You will get a DM if **${symbol.toUpperCase()}**'s price ${alertType.replaceAll(
             "_",
-            " "
+            " ",
           )} ${value}${isPercentageValue ? "%" : ""}`,
         }),
       ],

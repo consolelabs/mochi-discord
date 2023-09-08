@@ -20,7 +20,7 @@ export async function updateAlias(
   msg: OriginalMessage,
   author: User,
   wallet: string,
-  alias = ""
+  alias = "",
 ) {
   const resolvedAddress = await resolveNamingServiceDomain(wallet)
   if (resolvedAddress !== "") {
@@ -36,7 +36,7 @@ export async function updateAlias(
 
   if (status !== 200) {
     throw new InternalError(
-      await composeAliasErrorMsg(msg, wallet, alias, status)
+      await composeAliasErrorMsg(msg, wallet, alias, status),
     )
   }
 
@@ -52,7 +52,7 @@ export async function updateAlias(
 async function composeAliasUpdatedMsg(
   data: Record<string, any> | null,
   chainType: AddressChainType,
-  alias: string
+  alias: string,
 ) {
   return {
     msgOpts: {
@@ -63,14 +63,14 @@ async function composeAliasUpdatedMsg(
           description: `
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
-  true
+  true,
 )} You can see used aliases by using ${await getSlashCommand("wallet list")}.
 ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
-            "wallet alias set"
+            "wallet alias set",
           )} to change to another alias.\n
 **Detail**
 ${getEmoji("WALLET_1")} \`Wallet.    ${shortenHashOrAddress(
-            data?.address
+            data?.address,
           )}\` ${getEmoji(chainType as EmojiKey)}
 ${getEmoji("CONVERSION")} \`Alias.     ${
             alias.length >= 16 ? shortenHashOrAddress(alias) : alias
@@ -84,7 +84,7 @@ ${getEmoji("CONVERSION")} \`Alias.     ${
 
 async function composeAliasRemovedMsg(
   data: Record<string, any> | null,
-  chainType: AddressChainType
+  chainType: AddressChainType,
 ) {
   return {
     msgOpts: {
@@ -95,14 +95,14 @@ async function composeAliasRemovedMsg(
           description: `
 ${getEmoji(
   "ANIMATED_POINTING_RIGHT",
-  true
+  true,
 )} You can see used aliases by using ${await getSlashCommand("wallet list")}.
 ${getEmoji("ANIMATED_POINTING_RIGHT", true)} Use ${await getSlashCommand(
-            "wallet alias set"
+            "wallet alias set",
           )} to change to another alias.\n
 **Detail**
 ${getEmoji("WALLET_1")} \`Wallet.    ${shortenHashOrAddress(
-            data?.address
+            data?.address,
           )}\` ${getEmoji(chainType as EmojiKey)}
 `,
         }),
@@ -115,7 +115,7 @@ async function composeAliasErrorMsg(
   msg: OriginalMessage,
   wallet: string,
   alias: string,
-  code: number | undefined
+  code: number | undefined,
 ) {
   let reason = ""
   switch (code) {
@@ -133,14 +133,14 @@ async function composeAliasErrorMsg(
   let description = `
     ${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} Some unexpected error occurred. Please try again later!
     ${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} Can try ${await getSlashCommand(
-    "wallet list"
-  )} to see your tracking wallets.
+      "wallet list",
+    )} to see your tracking wallets.
 
     **Detail**
     ${getEmoji("CONFIG")}\`Reason.   \`${reason}

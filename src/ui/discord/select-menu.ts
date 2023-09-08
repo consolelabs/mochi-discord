@@ -64,7 +64,7 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
           emoji: getEmoji("CHECK"),
           style: "SUCCESS",
           label: "Confirm",
-        })
+        }),
       )
 
       const author = getAuthor(originalMsg)
@@ -97,30 +97,30 @@ export function setDefaultMiddleware<T>(params: SetDefaultMiddlewareParams<T>) {
  * */
 export function composeSimpleSelection(
   options: string[],
-  customRender?: (o: string, i: number) => string
+  customRender?: (o: string, i: number) => string,
 ): string {
   return `${options
     .slice(0, 8)
     .map((o, i) =>
       customRender
         ? customRender(o, i)
-        : `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${VERTICAL_BAR}${o}`
+        : `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${VERTICAL_BAR}${o}`,
     )
     .join("\n")}`
 }
 
 export function composeDiscordSelectionRow(
-  options: MessageSelectMenuOptions = {}
+  options: MessageSelectMenuOptions = {},
 ): MessageActionRow {
   const row = new MessageActionRow().addComponents(
-    new MessageSelectMenu(options)
+    new MessageSelectMenu(options),
   )
 
   return row
 }
 
 export function getSuggestionComponents(
-  suggestions: Array<MessageSelectOptionData>
+  suggestions: Array<MessageSelectOptionData>,
 ) {
   if (suggestions.length === 0) return
   const hasOneSuggestion = suggestions.length === 1
@@ -145,11 +145,11 @@ export function getSuggestionComponents(
 export function composeDaysSelectMenu(
   customId: string,
   days: number[],
-  defaultVal?: number
+  defaultVal?: number,
 ) {
   const getDropdownOptionDescription = (days: number) =>
     `${getDateStr(dayjs().subtract(days, "day").unix() * 1000)} - ${getDateStr(
-      dayjs().unix() * 1000
+      dayjs().unix() * 1000,
     )}`
   const labeling = (days: number) => {
     if (days < 365) return `${days} day${days > 1 ? "s" : ""}`

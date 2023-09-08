@@ -16,7 +16,7 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
           msg,
           title: `Successfully removed ${name}!`,
           description: `You can set the new role by ${await getSlashCommand(
-            "role token set"
+            "role token set",
           )}`,
         }),
       ],

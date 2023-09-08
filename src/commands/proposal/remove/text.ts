@@ -36,7 +36,7 @@ const command: Command = {
               title: "No config found",
               description: `${getEmoji(
                 "ANIMATED_POINTING_RIGHT",
-                true
+                true,
               )} You have no DAO voting channel config, you can create one by \`$proposal set <#channel> <chain/network> <token_contract>\``,
             }),
           ],
@@ -57,7 +57,7 @@ const command: Command = {
             title: "Successfully remove the channel",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} You can create a new DAO voting channel by \`$proposal set <#channel> <chain/network> <token_contract>\``,
             color: msgColors.SUCCESS,
           }),

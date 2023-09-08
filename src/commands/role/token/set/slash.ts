@@ -14,31 +14,31 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("set")
       .setDescription(
-        "Set a role that user will get when they own specific amount of token"
+        "Set a role that user will get when they own specific amount of token",
       )
       .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role which you want to configure")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("amount of token required")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("address")
           .setDescription("token address")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("chain")
           .setDescription("chain name of the token")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async (interaction: CommandInteraction) => {
@@ -64,7 +64,7 @@ const command: SlashCommand = {
       interaction.guildId,
       address,
       chain,
-      amount
+      amount,
     )
   },
   help: async (interaction: CommandInteraction) => ({

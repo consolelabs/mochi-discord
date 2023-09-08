@@ -150,7 +150,7 @@ describe("parseTipAmount", () => {
         message: msg,
         error: "The amount is invalid. Please insert a positive number.",
         title: "Invalid amount",
-      })
+      }),
     )
   })
 
@@ -161,7 +161,7 @@ describe("parseTipAmount", () => {
         message: msg,
         error: "The amount is invalid. Please insert a positive number.",
         title: "Invalid amount",
-      })
+      }),
     )
   })
 
@@ -172,7 +172,7 @@ describe("parseTipAmount", () => {
         message: msg,
         error: "The amount is invalid. Please insert a positive number.",
         title: "Invalid amount",
-      })
+      }),
     )
   })
 
@@ -244,7 +244,7 @@ describe("parseMoniker", () => {
       new APIError({
         description: apiRes.log,
         curl: apiRes.curl,
-      })
+      }),
     )
   })
 

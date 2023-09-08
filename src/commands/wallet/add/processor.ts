@@ -37,7 +37,7 @@ function renderListPlatform(platforms: Map<string, string>) {
       rowAfterFormatter: (formatted, i) => {
         return `${getEmoji(listChains[i][0] as EmojiKey)} ${formatted}`
       },
-    }
+    },
   ).joined
 }
 
@@ -49,11 +49,11 @@ export async function handleWalletAddition(msg: OriginalMessage) {
     description: [
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Please click on \`Verify Wallet\` below to connect your cryptocurrency wallet.`,
       `${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Currently, we only support the following chains.\n`,
       renderListPlatform(supportedChains),
     ].join("\n"),
@@ -67,7 +67,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   const buttonRow = composeButtonLink(
     "Verify Wallet",
     `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`,
-    getEmoji("ANIMATED_VAULT_KEY", true)
+    getEmoji("ANIMATED_VAULT_KEY", true),
   )
 
   return {

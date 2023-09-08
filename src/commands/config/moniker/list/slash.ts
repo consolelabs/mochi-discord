@@ -24,7 +24,7 @@ const command: SlashCommand = {
     }
     const pages = await handleMonikerList(
       interaction.guild.id,
-      interaction.guild.name
+      interaction.guild.name,
     )
     if (pages.length === 0) {
       return {
@@ -33,7 +33,7 @@ const command: SlashCommand = {
             composeEmbedMessage(null, {
               author: ["Moniker List", getEmojiURL(emojis.MONIKER)],
               description: `You haven't set any moniker. To set one, run ${await getSlashCommand(
-                "config moniker set"
+                "config moniker set",
               )}.`,
             }),
           ],

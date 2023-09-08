@@ -19,15 +19,15 @@ import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
 
 const troubleshootMsg = `\n\n${getEmoji(
   "ANIMATED_POINTING_RIGHT",
-  true
+  true,
 )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
   "ANIMATED_POINTING_RIGHT",
-  true
+  true,
 )} _Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions._`
 
 export const handleRoleSet = async (
   args: string[],
-  msg: Message | CommandInteraction
+  msg: Message | CommandInteraction,
 ) => {
   const { guildId, channelId, roleId, reactMessage, reaction } =
     await validateCommandArgument(args, msg)
@@ -48,13 +48,13 @@ export const handleRoleSet = async (
         title: "Role has been used",
         description: `Use another role to set the reaction role\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} To see used roles, run $role reaction list\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Type \`@\` to see a role list. \n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
       })
     } else {
@@ -88,7 +88,7 @@ export const handleRoleSet = async (
     dataProfile?.id,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_REACTIONROLE
+    MOCHI_ACTION_REACTIONROLE,
   )
   kafkaMsg.activity.content.role_name = role?.name
   sendActivityMsg(kafkaMsg)
@@ -106,7 +106,7 @@ export const handleRoleSetHelpCmd = async (msg: Message) => {
       composeEmbedMessage(msg, {
         description: `Don't know where to get the message link?${troubleshootMsg}\n\n*Note:\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Please use the **custom emoji from this server** and the **Discord default emoji**.*`,
         usage: `${PREFIX}role reaction set <message_link> <emoji> <role>`,
         examples: `${PREFIX}reactionrole set https://discord.com/channels/...4875 ✅ @Visitor`,
@@ -117,7 +117,7 @@ export const handleRoleSetHelpCmd = async (msg: Message) => {
 
 export const validateCommandArgument = async (
   args: string[],
-  msg: Message | CommandInteraction
+  msg: Message | CommandInteraction,
 ) => {
   if (!msg.guild) {
     throw new GuildIdNotFoundError({ message: msg })
@@ -143,10 +143,10 @@ export const validateCommandArgument = async (
       title: "Invalid roles",
       description: `Your role is invalid. Make sure that role exists, or that you have entered it correctly.\n\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Type \`@\` to see a role list. \n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} To add a new role: 1. Server setting → 2. Roles → 3. Create Role`,
     })
   }

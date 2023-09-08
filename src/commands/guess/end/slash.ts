@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, userMention } from "@discordjs/builders"
 import mochiGuess from "adapters/mochi-guess"
-import { ThreadChannel, MessageOptions } from "discord.js"
+import { ThreadChannel, MessageOptions, Message } from "discord.js"
 import { now, truncate, groupBy } from "lodash"
 import { logger } from "logger"
 import moment from "moment-timezone"
@@ -12,7 +12,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function cleanupAfterEndGame(
   thread: ThreadChannel,
-  gameCode: string
+  gameCode: string,
 ) {
   try {
     clearTimeout(timeouts.get(gameCode))
@@ -27,9 +27,10 @@ export async function cleanupAfterEndGame(
 }
 
 export async function announceResult(
-  thread: ThreadChannel,
+  messageContext: ThreadChannel | Message["channel"],
+  gameCode: string,
   answer: string,
-  gameResult: any
+  gameResult: any,
 ) {
   const group = groupBy(gameResult, (r) => {
     const isLoser = r.final_amount.split("").at(0) === "-"
@@ -40,9 +41,9 @@ export async function announceResult(
   const embed = composeEmbedMessage(null, {
     color: "GREEN",
   })
-  embed.setTitle(":crossed_swords: Result")
+  embed.setTitle(`:crossed_swords: Result - ${gameCode}`)
   embed.setDescription(
-    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \nHere is the result:"
+    "The rewards you received include taxes and transaction fees. Please be aware when receiving rewards. Contact us if you have questions or concerns. Thank you! \n\nHere is the result:",
   )
 
   const winners =
@@ -50,7 +51,7 @@ export async function announceResult(
       ? ["No one"]
       : group.winners.map(
           (t) =>
-            `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`
+            `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`,
         )
 
   const losers =
@@ -58,7 +59,7 @@ export async function announceResult(
       ? ["No one"]
       : group.losers.map(
           (t) =>
-            `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`
+            `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`,
         )
 
   const embedFields: any[] = [
@@ -81,36 +82,11 @@ export async function announceResult(
 
   embed.setFields(embedFields)
 
-  // const winnerEmbedFields = group.winners.map((t) => {
-  //   const val = `${userMention(t.player_id)} +${utils.formatTokenDigit(
-  //     t.final_amount
-  //   )} ${t.token_name}\n`
-  //   return {
-  //     name: ":star_struck: Winners",
-  //     value: val,
-  //     inline: false,
-  //   }
-  // })
-  //
-  // const loserEmbedFields = group.losers.map((t) => {
-  //   const val = `${userMention(t.player_id)} -${utils.formatTokenDigit(
-  //     t.final_amount.slice(1)
-  //   )} ${t.token_name}\n`
-  //
-  //   return {
-  //     name: ":face_with_symbols_over_mouth: Losers",
-  //     value: val,
-  //     inline: false,
-  //   }
-  // })
-  //
-  // embed.setFields(winnerEmbedFields, loserEmbedFields)
-
   const msgOpt: MessageOptions = {
     embeds: [embed],
   }
 
-  await thread.send(msgOpt).catch(() => null)
+  await messageContext.send(msgOpt).catch(() => null)
 }
 
 const slashCmd: SlashCommand = {
@@ -124,14 +100,14 @@ const slashCmd: SlashCommand = {
           .setName("code")
           .setDescription("game id")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("choice")
           .setDescription("yes/no")
           .setAutocomplete(true)
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   autocomplete: async (i) => {
@@ -145,14 +121,14 @@ const slashCmd: SlashCommand = {
       await i.respond(
         games
           .filter((g: any) =>
-            g.code.toLowerCase().includes(value.toLowerCase())
+            g.code.toLowerCase().includes(value.toLowerCase()),
           )
           .filter((g: any) => now() < moment(g.end_at).unix() * 1000)
           .map((g: any) => ({
             name: `${g.code} ${truncate(g.question, { length: 20 })}`,
             value: g.code,
           }))
-          .slice(0, 25)
+          .slice(0, 25),
       )
     } else {
       const code = i.options.getString("code", true) || ""
@@ -160,6 +136,7 @@ const slashCmd: SlashCommand = {
         await i.respond([])
         return
       }
+
       const { ok, data: game } = await mochiGuess.getGameProgress(code)
       if (!ok) {
         await i.respond([])
@@ -172,7 +149,7 @@ const slashCmd: SlashCommand = {
             name,
             value: opt.code,
           }
-        })
+        }),
       )
     }
   },
@@ -229,10 +206,11 @@ const slashCmd: SlashCommand = {
     if (gameResult?.data) {
       await announceResult(
         thread,
+        code,
         (game.options ?? []).find((opt: any) =>
-          equalIgnoreCase(optionCode, opt.code)
+          equalIgnoreCase(optionCode, opt.code),
         )?.option ?? "NA",
-        gameResult.data
+        gameResult.data,
       )
     }
 

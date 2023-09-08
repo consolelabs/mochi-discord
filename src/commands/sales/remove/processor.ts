@@ -36,7 +36,7 @@ let buttonCollector: InteractionCollector<ButtonInteraction> | null = null
 function remove(
   guildId: string,
   contractAddress: string,
-  afterDeleteCallback: () => void
+  afterDeleteCallback: () => void,
 ) {
   return global.setTimeout(() => {
     community
@@ -60,7 +60,7 @@ async function undo(i: ButtonInteraction) {
       state === "queued-detail" ? "undo-detail" : "undo",
       "Choose 1 from the list",
       options,
-      i.channelId
+      i.channelId,
     )
     i.editReply({
       embeds: [embed],
@@ -87,10 +87,10 @@ async function selectRemove(i: SelectMenuInteraction) {
         "queued",
         "Tracker removed",
         res.data.collection.filter(
-          (c: any) => c.contract_address !== contractAddress
+          (c: any) => c.contract_address !== contractAddress,
         ),
         i.channelId,
-        timeoutId
+        timeoutId,
       )
       const msg = await i
         .editReply({
@@ -135,7 +135,7 @@ function renderResponse(
   title: string,
   options: Array<{ contract_address: string; platform: string }>,
   channelId: string,
-  buttonId?: NodeJS.Timeout
+  buttonId?: NodeJS.Timeout,
 ) {
   const row1 = new MessageActionRow()
   const row2 = new MessageActionRow()
@@ -188,9 +188,9 @@ function renderResponse(
                   options.map(
                     (c: any) =>
                       `\`${shortenHashOrAddress(
-                        c.contract_address
-                      )}\` - platform id ${c.platform}`
-                  )
+                        c.contract_address,
+                      )}\` - platform id ${c.platform}`,
+                  ),
                 )}`,
         })
 
@@ -205,7 +205,7 @@ export async function handleSalesRemove(
   msg: Message | CommandInteraction,
   guildId: string,
   addressArg: string,
-  authorId: string
+  authorId: string,
 ) {
   const res = await community.getSalesTrackers(guildId)
   if (!res.ok) {
@@ -224,10 +224,10 @@ export async function handleSalesRemove(
             emojiUrl: getEmojiURL(emojis.LEADERBOARD),
             description: `You haven't set up any sales trackers yet. \n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} To set a new one, run \`sales track <channel> <address> <chain_id>\` (or \`<chain_symbol>\`). \n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} You can remove it later using \`sales remove.\``,
           }),
         ],
@@ -246,7 +246,7 @@ export async function handleSalesRemove(
       "Tracker removed",
       res.data.collection.filter((c: any) => c.contract_address !== value),
       res.data.channel_id,
-      timeoutId
+      timeoutId,
     )
     replyMsg = (await msg.reply({
       embeds: [embed],
@@ -260,7 +260,7 @@ export async function handleSalesRemove(
       "idle",
       "Choose 1 from the list",
       res.data.collection,
-      res.data.channel_id
+      res.data.channel_id,
     )
     replyMsg = (await msg.reply({
       embeds: [embed],

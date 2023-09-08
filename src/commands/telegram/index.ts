@@ -28,7 +28,7 @@ const slashCmd: SlashCommand = {
       .setColor(embedsColors.Profile as ColorResolvable)
       .setTitle("Link your Telegram account")
       .setDescription(
-        `Please connect your Telegram by clicking the button below.`
+        `Please connect your Telegram by clicking the button below.`,
       )
     // request profile code
     const profileId = await getProfileIdByDiscord(interaction.user.id)
@@ -43,7 +43,7 @@ const slashCmd: SlashCommand = {
       new MessageButton()
         .setLabel("Connect")
         .setStyle("LINK")
-        .setURL(`${HOMEPAGE_URL}/connect-telegram?code=${data.code}`)
+        .setURL(`${HOMEPAGE_URL}/connect-telegram?code=${data.code}`),
     )
     await interaction
       .editReply({ embeds: [embed], components: [row] })

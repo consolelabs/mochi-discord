@@ -3,7 +3,7 @@ import { CanvasRenderingContext2D } from "canvas"
 export function handleTextOverflow(
   c: CanvasRenderingContext2D,
   text: string,
-  maxWidth: number
+  maxWidth: number,
 ): string {
   let width = c.measureText(text).width
   const ellipsis = "…"

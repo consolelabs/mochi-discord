@@ -30,19 +30,19 @@ const command: SlashCommand = {
         option
           .setName("moniker")
           .setDescription("enter moniker you want to configure")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addNumberOption((option) =>
         option
           .setName("amount")
           .setDescription("enter amount")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("token")
           .setDescription("enter token to convert moniker")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async (interaction: CommandInteraction) => {

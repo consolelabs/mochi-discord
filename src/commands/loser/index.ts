@@ -17,14 +17,14 @@ const slashCmd: SlashCommand = {
     return new SlashCommandBuilder()
       .setName("loser")
       .setDescription(
-        "Show top decreasing tokens in last 1 hour, 24 hours, 7 days, 1 year"
+        "Show top decreasing tokens in last 1 hour, 24 hours, 7 days, 1 year",
       )
       .addStringOption((option) =>
         option
           .setName("time")
           .setDescription("time range you want")
           .setRequired(false)
-          .addChoices(Object.keys(TimeRange).map((c) => [c, c]))
+          .addChoices(Object.keys(TimeRange).map((c) => [c, c])),
       )
   },
   run: loserSlash,

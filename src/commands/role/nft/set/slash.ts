@@ -17,31 +17,31 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("set")
       .setDescription(
-        "Set a role that users will get when they own specific amount of NFT"
+        "Set a role that users will get when they own specific amount of NFT",
       )
       .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription("role which you want to configure")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addIntegerOption((option) =>
         option
           .setName("amount")
           .setDescription("number of nfts")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("addresses")
           .setDescription("nft addresses")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("tokenid")
           .setDescription("id of token")
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async (interaction: CommandInteraction) => {

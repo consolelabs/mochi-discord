@@ -332,10 +332,23 @@ export interface ModelProductBotCommand {
   code?: string
   created_at?: string
   description?: string
+  discord_alias?: string
   discord_command?: string
   id?: number
   scope?: number
+  telegram_alias?: string
   telegram_command?: string
+  updated_at?: string
+}
+
+export interface ModelProductChangelogs {
+  content?: string
+  created_at?: string
+  file_name?: string
+  github_url?: string
+  product?: string
+  thumbnail_url?: string
+  title?: string
   updated_at?: string
 }
 
@@ -738,9 +751,15 @@ export interface RequestOffchainTransferRequest {
   platform?: string
   recipients?: string[]
   sender?: string
+
   /** AmountString string   `json:"amount_string"` */
   token?: string
   transfer_type?: string
+}
+
+export interface RequestOnboardingStartRequest {
+  platform: string
+  profile_id: string
 }
 
 export interface RequestRoleReactionRequest {
@@ -767,8 +786,8 @@ export interface RequestSendUserXPRequest {
 export interface RequestSwapRequest {
   aggregator?: string
   chainName: string
-  routeSummary?: any
-  swapData?: any
+  routeSummary?: object
+  swapData?: object
   userDiscordId: string
 }
 
@@ -790,6 +809,8 @@ export interface RequestTransferV2Request {
   guild_id?: string
   message?: string
   metadata?: Record<string, any>
+  moniker?: string
+  original_tx_id?: string
   platform?: string
   recipients?: string[]
   sender?: string
@@ -1013,9 +1034,7 @@ export interface ResponseCoinMarketItemData {
   price_change_percentage_24h?: number
   price_change_percentage_24h_in_currency?: number
   price_change_percentage_7d_in_currency?: number
-  sparkline_in_7d?: {
-    price?: number[]
-  }
+  sparkline_in_7d?: { price?: number[] }
   symbol?: string
 }
 
@@ -1095,8 +1114,10 @@ export interface ResponseCreateUserTokenSupportRequest {
 
 export interface ResponseDataFilterConfigByReaction {
   data?: ResponseRoleReactionResponse
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1104,8 +1125,10 @@ export interface ResponseDataFilterConfigByReaction {
 
 export interface ResponseDataListRoleReactionResponse {
   data?: ResponseListRoleReactionResponse
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1164,6 +1187,7 @@ export interface ResponseDiscordGuildResponse {
   id?: string
   name?: string
   owner?: boolean
+
   /** @example 0 */
   permissions?: string
 }
@@ -1216,21 +1240,21 @@ export interface ResponseGetCoinResponse {
   coingecko_id?: string
   coingecko_rank?: number
   coingecko_score?: number
-  community_data?: any
+  community_data?: object
   contract_address?: string
   description?: Record<string, string>
   detail_platforms?: Record<string, ResponseCoinPlatformDetailData>
-  developer_data?: any
-  genesis_date?: any
-  hashing_algorithm?: any
+  developer_data?: object
+  genesis_date?: object
+  hashing_algorithm?: object
   id?: string
   image?: ResponseCoinImage
-  links?: any
+  links?: object
   localization?: Record<string, string>
   market_cap_rank?: number
   market_data?: ResponseMarketData
   name?: string
-  platforms?: any
+  platforms?: object
   sentiment_votes_down_percentage?: number
   sentiment_votes_up_percentage?: number
   symbol?: string
@@ -1355,8 +1379,10 @@ export interface ResponseGetInvestListResponse {
 
 export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[]
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1470,8 +1496,9 @@ export interface ResponseGetTrackingWalletsResponse {
 
 export interface ResponseGetTrendingSearch {
   coins?: ResponseGetTrendingSearchCoin[]
+
   /** this field coingecko return empty */
-  exchanges?: any
+  exchanges?: object
 }
 
 export interface ResponseGetTrendingSearchCoin {
@@ -1498,6 +1525,10 @@ export interface ResponseGetUserQuestListResponse {
 
 export interface ResponseGetUserResponse {
   data?: ResponseUser
+}
+
+export interface ResponseGetVaultResponse {
+  data?: ModelVault
 }
 
 export interface ResponseGetVaultsResponse {
@@ -1785,11 +1816,11 @@ export interface ResponseListTokenPriceAlertResponse {
 export interface ResponseMarketData {
   ath?: Record<string, number>
   ath_change_percentage?: Record<string, number>
-  ath_date?: any
+  ath_date?: object
   atl?: Record<string, number>
   circulating_supply?: number
   current_price?: Record<string, number>
-  fdv_to_tvl_ratio?: any
+  fdv_to_tvl_ratio?: object
   fully_diluted_valuation?: Record<string, number>
   high_24h?: Record<string, number>
   low_24h?: Record<string, number>
@@ -1798,7 +1829,7 @@ export interface ResponseMarketData {
   market_cap_change_percentage_24h_in_currency?: Record<string, number>
   market_cap_rank?: number
   max_supply?: number
-  mcap_to_tvl_ratio?: any
+  mcap_to_tvl_ratio?: object
   price_change_24h?: number
   price_change_24h_in_currency?: Record<string, number>
   price_change_percentage_14d?: number
@@ -1817,10 +1848,10 @@ export interface ResponseMarketData {
   price_change_percentage_60d_in_currency?: Record<string, number>
   price_change_percentage_7d?: number
   price_change_percentage_7d_in_currency?: Record<string, number>
-  roi?: any
+  roi?: object
   total_market_cap?: Record<string, number>
   total_supply?: number
-  total_value_locked?: any
+  total_value_locked?: object
   total_volume?: Record<string, number>
 }
 
@@ -1959,6 +1990,20 @@ export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[]
 }
 
+export interface ResponseOnboardingStartData {
+  reward?: ResponseOnboardingStartReward
+  user_already_started?: boolean
+}
+
+export interface ResponseOnboardingStartResponse {
+  data?: ResponseOnboardingStartData
+}
+
+export interface ResponseOnboardingStartReward {
+  amount?: string
+  token?: string
+}
+
 export interface ResponseOnchainInvestData {
   tx_object?: ResponseTxObject
 }
@@ -1970,6 +2015,7 @@ export interface ResponseOnchainInvestDataResponse {
 export interface ResponsePaginationResponse {
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1977,6 +2023,10 @@ export interface ResponsePaginationResponse {
 
 export interface ResponseProductBotCommand {
   data?: ModelProductBotCommand[]
+}
+
+export interface ResponseProductChangelogs {
+  data?: ModelProductChangelogs[]
 }
 
 export interface ResponseProfileAirdropCampaignResponse {
@@ -2064,9 +2114,9 @@ export interface ResponseSparkLineIn7D {
 
 export interface ResponseSwapRoute {
   aggregator?: string
-  routeSummary?: any
+  routeSummary?: object
   routerAddress?: string
-  swapData?: any
+  swapData?: object
   tokenIn?: ResponseRouteToken
   tokenOut?: ResponseRouteToken
 }
@@ -2209,6 +2259,7 @@ export interface UtilPagination {
 
 export interface UuidNullUUID {
   uuid?: string
+
   /** Valid is true if UUID is not NULL */
   valid?: boolean
 }

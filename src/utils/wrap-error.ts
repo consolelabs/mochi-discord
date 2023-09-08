@@ -14,7 +14,7 @@ function catchAll(e: any) {
 
 export async function wrapError(
   msg: Message | Interaction | Record<string, any>,
-  func: () => Promise<void>
+  func: () => Promise<void>,
 ) {
   try {
     await func()

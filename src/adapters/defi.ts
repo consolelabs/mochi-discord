@@ -25,7 +25,7 @@ class Defi extends Fetcher {
   public async getSupportedToken(query: { address: string; chain: string }) {
     return await this.jsonFetch<ResponseGetSupportedTokenResponse>(
       `${API_BASE_URL}/defi/token`,
-      { query }
+      { query },
     )
   }
 
@@ -37,18 +37,22 @@ class Defi extends Fetcher {
 
   public async getBinanceCoinPrice(symbol: string) {
     return await this.jsonFetch<CoinPrice>(
-      `${API_BASE_URL}/defi/coins/binance/${symbol}`
+      `${API_BASE_URL}/defi/coins/binance/${symbol}`,
     )
   }
 
   public async searchCoins(query: string, chain?: string, guildId?: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}`
+      `${API_BASE_URL}/defi/coins?query=${query}&chain=${chain}&guild_id=${guildId}`,
     )
   }
 
   public async getTokenInfo(tokenId: string) {
     return await this.jsonFetch(`${API_BASE_URL}/defi/tokens/info/${tokenId}`)
+  }
+
+  public async searchDexPairs(query: string) {
+    return await this.jsonFetch(`${API_BASE_URL}/dexes/search?query=${query}`)
   }
 
   async getHistoricalMarketData({
@@ -84,10 +88,10 @@ class Defi extends Fetcher {
     guildId: string,
     baseQ: string,
     targetQ: string,
-    days: number
+    days: number,
   ) {
     return await this.jsonFetch<CoinComparisionData>(
-      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${guildId}&interval=${days}`
+      `${API_BASE_URL}/defi/coins/compare?base=${baseQ}&target=${targetQ}&guild_id=${guildId}&interval=${days}`,
     )
   }
 
@@ -106,7 +110,7 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/users/${profileId}/watchlists/tokens`,
       {
         query: { page, size, coinGeckoId },
-      }
+      },
     )
   }
 
@@ -121,7 +125,7 @@ class Defi extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -131,7 +135,7 @@ class Defi extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -164,7 +168,7 @@ class Defi extends Fetcher {
   }) {
     return await this.jsonFetch<ResponseGetNftWatchlistResponse>(
       `${API_BASE_URL}/users/${profileId}/watchlists/nfts`,
-      { query: { page, size } }
+      { query: { page, size } },
     )
   }
 
@@ -179,7 +183,7 @@ class Defi extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -189,7 +193,7 @@ class Defi extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -209,7 +213,7 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/fiat/historical-exchange-rates`,
       {
         query,
-      }
+      },
     )
   }
 
@@ -225,7 +229,7 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/config-channels/tip-notify/${id}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
@@ -249,19 +253,19 @@ class Defi extends Fetcher {
 
   async getUserTrackingWallets(userId: string) {
     return await this.jsonFetch<ResponseGetTrackingWalletsResponse>(
-      `${API_BASE_URL}/users/${userId}/watchlists/wallets`
+      `${API_BASE_URL}/users/${userId}/watchlists/wallets`,
     )
   }
 
   async findWallet(profileId: string, query: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${profileId}/wallets/${query}`
+      `${API_BASE_URL}/users/${profileId}/wallets/${query}`,
     )
   }
 
   async getWalletAssets(userId: string, address: string, type: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/assets`
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/assets`,
     )
   }
 
@@ -275,28 +279,25 @@ class Defi extends Fetcher {
     // TODO: remove after we support another dex
     platform = "binance"
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${profileId}/dexs/${platform}/assets`
+      `${API_BASE_URL}/users/${profileId}/dexs/${platform}/assets`,
     )
   }
 
   async getWalletTxns(userId: string, address: string, type: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/txns`
+      `${API_BASE_URL}/users/${userId}/wallets/${address}/${type.toLowerCase()}/txns`,
     )
   }
 
   async getDexTxns(userId: string, platform: string) {
     // TODO: remove after we support another dex
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     platform = "binance"
 
     // TODO: implement later
     return {
       ok: true,
     }
-
-    return await this.jsonFetch(
-      `${API_BASE_URL}/users/${userId}/dexs/${platform}/transactions`
-    )
   }
 
   async trackWallet(body: {
@@ -312,7 +313,7 @@ class Defi extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -326,7 +327,7 @@ class Defi extends Fetcher {
       {
         method: "PUT",
         body,
-      }
+      },
     )
   }
 
@@ -340,7 +341,7 @@ class Defi extends Fetcher {
       {
         method: "POST",
         body,
-      }
+      },
     )
   }
 
@@ -351,13 +352,13 @@ class Defi extends Fetcher {
   }) {
     return await this.jsonFetch(
       `${API_BASE_URL}/users/${req.userId}/wallets/generate-verification`,
-      { method: "POST", body: req }
+      { method: "POST", body: req },
     )
   }
 
   async getAlertList(userId: string) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/price-alert?user_discord_id=${userId}`
+      `${API_BASE_URL}/defi/price-alert?user_discord_id=${userId}`,
     )
   }
 
@@ -379,13 +380,13 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/defi/price-alert?id=${alertId}`,
       {
         method: "DELETE",
-      }
+      },
     )
   }
 
   async getUserSupportTokens(page: number, size = 0) {
     return await this.jsonFetch(
-      `${API_BASE_URL}/defi/tokens?page=${page}&size=${size}`
+      `${API_BASE_URL}/defi/tokens?page=${page}&size=${size}`,
     )
   }
 
@@ -408,7 +409,7 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/defi/token-support/${requestId}/approve`,
       {
         method: "PUT",
-      }
+      },
     )
   }
 
@@ -417,7 +418,7 @@ class Defi extends Fetcher {
       `${API_BASE_URL}/defi/token-support/${requestId}/reject`,
       {
         method: "PUT",
-      }
+      },
     )
   }
 
@@ -480,7 +481,7 @@ class Defi extends Fetcher {
     userDiscordId: string,
     chainName: string,
     aggregator: string,
-    swapData: any
+    swapData: any,
   ) {
     return await this.jsonFetch(`${API_BASE_URL}/swap`, {
       method: "POST",

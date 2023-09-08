@@ -26,7 +26,7 @@ describe("handleTokenDefault", () => {
     const output = await processor.handleTokenDefault(msgNoGuild, "eth")
     assertRunResult(
       { messageOptions: output },
-      { messageOptions: { embeds: [expected] } }
+      { messageOptions: { embeds: [expected] } },
     )
   })
 
@@ -41,10 +41,10 @@ describe("handleTokenDefault", () => {
         getErrorEmbed({
           description: `\`${symbol}\` hasn't been supported.\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Please choose one in our supported \`$token list\`\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )}.`,
         }),
       ],

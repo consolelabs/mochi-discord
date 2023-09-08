@@ -43,7 +43,7 @@ const command: SlashCommand = {
       const embed = composeEmbedMessage(null, {
         author: ["Welcome Info", getEmojiURL(emojis.HELLO)],
         description: `No welcome channel configured for this guild.\nSet one with ${await getSlashCommand(
-          "config welcome set"
+          "config welcome set",
         )}`,
         originalMsgAuthor: interaction.user,
       })
@@ -53,7 +53,7 @@ const command: SlashCommand = {
     const embed = composeEmbedMessage(null, {
       author: ["Welcome Info", getEmojiURL(emojis.HELLO)],
       description: `The current welcome message is:\n\n${parseWelcomeMessage(
-        configData.welcome_message ?? ""
+        configData.welcome_message ?? "",
       )}"\n\nWelcome channel<#${configData.channel_id}>.`,
       originalMsgAuthor: interaction.user,
     })

@@ -42,7 +42,9 @@ const slashCmd: SlashCommand = {
         .setName("ticker")
         .setDescription("Set default ticker for your guild")
         .addSubcommand(<SlashCommandSubcommandBuilder>tickerSetSlash.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>tickerInfoSlash.prepare())
+        .addSubcommand(
+          <SlashCommandSubcommandBuilder>tickerInfoSlash.prepare(),
+        ),
     )
 
     return data

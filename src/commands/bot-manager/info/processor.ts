@@ -13,9 +13,9 @@ export async function list(data: GuildConfigAdminRole[]) {
     return {
       title: "No admin roles found",
       description: `You haven't set any bot managers role yet. \n\nTo set a new one, run ${await getSlashCommand(
-        "bot-manager set"
+        "bot-manager set",
       )}. \nThen re-check your configuration using ${await getSlashCommand(
-        "bot-manager info"
+        "bot-manager info",
       )}.`,
     }
   }
@@ -26,12 +26,12 @@ export async function list(data: GuildConfigAdminRole[]) {
     title: "List of bot managers",
     description: `${description}\n\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} You can add bot managers role by using ${await getSlashCommand(
-      "bot-manager set"
+      "bot-manager set",
     )}\n${getEmoji(
       "ANIMATED_POINTING_RIGHT",
-      true
+      true,
     )} The bot managers can use all the server management feature, even when they don't have an admin role.`,
   }
 }

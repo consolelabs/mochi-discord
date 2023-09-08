@@ -16,23 +16,23 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName("set")
       .setDescription(
-        "Set a role that users will get when they reach specific a level"
+        "Set a role that users will get when they reach specific a level",
       )
       .addStringOption((option) =>
         option
           .setName("role")
           .setDescription(
-            "role which you want to set configuration for level. Example: @admin"
+            "role which you want to set configuration for level. Example: @admin",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) =>
         option
           .setName("level")
           .setDescription(
-            "level which you want to set configuration role. Example: 1"
+            "level which you want to set configuration role. Example: 1",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

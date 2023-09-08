@@ -76,7 +76,7 @@ type Info = {
 }
 
 function renderMiscInfo(
-  params: Pick<Info, "rate" | "wallet" | "network" | "gasUsd" | "from" | "to">
+  params: Pick<Info, "rate" | "wallet" | "network" | "gasUsd" | "from" | "to">,
 ) {
   const value = [
     `${getEmoji("WALLET_1")}\`Source.   ${params.wallet ?? "Mochi wallet"}\``,
@@ -97,16 +97,16 @@ function renderMiscInfo(
 }
 
 function renderPreview(
-  params: Pick<Info, "from" | "amountIn" | "to" | "amountOut" | "amountOutUsd">
+  params: Pick<Info, "from" | "amountIn" | "to" | "amountOut" | "amountOutUsd">,
 ) {
   const value = [
     params.from &&
       `${getEmoji("ANIMATED_COIN_2", true)}\`In.       \`${getEmoji(
-        params.from as TokenEmojiKey
+        params.from as TokenEmojiKey,
       )} **${params.amountIn ?? ""} ${params.from}**`,
     params.to &&
       `${getEmoji("ANIMATED_COIN_2", true)}\`Out.      \`${getEmoji(
-        params.to as TokenEmojiKey
+        params.to as TokenEmojiKey,
       )} **${params.amountOut ?? ""} ${params.to} ${
         params.amountOutUsd ? `(${APPROX} $${params.amountOutUsd})` : ""
       }**`,
@@ -132,7 +132,7 @@ function renderFullInfo(params: Info) {
 function renderNoTradeRouteData(
   from?: string,
   to?: string,
-  code?: TradeRouteDataCode
+  code?: TradeRouteDataCode,
 ) {
   let reason = "N/A"
   switch (code) {
@@ -156,11 +156,11 @@ function renderNoTradeRouteData(
         description: [
           `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Something went wrong when getting route data.`,
           `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} Please check error detail and try again.`,
         ].join("\n"),
       }).addFields({
@@ -169,10 +169,10 @@ function renderNoTradeRouteData(
           `${getEmoji("CONFIG")} \`Reason.   \`${reason}`,
           `${getEmoji("INFO")} \`Code.     \`${code}`,
           `${getEmoji("ANIMATED_COIN_2", true)} \`From.     \`${getEmojiToken(
-            from as TokenEmojiKey
+            from as TokenEmojiKey,
           )} **${from}**`,
           `${getEmoji("ANIMATED_COIN_2", true)} \`To.       \`${getEmojiToken(
-            to as TokenEmojiKey
+            to as TokenEmojiKey,
           )} **${to}**`,
         ].join("\n"),
       }),
@@ -184,26 +184,26 @@ function renderNoTradeRouteData(
 // this will jump to step N if the context object has enough data to skip previous N-1 steps
 export async function jumpToStep(
   i: Interaction,
-  ctx: Context = {}
+  ctx: Context = {},
 ): Promise<any> {
   let step: any = swapStep1
   let mergedContext: Context = ctx
 
   const propsCount = Object.entries(ctx).filter(
-    (e) => e[1] !== null && e[1] !== undefined
+    (e) => e[1] !== null && e[1] !== undefined,
   ).length
   if (propsCount <= 1) return swapStep1(i, ctx)
   const conditions: [
     boolean,
     (i: Interaction, ctx?: Context) => Promise<any>,
-    (i: Interaction, ctx?: Context) => Promise<any>
+    (i: Interaction, ctx?: Context) => Promise<any>,
   ][] = [[!!(propsCount >= 2 && ctx.to && ctx.from), swapStep1, swapStep2]]
 
   for (const [cond, executor, next] of conditions) {
     if (cond) {
       const { context, stop, ...rest } = (await executor(
         i,
-        mergedContext
+        mergedContext,
       )) as any
       mergedContext = {
         ...mergedContext,
@@ -230,14 +230,14 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
   const coinId = coins?.find((c: any) => c.most_popular).id
 
   balances = balances.filter(
-    (b: any) => b.token.coin_gecko_id !== (ctx?.toId || coinId)
+    (b: any) => b.token.coin_gecko_id !== (ctx?.toId || coinId),
   )
 
   const preview = renderFullInfo({
     to: ctx?.to,
   })
   const [balance, ...rest] = balances.filter((b: any) =>
-    equalIgnoreCase(b.token.symbol, ctx?.from)
+    equalIgnoreCase(b.token.symbol, ctx?.from),
   )
 
   // TODO: remove hardcode 1
@@ -245,9 +245,9 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
   const isNotEmpty = !!text
   const emptyText = `${getEmoji(
     "ANIMATED_POINTING_RIGHT",
-    true
+    true,
   )} You have nothing yet, use ${await getSlashCommand(
-    "earn"
+    "earn",
   )} or ${await getSlashCommand("deposit")} `
 
   const embed = composeEmbedMessage(null, {
@@ -277,7 +277,7 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
           ? [
               new MessageEmbed({
                 description: `${getEmoji("NO")} No token ${getEmojiToken(
-                  ctx.from as TokenEmojiKey
+                  ctx.from as TokenEmojiKey,
                 )} **${ctx.from}** found in your balance.`,
                 color: msgColors.ERROR,
               }),
@@ -294,7 +294,7 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
                   balances
                     .filter(
                       (b: any) =>
-                        b.token.coin_gecko_id !== (ctx?.toId || coinId)
+                        b.token.coin_gecko_id !== (ctx?.toId || coinId),
                     )
                     .map((b: any) => ({
                       label: `${b.token.symbol}${
@@ -304,8 +304,8 @@ export async function swapStep1(i: Interaction, ctx?: Context) {
                       }`,
                       value: `${b.id}/offchain`,
                       emoji: getEmojiToken(b.token.symbol),
-                    }))
-                )
+                    })),
+                ),
             ),
           ]
         : [],
@@ -347,9 +347,9 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   if (amount.startsWith("%") || isAll) {
     const formatted = utils.formatUnits(
       getPercentage(
-        amount.toLowerCase() === "all" ? 100 : Number(amount.slice(1))
+        amount.toLowerCase() === "all" ? 100 : Number(amount.slice(1)),
       ),
-      balance.token.decimal
+      balance.token.decimal,
     )
     amount = formatDigit({
       value: Number(formatted),
@@ -360,7 +360,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     ;({ valid, error } = checkCommitableOperation(
       balance.amount,
       amount ?? "0",
-      balance.token
+      balance.token,
     ))
 
     if (valid) {
@@ -386,7 +386,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   if (
     !ok ||
     [TradeRouteDataCode.NoRoute, TradeRouteDataCode.HighPriceImpact].includes(
-      getSwapRouteRes.code
+      getSwapRouteRes.code,
     )
   ) {
     return {
@@ -407,11 +407,11 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
     BigNumber.from(routeSummary.amountOut)
       .mul((100 - SLIPPAGE) * 10)
       .div(1000),
-    tokenOut.decimals
+    tokenOut.decimals,
   )
 
   const amountOutUsd = formatUsdDigit(
-    (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100
+    (Number(routeSummary.amountOutUsd) * (100 - SLIPPAGE)) / 100,
   )
 
   let ratio = String(Number(amountOut) / Number(amount))
@@ -421,7 +421,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
 
   const network = isBridged
     ? `${capitalizeFirst(tokenIn.chain_name)} -> ${capitalizeFirst(
-        tokenOut.chain_name
+        tokenOut.chain_name,
       )} (bridge)`
     : `${capitalizeFirst(tokenOut.chain_name)}`
 
@@ -447,7 +447,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
         i.guildId ?? "",
         fromId,
         toId,
-        1
+        1,
       )
       if (ok) {
         compareFields = [
@@ -466,7 +466,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
   const tradeRouteRenderData = await aggregateTradeRoute(
     ctx.from ?? "",
     routeSummary,
-    getSwapRouteRes.provider
+    getSwapRouteRes.provider,
   )
 
   return {
@@ -502,7 +502,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
               .setLabel(`${p}%`)
               .setStyle("SECONDARY")
               .setCustomId(`select_amount_${p}`)
-              .setDisabled(amountChoice === `%${p}`)
+              .setDisabled(amountChoice === `%${p}`),
           ),
           new MessageButton()
             .setLabel("All")
@@ -512,7 +512,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
           new MessageButton()
             .setLabel("Custom")
             .setStyle("SECONDARY")
-            .setCustomId("enter_amount")
+            .setCustomId("enter_amount"),
         ),
         new MessageActionRow().addComponents(
           new MessageButton({
@@ -525,7 +525,7 @@ export async function swapStep2(i: Interaction, ctx?: Context): Promise<any> {
               !amount ||
               !!error ||
               Number(amount) === 0,
-          })
+          }),
         ),
       ],
     },
@@ -568,9 +568,9 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
           image: thumbnails.MOCHI_POSE_17,
           description: [
             `${getEmoji("SWAP_ROUTE")} **${getEmojiToken(
-              ctx.from as TokenEmojiKey
+              ctx.from as TokenEmojiKey,
             )} ${ctx.amountIn} ${ctx.from?.toUpperCase()} to ${getEmojiToken(
-              ctx.to as TokenEmojiKey
+              ctx.to as TokenEmojiKey,
             )} ${ctx.amountOut} ${ctx.to?.toUpperCase()}**`,
             `${getEmoji("CHECK")} Your swap is underway`,
             `${getEmoji("CHECK")} Mochi will DM you with the tx link shortly.`,
@@ -582,7 +582,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
     null,
     i,
     "Your swap request was submitted, but ",
-    ""
+    "",
   )
 
   const fields: EmbedFieldData[] = []
@@ -618,7 +618,7 @@ export async function executeSwap(i: ButtonInteraction, ctx?: Context) {
                   style: "LINK",
                   label: "Check DM",
                   url: dm.url,
-                })
+                }),
               ),
             ]
           : []),

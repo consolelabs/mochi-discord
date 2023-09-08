@@ -36,6 +36,7 @@ import profile from "../../../adapters/profile"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { DiscordWalletTransferError } from "../../../errors/discord-wallet-transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
+import { parseUnits } from "ethers/lib/utils"
 
 type TwitterUser = {
   username: string
@@ -44,7 +45,7 @@ type TwitterUser = {
 
 async function getRecipients(
   msgOrInteraction: Message | CommandInteraction,
-  targets: string[]
+  targets: string[],
 ): Promise<TwitterUser[]> {
   // check if recipient is valid or not
   const recipients: TwitterUser[] = []
@@ -74,12 +75,15 @@ async function getRecipients(
 }
 export async function execute(
   msgOrInteraction: Message | CommandInteraction,
-  payload: any
+  payload: any,
 ): Promise<RunResult<MessageOptions>> {
   // create pay link
   const res: any = await mochiPay.generatePaymentCode({
     profileId: payload.from.profile_global_id,
-    amount: payload.originalAmount.toString(),
+    amount: parseUnits(
+      payload.originalAmount.toLocaleString().replaceAll(",", ""),
+      payload.decimal,
+    ).toString(),
     token: payload.token,
     note: payload.note,
     type: "paylink",
@@ -114,7 +118,7 @@ export async function execute(
   const embed = composeEmbedMessage(null, {
     author: ["You've given a tip", getEmojiURL(emojis.CASH)],
     description: `Congrats! ${userMention(
-      payload.sender
+      payload.sender,
     )} has given a tip of ${getEmoji(payload.token)} ${
       payload.originalAmount
     } ${payload.token}`,
@@ -130,7 +134,7 @@ export async function execute(
 
 export async function tipTwitter(
   msgOrInteraction: Message | CommandInteraction,
-  args: string[]
+  args: string[],
 ) {
   if (!msgOrInteraction.guildId) {
     throw new GuildIdNotFoundError({ message: msgOrInteraction })
@@ -142,7 +146,7 @@ export async function tipTwitter(
 
   const { recipients, amount, symbol, each, all, message } = await parseTipArgs(
     msgOrInteraction,
-    args
+    args,
   )
 
   // get sender balances
@@ -195,7 +199,7 @@ export async function tipTwitter(
 async function selectToken(
   msgOrInteraction: Message | CommandInteraction,
   balances: any,
-  payload: any
+  payload: any,
 ) {
   const author = getAuthor(msgOrInteraction)
 
@@ -206,7 +210,7 @@ async function selectToken(
     const balance = balances.find(
       (b: any) =>
         equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chain_id === b.token?.chain?.chain_id
+        payload.chain_id === b.token?.chain?.chain_id,
     )
     return validateAndTransfer(msgOrInteraction, payload, balance)
   }
@@ -220,7 +224,7 @@ async function selectToken(
 
 function composeTokenSelectionResponse(
   author: User,
-  balances: any
+  balances: any,
 ): RunResult<MessageOptions> {
   const options = balances.map((b: any) => {
     return {
@@ -254,7 +258,7 @@ function composeTokenSelectionResponse(
 async function validateAndTransfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: any,
-  balance: any
+  balance: any,
 ) {
   const decimal = balance.token?.decimal ?? 0
   const current = +balance.amount / Math.pow(10, decimal)
@@ -291,12 +295,13 @@ async function validateAndTransfer(
     fractionDigits: decimal,
   })
   payload.token_price = balance.token?.price
+  payload.decimal = decimal
   return execute(msgOrInteraction, payload)
 }
 
 async function parseTipArgs(
   msgOrInteraction: Message | CommandInteraction,
-  args: string[]
+  args: string[],
 ): Promise<{
   recipients: TwitterUser[]
   amount: number

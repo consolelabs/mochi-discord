@@ -34,7 +34,7 @@ export const machineConfig: (ctx?: any) => MachineConfig = (context = {}) => ({
 const run = async (interaction: CommandInteraction) => {
   const { context, msgOpts } = await render(
     interaction,
-    interaction.member as GuildMember
+    interaction.member as GuildMember,
   )
 
   const reply = (await interaction.editReply(msgOpts)) as Message

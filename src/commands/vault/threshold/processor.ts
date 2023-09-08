@@ -38,17 +38,17 @@ export async function runCreateThreshold({
     data.name
   }** has been configured vault threshold of \`${i.options.getString(
     "value",
-    true
+    true,
   )}%\` for approval\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
-    true
+    true,
   )} Set or change vault threshold by run ${await getSlashCommand(
-    "vault config threshold"
+    "vault config threshold",
   )}`
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("CHECK")} Vault threshold successfully changed${getEmoji(
-      "BLANK"
+      "BLANK",
     ).repeat(5)}`,
     description: description,
     color: msgColors.BLUE,

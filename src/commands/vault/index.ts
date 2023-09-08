@@ -55,7 +55,7 @@ const slashCmd: SlashCommand = {
         .addSubcommand(<SlashCommandSubcommandBuilder>thresholdSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>channelSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare()),
     )
     data.addSubcommand(<SlashCommandSubcommandBuilder>transferSlash.prepare())
     return data

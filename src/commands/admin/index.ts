@@ -26,10 +26,10 @@ const slashCmd: SlashCommand = {
         name: "Step 1 - Create channels",
         value: [
           `Setup a welcome message to explanin rules and clear up any questions: ${await getSlashCommand(
-            "welcome set"
+            "welcome set",
           )}`,
           `Config channel to track member activity: ${await getSlashCommand(
-            "config logchannel"
+            "config logchannel",
           )}`,
           `Setup well-rated posts along with a channel to share these contents automatically: [\`$starboard\`](${HOMEPAGE_URL})`,
           `Setup a vault for the server: ${await getSlashCommand("vault new")}`,
@@ -42,22 +42,22 @@ const slashCmd: SlashCommand = {
         name: "Step 2 - Set roles",
         value: [
           `Setup default role for your newcomers: ${await getSlashCommand(
-            "defaultrole info"
+            "defaultrole info",
           )}`,
           `Set different roles for members when reaching a certain level: ${await getSlashCommand(
-            "levelrole list"
+            "levelrole list",
           )}`,
           `Make reaction roles that allow members to obtain or relinquish a role by reacting: ${await getSlashCommand(
-            "reactionrole list"
+            "reactionrole list",
           )}`,
           `Receive a special role based on the ownership of NFT: ${await getSlashCommand(
-            "nftrole list"
+            "nftrole list",
           )}`,
           `Assign a specific role through the number of tokens members hold: ${await getSlashCommand(
-            "tokenrole list"
+            "tokenrole list",
           )}`,
           `Reward their contribution by giving them roles other members don't have: ${await getSlashCommand(
-            "xprole list"
+            "xprole list",
           )}`,
         ]
           .map((b) => `${DOT} ${b}`)
@@ -69,7 +69,7 @@ const slashCmd: SlashCommand = {
         value: [
           `Customize level-up message: [\`$levelupmessage\`](${HOMEPAGE_URL})`,
           `Give kudo to outstanding members: ${await getSlashCommand(
-            "top"
+            "top",
           )} to show leaderboard, then ${await getSlashCommand("tip")} them`,
         ]
           .map((b) => `${DOT} ${b}`)
@@ -80,14 +80,14 @@ const slashCmd: SlashCommand = {
         name: "Step 4 - Give member perks",
         value: [
           `Config GM channel for some fun engagement: ${await getSlashCommand(
-            "gm set"
+            "gm set",
           )}`,
           `DAO voting grants community members a say in community development: use [\`$proposal set\`](${HOMEPAGE_URL})`,
           `List daily quests to get more XP: ${await getSlashCommand(
-            "quest daily"
+            "quest daily",
           )}`,
           `Admin can send XP to any users as a way to reward: ${await getSlashCommand(
-            "sendxp"
+            "sendxp",
           )}`,
         ]
           .map((b) => `${DOT} ${b}`)
@@ -98,25 +98,25 @@ const slashCmd: SlashCommand = {
         name: "Step 5 - Integrate crypto wallet",
         value: [
           `Grant holder access by crypto wallet: ${await getSlashCommand(
-            "verify set"
+            "verify set",
           )}`,
           `Quick catch-up on NFT marketplace: ${await getSlashCommand(
-            "sales track"
+            "sales track",
           )}`,
           `Track crypto and NFT: ${await getSlashCommand(
-            "ticker"
+            "ticker",
           )}, ${await getSlashCommand(
-            "watchlist"
+            "watchlist",
           )}, [\`$nft\`](${HOMEPAGE_URL}),`,
           `Send and receive token: ${await getSlashCommand(
-            "tip"
+            "tip",
           )}, ${await getSlashCommand("deposit")}, ${await getSlashCommand(
-            "withdraw"
+            "withdraw",
           )}, ${await getSlashCommand("balances")}, ${await getSlashCommand(
-            "airdrop"
+            "airdrop",
           )}`,
           `Config moniker to tip or airdrop: ${await getSlashCommand(
-            "moniker set"
+            "moniker set",
           )}`,
         ]
           .map((b) => `${DOT} ${b}`)
@@ -126,10 +126,10 @@ const slashCmd: SlashCommand = {
       {
         name: "\u200b",
         value: `Only Administrators can use these commands. If you want others to use these commands, make them administrators. Run the command to build a community with Mochi now!\n\nType ${await getSlashCommand(
-          "help"
+          "help",
         )} to explore all features or read our instructions on Gitbook\n[→ Read instructions](https://mochibot.gitbook.io)`,
         inline: false,
-      }
+      },
     )
     return {
       messageOptions: {

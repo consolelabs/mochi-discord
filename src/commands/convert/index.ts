@@ -14,7 +14,7 @@ const slashCmd: SlashCommand = {
         option
           .setName("amount")
           .setDescription("Amount of your token")
-          .setRequired(true)
+          .setRequired(true),
       )
       .addStringOption((option) => {
         const o = option

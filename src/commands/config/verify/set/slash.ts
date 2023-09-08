@@ -16,17 +16,17 @@ const command: SlashCommand = {
         option
           .setName("channel")
           .setDescription(
-            "enter the channel which you wanna verify your wallet. Example: #general"
+            "enter the channel which you wanna verify your wallet. Example: #general",
           )
-          .setRequired(true)
+          .setRequired(true),
       )
       .addRoleOption((option) =>
         option
           .setName("role")
           .setDescription(
-            "enter the role to assign to user when they are verified. Example: @verified"
+            "enter the role to assign to user when they are verified. Example: @verified",
           )
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: async (interaction: CommandInteraction) =>

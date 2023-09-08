@@ -18,7 +18,7 @@ const command: SlashCommand = {
         option
           .setName("role")
           .setDescription("role for newcomers. Example: @admin")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async function (interaction: CommandInteraction) {

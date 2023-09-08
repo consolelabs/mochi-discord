@@ -22,13 +22,13 @@ const command: SlashCommand = {
           .setName("wallet")
           .setDescription("Current alias or wallet address")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("alias")
           .setDescription("New alias for this wallet")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   autocomplete: async (i) => {
@@ -54,7 +54,7 @@ const command: SlashCommand = {
     const options = await Promise.all(
       wallets
         .filter((w) =>
-          w.address.toLowerCase().startsWith(focusedValue.toLowerCase())
+          w.address.toLowerCase().startsWith(focusedValue.toLowerCase()),
         )
         .map(async (w) => {
           return {
@@ -63,7 +63,7 @@ const command: SlashCommand = {
               w.alias || (await lookUpDomains(w.address))
             } | $${formatUsdDigit(w.net_worth.toString())}`,
           }
-        })
+        }),
     )
 
     await i.respond(options).catch(() => null)

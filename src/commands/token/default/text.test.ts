@@ -15,7 +15,7 @@ describe("run", () => {
   test("command args error", async () => {
     msg.content = "$token default"
     await expect(tokenCmd?.actions?.["default"].run(msg)).rejects.toThrow(
-      CommandArgumentError
+      CommandArgumentError,
     )
   })
 

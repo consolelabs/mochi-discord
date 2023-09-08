@@ -93,17 +93,17 @@ export async function handleProposalCreate(i: ButtonInteraction) {
         title: "Proposal successfully submitted",
         description: `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Your proposal has been recorded in the <#${
           cfgData.proposal_channel_id
         }>.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} You can create a new proposal in the <#${
           cfgData.guideline_channel_id
         }>.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} You can join the discussion about your proposal in the <#${
           data.discussion_channel_id
         }>`,
@@ -115,7 +115,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
   // interacted from DM, need to get guild client
   const guild = await client.guilds.fetch(guild_id)
   const proposalChannel = await guild.channels.fetch(
-    cfgData.proposal_channel_id ?? ""
+    cfgData.proposal_channel_id ?? "",
   )
   const actionRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -137,7 +137,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       style: 5,
       label: "Discuss",
       url: `https://discord.com/channels/${guild_id}/${data.discussion_channel_id}`,
-    })
+    }),
   )
 
   // post proposal to channel
@@ -163,7 +163,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       data.creator_id,
       (+proposalExpireIn - +duration).toString(),
       proposalExpireIn,
-      proposalTitle.toUpperCase()
+      proposalTitle.toUpperCase(),
     )
   }
 }
@@ -175,7 +175,7 @@ function checkExpiredProposal(
   creator_id: string,
   startTime: string,
   stopTime: string,
-  title: string
+  title: string,
 ) {
   proposalCache.on("expired", async (key) => {
     if (key !== cacheKey) return
@@ -184,7 +184,7 @@ function checkExpiredProposal(
       // get vote results
       const { data, ok, error, curl } = await community.getProposalResults(
         proposal_id,
-        creator_id
+        creator_id,
       )
       if (!ok) {
         throw new APIError({ curl, description: error })
@@ -242,7 +242,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
           getErrorEmbed({
             title: "Permissions required",
             description: `Only Administrators can use this command ${getEmoji(
-              "NEKOSAD"
+              "NEKOSAD",
             )}.\nPlease contact your server admins if you need help.`,
           }),
         ],
@@ -256,7 +256,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
       null,
       i.user.id,
       i.guildId ?? "",
-      "create_proposal"
+      "create_proposal",
     )
     if (!ok) {
       throw new APIError({ curl, description: log, error })
@@ -298,7 +298,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
             }),
           ],
         })
-        .catch((err) => logger.log(err))
+        .catch((err) => logger.info(err))
       return
     }
   }
@@ -308,13 +308,13 @@ export async function handleProposalForm(i: ButtonInteraction) {
         composeEmbedMessage(null, {
           title: `${getEmoji(
             "ANIMATED_QUESTION_MARK",
-            true
+            true,
           )} Please enter your proposal title.`,
         }),
       ],
       components: [
         new MessageActionRow().addComponents(
-          composeProposalCancelButton(guidelineChannelId)
+          composeProposalCancelButton(guidelineChannelId),
         ),
       ],
     },
@@ -322,7 +322,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
     null,
     i,
     "Your request was submitted, but ",
-    ""
+    "",
   )
   if (!dm) return null
 
@@ -348,7 +348,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
   // duration ends in hH or dD
   if (proposalDuration.includes("h")) {
     const hours = parseFloat(
-      proposalDuration.slice(0, proposalDuration.length - 1)
+      proposalDuration.slice(0, proposalDuration.length - 1),
     )
     proposalExpireIn = (
       Math.floor(currentTime / 1000) +
@@ -357,7 +357,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
     durationSeconds = hours * 3600
   } else {
     const days = parseFloat(
-      proposalDuration.slice(0, proposalDuration.length - 1)
+      proposalDuration.slice(0, proposalDuration.length - 1),
     )
     proposalExpireIn = (
       Math.floor(currentTime / 1000) +
@@ -373,7 +373,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
       style: "SUCCESS",
       label: "Submit",
     }),
-    composeProposalCancelButton(guidelineChannelId)
+    composeProposalCancelButton(guidelineChannelId),
   )
   await dmUser(
     {
@@ -388,14 +388,14 @@ export async function handleProposalForm(i: ButtonInteraction) {
     },
     i.user,
     null,
-    i
+    i,
   )
 }
 
 async function getProposalTitle(
   authorId: string,
   guidelineChannelId: string,
-  dm: Message
+  dm: Message,
 ): Promise<string> {
   const filter = (collected: Message) => collected.author.id === authorId
   const collected = await dm.channel.awaitMessages({
@@ -409,14 +409,14 @@ async function getProposalTitle(
       composeEmbedMessage(null, {
         title: `${getEmoji(
           "ANIMATED_QUESTION_MARK",
-          true
+          true,
         )} Please enter your proposal description.`,
         description: "Word limit: 2000 words",
       }),
     ],
     components: [
       new MessageActionRow().addComponents(
-        composeProposalCancelButton(guidelineChannelId)
+        composeProposalCancelButton(guidelineChannelId),
       ),
     ],
   })
@@ -426,7 +426,7 @@ async function getProposalTitle(
 async function getProposalDescription(
   authorId: string,
   guidelineChannelId: string,
-  dm: Message
+  dm: Message,
 ): Promise<string> {
   const filter = (collected: Message) => collected.author.id === authorId
   const collected = await dm.channel.awaitMessages({
@@ -441,14 +441,14 @@ async function getProposalDescription(
       composeEmbedMessage(null, {
         title: `${getEmoji(
           "ANIMATED_QUESTION_MARK",
-          true
+          true,
         )} Please enter the duration of your proposal.`,
         description: "You can enter the duration in hours or days (h, d)",
       }),
     ],
     components: [
       new MessageActionRow().addComponents(
-        composeProposalCancelButton(guidelineChannelId)
+        composeProposalCancelButton(guidelineChannelId),
       ),
     ],
   })
@@ -457,7 +457,7 @@ async function getProposalDescription(
 
 async function getProposalDuration(
   authorId: string,
-  dm: Message
+  dm: Message,
 ): Promise<string> {
   const filter = (collected: Message) => collected.author.id === authorId
   const collected = await dm.channel.awaitMessages({
@@ -503,7 +503,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
     proposal_id,
     user_id,
     i.guildId ?? "",
-    "vote"
+    "vote",
   )
   if (!wOk) {
     throw new APIError({ curl: wCurl, description: wLog, error: wError })
@@ -548,7 +548,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
   // get user vote
   const { data, error: getProposalErr } = await community.getUserProposalVote(
     user_id,
-    proposal_id
+    proposal_id,
   )
   let res
   // vote not found -> create new
@@ -574,7 +574,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         title: "Successfully voted",
         description: `You have updated your vote successfully ${choice} for**${i.message.embeds[0].title?.replace(
           getEmoji("MAIL"),
-          ""
+          "",
         )}**. Thank you for your vote ${getEmoji("ANIMATED_HEART", true)}`,
       }),
     ],

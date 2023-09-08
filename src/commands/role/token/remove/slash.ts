@@ -24,7 +24,7 @@ const command: SlashCommand = {
       throw new GuildIdNotFoundError({ message: interaction })
     }
     const { ok, error, data, log, curl } = await config.getConfigTokenRoleList(
-      interaction.guildId
+      interaction.guildId,
     )
     if (!ok) {
       throw new APIError({
@@ -41,7 +41,7 @@ const command: SlashCommand = {
             getErrorEmbed({
               title: `No Token roles found`,
               description: `No Token roles found! To set a new one, run ${await getSlashCommand(
-                "role token set"
+                "role token set",
               )}`,
             }),
           ],

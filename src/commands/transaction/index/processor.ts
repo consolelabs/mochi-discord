@@ -4,13 +4,12 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { ButtonInteraction, CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
-import { fmt } from "utils/formatter"
-import { PageSize, Platform } from "@consolelabs/mochi-formatter"
 import { paginationButtons } from "utils/router"
+import UI, { Platform, PageSize } from "@consolelabs/mochi-ui"
 
 export async function render(
   i: CommandInteraction | ButtonInteraction,
-  page = 0
+  page = 0,
 ) {
   const userDiscordId = i.user.id
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -31,7 +30,7 @@ export async function render(
             title: "No transactions found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} This user does not have any transactions yet`,
             color: msgColors.SUCCESS,
           }),
@@ -61,7 +60,7 @@ export async function render(
             title: "No transactions found",
             description: `${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} This user does not have any transactions yet`,
             color: msgColors.ACTIVITY,
           }),
@@ -73,7 +72,7 @@ export async function render(
   const total = pagination?.total
     ? Math.ceil(pagination?.total / PageSize.Medium)
     : 1
-  const { text: description } = await fmt.components.txns({
+  const { text: description } = await UI.components.txns({
     txns: txns as any,
     on: Platform.Discord,
     groupDate: true,

@@ -14,7 +14,7 @@ const slashCmd: SlashCommand = {
         opt
           .setName("value")
           .setDescription("enter maximum USD amount that can be tipped")
-          .setRequired(true)
+          .setRequired(true),
       )
 
     return data

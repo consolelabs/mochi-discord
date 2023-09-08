@@ -25,7 +25,7 @@ export const countType: Array<string> = [
 ]
 
 export const statsSelectionHandler: InteractionHandler = async (
-  msgOrInteraction
+  msgOrInteraction,
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
@@ -35,7 +35,7 @@ export const statsSelectionHandler: InteractionHandler = async (
 }
 
 export const countStatsHandler: InteractionHandler = async (
-  msgOrInteraction
+  msgOrInteraction,
 ) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const { message } = <{ message: Message }>interaction
@@ -49,7 +49,7 @@ export const countStatsHandler: InteractionHandler = async (
   const successEmbeded = composeEmbedMessage(message, {
     author: ["Server Stats", getEmojiURL(emojis.AMPAWSSADORBADGE)],
     description: `${capFirst(
-      type
+      type,
     )} ${stat} count is shown as a voice channel on top of your server. `,
   })
   return {
@@ -65,7 +65,7 @@ export const countStatsHandler: InteractionHandler = async (
 
 export async function renderStatEmbed(
   msg: Message,
-  statId: string
+  statId: string,
 ): Promise<InteractionHandlerResult> {
   let statType = ""
   switch (statId) {

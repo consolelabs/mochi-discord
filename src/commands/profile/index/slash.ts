@@ -195,8 +195,8 @@ const run = async (interaction: CommandInteraction) => {
                 .setLabel("Verify")
                 .setStyle("LINK")
                 .setURL(
-                  `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${event.interaction.guildId}`
-                )
+                  `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${event.interaction.guildId}`,
+                ),
             ),
           ],
         })
@@ -212,7 +212,7 @@ const run = async (interaction: CommandInteraction) => {
         const result = sendBinanceManualMessage()
 
         const reply = (await event.interaction.editReply(
-          result.msgOpts
+          result.msgOpts,
         )) as Message
 
         route(reply, event.interaction, {

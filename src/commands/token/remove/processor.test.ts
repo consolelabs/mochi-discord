@@ -24,7 +24,7 @@ describe("handleTokenRemove", () => {
     // Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce([])
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(
-      processor.handleTokenRemove("guildId", "authorId")
+      processor.handleTokenRemove("guildId", "authorId"),
     ).rejects.toThrow(new APIError({ curl, description: log }))
   })
 

@@ -15,7 +15,7 @@ import { SLASH_PREFIX } from "utils/constants"
 
 export const handleRoleRemove = async (
   args: string[],
-  msg: Message | CommandInteraction
+  msg: Message | CommandInteraction,
 ) => {
   // Validate command syntax
   if (![3, 5].includes(args.length)) {
@@ -83,7 +83,7 @@ export const handleRoleRemove = async (
 
 export const parseRequestArguments = async (
   args: string[],
-  msg: Message | CommandInteraction
+  msg: Message | CommandInteraction,
 ) => {
   if (!msg.guildId || !msg.guild) {
     throw new GuildIdNotFoundError({ message: msg })
@@ -96,10 +96,10 @@ export const parseRequestArguments = async (
       title: "Invalid message link",
       description: `Your message link is invalid. Make sure that message exists, or that you have entered the link correctly.\n\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} _Click “More” on your messages then choose “Copy Message Link”._\n${getEmoji(
         "ANIMATED_POINTING_RIGHT",
-        true
+        true,
       )} Or go [here](https://mochibot.gitbook.io/mochi-bot/functions/server-administration/reaction-roles) for instructions.`,
     })
   }
@@ -143,7 +143,7 @@ export const parseRequestArguments = async (
         title: "Can't find the role",
         description: `Invalid role. Be careful not to be mistaken role with username while using \`@\`.\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} Run \`${SLASH_PREFIX}role reaction list\` to find a configured role then Click “Jump” to jump to the message.`,
       })
     }

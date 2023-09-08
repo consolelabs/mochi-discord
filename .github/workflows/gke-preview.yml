@@ -36,7 +36,7 @@ jobs:
       # Build & Push the Docker image
       - name: Build & Push
         run: |
-          docker build --build-arg SWAGGER_URL=${{ secrets.SWAGGER_URL_DEV }} -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
+          docker build --build-arg NODE_ENV=$K8S_ENVIRONMENT --build-arg SWAGGER_URL=${{ secrets.SWAGGER_URL_DEV }} -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
 
       # Setup kustomize

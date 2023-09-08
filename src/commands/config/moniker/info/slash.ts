@@ -22,19 +22,19 @@ const command: SlashCommand = {
             thumbnail: getEmojiURL(emojis.MONIKER),
             description: `Moniker can be understood as a nickname for your token. Instead of tipping or airdropping a token, you can create an item (cookie, beer,..) and tip or airdrop them to other users.\n\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Set up a new moniker configuration ${await getSlashCommand(
-              "config moniker set"
+              "config moniker set",
             )}\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} See all moniker configurations ${await getSlashCommand(
-              "config moniker list"
+              "config moniker list",
             )}\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Remove a configured moniker ${await getSlashCommand(
-              "config moniker remove"
+              "config moniker remove",
             )}\n[Read insructions](${HOMEPAGE_URL}) for a complete setup guide`,
           }),
         ],

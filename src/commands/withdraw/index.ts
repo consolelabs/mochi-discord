@@ -21,15 +21,15 @@ const slashCmd: SlashCommand = {
         option
           .setName("token")
           .setDescription("symbol of token. Example: ftm")
-          .setRequired(false)
+          .setRequired(false),
       )
       .addStringOption((option) =>
         option
           .setName("amount")
           .setDescription(
-            "specific amount you want to withdraw or all. Example: 1, all"
+            "specific amount you want to withdraw or all. Example: 1, all",
           )
-          .setRequired(false)
+          .setRequired(false),
       )
   },
   run: withdrawSlash,

@@ -73,13 +73,13 @@ const slashCmd: SlashCommand = {
           convertString(
             s.token_amount,
             s.token?.decimal ?? 18,
-            false
-          ).toString()
+            false,
+          ).toString(),
         )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
         pool: s.platform ?? "Unknown",
         status: s.status,
       })),
-      { cols: ["token", "pool", "status"], noWrap: true }
+      { cols: ["token", "pool", "status"], noWrap: true },
     ).joined
 
     const filterUnStake = data
@@ -91,13 +91,13 @@ const slashCmd: SlashCommand = {
           convertString(
             s.token_amount,
             s.token?.decimal ?? 18,
-            false
-          ).toString()
+            false,
+          ).toString(),
         )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
         pool: s.platform ?? "Unknown",
         status: s.status,
       })),
-      { cols: ["token", "pool", "status"], noWrap: true }
+      { cols: ["token", "pool", "status"], noWrap: true },
     ).joined
 
     const filterClaimRewards = data
@@ -109,13 +109,13 @@ const slashCmd: SlashCommand = {
           convertString(
             s.token_amount,
             s.token?.decimal ?? 18,
-            false
-          ).toString()
+            false,
+          ).toString(),
         )} ${s.token?.symbol?.toUpperCase() ?? "TOKEN"}`,
         pool: s.platform ?? "Unknown",
         status: s.status,
       })),
-      { cols: ["token", "pool", "status"], noWrap: true }
+      { cols: ["token", "pool", "status"], noWrap: true },
     ).joined
 
     const fields = [

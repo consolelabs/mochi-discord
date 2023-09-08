@@ -10,7 +10,7 @@ const run = async (msg: Message) => {
   }
   // remove 'xp' argument
   const args = getCommandArguments(msg).filter(
-    (arg) => arg.toLowerCase() !== "xp"
+    (arg) => arg.toLowerCase() !== "xp",
   )
   const each = args[args.length - 1].toLowerCase() === "each" ? true : false
   const amount = Number(each ? args[args.length - 2] : args[args.length - 1])
@@ -31,7 +31,7 @@ const run = async (msg: Message) => {
     msg,
     args.slice(1, each ? -2 : -1).join(" "),
     amount,
-    each
+    each,
   )
 }
 

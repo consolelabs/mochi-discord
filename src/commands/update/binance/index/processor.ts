@@ -4,7 +4,7 @@ import { InternalError } from "errors"
 
 export async function render(
   interaction: CommandInteraction,
-  member: GuildMember
+  member: GuildMember,
 ) {
   if (!(member instanceof GuildMember)) {
     throw new InternalError({

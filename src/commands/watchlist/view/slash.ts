@@ -72,7 +72,7 @@ const command: SlashCommand = {
     return new SlashCommandSubcommandBuilder()
       .setName(alias)
       .setDescription(
-        "View your watchlist" + (alias === "wlc" ? " with charts" : "")
+        "View your watchlist" + (alias === "wlc" ? " with charts" : ""),
       )
   },
   run: async function (i: CommandInteraction) {
@@ -82,7 +82,7 @@ const command: SlashCommand = {
       WatchListViewType.Token,
       i.commandName === "wlc"
         ? WatchListTokenViewType.Chart
-        : WatchListTokenViewType.Text
+        : WatchListTokenViewType.Text,
     )
     const reply = (await i.editReply(msgOpts)) as Message
 

@@ -27,7 +27,7 @@ export async function renderChartImage({
       borderColor: "#009cdb",
       backgroundColor: getGradientColor(
         "rgba(53,83,192,0.9)",
-        "rgba(58,69,110,0.5)"
+        "rgba(58,69,110,0.5)",
       ),
     }
   }
@@ -140,7 +140,7 @@ export async function renderPlotChartImage({
       borderColor: "#009cdb",
       backgroundColor: getGradientColor(
         "rgba(53,83,192,0.9)",
-        "rgba(58,69,110,0.5)"
+        "rgba(58,69,110,0.5)",
       ),
     }
   }

@@ -28,7 +28,7 @@ let cacheSlash = new Map<string, string>()
 export async function getSlashCommand(name: string) {
   if (!cacheSlash.size && !TEST) {
     const result = (await rest.get(
-      Routes.applicationCommands(APPLICATION_ID)
+      Routes.applicationCommands(APPLICATION_ID),
     )) as Array<any>
     const slashData = Array.from(
       result
@@ -39,7 +39,7 @@ export async function getSlashCommand(name: string) {
               [
                 ApplicationCommandOptionType.SubcommandGroup,
                 ApplicationCommandOptionType.Subcommand,
-              ].includes(opt.type)
+              ].includes(opt.type),
             )
             if (subCmds.length) {
               childCommands = subCmds
@@ -63,7 +63,7 @@ export async function getSlashCommand(name: string) {
           }
           return childCommands.concat([[r.name, r.id]])
         })
-        .flat()
+        .flat(),
     )
     cacheSlash = new Map(slashData)
   }
@@ -94,7 +94,7 @@ export const specificHelpCommand = (message?: Message | null) => {
 }
 
 export const getAllAliases = (
-  commands?: Record<string, Command>
+  commands?: Record<string, Command>,
 ): Record<string, Command> => {
   if (!commands) return {}
   return Object.entries(commands).reduce((acc, cur) => {
@@ -104,7 +104,7 @@ export const getAllAliases = (
         ...accAliases,
         [curAlias]: commandObj,
       }),
-      {}
+      {},
     )
 
     return {
@@ -117,7 +117,7 @@ export const getAllAliases = (
 // TODO: remove after slash command migration done
 export const getCommandObject = (
   commands: Record<string, Command>,
-  msg?: Message | null
+  msg?: Message | null,
 ): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
@@ -129,7 +129,7 @@ export const getCommandObject = (
 
 export const getActionCommand = (
   commands: Record<string, Command>,
-  msg?: Message | null
+  msg?: Message | null,
 ): Command | null => {
   if (!msg) return null
   const args = getCommandArguments(msg)
@@ -141,7 +141,8 @@ export const getActionCommand = (
   if (!command.actions) return null
   const actions = Object.entries(command.actions).filter(
     (c) =>
-      (c[1].aliases && c[1].aliases.includes(action)) || c[1].command === action
+      (c[1].aliases && c[1].aliases.includes(action)) ||
+      c[1].command === action,
   )
   if (!actions.length) return null
   return actions[0][1]
@@ -149,7 +150,7 @@ export const getActionCommand = (
 
 export const getCommandMetadata = (
   commands: Record<string, Command>,
-  msg: Message
+  msg: Message,
 ) => {
   if (!msg?.content) return {}
   const args = getCommandArguments(msg)
@@ -224,7 +225,7 @@ export function parseDiscordToken(value: string) {
       : // because these values are mutually exclusive
         // => find the first value that is not undefined
         [emoji, animatedEmoji, nativeEmoji, user, channel, role, id].find(
-          Boolean
+          Boolean,
         ) ?? "",
   }
 }
@@ -246,7 +247,7 @@ export function parseDiscordToken(value: string) {
 
 export function getSlashCommandObject(
   slashCommands: Record<string, SlashCommand>,
-  interaction: CommandInteraction
+  interaction: CommandInteraction,
 ): SlashCommand | null {
   if (!interaction) return null
   return slashCommands[interaction.commandName]
@@ -256,7 +257,7 @@ export function getSlashCommandObject(
 export const getReactionIdentifier = (
   emojiId: string | null,
   emojiName: string | null,
-  identifier: string
+  identifier: string,
 ): string => {
   let reaction = ""
   if (emojiId) {
@@ -277,7 +278,7 @@ export function getSlashCommandColor(commandObj: SlashCommand | null) {
 }
 
 export function getCommandsList(
-  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>
+  commands: Record<string, Pick<Command, "command" | "brief" | "experimental">>,
 ) {
   const emoji = getEmoji("REPLY")
   const correctBrief = (brief: string) =>
@@ -286,7 +287,7 @@ export function getCommandsList(
     .filter((c) => !c.experimental)
     .map(
       (c) =>
-        `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`
+        `[**${c.command}**](${HOMEPAGE_URL})\n${emoji}${correctBrief(c.brief)}`,
     )
     .join("\n\n")
 }
@@ -296,7 +297,7 @@ export function isAcceptableCmdToHelp(
   cmd: string,
   aliases: string[],
   action: string,
-  msg: string
+  msg: string,
 ) {
   let lstCmd = [`$` + cmd]
   if (aliases) {

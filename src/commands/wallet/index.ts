@@ -55,14 +55,14 @@ const slashCmd: SlashCommand = {
         .setName("alias")
         .setDescription("Setup alias for wallet address")
         .addSubcommand(<SlashCommandSubcommandBuilder>alias.set.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>alias.remove.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>alias.remove.prepare()),
     )
     data.addSubcommandGroup((subcommandGroup) =>
       subcommandGroup
         .setName("view")
         .setDescription("View wallet")
         .addSubcommand(<SlashCommandSubcommandBuilder>view.address.prepare())
-        .addSubcommand(<SlashCommandSubcommandBuilder>view.profile.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>view.profile.prepare()),
     )
     return data
   },

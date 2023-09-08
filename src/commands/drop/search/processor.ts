@@ -49,7 +49,7 @@ export async function run(userId: string, keyword = "", page = 0) {
 
   if (total === 0) {
     embed.setDescription(
-      `Can't found any airdrop campaign with keyword **${keyword}**`
+      `Can't found any airdrop campaign with keyword **${keyword}**`,
     )
 
     return {
@@ -66,7 +66,7 @@ export async function run(userId: string, keyword = "", page = 0) {
     embed.setDescription(
       `**${
         PAGE_SIZE * page + data.length
-      }**/${total} matched ${keyword} airdrops.`
+      }**/${total} matched ${keyword} airdrops.`,
     )
 
     embed.fields = data.map((d: any) => {
@@ -91,8 +91,8 @@ export async function run(userId: string, keyword = "", page = 0) {
                 emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
                 label: `#${campaign.id}. ${campaign.title}`,
                 value: campaign.id?.toString() || "0",
-              }))
-            )
+              })),
+            ),
         ),
         ...paginationButtons(page, totalPage),
       ],

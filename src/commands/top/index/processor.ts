@@ -14,7 +14,7 @@ const topEmojis = {
 
 export async function render(
   interaction: CommandInteraction | ButtonInteraction,
-  page = 0
+  page = 0,
 ) {
   if (!interaction.guildId) {
     throw new InternalError({
@@ -30,7 +30,7 @@ export async function render(
     interaction.guildId,
     profileId,
     page,
-    10
+    10,
   )
   if (!res.ok || !res.data.leaderboard || !res.data.leaderboard.length)
     throw new InternalError({
@@ -87,7 +87,7 @@ export async function render(
                 : getEmoji(`num_${i}` as EmojiKey)
             }${f}`
           },
-        }
+        },
       ).joined,
     ].join("\n"),
     // description: `${ blank } ** Your rank:** #${ author.guild_rank }\n${ blank } ** XP:** ${ author.total_xp }\n\u200B`,

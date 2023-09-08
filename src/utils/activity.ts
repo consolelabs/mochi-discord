@@ -30,12 +30,12 @@ export function ActionTypeToEmoji(actionType: number) {
 }
 
 export async function sendActivityMsg(
-  kafkaMessage: KafkaQueueActivityDataCommand
+  kafkaMessage: KafkaQueueActivityDataCommand,
 ) {
   try {
     await kafkaQueue?.produceActivityMsg([
       JSON.stringify(kafkaMessage, (_, v) =>
-        typeof v === "bigint" ? v.toString() : v
+        typeof v === "bigint" ? v.toString() : v,
       ),
     ])
   } catch (error) {
@@ -47,7 +47,7 @@ export function defaultActivityMsg(
   profileId: string,
   status: string,
   platform: string,
-  action: string
+  action: string,
 ): KafkaQueueActivityDataCommand {
   return {
     platform: "discord",

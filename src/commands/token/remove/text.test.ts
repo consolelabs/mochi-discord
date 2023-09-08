@@ -34,7 +34,7 @@ describe("run", () => {
     const output = await tokenCmd?.actions?.["remove"].run(msg)
     expect(processor.handleTokenRemove).toBeCalledWith(
       msg.guildId,
-      msg.author.id
+      msg.author.id,
     )
     assertRunResult(output as any, expected as any)
   })

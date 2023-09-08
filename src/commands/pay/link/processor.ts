@@ -2,6 +2,7 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { CommandInteraction, Message, MessageOptions } from "discord.js"
 import { APIError } from "errors"
+import { parseUnits } from "ethers/lib/utils"
 import fs from "fs"
 import * as qrcode from "qrcode"
 import { RunResult } from "types/common"
@@ -59,10 +60,10 @@ export async function run({
       name: "\u200b",
       value: `Please choose a wallet to create a pay link ${getEmoji(
         "ANIMATED_POINTING_DOWN",
-        true
+        true,
       )}`,
       inline: false,
-    }
+    },
   )
   const options = await composeMyWalletSelection(author.id)
   const selectionRow = composeDiscordSelectionRow({
@@ -135,8 +136,11 @@ export async function run({
 
         const res: any = await mochiPay.generatePaymentCode({
           profileId,
-          amount: amount.toString(),
-          token,
+          amount: parseUnits(
+            amount.toLocaleString().replaceAll(",", ""),
+            decimal,
+          ).toString(),
+          tokenId: balance?.token.id,
           note,
           type: "paylink",
         })
@@ -161,7 +165,7 @@ export async function run({
             note
               ? `with message ${getEmoji(
                   "ANIMATED_CHAT",
-                  true
+                  true,
                 )} \`\`\`${note}\`\`\``
               : ""
           }`,

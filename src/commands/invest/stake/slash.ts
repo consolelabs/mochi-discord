@@ -32,27 +32,27 @@ const slashCmd: SlashCommand = {
             ["Fantom", "250"],
             ["Arbitrum", "42161"],
             ["Optimism", "10"],
-          ])
+          ]),
       )
       .addStringOption((opt) =>
         opt
           .setName("token")
           .setDescription("filter earn by token")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addStringOption((opt) =>
         opt
           .setName("platform")
           .setDescription("filter earn by platform")
           .setRequired(true)
-          .setAutocomplete(true)
+          .setAutocomplete(true),
       )
       .addNumberOption((opt) =>
         opt
           .setName("amount")
           .setDescription("amount of token to stake")
-          .setRequired(true)
+          .setRequired(true),
       )
 
     return data
@@ -74,13 +74,16 @@ const slashCmd: SlashCommand = {
         return
       }
       const options = data
-        .filter((opt) =>
-          opt.token?.symbol?.toLowerCase().includes(focusedValue.toLowerCase())
+        .filter(
+          (opt) =>
+            opt.token?.symbol
+              ?.toLowerCase()
+              .includes(focusedValue.toLowerCase()),
         )
         .slice(0, 25)
         .map((opt) => ({
           name: `${opt.token?.symbol} ${shortenHashOrAddress(
-            opt.token?.address ?? ""
+            opt.token?.address ?? "",
           )}`,
           value: `${opt.token?.name} ${opt.token?.address}`,
         }))
@@ -112,12 +115,12 @@ const slashCmd: SlashCommand = {
       })
       const platforms = data[0].platforms
       const options = platforms
-        ?.filter((p) =>
-          p?.name?.toLowerCase().includes(focusedValue.toLowerCase())
+        ?.filter(
+          (p) => p?.name?.toLowerCase().includes(focusedValue.toLowerCase()),
         )
         .map((p) => ({
           name: `[${p.name?.toUpperCase()}] APY: ${p.apy?.toFixed(
-            2
+            2,
           )}% - TVL: ${formatter.format(p.tvl ?? 0)}`,
           value: p.name ?? "NA",
         }))
@@ -201,9 +204,9 @@ const slashCmd: SlashCommand = {
             title: "Stake success",
             description: `The request to stake has been sent. Please wait a few minutes for the transaction to be confirmed.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )}You can check the status of the transaction using ${await getSlashCommand(
-              "invest status"
+              "invest status",
             )}.`,
           }),
         ],

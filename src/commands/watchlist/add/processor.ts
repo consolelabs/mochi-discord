@@ -45,7 +45,7 @@ export async function addToWatchlist(i: ButtonInteraction) {
     .components as MessageActionRow<MessageActionRowComponent>[]
   const addBtn = rows
     .map((r) =>
-      r.components.find((c) => c.customId?.startsWith("ticker_add_wl"))
+      r.components.find((c) => c.customId?.startsWith("ticker_add_wl")),
     )
     .filter((c) => Boolean(c))
     .at(0) as MessageButton
@@ -62,7 +62,7 @@ export async function addToWatchlistFromTicker(
   i: ButtonInteraction,
   userId: string,
   symbol: string,
-  coingeckoId: string
+  coingeckoId: string,
 ) {
   if (!i.deferred) await i.deferUpdate().catch(() => null)
   const msg = i.message as Message
@@ -70,7 +70,7 @@ export async function addToWatchlistFromTicker(
     msg,
     userId,
     symbol.toLowerCase(),
-    coingeckoId
+    coingeckoId,
   )
   if (!data) return null
 
@@ -89,12 +89,12 @@ export async function addToWatchlistFromTicker(
         title: `${symbolString([symbol])} has been added to the watchlist`,
         description: `${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} View watchlist with ${await getSlashCommand(
-          "wlv"
+          "wlv",
         )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} To remove, use ${await getSlashCommand("watchlist remove")}`,
       }),
     ],
@@ -110,7 +110,7 @@ export async function addUserWatchlist(
     | undefined,
   userId: string,
   symbol: string,
-  coinId = ""
+  coinId = "",
 ) {
   const { isFiat, base, target } = parseTickerQuery(symbol)
   if (isFiat) symbol = `${base}/${target}`
@@ -201,7 +201,7 @@ export async function addWatchlistToken({
             : ""
         }`,
         inline: true,
-      }
+      },
     )
     const { base_suggestions, target_suggestions } = data
     if (!base_suggestions && !target_suggestions) continue
@@ -234,7 +234,7 @@ export async function addWatchlistToken({
           target_suggestions.map((t: Coin) => ({
             name: `${b.name}/${t.name}`,
             symbol: `${b.symbol.toUpperCase()}/${t.symbol.toUpperCase()}`,
-          }))
+          })),
         )
         .flat()
     }
@@ -276,16 +276,16 @@ export async function addWatchlistToken({
       embeds: [
         getSuccessEmbed({
           title: `${symbolString(
-            originSymbols
+            originSymbols,
           )} has been added to the watchlist`,
           description: `${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} View watchlist with ${await getSlashCommand(
-            "wlv"
+            "wlv",
           )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
             "ANIMATED_POINTING_RIGHT",
-            true
+            true,
           )} To remove, use ${await getSlashCommand("watchlist remove")}`,
         }).addFields(fields),
       ],

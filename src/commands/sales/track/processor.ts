@@ -18,7 +18,7 @@ export async function handleSalesTrack(
   addr: string | null,
   platform: string | null,
   guildId: string,
-  channelId: string | null
+  channelId: string | null,
 ) {
   const supportedChains = await config.getAllChains()
   const chain = supportedChains.map((chain: { currency: string }) => {
@@ -52,7 +52,7 @@ export async function handleSalesTrack(
     addr,
     platform,
     guildId,
-    channelId
+    channelId,
   )
   if (!res.ok) {
     if (
@@ -89,7 +89,7 @@ export async function handleSalesTrack(
     dataProfile.id,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_SALES
+    MOCHI_ACTION_SALES,
   )
   kafkaMsg.activity.content.channel_name = channel?.name
   sendActivityMsg(kafkaMsg)

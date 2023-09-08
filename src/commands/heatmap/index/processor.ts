@@ -17,7 +17,7 @@ import chroma from "chroma-js"
 import CacheManager from "../../../cache/node-cache"
 
 export async function heatmap(
-  msgOrInteraction: Message | CommandInteraction
+  msgOrInteraction: Message | CommandInteraction,
 ): Promise<RunResult<MessageOptions>> {
   const { data, ok, curl, log } = await defi.getCoinsMarketData()
   if (!ok) throw new APIError({ msgOrInteraction, curl, description: log })
@@ -30,8 +30,8 @@ export async function heatmap(
   const filtered = Object.values(data).filter(
     (i) =>
       !["busd", "tusd", "usdc", "usdt", "dai", "frax"].includes(
-        i.symbol.toLowerCase()
-      )
+        i.symbol.toLowerCase(),
+      ),
   )
   const now = new Date()
   const key = `${now.getUTCFullYear()}${now.getUTCMonth()}${now.getUTCDate()}`
@@ -86,7 +86,7 @@ async function render(data: any[]) {
         radius: 0,
       },
       item.color,
-      "white"
+      "white",
     )
 
     // price (2nd line)
@@ -147,7 +147,7 @@ function adjustFont(
   ctx: CanvasRenderingContext2D,
   l: number,
   fontSize: number,
-  text: string
+  text: string,
 ): number {
   // minimum font size is 1
   if (fontSize === 0) return 1

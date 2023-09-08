@@ -53,7 +53,7 @@ async function renderListWallet(
   wallets: { value: string; chain?: string; total?: number }[],
   offset: number,
   showCash: boolean,
-  truncateAddress = true
+  truncateAddress = true,
 ) {
   if (!wallets.length) return ""
   const domains = await Promise.all(
@@ -68,7 +68,7 @@ async function renderListWallet(
       }
 
       return await lookUpDomains(address, truncateAddress)
-    })
+    }),
   )
 
   const data = wallets.map((w, i) => {
@@ -119,7 +119,7 @@ export type Target = {
 async function compose(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   target: Target,
-  dataProfile: any
+  dataProfile: any,
 ) {
   const [
     podProfileRes,
@@ -189,7 +189,7 @@ async function compose(
               Math.sign(pnl) === -1
                 ? "ANIMATED_ARROW_DOWN"
                 : "ANIMATED_ARROW_UP",
-              true
+              true,
             )} ${formatPercentDigit(Math.abs(pnl))}%)`
       }`,
       ...(userProfile
@@ -197,7 +197,7 @@ async function compose(
             `${getEmoji("ANIMATED_BADGE_1", true)}\`Lvl. ${
               userProfile.current_level?.level ?? "N/A"
             } (${userProfile.guild_rank ?? 0}${suffixes.get(
-              pr.select(userProfile.guild_rank ?? 0)
+              pr.select(userProfile.guild_rank ?? 0),
             )})\``,
           ]
         : []),
@@ -266,16 +266,16 @@ async function compose(
   const notLinkedPlatforms = ["twitter", "telegram", "binance", "ron", "sui"]
     .filter((s) =>
       socials.every(
-        (connectedSocial: any) => !equalIgnoreCase(connectedSocial.platform, s)
-      )
+        (connectedSocial: any) => !equalIgnoreCase(connectedSocial.platform, s),
+      ),
     )
     .filter((s) =>
-      cexes.every((connectedCex) => !equalIgnoreCase(connectedCex.chain, s))
+      cexes.every((connectedCex) => !equalIgnoreCase(connectedCex.chain, s)),
     )
     .filter((s) =>
       wallets.every(
-        (connectedOnchain) => !equalIgnoreCase(connectedOnchain.chain, s)
-      )
+        (connectedOnchain) => !equalIgnoreCase(connectedOnchain.chain, s),
+      ),
     )
 
   let connectButtons: MessageActionRow[] = []
@@ -288,10 +288,10 @@ async function compose(
           .setEmoji(getEmoji(p.toUpperCase() as EmojiKey))
           .setCustomId(`connect_${p}`)
       }),
-      3
+      3,
     )
     connectButtons = buttons.map((cb) =>
-      new MessageActionRow().addComponents(...cb)
+      new MessageActionRow().addComponents(...cb),
     )
   }
 
@@ -356,9 +356,9 @@ async function compose(
                   label,
                   value: w.value,
                 }
-              })
-            )
-          )
+              }),
+            ),
+          ),
       ),
       new MessageActionRow().addComponents(
         new MessageButton()
@@ -380,7 +380,7 @@ async function compose(
           .setLabel(`Wallet`)
           .setEmoji(getEmoji("PLUS"))
           .setStyle("SECONDARY")
-          .setCustomId("view_add_wallet")
+          .setCustomId("view_add_wallet"),
       ),
       ...connectButtons,
     ],
@@ -405,7 +405,7 @@ async function renderSocials(socials: any[]) {
         //     s.platform_metadata?.username ?? "Binance Connected"
         //   }**`
         // }
-      })
+      }),
     )
   ).join("\n")
 }
@@ -439,7 +439,7 @@ export async function renderWallets({
         mochiWallets.data,
         0,
         false,
-        mochiWallets.truncate
+        mochiWallets.truncate,
       ),
       await renderListWallet(
         getEmoji("WEB"),
@@ -447,7 +447,7 @@ export async function renderWallets({
         cexes.data,
         mochiWallets.data.length,
         true,
-        cexes.truncate
+        cexes.truncate,
       ),
       await renderListWallet(
         getEmoji("WALLET_1"),
@@ -455,7 +455,7 @@ export async function renderWallets({
         wallets.data,
         mochiWallets.data.length + (cexes.data.length || 0),
         true,
-        wallets.truncate
+        wallets.truncate,
       ),
     ])
   ).filter(Boolean)
@@ -468,7 +468,7 @@ function sendKafka(profileId: string, username: string) {
     profileId,
     MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
     MOCHI_APP_SERVICE,
-    MOCHI_ACTION_PROFILE
+    MOCHI_ACTION_PROFILE,
   )
   kafkaMsg.activity.content.username = username
   sendActivityMsg(kafkaMsg)
@@ -476,7 +476,7 @@ function sendKafka(profileId: string, username: string) {
 
 export async function render(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
-  target: Target
+  target: Target,
 ) {
   const dataProfile = await profile.getByDiscord(target.id, false)
   if (dataProfile.err) {
@@ -499,9 +499,9 @@ export function sendBinanceManualMessage(isUpdating = false) {
     description: `To ${
       isUpdating ? "update" : "link"
     } your Binance account, please follow steps below:\n\n${getEmoji(
-      "NUM_1"
+      "NUM_1",
     )} Create a new API key with **Read-Only permissions** in the [API Management page](https://www.binance.com/en/my/settings/api-management), \n${getEmoji(
-      "NUM_2"
+      "NUM_2",
     )} Back to Discord and hit **"Connect"**`,
     image: `https://media.discordapp.net/attachments/1052079279619457095/1116282037389754428/Screenshot_2023-06-08_at_15.25.40.png?width=2332&height=1390`,
   })
@@ -511,7 +511,7 @@ export function sendBinanceManualMessage(isUpdating = false) {
       .setLabel(isUpdating ? "Update" : "Connect")
       .setStyle("SECONDARY")
       .setEmoji(getEmoji("BINANCE"))
-      .setCustomId("enter_key")
+      .setCustomId("enter_key"),
   )
 
   return {
@@ -524,7 +524,7 @@ export function sendBinanceManualMessage(isUpdating = false) {
 
 export async function showModalBinanceKeys(
   interaction: ButtonInteraction,
-  isUpdating = false
+  isUpdating = false,
 ) {
   const modal = new Modal()
     .setCustomId("binance-key-form")
@@ -546,7 +546,7 @@ export async function showModalBinanceKeys(
     new MessageActionRow<ModalActionRowComponent>().addComponents(apiKeyInput)
   const apiSecretAction =
     new MessageActionRow<ModalActionRowComponent>().addComponents(
-      apiSecretInput
+      apiSecretInput,
     )
 
   modal.addComponents(apiKeyAction, apiSecretAction)
@@ -576,7 +576,7 @@ export async function submitBinanceKeys(
   payload: {
     key: string
     secret: string
-  }
+  },
 ) {
   if (!payload.key || !payload.secret) {
     return sendBinanceManualMessage()
@@ -598,10 +598,10 @@ export async function submitBinanceKeys(
       .setDescription(
         [
           `${getEmoji("CHECK")} Use ${await getSlashCommand(
-            "profile"
+            "profile",
           )} to track your Binance portfolio.`,
           `${getEmoji("CHECK")} We will notify when the data is ready.`,
-        ].join("\n")
+        ].join("\n"),
       )
       .setImage(thumbnails.MOCHI_POSE_12)
 
@@ -616,10 +616,10 @@ export async function submitBinanceKeys(
       .setTitle(`${getEmoji("BINANCE")} Invalid Binance Key`)
       .setDescription(
         `We can't use your Binance Key, there might be a problem with\n\n\t${getEmoji(
-          "NUM_1"
+          "NUM_1",
         )} You input the wrong Key, check again at your [API Management page](https://www.binance.com/en/my/settings/api-management)\n\t${getEmoji(
-          "NUM_2"
-        )} Make sure your Key has **READ-ONLY** permission`
+          "NUM_2",
+        )} Make sure your Key has **READ-ONLY** permission`,
       )
       .setColor(msgColors.ERROR)
 
@@ -628,7 +628,7 @@ export async function submitBinanceKeys(
         .setLabel("Retry")
         .setStyle("PRIMARY")
         .setEmoji(getEmoji("BINANCE"))
-        .setCustomId("enter_key")
+        .setCustomId("enter_key"),
     )
 
     return {

@@ -16,7 +16,7 @@ const command: SlashCommand = {
         option
           .setName("symbol")
           .setDescription("symbol of token to set alert")
-          .setRequired(true)
+          .setRequired(true),
       )
   },
   run: async (interaction: CommandInteraction) => {

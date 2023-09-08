@@ -23,7 +23,7 @@ export type Handler<P = any> = (
   params: P,
   event: string,
   context: Record<any, any>,
-  isModal: boolean
+  isModal: boolean,
 ) => Promise<
   | {
       msgOpts: MessageEditOptions | null

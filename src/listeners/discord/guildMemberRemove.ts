@@ -26,7 +26,7 @@ const event: DiscordEvent<"guildMemberRemove"> = {
           }
           await webhook.pushDiscordWebhook("guildMemberRemove", data)
         })
-      }
+      },
     )
   },
 }

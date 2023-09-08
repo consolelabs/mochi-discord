@@ -9,7 +9,7 @@ import { getSlashCommand } from "utils/commands"
 
 export const handleSetMoniker = async (
   payload: RequestUpsertMonikerConfigRequest,
-  message: OriginalMessage
+  message: OriginalMessage,
 ) => {
   // we want moniker to contain characters a.k.a NaN when trying to parse to Number
   if (!Number.isNaN(Number(payload.moniker))) {
@@ -27,10 +27,10 @@ export const handleSetMoniker = async (
             title: "Unsupported token",
             description: `**${payload.token.toUpperCase()}** hasn't been supported.\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )} Please choose one in our supported \`$token list\` or \`$moniker list\`!\n${getEmoji(
               "ANIMATED_POINTING_RIGHT",
-              true
+              true,
             )}.`,
           }),
         ],
@@ -52,7 +52,7 @@ export const handleSetMoniker = async (
           }\`](${HOMEPAGE_URL}) is set as ${payload.amount} ${
             payload.token
           }\n\nUse ${await getSlashCommand(
-            "vault list"
+            "vault list",
           )} to tip your friend with moniker\ne.g. \`${SLASH_PREFIX}tip @anna 1 cookie\`\nRelate commands: ${[
             "set",
             "remove",

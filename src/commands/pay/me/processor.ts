@@ -21,6 +21,8 @@ import { MOCHI_ACTION_PAY_ME, MOCHI_PLATFORM_DISCORD } from "utils/constants"
 import { reply } from "utils/discord"
 import { sendNotificationMsg } from "utils/kafka"
 import { dmUser } from "../../../utils/dm"
+import { parseUnits } from "ethers/lib/utils"
+import { getToken } from "../../../utils/tip-bot"
 
 const typePayRequest = 16
 export async function run({
@@ -53,12 +55,21 @@ export async function run({
   }
   const { id: profileId, profile_name, associated_accounts: accounts } = pfRes
 
+  const t = await getToken(token)
+
+  const parsedTarget = await parseTargetAndPlatform({ platform, target })
+
   const res: any = await mochiPay.generatePaymentCode({
     profileId,
-    amount: amount.toString(),
+    amount: parseUnits(
+      amount.toLocaleString().replaceAll(",", ""),
+      t?.decimal ?? 0,
+    ).toString(),
     token,
     type: "payme",
     note,
+    target: parsedTarget.target,
+    target_platform: parsedTarget.platform,
   })
   // api error
   if (!res.ok) {
@@ -99,7 +110,7 @@ export async function run({
     [
       ...mochiWallets
         .filter((mw) =>
-          walletType === "evm-chain" ? mw.chain?.is_evm : !mw.chain?.is_evm
+          walletType === "evm-chain" ? mw.chain?.is_evm : !mw.chain?.is_evm,
         )
         .map((mw) => ({
           platform_identifier: mw.wallet_address,
@@ -112,7 +123,7 @@ export async function run({
         .map((a: any) => ({
           ...a,
           chain: walletType === "evm-chain" ? "EVM-based" : "SOL",
-        }))
+        })),
     ) ?? []
   let longest = 0
   for (const w of wallets) {
@@ -121,8 +132,8 @@ export async function run({
   const walletsText = wallets.map(
     (w, i: number) =>
       `${getEmoji(`NUM_${i + 1}` as EmojiKey)} \`${w.chain}${" ".repeat(
-        longest - w.chain.length
-      )} | ${w.platform_identifier}\``
+        longest - w.chain.length,
+      )} | ${w.platform_identifier}\``,
   )
 
   const lines = [
@@ -134,7 +145,7 @@ export async function run({
     `You can pay me via ${paylink}`,
     walletsText.length &&
       `Or you can send to these wallet addresses below\n${walletsText.join(
-        "\n"
+        "\n",
       )}`,
   ].filter(Boolean)
   const text = lines.join("\n")
@@ -177,6 +188,55 @@ export async function run({
       components: [composeButtonLink("See the DM", dm.url)],
     },
   })
+}
+
+async function parseTargetAndPlatform({
+  platform,
+  target,
+}: {
+  platform?: string
+  target?: string
+}) {
+  const res = { target: "", platform }
+  if (!platform || !target) return res
+  // discord
+  if (platform === "discord") {
+    const targetId = target.replaceAll(/<|>/g, "")
+    const pfRes = await profile.getByDiscord(targetId)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByDiscord] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
+    }
+    res.target = pfRes.id
+  }
+
+  // telegram
+  if (platform === "telegram") {
+    const pfRes = await profile.getByTelegramUsername(target)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByTelegram] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
+    }
+    res.target = pfRes.id
+  }
+
+  //email
+  if (platform === "mail") {
+    const pfRes = await profile.getByEmail(target)
+    if (pfRes.err) {
+      throw new APIError({
+        description: `[getByEmail] API error with status ${pfRes.status_code}`,
+        curl: "",
+      })
+    }
+    res.target = pfRes.id
+  }
+
+  return res
 }
 
 // DO NOT DELETE: use this after mochi-notification support payme usecase
@@ -237,7 +297,7 @@ async function sendNotification({
 export function preprocessTarget(
   interaction: CommandInteraction,
   target?: string,
-  platform?: string
+  platform?: string,
 ): string | undefined {
   if (!target && !platform) {
     return
@@ -270,7 +330,7 @@ export function preprocessTarget(
 
 function isValidEmail(target?: string): boolean {
   if (!target) return false
-  const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  const expression = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
   return expression.test(target)
 }
 

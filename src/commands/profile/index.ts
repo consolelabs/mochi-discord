@@ -14,7 +14,7 @@ const slashCmd: SlashCommand = {
         option
           .setName("user")
           .setDescription("user's nickname or mention. Example: @John")
-          .setRequired(false)
+          .setRequired(false),
       )
     return data
   },

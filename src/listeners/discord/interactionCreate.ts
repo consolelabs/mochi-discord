@@ -121,7 +121,7 @@ const event: DiscordEvent<"interactionCreate"> = {
             handleAutocompleteInteraction(interaction)
           }
         })
-      }
+      },
     )
   },
 }
@@ -155,7 +155,7 @@ function handleCommandInteraction(interaction: Interaction) {
         args = interaction.commandName + " " + subcommand
       }
       const gMember = interaction?.guild?.members.cache.get(
-        interaction?.user.id
+        interaction?.user.id,
       )
       // if this command is experimental -> only allow it to run inside certain channels
       if (command.experimental) {
@@ -174,7 +174,7 @@ function handleCommandInteraction(interaction: Interaction) {
       const memberRoles = gMember?.roles.cache
       if (data && memberRoles) {
         const adminConfigRoles = data.map(
-          (cfg: { role_id: number }) => cfg.role_id
+          (cfg: { role_id: number }) => cfg.role_id,
         )
 
         for (const [, role] of memberRoles) {
@@ -249,7 +249,7 @@ function handleCommandInteraction(interaction: Interaction) {
         }
         await kafkaQueue?.produceBatch([
           JSON.stringify(kafkaMsg, (_, v) =>
-            typeof v === "bigint" ? v.toString() : v
+            typeof v === "bigint" ? v.toString() : v,
           ),
         ])
       } catch (error) {
@@ -271,7 +271,7 @@ function handleCommandInteraction(interaction: Interaction) {
             components: [
               composeButtonLink(
                 `Customize your ad with Mochi`,
-                "https://discord.gg/SUuF8W68"
+                "https://discord.gg/SUuF8W68",
               ),
             ],
           })

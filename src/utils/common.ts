@@ -38,7 +38,7 @@ import {
 dayjs.extend(relativeTime)
 
 const SOL_TLD_AUTHORITY = new PublicKey(
-  "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx"
+  "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx",
 )
 
 export const countryFlagEmojis = {
@@ -528,7 +528,7 @@ export type EmojiKey = keyof typeof emojis
 export type TokenEmojiKey = keyof typeof tokenEmojis
 
 export function isInteraction(
-  msgOrInteraction: Message | MessageComponentInteraction
+  msgOrInteraction: Message | MessageComponentInteraction,
 ): msgOrInteraction is MessageComponentInteraction {
   return "message" in msgOrInteraction
 }
@@ -537,10 +537,6 @@ export function getHeader(text: string, user: User, ctas?: string) {
   return `> **${text} ${DOT} [** ${user.tag} **]${
     typeof ctas === "string" && ctas !== "" ? ` ${DOT}${ctas}` : ""
   }**`
-}
-
-export function getEmbedFooter(texts: string[]): string {
-  return texts.join(` ${DOT} `)
 }
 
 export function hasAdministrator(member?: GuildMember | null) {
@@ -556,7 +552,7 @@ export function maskAddress(str: string, minLen?: number) {
 
     return `${str.substring(0, a)}***${str.substring(
       str.length - b,
-      str.length
+      str.length,
     )}`
   }
 
@@ -566,7 +562,7 @@ export function maskAddress(str: string, minLen?: number) {
 export function getEmoji(
   key: EmojiKey | "",
   animated?: boolean,
-  fallback = "<a:coin:1093923016691421205>"
+  fallback = "<a:coin:1093923016691421205>",
 ) {
   if (!key) return fallback
 
@@ -645,7 +641,7 @@ export function getUniqueToken(nftList: TopNFTTradingVolumeItem[]): string[] {
 
 export function sortNFTListByVolume(
   nftList: TopNFTTradingVolumeItem[],
-  symbol: Map<string, number>
+  symbol: Map<string, number>,
 ): TopNFTTradingVolumeItem[] {
   nftList.forEach((item) => {
     const price = symbol.get(item.token) ?? 0
@@ -659,7 +655,7 @@ export function capitalizeFirst(str: string) {
   return str
     .split(/ +/g)
     .map(
-      (w) => `${w[0]?.toUpperCase() ?? ""}${w.slice(1)?.toLowerCase() ?? ""}`
+      (w) => `${w[0]?.toUpperCase() ?? ""}${w.slice(1)?.toLowerCase() ?? ""}`,
     )
     .join(SPACE)
 }
@@ -678,7 +674,7 @@ export function getMarketplaceCollectionUrl(collectionAddress: string) {
 
 export function getMarketplaceNftUrl(
   collectionAddress: string,
-  tokenId: string
+  tokenId: string,
 ) {
   return `${MARKETPLACE_BASE_URL}/asset/${collectionAddress}/${tokenId}`
 }
@@ -769,7 +765,7 @@ export function buildProgressBar(params: BuildProgressBarParams) {
 
 export function isDiscordMessageLink(url: string): boolean {
   return /(http(s)?:\/\/\.)?(www\.)?discord\.com\/channels\/[0-9]*\/[0-9]*\/[0-9]*/g.test(
-    url
+    url,
   )
 }
 
@@ -885,11 +881,11 @@ async function resolveSNSDomain(domain: string) {
   const nameAccountKey = getNameAccountKeySync(
     hashedName,
     undefined,
-    SOL_TLD_AUTHORITY
+    SOL_TLD_AUTHORITY,
   )
   const owner = await NameRegistryState.retrieve(
     new Connection(clusterApiUrl("mainnet-beta")),
-    nameAccountKey
+    nameAccountKey,
   )
   return owner.registry.owner.toBase58()
 }
@@ -934,7 +930,7 @@ export function lookUpDomains(address: string, shorten = true) {
         api = true
         if (returnNormal) return
         resolve(value)
-      }
+      },
     )
 
     setTimeout(() => {
@@ -987,7 +983,7 @@ export function isValidAmount({
 
 export function equalIgnoreCase(
   s1: string | undefined,
-  s2?: string | undefined
+  s2?: string | undefined,
 ) {
   return s1?.toLowerCase() === s2?.toLowerCase()
 }

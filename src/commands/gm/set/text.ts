@@ -39,12 +39,12 @@ const command: Command = {
     let emoji = getEmoji("GM")
 
     let { isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(
-      args[4] ?? ""
+      args[4] ?? "",
     )
     if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
       // maybe the user is only setting emoji and no phrase -> check if the 3rd argument is emoji
       ;({ isEmoji, isNativeEmoji, isAnimatedEmoji } = parseDiscordToken(
-        args[3] ?? ""
+        args[3] ?? "",
       ))
 
       if (!isEmoji && !isNativeEmoji && !isAnimatedEmoji) {
@@ -72,7 +72,7 @@ const command: Command = {
       dataProfile.id,
       MOCHI_PROFILE_ACTIVITY_STATUS_NEW,
       MOCHI_APP_SERVICE,
-      MOCHI_ACTION_GM
+      MOCHI_ACTION_GM,
     )
     kafkaMsg.activity.content.channel_name = channel?.name
     sendActivityMsg(kafkaMsg)
@@ -86,9 +86,9 @@ const command: Command = {
         examples: `${PREFIX}gm set #general\n${PREFIX}gm set #whoop-channel whoop ⛅`,
         description: `*Note:\n${getEmoji(
           "ANIMATED_POINTING_RIGHT",
-          true
+          true,
         )} When setting a new starboard, please use the **custom emoji, sticker from this server** and the **Discord default emoji, sticker**.* ${getEmoji(
-          "NEKOSAD"
+          "NEKOSAD",
         )}`,
         document: `${GM_GITBOOK}&action=config`,
       }),

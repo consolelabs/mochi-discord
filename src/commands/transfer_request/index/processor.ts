@@ -52,7 +52,7 @@ export async function rejectTransferReq(i: ButtonInteraction) {
 
 async function handleTransferRequestErr(
   msg: Message,
-  status: number | undefined
+  status: number | undefined,
 ) {
   const embed = msg.embeds[0]
   switch (status) {

@@ -22,7 +22,7 @@ import {
 
 export const machineConfig: (
   context: any,
-  discordId?: string
+  discordId?: string,
 ) => MachineConfig = (context, discordId) => ({
   id: "balance",
   initial: "balance",

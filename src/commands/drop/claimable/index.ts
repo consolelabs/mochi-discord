@@ -71,7 +71,7 @@ export const slashCmd: SlashCommand = {
 
     const { context, msgOpts } = await run(
       interaction.user.id,
-      status as AirdropCampaignStatus
+      status as AirdropCampaignStatus,
     )
 
     const reply = (await interaction.editReply(msgOpts)) as Message

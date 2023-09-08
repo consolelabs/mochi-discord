@@ -65,7 +65,7 @@ export const slashCmd: SlashCommand = {
         opt
           .setName("keyword")
           .setDescription("search content, title, or id with prefix *#*")
-          .setRequired(true)
+          .setRequired(true),
       )
 
     return data

@@ -1,5 +1,12 @@
-import Discord from "discord.js"
-import { APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import Discord, { CommandInteraction } from "discord.js"
+import {
+  APPLICATION_ID,
+  DISCORD_TOKEN,
+  PORT,
+  REDIS_DB,
+  REDIS_HOST,
+} from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
@@ -8,8 +15,13 @@ import { createServer, Server, IncomingMessage, ServerResponse } from "http"
 import { assignKafka } from "queue/kafka/queue"
 import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
+import UI from "@consolelabs/mochi-ui"
+import Redis from "ioredis"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
+import api from "api"
+import { DOT } from "utils/constants"
+import { getEmbedFooter } from "ui/discord/embed"
 
 let server: Server | null = null
 
@@ -44,7 +56,7 @@ process.on("SIGTERM", () => {
 
 // register slash commands
 const body = Object.entries(slashCommands ?? {}).map((e) =>
-  e[1].prepare(e[0]).toJSON()
+  e[1].prepare(e[0]).toJSON(),
 )
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
@@ -58,6 +70,13 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     logger.info("Getting tips and facts.")
     await getTipsAndFacts()
     logger.info("Success getting tips and facts.")
+
+    logger.info("Init Mochi API")
+    const redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
+    await api.init()
+    UI.api = api
+    UI.redis = redis
+    logger.info("Success init Mochi API")
 
     runHttpServer()
   } catch (error) {
@@ -93,12 +112,41 @@ function runHttpServer() {
 
       response.statusCode = 404
       response.end()
-    }
+    },
   )
 
   server.listen(PORT, () => {
     logger.info(`Server listening on port ${PORT}`)
   })
+}
+
+// monkeypatch
+const editReply = CommandInteraction.prototype.editReply
+CommandInteraction.prototype.editReply = async function (
+  ...args: Parameters<typeof editReply>
+) {
+  const [payload] = args
+  if (typeof payload === "string" || !("embeds" in payload))
+    return editReply.apply(this, args)
+
+  const { ok: okProfile, data: profile } = await api.profile.discord.getById({
+    discordId: this.user.id,
+  })
+  if (okProfile) {
+    const { changelog } = await api.getLatestChangelog(profile.id)
+    if (changelog) {
+      const embed = payload.embeds?.at(0)
+      if (embed) {
+        const parts = embed.footer?.text?.split(` ${DOT} `)
+        if (parts?.length) {
+          parts[0] = "🌈 Mochi has a new update, check out /sup"
+          embed.footer!.text = getEmbedFooter(parts)
+        }
+      }
+    }
+  }
+
+  return editReply.apply(this, args)
 }
 
 // cleanup

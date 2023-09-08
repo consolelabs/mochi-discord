@@ -38,7 +38,7 @@ const slashCmd: SlashCommand = {
     const data = new SlashCommandBuilder()
       .setName("earn")
       .setDescription(
-        "view earning opportunities, from airdrop campaigns to quests"
+        "view earning opportunities, from airdrop campaigns to quests",
       )
     return data
   },

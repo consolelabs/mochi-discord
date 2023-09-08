@@ -5,7 +5,7 @@ import fetch from "node-fetch"
 export async function getTokenUri(
   provider: any,
   address: string,
-  tokenId: number
+  tokenId: number,
 ) {
   const contract = new ethers.Contract(address, abis.erc721, provider)
   return await contract.tokenURI(tokenId)
