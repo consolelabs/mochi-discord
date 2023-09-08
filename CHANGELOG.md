@@ -1,3 +1,10 @@
+# [6.30.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.30.0-rc.1...v6.30.0-rc.2) (2023-09-08)
+
+
+### Bug Fixes
+
+* **general:** re-add new RON emoji ([c3761ad](https://github.com/consolelabs/mochi-discord/commit/c3761ad92218bae460f49e70b317877f9aa7d8f4))
+
 # [6.30.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.29.0...v6.30.0-rc.1) (2023-09-08)
 
 
