@@ -4,6 +4,7 @@ import {
   Message,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
   User,
 } from "discord.js"
 import { SlashCommand } from "types/common"
@@ -43,8 +44,11 @@ function collectPlayerChoice(data: any, referee: User) {
       return
     }
 
+    const dmChannel = await i.user.createDM(true).catch(() => null)
     await i.editReply({
-      content: `A join request has been sent to you. Please check your DM.`,
+      content: `A join request has been sent to you. Please check your DM${
+        dmChannel ? `, <#${dmChannel.id}>` : ""
+      }.`,
     })
   }
 }
@@ -57,36 +61,48 @@ function renderProgress(
   options: any[],
   bet_default_value: number,
   token_name: string,
-) {
+): MessageEmbed {
   const time = end <= Date.now() ? "0" : Math.round(end / 1000)
   const msg1 = `:warning: The game will be closed <t:${time}:R>.\nPlease make sure you have submitted the answer and approved the mochi transaction.`
   const msg2 = `**:hourglass:TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
 
-  return [
-    `:video_game: **GUESS GAME**\n`,
-    `:game_die: \`ID.         \` **${code}**`,
-    `:police_officer: \`Referee.    \` <@${referee.id}>`,
-    `:moneybag: \`Bet Amount. \` ${bet_default_value} ${getEmojiToken(
-      token_name as TokenEmojiKey,
-      false,
-    )} `,
-    `:question: \`Question.   \` ${question}`,
-    "",
-    `${time === "0" ? msg2 : msg1}`,
-    "",
-    ...(options ?? []).map(
-      (opt: any) =>
-        `${opt.option} ${
-          opt.payout_ratio !== "0"
-            ? `- ***${opt.payout_ratio}x Payout*** : `
-            : ": "
-        }\n${
-          opt.game_player
-            ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
-            : ""
-        }`,
-    ),
-  ].join("\n")
+  const embed = composeEmbedMessage(null, {
+    color: "GREEN",
+  })
+
+  const embedFields: any[] = (options ?? []).map((opt: any) => {
+    const players = opt.game_player
+      ? opt.game_player.map((p: any) => `<@${p.player_id}>`).join(", ")
+      : ""
+    return {
+      name: `${opt.option} ${
+        opt.payout_ratio !== "0"
+          ? `- ***${opt.payout_ratio}x Payout*** : `
+          : ": "
+      }`,
+      value: `${players === "" ? "-" : players}`,
+      inline: false,
+    }
+  })
+
+  embed.setTitle(":video_game: **GUESS GAME**")
+  embed.setDescription(
+    [
+      `:game_die: \`ID.         \` **${code}**`,
+      `:police_officer: \`Referee.    \` <@${referee.id}>`,
+      `:moneybag: \`Bet Amount. \` ${bet_default_value} ${getEmojiToken(
+        token_name as TokenEmojiKey,
+        false,
+      )} `,
+      `:question: \`Question.   \` ${question}`,
+      "",
+      `${time === "0" ? msg2 : msg1}`,
+    ].join("\n"),
+  )
+
+  embed.setFields(embedFields)
+
+  return embed
 }
 
 const slashCmd: SlashCommand = {
@@ -228,15 +244,17 @@ const slashCmd: SlashCommand = {
 
       msg
         .edit({
-          content: renderProgress(
-            referee,
-            question,
-            end,
-            data.code,
-            options,
-            data.bet_default_value,
-            data.token_name,
-          ),
+          embeds: [
+            renderProgress(
+              referee,
+              question,
+              end,
+              data.code,
+              options,
+              data.bet_default_value,
+              data.token_name,
+            ),
+          ],
         })
         .catch(() => null)
 
@@ -248,15 +266,17 @@ const slashCmd: SlashCommand = {
     }
 
     const msg = await messageContext.send({
-      content: renderProgress(
-        referee,
-        question,
-        end,
-        data.code,
-        data.options,
-        data.bet_default_value,
-        data.token_name,
-      ),
+      embeds: [
+        renderProgress(
+          referee,
+          question,
+          end,
+          data.code,
+          data.options,
+          data.bet_default_value,
+          data.token_name,
+        ),
+      ],
       components: choices,
     })
 
@@ -322,9 +342,15 @@ const slashCmd: SlashCommand = {
     timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
 
     if (threadMode) {
+      // content: [`${i.user} asked:`, `> ${question}`].join("\n")
+      const embed = composeEmbedMessage(null, {
+        color: "GREEN",
+      })
+      embed.setTitle(":video_game: **GUESS GAME**")
+      embed.setDescription([`${i.user} asked:`, `> ${question}`].join("\n"))
       const editedReply = await reply
         .edit({
-          content: [`${i.user} asked:`, `> ${question}`].join("\n"),
+          embeds: [embed],
           components: choices,
         })
         .catch(() => null)
