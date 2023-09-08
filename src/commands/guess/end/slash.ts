@@ -48,7 +48,7 @@ export async function announceResult(
 
   const winners =
     group.winners.length === 0
-      ? ["No one"]
+      ? ["> No one"]
       : group.winners.map(
           (t) =>
             `> ${userMention(t.player_id)} +${t.final_amount} ${t.token_name}`,
@@ -56,7 +56,7 @@ export async function announceResult(
 
   const losers =
     group.losers.length === 0
-      ? ["No one"]
+      ? ["> No one"]
       : group.losers.map(
           (t) =>
             `> ${userMention(t.player_id)} ${t.final_amount} ${t.token_name}`,
