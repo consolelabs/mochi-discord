@@ -1,3 +1,31 @@
+# [6.29.0](https://github.com/consolelabs/mochi-discord/compare/v6.28.4...v6.29.0) (2023-09-08)
+
+
+### Bug Fixes
+
+* **balance:** user now should see the whitelisted tokens in balance ([ebe68e1](https://github.com/consolelabs/mochi-discord/commit/ebe68e1e05a65295517701d732524a58bef1e7fa))
+* crash server ([#1466](https://github.com/consolelabs/mochi-discord/issues/1466)) ([f60546f](https://github.com/consolelabs/mochi-discord/commit/f60546fb6fbac64e5cd39a409f9ece5f0e8bb294))
+* fix fail dexpair type ([#1467](https://github.com/consolelabs/mochi-discord/issues/1467)) ([d87c159](https://github.com/consolelabs/mochi-discord/commit/d87c159486ced17b1f49a34905405dd3ba854cbf))
+* fix fail dexpair type ([#1467](https://github.com/consolelabs/mochi-discord/issues/1467)) ([#1468](https://github.com/consolelabs/mochi-discord/issues/1468)) ([d6f926c](https://github.com/consolelabs/mochi-discord/commit/d6f926ce42ebb9d619ac1ccda17bb077b3a979f6))
+* **general:** bot to use different config when in prod/preview ([52f9e73](https://github.com/consolelabs/mochi-discord/commit/52f9e7348fb47fbc9a4c41545414c411a0796aa4))
+* **general:** move missing module from optional to dependency ([45748ec](https://github.com/consolelabs/mochi-discord/commit/45748ec7a5e51f41d16b2741d7c9357ae785e3ab))
+* **general:** move missing module from optional to dependency ([6ebb7d0](https://github.com/consolelabs/mochi-discord/commit/6ebb7d014b4fe96290e4a02c68f2c0b70b000820))
+* **general:** no_fetch_amount param ([c117015](https://github.com/consolelabs/mochi-discord/commit/c117015808c1db2bc3a9869c4db8bbafd4f4c96c))
+* **guess:** stop updating a guess game's progress after that game has ended ([c8d88ec](https://github.com/consolelabs/mochi-discord/commit/c8d88ecbb36a08aae4228e8c78e909308c4da1ae))
+* **payme,paylink,balances:** pay request payload ([#1479](https://github.com/consolelabs/mochi-discord/issues/1479)) ([0db6008](https://github.com/consolelabs/mochi-discord/commit/0db6008ec30ca74f618880ee3b6a147ec8874309))
+* remove response dexpair type ([#1469](https://github.com/consolelabs/mochi-discord/issues/1469)) ([8441788](https://github.com/consolelabs/mochi-discord/commit/844178815be22ca84f6c26b0147466d501b0922e))
+* send more params tip moniker ([#1465](https://github.com/consolelabs/mochi-discord/issues/1465)) ([608e4a3](https://github.com/consolelabs/mochi-discord/commit/608e4a38fbaae34fc24e740c2388d44c374d9711))
+* **v:** reword command description to be more accurate ([7902e96](https://github.com/consolelabs/mochi-discord/commit/7902e9691ea4a3483a751284e1bb9ff1ce98b6c0))
+
+
+### Features
+
+* **guess:** allow guess game to be played inside a thread or played outside in a channel ([#1478](https://github.com/consolelabs/mochi-discord/issues/1478)) ([3d19e32](https://github.com/consolelabs/mochi-discord/commit/3d19e32f1d3da7c6ded94bfe4144ecb772804d5b))
+* move game thread to channel ([#1462](https://github.com/consolelabs/mochi-discord/issues/1462)) ([e9931ad](https://github.com/consolelabs/mochi-discord/commit/e9931adce5d8ee826ec6d68e502075ed3780d148))
+* **sup:** what's new command for user to check out latest changelog ([#1476](https://github.com/consolelabs/mochi-discord/issues/1476)) ([58d739d](https://github.com/consolelabs/mochi-discord/commit/58d739db6a22d201b2a43f78c354629b81dda47e))
+* token verbose ([#1455](https://github.com/consolelabs/mochi-discord/issues/1455)) ([1ae8b26](https://github.com/consolelabs/mochi-discord/commit/1ae8b26899f57d6f7141d3e445394a5dcae9a45c))
+* **v:** add command /v to check the bot's current version ([410d851](https://github.com/consolelabs/mochi-discord/commit/410d851823517cb99b0ad61e867b3efad6b3fb30))
+
 # [6.29.0-rc.13](https://github.com/consolelabs/mochi-discord/compare/v6.29.0-rc.12...v6.29.0-rc.13) (2023-09-07)
 
 
