@@ -7,11 +7,11 @@ import UI, { Platform } from "@consolelabs/mochi-ui"
 import Discord from "discord.js"
 
 const slashCmd: SlashCommand = {
-  name: "sup",
+  name: "changelog",
   category: "Community",
   prepare: () => {
     const data = new SlashCommandBuilder()
-      .setName("sup")
+      .setName("changelog")
       .setDescription("Check what's new with Mochi")
     return data
   },
@@ -22,7 +22,7 @@ const slashCmd: SlashCommand = {
     if (!ok)
       return {
         messageOptions: {
-          content: "Cannot show changelogs",
+          content: "Cannot show latest changelog",
         },
       }
     const { changelog, markRead } = await api.getLatestChangelog(profile.id)
@@ -41,7 +41,7 @@ const slashCmd: SlashCommand = {
     await i.editReply({
       embeds: [
         composeEmbedMessage2(i, {
-          author: ["Changelog", thumbnails.MOCHI],
+          author: ["", thumbnails.MOCHI],
           description: text,
         }),
       ],
