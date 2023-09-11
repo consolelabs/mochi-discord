@@ -57,8 +57,17 @@ export async function tip(
   const onchain = equalIgnoreCase(args.at(-1), "--onchain")
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
 
-  const { targets, amount, symbol, each, all, message, image, moniker } =
-    await parseTipArgs(msgOrInteraction, args)
+  const {
+    targets,
+    amount,
+    symbol,
+    each,
+    all,
+    message,
+    image,
+    moniker,
+    originalAmount,
+  } = await parseTipArgs(msgOrInteraction, args)
 
   // get sender balances
   const balances = await getBalances({ msgOrInteraction, token: symbol })
@@ -97,6 +106,7 @@ export async function tip(
     chain_id: "",
     moniker: "",
     platform: "discord",
+    original_amount: originalAmount,
   }
 
   if (moniker !== undefined) {
@@ -233,21 +243,35 @@ function showSuccesfulResponse(
     }`
   }
 
-  const amount = `${formatDigit({
+  const unitCurrency = payload.moniker ? payload.moniker : payload.token
+  const amountToken = `${getEmojiToken(payload.token)} ${formatDigit({
     value: res.amount_each.toString(),
     fractionDigits: payload.decimal,
   })} ${payload.token}`
+  const amountApproxMoniker = payload.moniker ? `${amountToken} ` : ""
+  const amount = payload.moniker
+    ? payload.original_amount
+    : `${formatDigit({
+        value: res.amount_each.toString(),
+        fractionDigits: payload.decimal,
+      })}`
+  const emojiAmountWithCurrency = payload.moniker
+    ? ""
+    : getEmojiToken(payload.token)
+  const amountWithCurrency = `${emojiAmountWithCurrency} ${amount} ${unitCurrency}`
 
-  const amountApprox = `(${APPROX} $${roundFloatNumber(
+  const amountApprox = `(${amountApproxMoniker}${APPROX} $${roundFloatNumber(
     res.amount_each * payload.token_price,
     4,
   )})`
+
+  let contentMsg = ``
 
   let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${
     res.tx_id ?? "N/A"
   }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
     payload.token,
-  )} **${amount}** ${amountApprox} ${
+    )} **${amountWithCurrency}** ${amountApprox} ${
     payload.recipients.length > 1 ? "each" : ""
   }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
     payload.sender,
@@ -256,6 +280,7 @@ function showSuccesfulResponse(
     description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
       payload.message
     }`
+    contentMsg += `\n${getEmoji("CHAT", true)}\` Message. \`${payload.message}`
   }
   const embed = composeEmbedMessage(null, {
     author: [
@@ -273,13 +298,11 @@ function showSuccesfulResponse(
     messageOptions: {
       content: `${userMention(
         payload.sender,
-      )} has sent ${recipientDescription} ${getEmojiToken(
-        payload.token,
-      )} **${amount}** ${amountApprox}${
+      )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
         payload.recipients.length > 1 ? " each" : ""
       }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
         res.external_id
-      })`,
+      })${contentMsg}`,
       components: [],
     },
   }
@@ -297,6 +320,7 @@ export async function parseTipArgs(
   each: boolean
   all: boolean
   moniker: any
+  originalAmount: number
 }> {
   const { valid, targets, lastIdx: lastTargetIdx } = getTargets(args)
   if (!valid) {
@@ -353,7 +377,17 @@ export async function parseTipArgs(
   const { message: msg } = isMessage(msgOrInteraction)
   const image = msg ? msg.attachments.first()?.url ?? "" : ""
 
-  return { targets, amount, symbol, each, message, all, image, moniker }
+  return {
+    targets,
+    amount,
+    symbol,
+    each,
+    message,
+    all,
+    image,
+    moniker,
+    originalAmount: parsedAmount,
+  }
 }
 
 export async function validateAndTransfer(
