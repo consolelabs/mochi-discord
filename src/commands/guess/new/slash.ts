@@ -20,6 +20,7 @@ import { announceResult, cleanupAfterEndGame } from "../end/slash"
 import { composeEmbedMessage } from "../../../ui/discord/embed"
 import { truncate } from "lodash"
 import moment, { now } from "moment-timezone"
+import { formatTokenDigit } from "utils/defi"
 
 function collectPlayerChoice(data: any, referee: User) {
   return async function (i: ButtonInteraction) {
@@ -63,7 +64,7 @@ function renderProgress(
   token_name: string,
 ): MessageEmbed {
   const time = end <= Date.now() ? "0" : Math.round(end / 1000)
-  const msg1 = `:warning: The game will be closed <t:${time}:R>.\nPlease make sure you have submitted the answer and approved the mochi transaction.`
+  const msg1 = `:warning: The game will be closed **<t:${time}:R>**.\nPlease ensure that you have **approved** the mochi transaction.`
   const msg2 = `**:hourglass:TIME'S UP**. We hope you enjoyed the game and learned something new. 🎉`
 
   const embed = composeEmbedMessage(null, {
@@ -88,13 +89,15 @@ function renderProgress(
   embed.setTitle(":video_game: **GUESS GAME**")
   embed.setDescription(
     [
+      `:question:**Question**`,
+      `> ${question}`,
+      "",
       `:game_die: \`ID.         \` **${code}**`,
       `:police_officer: \`Referee.    \` <@${referee.id}>`,
-      `:moneybag: \`Bet Amount. \` ${bet_default_value} ${getEmojiToken(
+      `:moneybag: \`Bet Amount. \` ${getEmojiToken(
         token_name as TokenEmojiKey,
         false,
-      )} `,
-      `:question: \`Question.   \` ${question}`,
+      )} **${formatTokenDigit(bet_default_value)} ${token_name}**`,
       "",
       `${time === "0" ? msg2 : msg1}`,
     ].join("\n"),
@@ -142,6 +145,14 @@ const slashCmd: SlashCommand = {
           .setDescription("the label for no option (optional)")
           .setRequired(false),
       )
+      .addNumberOption((opt) =>
+        opt
+          .setName("bet_amount")
+          .setDescription("game bet amount (default: 1, max: 5 )")
+          .setMinValue(0.01)
+          .setMaxValue(10)
+          .setRequired(false),
+      )
       .addBooleanOption((opt) =>
         opt
           .setName("thread")
@@ -165,6 +176,7 @@ const slashCmd: SlashCommand = {
     const durationMin = i.options.getInteger("duration", false) || 30
     const durationMs = durationMin * 60 * 1000
     const referee = i.options.getUser("referee", true)
+    const bet_default_value = i.options.getNumber("bet_amount", false) || 0
 
     if (i.user.id === referee.id) {
       return {
@@ -198,6 +210,7 @@ const slashCmd: SlashCommand = {
       question,
       referee_id: referee.id,
       thread_id: flowID,
+      bet_default_value,
     }
     const { ok, data, originalError, error } = await mochiGuess.createGame(game)
     if (!ok) {
@@ -286,11 +299,18 @@ const slashCmd: SlashCommand = {
         async () => {
           await updatePlayers()
           const embed = composeEmbedMessage(null, {
-            color: "RED",
+            color: "BLUE",
           })
           embed.setTitle(`:loudspeaker: Judgement - ${data.code}`)
           embed.setDescription(
-            `Hey ${referee}, time is up:hourglass:\nPlease submit the game result to decide the winners of the game.`,
+            [
+              `Hey ${referee}, time is up:hourglass:`,
+              "",
+              `:question:**Question**`,
+              `> ${question}`,
+              "",
+              `***Please submit the game result to decide the winners of the game.***`,
+            ].join("\n"),
           )
 
           const msg = await messageContext
@@ -342,12 +362,15 @@ const slashCmd: SlashCommand = {
     timers.set(data.code, setInterval(updatePlayers, 10 * 1000))
 
     if (threadMode) {
-      // content: [`${i.user} asked:`, `> ${question}`].join("\n")
       const embed = composeEmbedMessage(null, {
         color: "GREEN",
       })
       embed.setTitle(":video_game: **GUESS GAME**")
-      embed.setDescription([`${i.user} asked:`, `> ${question}`].join("\n"))
+      embed.setDescription(
+        [`${i.user} asked:`, `:question:**Question**`, `> ${question}`].join(
+          "\n",
+        ),
+      )
       const editedReply = await reply
         .edit({
           embeds: [embed],
