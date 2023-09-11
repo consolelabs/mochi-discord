@@ -271,7 +271,7 @@ function showSuccesfulResponse(
     res.tx_id ?? "N/A"
   }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
     payload.token,
-    )} **${amountWithCurrency}** ${amountApprox} ${
+  )} **${amountWithCurrency}** ${amountApprox} ${
     payload.recipients.length > 1 ? "each" : ""
   }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
     payload.sender,
