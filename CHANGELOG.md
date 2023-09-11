@@ -1,3 +1,11 @@
+## [6.30.1](https://github.com/consolelabs/mochi-discord/compare/v6.30.0...v6.30.1) (2023-09-11)
+
+
+### Bug Fixes
+
+* **guess:** check if user has enable dm before sending join request ([c278a2d](https://github.com/consolelabs/mochi-discord/commit/c278a2d6893c6fda7b4b99b192f903f25fa6cdba))
+* **guess:** highlight guess game question and allow player to choose their bet value ([7e3941e](https://github.com/consolelabs/mochi-discord/commit/7e3941e428826a4224a4fc02e301bc9b23dfc897))
+
 ## [6.30.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.30.0...v6.30.1-rc.1) (2023-09-11)
 
 
