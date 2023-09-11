@@ -258,7 +258,7 @@ function showSuccesfulResponse(
   const emojiAmountWithCurrency = payload.moniker
     ? ""
     : getEmojiToken(payload.token)
-  const amountWithCurrency = `${emojiAmountWithCurrency} ${amount} ${unitCurrency}`
+  let amountWithCurrency = `${emojiAmountWithCurrency} ${amount} ${unitCurrency}`
 
   const amountApprox = `(${amountApproxMoniker}${APPROX} $${roundFloatNumber(
     res.amount_each * payload.token_price,
@@ -271,7 +271,7 @@ function showSuccesfulResponse(
     res.tx_id ?? "N/A"
   }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
     payload.token,
-  )} **${amountWithCurrency}** ${amountApprox} ${
+  )} **${amountWithCurrency.trim()}** ${amountApprox} ${
     payload.recipients.length > 1 ? "each" : ""
   }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
     payload.sender,
@@ -298,7 +298,7 @@ function showSuccesfulResponse(
     messageOptions: {
       content: `${userMention(
         payload.sender,
-      )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
+      )} sent ${recipientDescription} **${amountWithCurrency.trim()}** ${amountApprox}${
         payload.recipients.length > 1 ? " each" : ""
       }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
         res.external_id
