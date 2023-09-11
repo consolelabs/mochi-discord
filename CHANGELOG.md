@@ -1,5 +1,29 @@
-# [6.30.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.30.0-rc.1...v6.30.0-rc.2) (2023-09-08)
+# [6.30.0](https://github.com/consolelabs/mochi-discord/compare/v6.29.1...v6.30.0) (2023-09-08)
 
+
+### Bug Fixes
+
+* **balance:** user now should see the whitelisted tokens in balance ([66e3d11](https://github.com/consolelabs/mochi-discord/commit/66e3d1167baa462a9473b27338f80d19515d9af5))
+* **general:** add home page's link to formatter so it can work properly ([7db78ef](https://github.com/consolelabs/mochi-discord/commit/7db78efed89554e62b52ced87a0a7fd93e46a272))
+* **general:** avoid fetching amount of profile data in some scenarios ([9c438cc](https://github.com/consolelabs/mochi-discord/commit/9c438ccfd7ff156a84ec3fa21656a188872ba024))
+* **general:** bot to use different config when in prod/preview ([ca1461c](https://github.com/consolelabs/mochi-discord/commit/ca1461c89d7dc15a4ed7964770c819ad7955df7c))
+* **guess:** show question in embed ([a039a29](https://github.com/consolelabs/mochi-discord/commit/a039a290fbc9e38954b209a3dff72557d3664b6b))
+* **guess:** stop updating a guess game's progress after that game has ended ([de40608](https://github.com/consolelabs/mochi-discord/commit/de40608d1183192d389f8bafc1176fc384a5f566))
+* **payme:** pay request payload ([#1479](https://github.com/consolelabs/mochi-discord/issues/1479)) ([2a7bfef](https://github.com/consolelabs/mochi-discord/commit/2a7bfeff43f163aa2b576ec9dd9ab710ba521054))
+* **vault:** bug that prevents user from transferring funds in vaults ([5f043fe](https://github.com/consolelabs/mochi-discord/commit/5f043fe9366c389ff3fbad19b93272cf053068dd))
+* **v:** reword command description to be more accurate ([b584146](https://github.com/consolelabs/mochi-discord/commit/b584146149262b4090851e4954e35d0df4562505))
+* **wlv:** command /wlv to use shared lib to format data ([7e81fbf](https://github.com/consolelabs/mochi-discord/commit/7e81fbfa85052e1e6319945761c760b25d4b193a))
+
+
+### Features
+
+* **guess:** allow guess game to be played inside a thread or played outside in a channel ([#1478](https://github.com/consolelabs/mochi-discord/issues/1478)) ([42d5fdd](https://github.com/consolelabs/mochi-discord/commit/42d5fddf3f662a75647447d335294bbc55709370))
+* **guess:** move game from inside thread to outside channel ([c096936](https://github.com/consolelabs/mochi-discord/commit/c096936582a2b3a3354c3baa7151a18a76178557))
+* **sup:** what's new command for user to check out latest changelog ([#1476](https://github.com/consolelabs/mochi-discord/issues/1476)) ([661fc8e](https://github.com/consolelabs/mochi-discord/commit/661fc8e46c18b9f5afbced4659ce2b558853282c))
+* **token:** add verbose option to token info command to show additional data ([c581e9e](https://github.com/consolelabs/mochi-discord/commit/c581e9ee02369cd50e062c1754836bbbc05ee278))
+* **v:** add command /v to check the bot's current version ([b919be6](https://github.com/consolelabs/mochi-discord/commit/b919be61330b16e0310b7654f286193b5b53b829))
+
+## [6.29.1](https://github.com/consolelabs/mochi-discord/compare/v6.29.0...v6.29.1) (2023-09-08)
 
 ### Bug Fixes
 
