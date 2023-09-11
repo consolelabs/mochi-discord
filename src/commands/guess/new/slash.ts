@@ -17,7 +17,7 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import { announceResult, cleanupAfterEndGame } from "../end/slash"
-import { composeEmbedMessage } from "../../../ui/discord/embed"
+import { composeEmbedMessage, enableDMMessage } from "../../../ui/discord/embed"
 import { truncate } from "lodash"
 import moment, { now } from "moment-timezone"
 import { formatTokenDigit } from "utils/defi"
@@ -31,26 +31,34 @@ function collectPlayerChoice(data: any, referee: User) {
       })
       return
     }
-    const optionCode = i.customId
 
-    const { ok, error } = await mochiGuess.joinGame(
-      data.code,
-      i.user.id,
-      optionCode,
-    )
-    if (!ok) {
-      await i.editReply({
-        content: capitalizeFirst(error),
+    i.user
+      .send("A join request should open up shortly...")
+      .then(async () => {
+        const optionCode = i.customId
+
+        const { ok, error } = await mochiGuess.joinGame(
+          data.code,
+          i.user.id,
+          optionCode,
+        )
+        if (!ok) {
+          await i.editReply({
+            content: capitalizeFirst(error),
+          })
+          return
+        }
+
+        const dmChannel = await i.user.createDM(true).catch(() => null)
+        await i.editReply({
+          content: `A join request has been sent to you. Please check your DM${
+            dmChannel ? `, <#${dmChannel.id}>` : ""
+          }.`,
+        })
       })
-      return
-    }
-
-    const dmChannel = await i.user.createDM(true).catch(() => null)
-    await i.editReply({
-      content: `A join request has been sent to you. Please check your DM${
-        dmChannel ? `, <#${dmChannel.id}>` : ""
-      }.`,
-    })
+      .catch(() => {
+        i.editReply({ embeds: [enableDMMessage()] })
+      })
   }
 }
 
@@ -168,6 +176,7 @@ const slashCmd: SlashCommand = {
         },
       }
     }
+
     const yesLabel = `${
       i.options.getString("yes_label", false) || "🐮 Bullish"
     }`
