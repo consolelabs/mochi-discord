@@ -5,6 +5,7 @@ import {
   MessageOptions,
   SelectMenuInteraction,
   User,
+  MessageMentions,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { APIError } from "errors/api"
@@ -403,7 +404,7 @@ async function handleMessageMention(
   msgOrInteraction: Message | CommandInteraction,
   msg: string,
 ) {
-  const re = /<@!?(\d+)>/g
+  const re = MessageMentions.USERS_PATTERN
   for (const match of msg.matchAll(re)) {
     const member = await msgOrInteraction.guild?.members.fetch(match[1])
     msg = msg.replace(match[0], member?.user.username ?? "")
