@@ -99,6 +99,7 @@ const command: SlashCommand = {
               chainId: 1,
               isEVM: false,
               isNative: true,
+              explorer: "https://solscan.io",
             },
           ]
           const { context: ctx, msgOpts } = renderListDepositAddress({
