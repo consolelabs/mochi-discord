@@ -1,3 +1,10 @@
+## [6.31.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.0...v6.31.1) (2023-09-12)
+
+
+### Bug Fixes
+
+* **vault info:** invalid explorer url of solana deposit address ([01e9b68](https://github.com/consolelabs/mochi-discord/commit/01e9b68fef2825273dba831df7b0f215952e6e93))
+
 # [6.31.0](https://github.com/consolelabs/mochi-discord/compare/v6.30.1...v6.31.0) (2023-09-12)
 
 
