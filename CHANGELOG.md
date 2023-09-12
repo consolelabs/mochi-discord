@@ -1,3 +1,23 @@
+# [6.31.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.31.0-rc.1...v6.31.0-rc.2) (2023-09-12)
+
+
+### Bug Fixes
+
+* **general:** re-sync emojis: SPELL, BTC, SOL, ... ([46c6d7a](https://github.com/consolelabs/mochi-discord/commit/46c6d7ae6d5a7436f6555c1dda8df138fff33734))
+* **general:** remove what's new footer, /changelog always show latest ([5f8228d](https://github.com/consolelabs/mochi-discord/commit/5f8228d3d511b241cb52ec97295e0f1bf8a3ed22))
+
+# [6.31.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.30.1...v6.31.0-rc.1) (2023-09-12)
+
+
+### Bug Fixes
+
+* **sup:** change /sup to /changelog and only show latest ([8f68c0a](https://github.com/consolelabs/mochi-discord/commit/8f68c0ac6fbb782c64eaed98be45f983a07aba46))
+
+
+### Features
+
+* **tip:** show moniker (if any) + message when tipping ([ffcf61e](https://github.com/consolelabs/mochi-discord/commit/ffcf61ee042c0cb9a45bb950d7882c5cbd2df82c))
+
 ## [6.30.1](https://github.com/consolelabs/mochi-discord/compare/v6.30.0...v6.30.1) (2023-09-11)
 
 
