@@ -5,6 +5,7 @@ import {
   MessageOptions,
   SelectMenuInteraction,
   User,
+  MessageMentions,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { APIError } from "errors/api"
@@ -194,6 +195,13 @@ async function transfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: any,
 ) {
+  // handle mention user
+  const rawMessage = payload.message
+  payload.message = await handleMessageMention(
+    msgOrInteraction,
+    payload.message,
+  ) // just to store discord username to show in web
+
   // send transfer request
   const { data, ok, curl, log } = await defi.transferV2({
     ...payload,
@@ -210,6 +218,7 @@ async function transfer(
   const senderStr =
     member?.nickname || member?.displayName || member?.user.username
   // respond with successful message
+  payload.message = rawMessage // need assign back to show @user in discord response
   return showSuccesfulResponse(payload, data, senderStr)
 }
 
@@ -389,6 +398,18 @@ export async function parseTipArgs(
     moniker,
     originalAmount: parsedAmount,
   }
+}
+
+async function handleMessageMention(
+  msgOrInteraction: Message | CommandInteraction,
+  msg: string,
+) {
+  const re = MessageMentions.USERS_PATTERN
+  for (const match of msg.matchAll(re)) {
+    const member = await msgOrInteraction.guild?.members.fetch(match[1])
+    msg = msg.replace(match[0], member?.user.username ?? "")
+  }
+  return msg
 }
 
 export async function validateAndTransfer(
