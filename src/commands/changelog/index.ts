@@ -16,16 +16,7 @@ const slashCmd: SlashCommand = {
     return data
   },
   run: async function (i) {
-    const { ok, data: profile } = await api.profile.discord.getById({
-      discordId: i.user.id,
-    })
-    if (!ok)
-      return {
-        messageOptions: {
-          content: "Cannot show latest changelog",
-        },
-      }
-    const { changelog, markRead } = await api.getLatestChangelog(profile.id)
+    const changelog = api.getLatestChangelog()
     if (!changelog) {
       return {
         messageOptions: {
@@ -54,8 +45,6 @@ const slashCmd: SlashCommand = {
         },
       }
     }
-
-    markRead()
 
     return null
   },
