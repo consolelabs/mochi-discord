@@ -92,7 +92,7 @@ import ecocalView from "./ecocal/view/slash"
 import chotot from "./chotot"
 import proposal from "./proposal"
 import guess from "./guess"
-import sup from "./sup"
+import changelog from "./changelog"
 import v from "./v"
 
 CacheManager.init({
@@ -167,7 +167,7 @@ export const slashCommands: Record<string, SlashCommand> = {
   chotot: chotot.slashCmd,
   proposal: proposal.slashCmd,
   guess: guess.slashCmd,
-  sup: sup.slashCmd,
+  changelog: changelog.slashCmd,
   v: v.slashCmd,
 }
 
