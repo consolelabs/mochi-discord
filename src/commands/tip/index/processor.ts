@@ -290,7 +290,7 @@ function showSuccesfulResponse(
     description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
       payload.message
     }`
-    contentMsg += `\n${getEmoji("CHAT")}\` Message. \`${payload.message}`
+    contentMsg += `\n${getEmoji("CHAT")}\`Message. \`${payload.message}`
   }
   const embed = composeEmbedMessage(null, {
     author: [
