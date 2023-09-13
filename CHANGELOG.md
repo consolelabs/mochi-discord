@@ -1,3 +1,12 @@
+## [6.31.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.1...v6.31.2-rc.1) (2023-09-13)
+
+
+### Bug Fixes
+
+* **general:** re-sync emojis: NEAR, APT, BOO, SAMO, XRP ([8e75633](https://github.com/consolelabs/mochi-discord/commit/8e756330cf8c731aa1fc3b6ceb852d56cb4ab9b6))
+* **tip:** resolve user format in message to username before showing ([2a39689](https://github.com/consolelabs/mochi-discord/commit/2a396894cc2708fbd875f9dad8781e32df322b5d))
+* **tip:** use animated version of chat emoji ([fa1d95b](https://github.com/consolelabs/mochi-discord/commit/fa1d95bcf7427b5bd1f66050cee66b77b7d69bb9))
+
 ## [6.31.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.0...v6.31.1) (2023-09-12)
 
 ### Bug Fixes
