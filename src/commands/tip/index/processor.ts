@@ -303,7 +303,7 @@ function showSuccesfulResponse(
     payload.sender,
   )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
     payload.recipients.length > 1 ? " each" : ""
-  }`
+  }! .${utils.string.receiptLink(res.external_id)}`
 
   if (hashtagTemplate) {
     return {
@@ -325,9 +325,7 @@ function showSuccesfulResponse(
 
   return {
     messageOptions: {
-      content: `${content}! .${utils.string.receiptLink(
-        res.external_id,
-      )}${contentMsg}`,
+      content: `${content}${contentMsg}`,
       components: [],
     },
   }
