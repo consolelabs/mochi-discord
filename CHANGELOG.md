@@ -1,3 +1,15 @@
+# [6.32.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.2-rc.1...v6.32.0-rc.1) (2023-09-13)
+
+
+### Bug Fixes
+
+* **tip:** change from /transfer to /tx in receipt link ([5babbe3](https://github.com/consolelabs/mochi-discord/commit/5babbe303cfffb7645a65cf1226c1d85d337e827))
+
+
+### Features
+
+* **tip:** add support for hashtag in message + show image by that hashtag's context([#1485](https://github.com/consolelabs/mochi-discord/issues/1485)) ([5c5ffa7](https://github.com/consolelabs/mochi-discord/commit/5c5ffa76f195dcdafdd006085228651e7a965feb))
+
 ## [6.31.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.1...v6.31.2-rc.1) (2023-09-13)
 
 
