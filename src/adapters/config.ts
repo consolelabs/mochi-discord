@@ -1208,6 +1208,12 @@ class Config extends Fetcher {
       },
     )
   }
+
+  public async getHashtagTemplate(alias: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/product-metadata/hashtags?alias=${alias}`
+    )
+  }
 }
 
 const config = new Config()
