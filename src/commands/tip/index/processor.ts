@@ -39,6 +39,7 @@ import {
   validateTipAmount,
 } from "utils/tip-bot"
 import defi from "../../../adapters/defi"
+import config from "../../../adapters/config"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
@@ -220,13 +221,15 @@ async function transfer(
     member?.nickname || member?.displayName || member?.user.username
   // respond with successful message
   payload.message = rawMessage // need assign back to show @user in discord response
-  return showSuccesfulResponse(payload, data, senderStr)
+  const hashtagTemplate = await handleMessageHashtag(payload.message)
+  return showSuccesfulResponse(payload, data, senderStr, hashtagTemplate)
 }
 
 function showSuccesfulResponse(
   payload: any,
   res: any,
   senderStr?: string,
+  hashtagTemplate?: any,
 ): RunResult<MessageOptions> {
   const users = payload.recipients.map((r: string) => `<@${r}>`).join(", ")
   const isOnline = payload.targets.includes("online")
@@ -295,25 +298,36 @@ function showSuccesfulResponse(
       payload.message
     }`
   }
-  const embed = composeEmbedMessage(null, {
-    author: [
-      `New tip${senderStr ? ` from ${senderStr}` : ""}`,
-      getEmojiURL(emojis.CASH),
-    ],
-    description,
-    color: msgColors.SUCCESS,
-  })
-  if (payload.image) {
-    embed.setImage(payload.image)
+
+  const content = `${userMention(
+    payload.sender,
+  )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
+    payload.recipients.length > 1 ? " each" : ""
+  }`
+
+  if (hashtagTemplate) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: hashtagTemplate.product_hashtag.title,
+            description: hashtagTemplate.product_hashtag.description.replace(
+              "{.content}",
+              content,
+            ),
+            image: hashtagTemplate.product_hashtag.image,
+            color: hashtagTemplate.product_hashtag.color,
+          }),
+        ],
+      },
+    }
   }
 
   return {
     messageOptions: {
-      content: `${userMention(
-        payload.sender,
-      )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
-        payload.recipients.length > 1 ? " each" : ""
-      }! .${utils.string.receiptLink(res.external_id)}${contentMsg}`,
+      content: `${content}! .${utils.string.receiptLink(
+        res.external_id,
+      )}${contentMsg}`,
       components: [],
     },
   }
@@ -399,6 +413,20 @@ export async function parseTipArgs(
     moniker,
     originalAmount: parsedAmount,
   }
+}
+
+async function handleMessageHashtag(msg: string) {
+  const re = /#(\w+)/g
+  let hashtagTemplate = null
+  for (const match of msg.matchAll(re)) {
+    const { data, ok } = await config.getHashtagTemplate(match[1])
+    if (!ok || !data) {
+      continue
+    }
+    hashtagTemplate = data
+    break
+  }
+  return hashtagTemplate
 }
 
 async function handleMessageMention(
