@@ -1,3 +1,4 @@
+import { utils } from "@consolelabs/mochi-ui"
 import { userMention } from "@discordjs/builders"
 import {
   CommandInteraction,
@@ -42,7 +43,7 @@ import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { APPROX, HOMEPAGE_URL } from "../../../utils/constants"
+import { APPROX } from "../../../utils/constants"
 import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
@@ -290,7 +291,9 @@ function showSuccesfulResponse(
     description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
       payload.message
     }`
-    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`Message. \`${payload.message}`
+    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`Message. \`${
+      payload.message
+    }`
   }
   const embed = composeEmbedMessage(null, {
     author: [
@@ -310,9 +313,7 @@ function showSuccesfulResponse(
         payload.sender,
       )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
         payload.recipients.length > 1 ? " each" : ""
-      }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
-        res.external_id
-      })${contentMsg}`,
+      }! .${utils.string.receiptLink(res.external_id)}${contentMsg}`,
       components: [],
     },
   }
