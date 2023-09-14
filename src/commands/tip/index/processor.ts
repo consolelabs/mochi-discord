@@ -1,5 +1,4 @@
 import { utils as mochiUtils } from "@consolelabs/mochi-ui"
-import { utils } from "ethers"
 import { userMention } from "@discordjs/builders"
 import {
   CommandInteraction,
@@ -46,6 +45,7 @@ import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
 import { getProfileIdByDiscord } from "../../../utils/profile"
+import api from "api"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -258,15 +258,13 @@ function showSuccesfulResponse(
   const unitCurrency = payload.moniker ? payload.moniker : payload.token
   const amountToken = `${getEmojiToken(
     payload.token,
-  )} ${mochiUtils.formatTokenDigit({
-    value: utils.formatUnits(res.amount_each.toString(), payload.decimal),
-  })} ${payload.token}`
+  )} ${mochiUtils.formatTokenDigit(res.amount_each.toString())} ${
+    payload.token
+  }`
   const amountApproxMoniker = payload.moniker ? `${amountToken} ` : ""
   const amount = payload.moniker
     ? payload.original_amount
-    : `${mochiUtils.formatTokenDigit({
-        value: utils.formatUnits(res.amount_each.toString(), payload.decimal),
-      })}`
+    : `${mochiUtils.formatTokenDigit(res.amount_each.toString())}`
   const emojiAmountWithCurrency = payload.moniker
     ? ""
     : getEmojiToken(payload.token)
@@ -480,9 +478,7 @@ export async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = mochiUtils.formatTokenDigit({
-    value: utils.formatUnits(payload.amount.toString(), decimal),
-  })
+  payload.amount_string = mochiUtils.formatTokenDigit(payload.amount.toString())
   payload.token_price = balance.token?.price
   return transfer(msgOrInteraction, payload)
 }
