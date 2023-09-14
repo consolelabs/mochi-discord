@@ -20,6 +20,7 @@ export type TransferPayload = {
   decimal?: number
   moniker?: string
   original_amount?: number
+  channel_name: string
 }
 
 export type AirdropOptions = {
