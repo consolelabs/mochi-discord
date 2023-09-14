@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Discord from "discord.js"
-import {
-  APPLICATION_ID,
-  DISCORD_TOKEN,
-  PORT,
-  REDIS_DB,
-  REDIS_HOST,
-} from "./env"
+import { APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
@@ -15,11 +9,8 @@ import { createServer, Server, IncomingMessage, ServerResponse } from "http"
 import { assignKafka } from "queue/kafka/queue"
 import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
-import UI from "@consolelabs/mochi-ui"
-import Redis from "ioredis"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
-import api from "api"
 
 let server: Server | null = null
 
@@ -70,10 +61,6 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     logger.info("Success getting tips and facts.")
 
     logger.info("Init Mochi API")
-    const redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
-    await api.init()
-    UI.api = api
-    UI.redis = redis
     logger.info("Success init Mochi API")
 
     runHttpServer()

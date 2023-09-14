@@ -25,6 +25,7 @@ const slashCmd: SlashCommand = {
       }
     }
     const { text, images } = await UI.components.changelog({
+      title: changelog.title,
       content: changelog.content,
       on: Platform.Discord,
     })
@@ -32,7 +33,7 @@ const slashCmd: SlashCommand = {
     await i.editReply({
       embeds: [
         composeEmbedMessage2(i, {
-          author: ["", thumbnails.MOCHI],
+          author: ["\u200b", thumbnails.MOCHI],
           description: text,
         }),
       ],

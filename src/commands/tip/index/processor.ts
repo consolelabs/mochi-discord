@@ -1,4 +1,5 @@
-import { utils } from "@consolelabs/mochi-ui"
+import { utils as mochiUtils } from "@consolelabs/mochi-ui"
+import { utils } from "ethers"
 import { userMention } from "@discordjs/builders"
 import {
   CommandInteraction,
@@ -22,7 +23,6 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  msgColors,
   roundFloatNumber,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
@@ -45,7 +45,6 @@ import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { APPROX } from "../../../utils/constants"
-import { formatDigit } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 
 export async function tip(
@@ -257,16 +256,16 @@ function showSuccesfulResponse(
   }
 
   const unitCurrency = payload.moniker ? payload.moniker : payload.token
-  const amountToken = `${getEmojiToken(payload.token)} ${formatDigit({
-    value: res.amount_each.toString(),
-    fractionDigits: payload.decimal,
+  const amountToken = `${getEmojiToken(
+    payload.token,
+  )} ${mochiUtils.formatTokenDigit({
+    value: utils.formatUnits(res.amount_each.toString(), payload.decimal),
   })} ${payload.token}`
   const amountApproxMoniker = payload.moniker ? `${amountToken} ` : ""
   const amount = payload.moniker
     ? payload.original_amount
-    : `${formatDigit({
-        value: res.amount_each.toString(),
-        fractionDigits: payload.decimal,
+    : `${mochiUtils.formatTokenDigit({
+        value: utils.formatUnits(res.amount_each.toString(), payload.decimal),
       })}`
   const emojiAmountWithCurrency = payload.moniker
     ? ""
@@ -303,7 +302,7 @@ function showSuccesfulResponse(
     payload.sender,
   )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
     payload.recipients.length > 1 ? " each" : ""
-  }! .${utils.string.receiptLink(res.external_id)}`
+  }! .${mochiUtils.string.receiptLink(res.external_id)}`
 
   if (hashtagTemplate) {
     return {
@@ -481,9 +480,8 @@ export async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit({
-    value: payload.amount.toString(),
-    fractionDigits: decimal,
+  payload.amount_string = mochiUtils.formatTokenDigit({
+    value: utils.formatUnits(payload.amount.toString(), decimal),
   })
   payload.token_price = balance.token?.price
   return transfer(msgOrInteraction, payload)

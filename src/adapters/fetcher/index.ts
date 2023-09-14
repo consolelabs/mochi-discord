@@ -33,6 +33,8 @@ import {
 import Redis from "ioredis"
 import { nanoid } from "nanoid"
 import { Sentry } from "sentry"
+import UI from "@consolelabs/mochi-ui"
+import api from "api"
 
 let cacheTtlSeconds = Number(CACHE_TTL_SECONDS)
 if (Number.isNaN(cacheTtlSeconds)) cacheTtlSeconds = 1800
@@ -64,6 +66,11 @@ if (!TEST) {
       redisError = true
       redis.quit()
     })
+
+  api.init().then(() => {
+    UI.api = api
+    UI.redis = redis
+  })
 }
 
 export const swr = createStaleWhileRevalidateCache({

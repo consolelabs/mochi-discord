@@ -341,11 +341,20 @@ export interface ModelProductBotCommand {
   updated_at?: string
 }
 
+export interface ModelProductChangelogView {
+  changelog_name?: string
+  created_at?: string
+  key?: string
+  metadata?: number[]
+  updated_at?: string
+}
+
 export interface ModelProductChangelogs {
   content?: string
   created_at?: string
   file_name?: string
   github_url?: string
+  is_expired?: boolean
   product?: string
   thumbnail_url?: string
   title?: string
@@ -638,6 +647,11 @@ export interface RequestCreateNFTCollectionRequest {
   priority_flag?: boolean
 }
 
+export interface RequestCreateProductChangelogsViewRequest {
+  changelog_name?: string
+  key?: string
+}
+
 export interface RequestCreateProfileAirdropCampaignRequest {
   airdrop_campaign_id?: number
   is_favorite?: boolean
@@ -758,7 +772,7 @@ export interface RequestOffchainTransferRequest {
 }
 
 export interface RequestOnboardingStartRequest {
-  platform: string
+  platform: "discord" | "telegram"
   profile_id: string
 }
 
@@ -786,9 +800,16 @@ export interface RequestSendUserXPRequest {
 export interface RequestSwapRequest {
   aggregator?: string
   chainName: string
-  routeSummary?: object
-  swapData?: object
+  routeSummary?: any
+  swapData?: any
   userDiscordId: string
+}
+
+export interface RequestTrackFriendTechKeyRequest {
+  decrease_alert_at?: number
+  increase_alert_at?: number
+  key_address: string
+  profile_id: string
 }
 
 export interface RequestTrackWalletRequest {
@@ -805,11 +826,13 @@ export interface RequestTransferV2Request {
   all?: boolean
   amount?: number
   chain_id?: string
+  channel_id?: string
   each?: boolean
   guild_id?: string
   message?: string
   metadata?: Record<string, any>
   moniker?: string
+  original_amount?: number
   original_tx_id?: string
   platform?: string
   recipients?: string[]
@@ -825,6 +848,11 @@ export interface RequestUnlinkBinance {
 export interface RequestUpdateDaoVoteRequest {
   choice: string
   user_id: string
+}
+
+export interface RequestUpdateFriendTechKeyTrackRequest {
+  decrease_alert_at?: number
+  increase_alert_at?: number
 }
 
 export interface RequestUpdateGuildRequest {
@@ -1104,6 +1132,10 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection
 }
 
+export interface ResponseCreateProductChangelogsViewed {
+  data?: ModelProductChangelogView
+}
+
 export interface ResponseCreateProposalChannelConfigResponse {
   data?: ModelGuildConfigDaoProposal
 }
@@ -1209,6 +1241,34 @@ export interface ResponseFindTokenByContractAddressResponse {
   data?: ResponseToken
 }
 
+export interface ResponseFriendTechKey {
+  address?: string
+  createdAt?: string
+  holders?: number
+  id?: number
+  price?: number
+  profileChecked?: boolean
+  supply?: number
+  twitterPfpUrl?: string
+  twitterUsername?: string
+  updatedAt?: string
+}
+
+export interface ResponseFriendTechKeyWatchlistItemRespose {
+  created_at?: string
+  decrease_alert_at?: number
+  id?: number
+  increase_alert_at?: number
+  key_address?: string
+  metadata?: ResponseFriendTechKey
+  profile_id?: string
+  updated_at?: string
+}
+
+export interface ResponseFriendTechKeysResponse {
+  data?: ResponseFriendTechKey[]
+}
+
 export interface ResponseGasTrackerResponse {
   chain?: string
   est_fast_time?: string
@@ -1240,21 +1300,21 @@ export interface ResponseGetCoinResponse {
   coingecko_id?: string
   coingecko_rank?: number
   coingecko_score?: number
-  community_data?: object
+  community_data?: any
   contract_address?: string
   description?: Record<string, string>
   detail_platforms?: Record<string, ResponseCoinPlatformDetailData>
-  developer_data?: object
-  genesis_date?: object
-  hashing_algorithm?: object
+  developer_data?: any
+  genesis_date?: any
+  hashing_algorithm?: any
   id?: string
   image?: ResponseCoinImage
-  links?: object
+  links?: any
   localization?: Record<string, string>
   market_cap_rank?: number
   market_data?: ResponseMarketData
   name?: string
-  platforms?: object
+  platforms?: any
   sentiment_votes_down_percentage?: number
   sentiment_votes_up_percentage?: number
   symbol?: string
@@ -1448,6 +1508,10 @@ export interface ResponseGetOneWalletResponse {
   data?: ModelUserWalletWatchlistItem
 }
 
+export interface ResponseGetProductChangelogsViewed {
+  data?: ModelProductChangelogView[]
+}
+
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker[]
 }
@@ -1498,7 +1562,7 @@ export interface ResponseGetTrendingSearch {
   coins?: ResponseGetTrendingSearchCoin[]
 
   /** this field coingecko return empty */
-  exchanges?: object
+  exchanges?: any
 }
 
 export interface ResponseGetTrendingSearchCoin {
@@ -1816,11 +1880,11 @@ export interface ResponseListTokenPriceAlertResponse {
 export interface ResponseMarketData {
   ath?: Record<string, number>
   ath_change_percentage?: Record<string, number>
-  ath_date?: object
+  ath_date?: any
   atl?: Record<string, number>
   circulating_supply?: number
   current_price?: Record<string, number>
-  fdv_to_tvl_ratio?: object
+  fdv_to_tvl_ratio?: any
   fully_diluted_valuation?: Record<string, number>
   high_24h?: Record<string, number>
   low_24h?: Record<string, number>
@@ -1829,7 +1893,7 @@ export interface ResponseMarketData {
   market_cap_change_percentage_24h_in_currency?: Record<string, number>
   market_cap_rank?: number
   max_supply?: number
-  mcap_to_tvl_ratio?: object
+  mcap_to_tvl_ratio?: any
   price_change_24h?: number
   price_change_24h_in_currency?: Record<string, number>
   price_change_percentage_14d?: number
@@ -1848,10 +1912,10 @@ export interface ResponseMarketData {
   price_change_percentage_60d_in_currency?: Record<string, number>
   price_change_percentage_7d?: number
   price_change_percentage_7d_in_currency?: Record<string, number>
-  roi?: object
+  roi?: any
   total_market_cap?: Record<string, number>
   total_supply?: number
-  total_value_locked?: object
+  total_value_locked?: any
   total_volume?: Record<string, number>
 }
 
@@ -2114,9 +2178,9 @@ export interface ResponseSparkLineIn7D {
 
 export interface ResponseSwapRoute {
   aggregator?: string
-  routeSummary?: object
+  routeSummary?: any
   routerAddress?: string
-  swapData?: object
+  swapData?: any
   tokenIn?: ResponseRouteToken
   tokenOut?: ResponseRouteToken
 }
@@ -2200,6 +2264,10 @@ export interface ResponseTopUser {
   author?: ModelGuildUserXP
   leaderboard?: ModelGuildUserXP[]
   metadata?: ResponsePaginationResponse
+}
+
+export interface ResponseTrackFriendTechKeyResponse {
+  data?: ResponseFriendTechKeyWatchlistItemRespose
 }
 
 export interface ResponseTransferTokenV2Data {

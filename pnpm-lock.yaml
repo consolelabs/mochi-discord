@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-rest':
-    specifier: ^2.0.5
-    version: 2.0.5
+    specifier: ^2.0.8
+    version: 2.0.8
   '@consolelabs/mochi-ui':
-    specifier: ^9.1.12
-    version: 9.1.12(@consolelabs/mochi-rest@2.0.5)(ioredis@5.3.2)
+    specifier: ^9.1.14
+    version: 9.1.14(@consolelabs/mochi-rest@2.0.8)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -150,8 +150,8 @@ dependencies:
     specifier: ^4.3.9
     version: 4.3.9
   vite-node:
-    specifier: ^0.32.4
-    version: 0.32.4
+    specifier: ^0.33.0
+    version: 0.33.0
   vite-plugin-checker:
     specifier: ^0.6.1
     version: 0.6.1(eslint@8.13.0)(typescript@4.7.4)(vite@4.3.9)
@@ -704,16 +704,16 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bonfida/spl-name-service@1.0.11(@solana/web3.js@1.78.4):
+  /@bonfida/spl-name-service@1.0.11(@solana/web3.js@1.78.5):
     resolution: {integrity: sha512-uZA19yMkiv/bZt/QRH3gDWfL3ed15zFj3+ojhyQWhea+Esw5QEXuvHNS8CuWPHieqz8P00DzBI/EJyxWCs/OIg==}
     peerDependencies:
       '@solana/web3.js': ^1.75.0
     dependencies:
       '@ethersproject/sha2': 5.7.0
-      '@pythnetwork/client': 2.19.0(@solana/web3.js@1.78.4)
+      '@pythnetwork/client': 2.19.0(@solana/web3.js@1.78.5)
       '@solana/buffer-layout': 4.0.1
-      '@solana/spl-token': 0.3.7(@solana/web3.js@1.78.4)
-      '@solana/web3.js': 1.78.4
+      '@solana/spl-token': 0.3.7(@solana/web3.js@1.78.5)
+      '@solana/web3.js': 1.78.5
       bech32-buffer: 0.2.1
       bn.js: 5.2.1
       borsh: 0.7.0
@@ -734,8 +734,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-rest@2.0.5:
-    resolution: {integrity: sha512-7dIZadPksX+h68mIlQtWjh8vTHMMmh6ULBge7LKXyash5AXTJ9IVbksHlNFxZYf69AuiHvTHAnqyV1Zdjd+LSA==}
+  /@consolelabs/mochi-rest@2.0.8:
+    resolution: {integrity: sha512-KontDoY3mv5KQKGrGjB2fXN6mt+3/YnqLyzeSpdW3ezDyn6jdZtLBdNTpEb2k+uM8eYYaZdvxCbZou2IEWJsHQ==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
@@ -743,19 +743,19 @@ packages:
       pino: 8.15.1
       pino-pretty: 10.2.0
       snakecase-keys: 5.4.6
-      wretch: 2.6.0
+      wretch: 2.7.0
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@9.1.12(@consolelabs/mochi-rest@2.0.5)(ioredis@5.3.2):
-    resolution: {integrity: sha512-0iv4ESTOXVAv/mM1L1fU8D1lWMaNtqPSpqkRyn4PPXl+Zfn58GJyktH80CynoWyY9lO5lgAzFz6UadDRSJrAjA==}
+  /@consolelabs/mochi-ui@9.1.14(@consolelabs/mochi-rest@2.0.8)(ioredis@5.3.2):
+    resolution: {integrity: sha512-sjP43jXSZ3I7ErHPog6L31YurnsAgbuW3YVT+2kAKwTaI3mqgklAcsOHDXtRVvPafDvRpkxN3rePq9EVKPaxbQ==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^2.0.7
+      '@consolelabs/mochi-rest': ^2.0.8
       ioredis: ^5.x.x
     dependencies:
-      '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.78.4)
-      '@consolelabs/mochi-rest': 2.0.5
-      '@solana/web3.js': 1.78.4
+      '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.78.5)
+      '@consolelabs/mochi-rest': 2.0.8
+      '@solana/web3.js': 1.78.5
       change-case: 4.1.2
       ethers: 6.7.1
       ioredis: 5.3.2
@@ -807,13 +807,13 @@ packages:
       buffer-layout: 1.2.2
     dev: false
 
-  /@coral-xyz/borsh@0.28.0(@solana/web3.js@1.78.4):
+  /@coral-xyz/borsh@0.28.0(@solana/web3.js@1.78.5):
     resolution: {integrity: sha512-/u1VTzw7XooK7rqeD7JLUSwOyRSesPUk0U37BV9zK0axJc1q0nRbKFGFLYCQ16OtdOJTTwGfGp11Lx9B45bRCQ==}
     engines: {node: '>=10'}
     peerDependencies:
       '@solana/web3.js': ^1.68.0
     dependencies:
-      '@solana/web3.js': 1.78.4
+      '@solana/web3.js': 1.78.5
       bn.js: 5.2.1
       buffer-layout: 1.2.2
     dev: false
@@ -1866,14 +1866,14 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@pythnetwork/client@2.19.0(@solana/web3.js@1.78.4):
+  /@pythnetwork/client@2.19.0(@solana/web3.js@1.78.5):
     resolution: {integrity: sha512-0VSQ0NqBOa5EtloXbOVYZ6Wpu8CLP3oaOKVTaUMSX/HXbB00S6G+xdwF7stxo6emgrAMopotx3icEVug5Lpomg==}
     peerDependencies:
       '@solana/web3.js': ^1.30.2
     dependencies:
       '@coral-xyz/anchor': 0.28.1-beta.2
-      '@coral-xyz/borsh': 0.28.0(@solana/web3.js@1.78.4)
-      '@solana/web3.js': 1.78.4
+      '@coral-xyz/borsh': 0.28.0(@solana/web3.js@1.78.5)
+      '@solana/web3.js': 1.78.5
       buffer: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -2147,7 +2147,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/spl-token@0.3.7(@solana/web3.js@1.78.4):
+  /@solana/spl-token@0.3.7(@solana/web3.js@1.78.5):
     resolution: {integrity: sha512-bKGxWTtIw6VDdCBngjtsGlKGLSmiu/8ghSt/IOYJV24BsymRbgq7r12GToeetpxmPaZYLddKwAz7+EwprLfkfg==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -2155,7 +2155,7 @@ packages:
     dependencies:
       '@solana/buffer-layout': 4.0.1
       '@solana/buffer-layout-utils': 0.2.0
-      '@solana/web3.js': 1.78.4
+      '@solana/web3.js': 1.78.5
       buffer: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -2187,8 +2187,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/web3.js@1.78.4:
-    resolution: {integrity: sha512-up5VG1dK+GPhykmuMIozJZBbVqpm77vbOG6/r5dS7NBGZonwHfTLdBbsYc3rjmaQ4DpCXUa3tUc4RZHRORvZrw==}
+  /@solana/web3.js@1.78.5:
+    resolution: {integrity: sha512-2ZHsDNqkKdglJQrIvJ3p2DmgS3cGnary3VJyqt9C1SPrpAtLYzcElr3xyXJOznyQTU/8AMw+GoF11lFoKbicKg==}
     dependencies:
       '@babel/runtime': 7.22.15
       '@noble/curves': 1.2.0
@@ -8903,8 +8903,8 @@ packages:
       vfile-message: 3.1.4
     dev: false
 
-  /vite-node@0.32.4:
-    resolution: {integrity: sha512-L2gIw+dCxO0LK14QnUMoqSYpa9XRGnTTTDjW2h19Mr+GR0EFj4vx52W41gFXfMLqpA00eK4ZjOVYo1Xk//LFEw==}
+  /vite-node@0.33.0:
+    resolution: {integrity: sha512-19FpHYbwWWxDr73ruNahC+vtEdza52kA90Qb3La98yZ0xULqV8A5JLNPUff0f5zID4984tW7l3DH2przTJUZSw==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
     dependencies:
@@ -9172,8 +9172,8 @@ packages:
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  /wretch@2.6.0:
-    resolution: {integrity: sha512-7A4TFHSX+cpxxO6Hd4f0ZE9f8wAgO9wRqX3JeOAtHlJy+kdYP+oPjkF1LYmnTSiTMhODR2YWOdMEc4hCCXEw2w==}
+  /wretch@2.7.0:
+    resolution: {integrity: sha512-IOjqi9SlQ8FEWp1X3KJ74wLNqpDVBoJIJvC7ZDHxPhzriNJd84+7RAhFBTl2sHiqnzBhzfqs1sznaB0Ik/3Ngw==}
     engines: {node: '>=14'}
     dev: false
 
