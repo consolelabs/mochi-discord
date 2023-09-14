@@ -4,6 +4,7 @@ import {
   Message,
   MessageOptions,
   SelectMenuInteraction,
+  TextChannel,
   User,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
@@ -90,12 +91,19 @@ export async function tip(
     })
   }
 
+  const guildName = msgOrInteraction.guild?.name ?? ""
+  const channelName =
+    msgOrInteraction.channel instanceof TextChannel
+      ? msgOrInteraction.channel.name
+      : ""
+
   const payload: TransferPayload = {
     sender: author.id,
     targets: [...new Set(targets)],
     recipients: [...new Set(recipients)],
     guild_id: msgOrInteraction.guildId ?? "",
     channel_id: msgOrInteraction.channelId,
+    channel_name: `${guildName}:${channelName}`,
     amount,
     token: symbol,
     each,
