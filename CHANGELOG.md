@@ -1,3 +1,10 @@
+# [6.32.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.2...v6.32.0-rc.3) (2023-09-14)
+
+
+### Bug Fixes
+
+* **general:** use emoji from backend api ([518b72e](https://github.com/consolelabs/mochi-discord/commit/518b72e75bee1ac0a43224289ad85bc14dc82018))
+
 # [6.32.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.1...v6.32.0-rc.2) (2023-09-14)
 
 
