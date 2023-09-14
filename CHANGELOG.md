@@ -1,3 +1,10 @@
+# [6.32.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.3...v6.32.0-rc.4) (2023-09-14)
+
+
+### Features
+
+* **sync:** sync command to sync metadata ([58ad92b](https://github.com/consolelabs/mochi-discord/commit/58ad92b0a0cb87eb133e85f3b48584097843a5f8))
+
 # [6.32.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.2...v6.32.0-rc.3) (2023-09-14)
 
 
