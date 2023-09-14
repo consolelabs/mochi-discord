@@ -1,3 +1,11 @@
+# [6.32.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.1...v6.32.0-rc.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* **changelog:** rename title ([09c719e](https://github.com/consolelabs/mochi-discord/commit/09c719ef6dfac3095d01508dc5905f09634f01a7))
+* **tip:** use format rule from shared lib ([497b71c](https://github.com/consolelabs/mochi-discord/commit/497b71c6503d8e6e56c8c9b83d52699280c47452))
+
 # [6.32.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.2-rc.1...v6.32.0-rc.1) (2023-09-13)
 
 
