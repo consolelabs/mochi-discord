@@ -1,10 +1,13 @@
+import { utils as mochiUtils } from "@consolelabs/mochi-ui"
 import { userMention } from "@discordjs/builders"
 import {
   CommandInteraction,
   Message,
   MessageOptions,
   SelectMenuInteraction,
+  TextChannel,
   User,
+  MessageMentions,
 } from "discord.js"
 import { GuildIdNotFoundError, InternalError } from "errors"
 import { APIError } from "errors/api"
@@ -20,7 +23,6 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  msgColors,
   roundFloatNumber,
 } from "utils/common"
 import { isMessage, reply } from "utils/discord"
@@ -37,13 +39,14 @@ import {
   validateTipAmount,
 } from "utils/tip-bot"
 import defi from "../../../adapters/defi"
+import config from "../../../adapters/config"
 import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { RunResult } from "../../../types/common"
 import { TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { APPROX, HOMEPAGE_URL } from "../../../utils/constants"
-import { formatDigit } from "../../../utils/defi"
+import { APPROX } from "../../../utils/constants"
 import { getProfileIdByDiscord } from "../../../utils/profile"
+import api from "api"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -90,12 +93,19 @@ export async function tip(
     })
   }
 
+  const guildName = msgOrInteraction.guild?.name ?? ""
+  const channelName =
+    msgOrInteraction.channel instanceof TextChannel
+      ? msgOrInteraction.channel.name
+      : ""
+
   const payload: TransferPayload = {
     sender: author.id,
     targets: [...new Set(targets)],
     recipients: [...new Set(recipients)],
     guild_id: msgOrInteraction.guildId ?? "",
     channel_id: msgOrInteraction.channelId,
+    channel_name: `${guildName}:${channelName}`,
     amount,
     token: symbol,
     each,
@@ -194,6 +204,13 @@ async function transfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: any,
 ) {
+  // handle mention user
+  const rawMessage = payload.message
+  payload.message = await handleMessageMention(
+    msgOrInteraction,
+    payload.message,
+  ) // just to store discord username to show in web
+
   // send transfer request
   const { data, ok, curl, log } = await defi.transferV2({
     ...payload,
@@ -210,13 +227,16 @@ async function transfer(
   const senderStr =
     member?.nickname || member?.displayName || member?.user.username
   // respond with successful message
-  return showSuccesfulResponse(payload, data, senderStr)
+  payload.message = rawMessage // need assign back to show @user in discord response
+  const hashtagTemplate = await handleMessageHashtag(payload.message)
+  return showSuccesfulResponse(payload, data, senderStr, hashtagTemplate)
 }
 
 function showSuccesfulResponse(
   payload: any,
   res: any,
   senderStr?: string,
+  hashtagTemplate?: any,
 ): RunResult<MessageOptions> {
   const users = payload.recipients.map((r: string) => `<@${r}>`).join(", ")
   const isOnline = payload.targets.includes("online")
@@ -244,17 +264,15 @@ function showSuccesfulResponse(
   }
 
   const unitCurrency = payload.moniker ? payload.moniker : payload.token
-  const amountToken = `${getEmojiToken(payload.token)} ${formatDigit({
-    value: res.amount_each.toString(),
-    fractionDigits: payload.decimal,
-  })} ${payload.token}`
+  const amountToken = `${getEmojiToken(
+    payload.token,
+  )} ${mochiUtils.formatTokenDigit(res.amount_each.toString())} ${
+    payload.token
+  }`
   const amountApproxMoniker = payload.moniker ? `${amountToken} ` : ""
   const amount = payload.moniker
     ? payload.original_amount
-    : `${formatDigit({
-        value: res.amount_each.toString(),
-        fractionDigits: payload.decimal,
-      })}`
+    : `${mochiUtils.formatTokenDigit(res.amount_each.toString())}`
   const emojiAmountWithCurrency = payload.moniker
     ? ""
     : getEmojiToken(payload.token)
@@ -281,29 +299,38 @@ function showSuccesfulResponse(
     description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
       payload.message
     }`
-    contentMsg += `\n${getEmoji("CHAT", true)}\` Message. \`${payload.message}`
+    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`Message. \`${
+      payload.message
+    }`
   }
-  const embed = composeEmbedMessage(null, {
-    author: [
-      `New tip${senderStr ? ` from ${senderStr}` : ""}`,
-      getEmojiURL(emojis.CASH),
-    ],
-    description,
-    color: msgColors.SUCCESS,
-  })
-  if (payload.image) {
-    embed.setImage(payload.image)
+
+  const content = `${userMention(
+    payload.sender,
+  )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
+    payload.recipients.length > 1 ? " each" : ""
+  }! .${mochiUtils.string.receiptLink(res.external_id)}`
+
+  if (hashtagTemplate) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: hashtagTemplate.product_hashtag.title,
+            description: `${hashtagTemplate.product_hashtag.description.replace(
+              "{.content}",
+              content,
+            )}${contentMsg}`,
+            image: hashtagTemplate.product_hashtag.image,
+            color: hashtagTemplate.product_hashtag.color,
+          }),
+        ],
+      },
+    }
   }
 
   return {
     messageOptions: {
-      content: `${userMention(
-        payload.sender,
-      )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
-        payload.recipients.length > 1 ? " each" : ""
-      }! .[${res.external_id.slice(0, 5)}](${HOMEPAGE_URL}/transfer/${
-        res.external_id
-      })${contentMsg}`,
+      content: `${content}${contentMsg}`,
       components: [],
     },
   }
@@ -391,6 +418,32 @@ export async function parseTipArgs(
   }
 }
 
+async function handleMessageHashtag(msg: string) {
+  const re = /#(\w+)/g
+  let hashtagTemplate = null
+  for (const match of msg.matchAll(re)) {
+    const { data, ok } = await config.getHashtagTemplate(match[1])
+    if (!ok || !data) {
+      continue
+    }
+    hashtagTemplate = data
+    break
+  }
+  return hashtagTemplate
+}
+
+async function handleMessageMention(
+  msgOrInteraction: Message | CommandInteraction,
+  msg: string,
+) {
+  const re = MessageMentions.USERS_PATTERN
+  for (const match of msg.matchAll(re)) {
+    const member = await msgOrInteraction.guild?.members.fetch(match[1])
+    msg = msg.replace(match[0], member?.user.username ?? "")
+  }
+  return msg
+}
+
 export async function validateAndTransfer(
   msgOrInteraction: Message | CommandInteraction,
   payload: TransferPayload,
@@ -433,10 +486,7 @@ export async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  payload.amount_string = formatDigit({
-    value: payload.amount.toString(),
-    fractionDigits: decimal,
-  })
+  payload.amount_string = mochiUtils.formatTokenDigit(payload.amount.toString())
   payload.token_price = balance.token?.price
   return transfer(msgOrInteraction, payload)
 }

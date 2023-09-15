@@ -9,6 +9,7 @@ import {
   MessageComponentInteraction,
   Permissions,
   User,
+  Util,
 } from "discord.js"
 import { MARKETPLACE_BASE_URL } from "env"
 import { OriginalMessage } from "errors"
@@ -34,6 +35,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
+import api from "api"
 
 dayjs.extend(relativeTime)
 
@@ -57,7 +59,7 @@ export const tokenEmojis = {
   SPIRIT: "967285237962924163",
   TOMB: "967285237904179211",
   REAPER: "967285238306857063",
-  BOO: "967285238042599434",
+  BOO: "1151074936253845505",
   SPELL: "1150806619920273428",
   BTC: "1150601628559360010",
   ETH: "1113120035783856209",
@@ -68,7 +70,7 @@ export const tokenEmojis = {
   USDT: "1150601617629003858",
   USDC: "1150601614676197417",
   ADA: "1005010608443359272",
-  XRP: "1005010559856554086",
+  XRP: "1113115473022832680",
   BUSD: "1005010097535197264",
   DOT: "1005009972716908554",
   DOGE: "1004962950756454441",
@@ -87,7 +89,7 @@ export const tokenEmojis = {
   CRO: "1005009127937949797",
   LINK: "1005008904205385759",
   CHAINLINK: "1005008904205385759",
-  NEAR: "1005008870038589460",
+  NEAR: "1150803872982519861",
   ATOM: "1114116090759487560",
   XLM: "1113115466727170208",
   XMR: "1005008819866312724",
@@ -110,7 +112,7 @@ export const tokenEmojis = {
   BRUSH: "1113120008684441631",
   SOL: "1150803875884978216",
   SOLANA: "1150803875884978216",
-  APT: "1047707078183096320",
+  APT: "1151073569103695922",
   APTOS: "1150803860827426839",
   RON: "1149678716985810944",
   WRON: "1149678716985810944",
@@ -121,7 +123,7 @@ export const tokenEmojis = {
   FBOMB: "1113114920360353824",
   MCLB: "1113114976350122005",
   POL: "1037985931816349746",
-  SAMO: "1095714152221261905",
+  SAMO: "1151075961987661915",
   BONK: "1095714104108388362",
   STG: "1150989167992508508",
   ASTAR: "1113114810012422245",
@@ -562,23 +564,12 @@ export function maskAddress(str: string, minLen?: number) {
 
 export function getEmoji(
   key: EmojiKey | "",
-  animated?: boolean,
+  _animated?: boolean,
   fallback = "<a:coin:1093923016691421205>",
 ) {
-  if (!key) return fallback
-
-  const emoji = emojis[key.toUpperCase() as EmojiKey]
-  if (!emoji) return fallback
-
-  if (isNaN(+emoji)) {
-    return emoji
-  }
-
-  return `<${
-    animated || key.toUpperCase().startsWith("ANIMATED_") ? "a" : ""
-  }:${key.toUpperCase().replace(/-/g, "_").toLowerCase()}:${
-    emojis[key.toUpperCase() as EmojiKey]
-  }>`
+  const emoji = api.emojis.get(key.toUpperCase())
+  const text = emoji?.emoji?.replaceAll("_", key.toLowerCase()) ?? fallback
+  return text
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {

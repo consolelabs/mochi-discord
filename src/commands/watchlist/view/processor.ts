@@ -134,7 +134,7 @@ export async function composeWatchlist(
               return {
                 symbol: (t.symbol ?? "").toUpperCase(),
                 priceChange: utils.formatPercentDigit(priceChange),
-                usd: utils.formatUsdDigit(price),
+                usd: utils.formatUsdPriceDigit(price),
               }
             }),
             {
