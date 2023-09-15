@@ -1,3 +1,10 @@
+## [6.32.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.0...v6.32.1-rc.1) (2023-09-15)
+
+
+### Bug Fixes
+
+* **airdrop:** update airdrop messages ([#1489](https://github.com/consolelabs/mochi-discord/issues/1489)) ([eda5eaf](https://github.com/consolelabs/mochi-discord/commit/eda5eafd7fa3dd2d4fe2fb4b9ccbc4ea8d8d6619))
+
 # [6.32.0](https://github.com/consolelabs/mochi-discord/compare/v6.31.1...v6.32.0) (2023-09-15)
 
 
