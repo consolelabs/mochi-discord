@@ -1,3 +1,10 @@
+# [6.32.0-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.7...v6.32.0-rc.8) (2023-09-15)
+
+
+### Bug Fixes
+
+* **general:** use new format usd price in /wlv and /ticker ([e009b8f](https://github.com/consolelabs/mochi-discord/commit/e009b8f65922f407271164fd6a74fe1f54b7dd7c))
+
 # [6.32.0-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.6...v6.32.0-rc.7) (2023-09-15)
 
 
