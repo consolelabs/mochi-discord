@@ -316,10 +316,10 @@ function showSuccesfulResponse(
         embeds: [
           composeEmbedMessage(null, {
             title: hashtagTemplate.product_hashtag.title,
-            description: hashtagTemplate.product_hashtag.description.replace(
+            description: `${hashtagTemplate.product_hashtag.description.replace(
               "{.content}",
               content,
-            ),
+            )}${contentMsg}`,
             image: hashtagTemplate.product_hashtag.image,
             color: hashtagTemplate.product_hashtag.color,
           }),
