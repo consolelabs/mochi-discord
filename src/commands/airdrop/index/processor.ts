@@ -6,6 +6,7 @@ import {
   MessageActionRow,
   MessageButton,
   MessageOptions,
+  TextChannel,
 } from "discord.js"
 import NodeCache from "node-cache"
 import parse from "parse-duration"
@@ -63,6 +64,8 @@ export async function airdrop(i: CommandInteraction) {
       params: { current: 0, required: amount, symbol: token as TokenEmojiKey },
     })
   }
+  const guildName = i.guild?.name ?? ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
 
   const payload: TransferPayload = {
     sender: i.user.id,
@@ -75,6 +78,7 @@ export async function airdrop(i: CommandInteraction) {
     all,
     transfer_type: "airdrop",
     chain_id: "",
+    channel_name: `${guildName}:${channelName}`,
   }
 
   // only one matching token -> proceed to send tip
