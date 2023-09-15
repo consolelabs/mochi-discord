@@ -1,3 +1,10 @@
+# [6.32.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.4...v6.32.0-rc.5) (2023-09-15)
+
+
+### Bug Fixes
+
+* **tip:** show discord channel to tip noti ([#1486](https://github.com/consolelabs/mochi-discord/issues/1486)) ([dbeacb3](https://github.com/consolelabs/mochi-discord/commit/dbeacb31995cf4e9628bf99e013752b7b7cf8883))
+
 # [6.32.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.3...v6.32.0-rc.4) (2023-09-14)
 
 
