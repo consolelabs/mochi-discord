@@ -32,7 +32,7 @@ import {
   roundFloatNumber,
 } from "../../../utils/common"
 import { APPROX } from "../../../utils/constants"
-import { formatDigit } from "../../../utils/defi"
+import { formatDigit, formatUsdDigit } from "../../../utils/defi"
 import {
   airdropCache,
   describeRunTime,
@@ -120,19 +120,27 @@ async function confirmAirdrop(
   const { duration, entries, useQR } = opts
 
   const author = i.user
+  opts.authorName = author.username
   const { amount, token, token_price = 0 } = payload
   const usdAmount = token_price * amount
   const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
   const endTime = dayjs().add(+duration, "second").toDate()
+  opts.endTime = endTime
+  const fmtCountdownTime = `<t:${dayjs(endTime).unix()}:R>`
   const airdropEmbed = composeEmbedMessage(null, {
-    author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
-    description: `${author} left an airdrop of ${tokenEmoji} **${formatDigit({
-      value: amount.toString(),
-    })} ${token}** (${APPROX} $${roundFloatNumber(usdAmount, 4)})${
+    title: `${getEmoji("AIRDROP")} An airdrop appears`,
+    description: `${author} left an airdrop${
       entries
-        ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
+        ? ` for ${
+            entries && entries > 1 ? `${entries} people each` : "1 person"
+          }`
         : ""
-    } in ${describeRunTime(duration)}.`,
+    } with ${tokenEmoji} **${formatDigit({
+      value: amount.toString(),
+    })} ${token}** (${APPROX} $${roundFloatNumber(
+      usdAmount,
+      4,
+    )}) ${fmtCountdownTime}.`,
     footer: ["Ends"],
     timestamp: endTime,
     originalMsgAuthor: author,
@@ -144,14 +152,16 @@ async function confirmAirdrop(
     airdropEmbed.setDescription(
       `${author} left an airdrop${
         entries
-          ? ` for ${entries && entries > 1 ? `${entries} people` : "1 person"}`
+          ? ` for ${
+              entries && entries > 1 ? `${entries} people each` : "1 person"
+            }`
           : ""
-      } each with ${tokenEmoji} **${formatDigit({
+      } with ${tokenEmoji} **${formatDigit({
         value: amount.toString(),
       })} ${token}** (${APPROX} $${roundFloatNumber(
         usdAmount,
         4,
-      )}) in ${describeRunTime(duration)}.`,
+      )}) ${fmtCountdownTime}.`,
     )
     return await generateQRairdrop(i, airdropEmbed, {
       amount,
@@ -212,7 +222,7 @@ function checkExpiredAirdrop(
 
       const tokenEmoji = getEmojiToken(token as TokenEmojiKey)
       const embed = composeEmbedMessage(null, {
-        author: ["An airdrop appears", getEmojiURL(emojis.ANIMATED_COIN_3)],
+        title: `${getEmoji("AIRDROP")} An airdrop appears`,
         footer: [`${participants.length} users joined, ended`],
         originalMsgAuthor: i.user,
       })
@@ -265,7 +275,7 @@ function checkExpiredAirdrop(
 
       // send airdrop results to author + participants
       sendRecipientsDm(i, participants, token, data.amount_each.toString())
-      sendAuthorDm(i, participants.length, token, amount_string)
+      sendAuthorDm(i, participants, data, payload)
 
       const description = `${
         i.user
@@ -281,18 +291,45 @@ function checkExpiredAirdrop(
 
 function sendAuthorDm(
   i: ButtonInteraction,
-  pNum: number,
-  token: string,
-  amountStr: string,
+  participants: string[],
+  data: any,
+  payload: TransferPayload,
 ) {
-  const aPointingRight = getEmoji("ANIMATED_POINTING_RIGHT", true)
+  const { amount, token, token_price = 0 } = payload
+  const usdAmount = token_price * amount
+  const usdEach = usdAmount / participants.length
+  const emojis = [
+    getEmoji("PROPOSAL"),
+    getEmoji("NFT"),
+    getEmoji("NFT"),
+    getEmoji("SHARE"),
+    getEmoji("WEB"),
+  ]
+  const txId = data.tx_id ?? ""
+  const totalAmount = `${getEmoji(token as TokenEmojiKey)} **${
+    payload.amount_string
+  } ${token}** ($${formatUsdDigit(usdAmount)})`
+  const allocation = `${getEmoji(token as TokenEmojiKey)} **${
+    data.amount_each
+  } ${token}** ($${formatUsdDigit(usdEach)}) each`
+  console.log(participants)
+  const fmtUsers = participants.join(",")
+  const receiver = `**${participants.length} ${
+    participants.length === 1 ? "user" : "users"
+  }** (${fmtUsers})`
+  const channel = `<#${payload.channel_id}>`
+  const info = [
+    `${emojis[0]} \`TxID.         \` ${txId}`,
+    `${emojis[1]} \`Total Amount. \` ${totalAmount}`,
+    `${emojis[2]} \`Allocation..  \` ${allocation}`,
+    `${emojis[3]} \`Receiver.     \` ${receiver}`,
+    `${emojis[4]} \`Channel.      \` ${channel}`,
+  ]
+  const description = info.join("\n")
   const embed = composeEmbedMessage(null, {
-    author: ["The airdrop has ended!", getEmojiURL(emojis.AIRDROP)],
-    description: `\n${aPointingRight} You have airdropped ${getEmoji(
-      token as TokenEmojiKey,
-    )} ${amountStr} ${token} for ${pNum} users at ${
-      i.channel
-    }\n${aPointingRight} Let's check your </balances:1062577077708136500> and make another </airdrop:1062577077708136504>!`,
+    title: `${getEmoji("AIRDROP")} Your airdrop ended`,
+    description,
+    color: msgColors.SUCCESS,
   })
 
   // send dm
@@ -389,19 +426,24 @@ async function enterAirdrop(
 
   // new joiner (valid)
   participants.push(i.user.toString())
-  await i.reply({
-    ephemeral: true,
-    embeds: [
-      composeEmbedMessage(null, {
-        title: `${getEmoji("CHECK")} Entered airdrop`,
-        description: `You will receive your reward in ${dayjs
-          .duration(opts.duration, "seconds")
-          .humanize(true)}.`,
-        footer: ["You will only receive this notification once"],
-        color: msgColors.SUCCESS,
-      }),
-    ],
+  const airdropAuthor = opts.authorName ?? "Unknown"
+  const fmtCountdownTime = `<t:${dayjs(opts.endTime).unix()}:R>`
+  const replyEmbed = composeEmbedMessage(null, {
+    title: `${getEmoji(
+      "ANIMATED_COIN_3",
+    )} You have joined ${airdropAuthor}'s airdrop`,
+    description: `You will receive ${airdropAuthor}'s airdrop ${fmtCountdownTime}.`,
+    footer: ["You will only receive this notification once"],
+    color: msgColors.BLUE,
   })
+
+  await Promise.all([
+    dmUser({ embeds: [replyEmbed] }, i.user, null, null),
+    i.reply({
+      ephemeral: true,
+      embeds: [replyEmbed],
+    }),
+  ])
   if (opts.entries && participants.length === opts.entries) {
     airdropCache.emit("expired", cacheKey, participants)
   }
