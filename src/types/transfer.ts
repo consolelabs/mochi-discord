@@ -27,4 +27,7 @@ export type AirdropOptions = {
   useQR: boolean
   duration: number
   entries?: number | null
+  // data for displaying
+  authorName?: string
+  endTime?: Date
 }
