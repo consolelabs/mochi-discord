@@ -9,6 +9,7 @@ import {
   MessageComponentInteraction,
   Permissions,
   User,
+  Util,
 } from "discord.js"
 import { MARKETPLACE_BASE_URL } from "env"
 import { OriginalMessage } from "errors"
@@ -566,8 +567,9 @@ export function getEmoji(
   _animated?: boolean,
   fallback = "<a:coin:1093923016691421205>",
 ) {
-  const emoji = api.emojis.get(key)
-  return emoji?.emoji ?? fallback
+  const emoji = api.emojis.get(key.toUpperCase())
+  const text = emoji?.emoji?.replaceAll("_", key.toLowerCase()) ?? fallback
+  return text
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {

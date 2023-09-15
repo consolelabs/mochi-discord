@@ -22,13 +22,14 @@ import {
   TokenEmojiKey,
   getEmojiURL,
 } from "utils/common"
-import { formatDigit, formatPercentDigit, formatUsdDigit } from "utils/defi"
 import {
   renderCompareTokenChart,
   renderFiatCompareChart,
   renderHistoricalMarketChart,
 } from "./chart"
 import { getProfileIdByDiscord } from "../../../utils/profile"
+import { utils } from "@consolelabs/mochi-ui"
+import { Util } from "discord.js"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -40,7 +41,7 @@ const getChangePercentage = (change: number) => {
       : change === 0
       ? ""
       : getEmoji("ARROW_DOWN")
-  return `${trend} ${formatPercentDigit(change)}%`
+  return `${trend} ${utils.formatPercentDigit(change)}`
 }
 
 export enum ChartViewTimeOption {
@@ -86,14 +87,11 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
         baseCoin.symbol.toUpperCase() as TokenEmojiKey,
       )} ${baseCoin.symbol.toUpperCase()}`,
       value: [
-        `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatUsdDigit(
-          baseCoinPrice,
-        )}\``,
-        `${getEmoji("CHART")} Cap: \`$${formatDigit({
-          value: baseCoinCap,
-          fractionDigits: 0,
-          shorten: true,
-        })}\``,
+        `${getEmoji(
+          "ANIMATED_COIN_2",
+          true,
+        )} Price: \`${utils.formatUsdPriceDigit(baseCoinPrice)}\``,
+        `${getEmoji("CHART")} Cap: \`${utils.formatUsdDigit(baseCoinCap)}\``,
       ].join("\n"),
       inline: true,
     },
@@ -102,14 +100,11 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
         targetCoin.symbol.toUpperCase() as TokenEmojiKey,
       )} ${targetCoin.symbol.toUpperCase()}`,
       value: [
-        `${getEmoji("ANIMATED_COIN_2", true)} Price: \`$${formatUsdDigit(
-          targetCoinPrice,
-        )}\``,
-        `${getEmoji("CHART")} Cap: \`$${formatDigit({
-          value: targetCoinCap,
-          fractionDigits: 0,
-          shorten: true,
-        })}\``,
+        `${getEmoji(
+          "ANIMATED_COIN_2",
+          true,
+        )} Price: \`${utils.formatUsdPriceDigit(targetCoinPrice)}\``,
+        `${getEmoji("CHART")} Cap: \`${utils.formatUsdDigit(targetCoinCap)}\``,
       ].join("\n"),
       inline: true,
     },
@@ -131,17 +126,10 @@ export async function renderSingle(
   } = coin.market_data
   const current =
     type === ChartType.Dominance
-      ? `${formatDigit({
-          value: String(
-            (market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY],
-          ),
-          fractionDigits: 2,
-        })}%`
-      : `$${formatDigit({
-          value: String(current_price[CURRENCY]),
-          fractionDigits: 2,
-          scientificFormat: true,
-        })}`
+      ? utils.formatPercentDigit(
+          String((market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY]),
+        )
+      : utils.formatUsdPriceDigit(String(current_price[CURRENCY]))
   const marketCap = +market_cap[CURRENCY]
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
@@ -150,7 +138,7 @@ export async function renderSingle(
   }).addFields([
     {
       name: `${getEmoji("CHART")} Market cap`,
-      value: `$${formatDigit({ value: marketCap, shorten: true })} ${
+      value: `${utils.formatUsdDigit(marketCap)} ${
         coin.market_data.market_cap_rank
           ? `(#${coin.market_data.market_cap_rank})`
           : ""
@@ -308,10 +296,9 @@ export async function renderTokenInfo(
     embed.addFields(
       {
         name: `${getEmoji("CHART")} Market cap`,
-        value: `$${formatDigit({
-          value: data.market_data.market_cap[CURRENCY],
-          shorten: true,
-        })} ${
+        value: `${utils.formatUsdDigit(
+          data.market_data.market_cap[CURRENCY],
+        )} ${
           data.market_data.market_cap_rank
             ? `(#${data.market_data.market_cap_rank})`
             : ""
@@ -332,10 +319,7 @@ export async function renderTokenInfo(
   if (data.market_data?.circulating_supply) {
     embed.addFields({
       name: `${getEmoji("ANIMATED_COIN_2", true)} Circulating`,
-      value: `${formatDigit({
-        value: data.market_data?.circulating_supply,
-        shorten: true,
-      })}`,
+      value: utils.formatUsdDigit(data.market_data?.circulating_supply),
       inline: true,
     })
   }
@@ -343,10 +327,7 @@ export async function renderTokenInfo(
   if (data.market_data?.total_supply) {
     embed.addFields({
       name: `${getEmoji("ANIMATED_COIN_3", true)} Total Supply`,
-      value: `${formatDigit({
-        value: coin.market_data.total_supply,
-        shorten: true,
-      })}`,
+      value: utils.formatUsdDigit(coin.market_data.total_supply),
       inline: true,
     })
   }
@@ -354,10 +335,9 @@ export async function renderTokenInfo(
   if (data.market_data?.fully_diluted_valuation?.[CURRENCY]) {
     embed.addFields({
       name: `${getEmoji("ANIMATED_GEM", true)} FDV`,
-      value: `$${formatDigit({
-        value: data.market_data.fully_diluted_valuation?.[CURRENCY],
-        shorten: true,
-      })}`,
+      value: utils.formatUsdDigit(
+        data.market_data.fully_diluted_valuation?.[CURRENCY],
+      ),
       inline: true,
     })
   }
