@@ -270,8 +270,7 @@ function checkExpiredAirdrop(
         throw new APIError({ msgOrInteraction: i, description: log, curl })
       }
 
-      // send airdrop results to author + participants
-      sendRecipientsDm(i, participants, token, data.amount_each.toString())
+      // send airdrop results to author
       sendAuthorDm(i, participants, data, payload)
 
       const description = `${
@@ -306,7 +305,7 @@ function sendAuthorDm(
   const totalAmount = `${getEmoji(
     token as TokenEmojiKey,
   )} **${mochiUtils.formatTokenDigit(
-    payload.amount_string,
+    payload.amount,
   )} ${token}** (${mochiUtils.formatUsdDigit(usdAmount)})`
 
   const allocation = `${getEmoji(
@@ -351,7 +350,7 @@ function sendRecipientsDm(
     const embed = composeEmbedMessage(null, {
       author: [
         `You have joined ${i.user.username}'s airdrop`,
-        getEmojiURL(emojis.ANIMATED_COIN_3),
+        getEmojiURL(emojis.CHECK),
       ],
       description: `You have received ${APPROX} ${getEmoji(
         token as TokenEmojiKey,
@@ -432,12 +431,10 @@ async function enterAirdrop(
   const airdropAuthor = opts.authorName ?? "Unknown"
   const fmtCountdownTime = `<t:${dayjs(opts.endTime).unix()}:R>`
   const replyEmbed = composeEmbedMessage(null, {
-    title: `${getEmoji(
-      "ANIMATED_COIN_3",
-    )} You have joined ${airdropAuthor}'s airdrop`,
+    title: `${getEmoji("CHECK")} You have joined ${airdropAuthor}'s airdrop`,
     description: `You will receive ${airdropAuthor}'s airdrop ${fmtCountdownTime}.`,
     footer: ["You will only receive this notification once"],
-    color: msgColors.BLUE,
+    color: msgColors.SUCCESS,
   })
 
   await Promise.all([
