@@ -1,3 +1,26 @@
+# [6.32.0](https://github.com/consolelabs/mochi-discord/compare/v6.31.1...v6.32.0) (2023-09-15)
+
+
+### Bug Fixes
+
+* **airdrop:** add channel info for notification airdrop ([#1487](https://github.com/consolelabs/mochi-discord/issues/1487)) ([49ebcd7](https://github.com/consolelabs/mochi-discord/commit/49ebcd76c7a4bdbd17baa6550a14a20fb9b2752c))
+* **changelog:** rename title ([09c719e](https://github.com/consolelabs/mochi-discord/commit/09c719ef6dfac3095d01508dc5905f09634f01a7))
+* **general:** re-sync emojis: NEAR, APT, BOO, SAMO, XRP ([8e75633](https://github.com/consolelabs/mochi-discord/commit/8e756330cf8c731aa1fc3b6ceb852d56cb4ab9b6))
+* **general:** use emoji from backend api ([518b72e](https://github.com/consolelabs/mochi-discord/commit/518b72e75bee1ac0a43224289ad85bc14dc82018))
+* **general:** use new format usd price in /wlv and /ticker ([e009b8f](https://github.com/consolelabs/mochi-discord/commit/e009b8f65922f407271164fd6a74fe1f54b7dd7c))
+* **tip:** change from /transfer to /tx in receipt link ([5babbe3](https://github.com/consolelabs/mochi-discord/commit/5babbe303cfffb7645a65cf1226c1d85d337e827))
+* **tip:** hashtag tip message ([#1488](https://github.com/consolelabs/mochi-discord/issues/1488)) ([23421e3](https://github.com/consolelabs/mochi-discord/commit/23421e314e1fca37d9856bc50a85822cedf9b52f))
+* **tip:** resolve user format in message to username before showing ([2a39689](https://github.com/consolelabs/mochi-discord/commit/2a396894cc2708fbd875f9dad8781e32df322b5d))
+* **tip:** show discord channel to tip noti ([#1486](https://github.com/consolelabs/mochi-discord/issues/1486)) ([dbeacb3](https://github.com/consolelabs/mochi-discord/commit/dbeacb31995cf4e9628bf99e013752b7b7cf8883))
+* **tip:** use animated version of chat emoji ([fa1d95b](https://github.com/consolelabs/mochi-discord/commit/fa1d95bcf7427b5bd1f66050cee66b77b7d69bb9))
+* **tip:** use format rule from shared lib ([497b71c](https://github.com/consolelabs/mochi-discord/commit/497b71c6503d8e6e56c8c9b83d52699280c47452))
+
+
+### Features
+
+* **sync:** sync command to sync metadata ([58ad92b](https://github.com/consolelabs/mochi-discord/commit/58ad92b0a0cb87eb133e85f3b48584097843a5f8))
+* **tip:** add support for hashtag in message + show image by that hashtag's context([#1485](https://github.com/consolelabs/mochi-discord/issues/1485)) ([5c5ffa7](https://github.com/consolelabs/mochi-discord/commit/5c5ffa76f195dcdafdd006085228651e7a965feb))
+
 # [6.32.0-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.7...v6.32.0-rc.8) (2023-09-15)
 
 
