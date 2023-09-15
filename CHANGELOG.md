@@ -1,3 +1,10 @@
+# [6.32.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.5...v6.32.0-rc.6) (2023-09-15)
+
+
+### Bug Fixes
+
+* **airdrop:** add channel info for notification airdrop ([#1487](https://github.com/consolelabs/mochi-discord/issues/1487)) ([49ebcd7](https://github.com/consolelabs/mochi-discord/commit/49ebcd76c7a4bdbd17baa6550a14a20fb9b2752c))
+
 # [6.32.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.4...v6.32.0-rc.5) (2023-09-15)
 
 
