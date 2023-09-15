@@ -1,3 +1,4 @@
+import { utils as mochiUtils } from "@consolelabs/mochi-ui"
 import dayjs from "dayjs"
 import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -32,12 +33,8 @@ import {
   roundFloatNumber,
 } from "../../../utils/common"
 import { APPROX } from "../../../utils/constants"
-import { formatDigit, formatUsdDigit } from "../../../utils/defi"
-import {
-  airdropCache,
-  describeRunTime,
-  validateAndShowConfirmation,
-} from "./processor"
+import { formatDigit } from "../../../utils/defi"
+import { airdropCache, validateAndShowConfirmation } from "./processor"
 import { getMaximumRecipients } from "../../../utils/tip-bot"
 import * as qrcode from "qrcode"
 import mochiPay from "adapters/mochi-pay"
@@ -306,17 +303,23 @@ function sendAuthorDm(
     getEmoji("WEB"),
   ]
   const txId = data.tx_id ?? ""
-  const totalAmount = `${getEmoji(token as TokenEmojiKey)} **${
-    payload.amount_string
-  } ${token}** ($${formatUsdDigit(usdAmount)})`
-  const allocation = `${getEmoji(token as TokenEmojiKey)} **${
-    data.amount_each
-  } ${token}** ($${formatUsdDigit(usdEach)}) each`
-  console.log(participants)
+  const totalAmount = `${getEmoji(
+    token as TokenEmojiKey,
+  )} **${mochiUtils.formatTokenDigit(
+    payload.amount_string,
+  )} ${token}** (${mochiUtils.formatUsdDigit(usdAmount)})`
+
+  const allocation = `${getEmoji(
+    token as TokenEmojiKey,
+  )} **${mochiUtils.formatTokenDigit(
+    data.amount_each,
+  )} ${token}** (${mochiUtils.formatUsdDigit(usdEach)}) each`
+
   const fmtUsers = participants.join(",")
   const receiver = `**${participants.length} ${
     participants.length === 1 ? "user" : "users"
   }** (${fmtUsers})`
+
   const channel = `<#${payload.channel_id}>`
   const info = [
     `${emojis[0]} \`TxID.         \` ${txId}`,
