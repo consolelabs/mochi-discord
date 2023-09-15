@@ -1,3 +1,10 @@
+# [6.32.0-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.6...v6.32.0-rc.7) (2023-09-15)
+
+
+### Bug Fixes
+
+* **tip:** hashtag tip message ([#1488](https://github.com/consolelabs/mochi-discord/issues/1488)) ([23421e3](https://github.com/consolelabs/mochi-discord/commit/23421e314e1fca37d9856bc50a85822cedf9b52f))
+
 # [6.32.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.5...v6.32.0-rc.6) (2023-09-15)
 
 
