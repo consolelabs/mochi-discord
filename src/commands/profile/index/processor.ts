@@ -128,6 +128,7 @@ async function compose(
     walletsRes,
     balances,
     investPortResp,
+    paginationRes,
   ] = await Promise.all([
     profile.getUserProfile(i.guildId ?? "", dataProfile.id),
     config.vaultList(i.guildId ?? "", false, dataProfile.id),
@@ -135,6 +136,10 @@ async function compose(
     profile.getUserWallets(target.id, false),
     getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
     mochiPay.getKrystalEarnPortfolio({ profile_id: dataProfile.id }),
+    profile.getUserActivities(dataProfile.id, {
+      actions: ["9", "10"],
+      status: "new",
+    }),
   ])
   let userProfile
   if (podProfileRes.ok) {
@@ -172,10 +177,7 @@ async function compose(
   const grandTotalStr = formatUsdDigit(grandTotal)
   const mochiBal = formatUsdDigit(totalWorth)
 
-  const { pagination } = await profile.getUserActivities(dataProfile.id, {
-    actions: ["9", "10"],
-    status: "new",
-  })
+  const { pagination } = paginationRes
 
   const embed = composeEmbedMessage(null, {
     author: [target.name, target.avatar],
@@ -478,7 +480,7 @@ export async function render(
   i: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   target: Target,
 ) {
-  const dataProfile = await profile.getByDiscord(target.id, false)
+  const dataProfile = await profile.getByDiscord(target.id)
   if (dataProfile.err) {
     throw new InternalError({
       msgOrInteraction: i,
