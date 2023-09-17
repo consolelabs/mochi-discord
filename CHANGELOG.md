@@ -1,3 +1,10 @@
+## [6.32.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.2...v6.32.1-rc.3) (2023-09-17)
+
+
+### Bug Fixes
+
+* optimize profile cmd ([#1491](https://github.com/consolelabs/mochi-discord/issues/1491)) ([01c51f7](https://github.com/consolelabs/mochi-discord/commit/01c51f73dafdafa038893af51649066ff73ca888))
+
 ## [6.32.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.1...v6.32.1-rc.2) (2023-09-15)
 
 
