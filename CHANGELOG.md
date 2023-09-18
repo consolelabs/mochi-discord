@@ -1,3 +1,10 @@
+## [6.32.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.2...v6.32.3) (2023-09-18)
+
+
+### Bug Fixes
+
+* **general:** pass env url to rest client ([c7f011c](https://github.com/consolelabs/mochi-discord/commit/c7f011cf171da8093590724056604ae513cb681f))
+
 ## [6.32.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.2...v6.32.3-rc.1) (2023-09-18)
 
 
