@@ -827,6 +827,7 @@ export interface RequestTransferV2Request {
   amount?: number
   chain_id?: string
   channel_id?: string
+  channel_name?: string
   each?: boolean
   guild_id?: string
   message?: string
@@ -1243,18 +1244,19 @@ export interface ResponseFindTokenByContractAddressResponse {
 
 export interface ResponseFriendTechKey {
   address?: string
-  createdAt?: string
+  created_at?: string
   holders?: number
   id?: number
   price?: number
-  profileChecked?: boolean
+  price_change_percentage?: number
+  profile_checked?: boolean
   supply?: number
-  twitterPfpUrl?: string
-  twitterUsername?: string
-  updatedAt?: string
+  twitter_pfp_url?: string
+  twitter_username?: string
+  updated_at?: string
 }
 
-export interface ResponseFriendTechKeyWatchlistItemRespose {
+export interface ResponseFriendTechKeyWatchlistItemResponse {
   created_at?: string
   decrease_alert_at?: number
   id?: number
@@ -2267,7 +2269,7 @@ export interface ResponseTopUser {
 }
 
 export interface ResponseTrackFriendTechKeyResponse {
-  data?: ResponseFriendTechKeyWatchlistItemRespose
+  data?: ResponseFriendTechKeyWatchlistItemResponse
 }
 
 export interface ResponseTransferTokenV2Data {
