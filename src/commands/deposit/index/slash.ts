@@ -8,6 +8,7 @@ import {
 } from "discord.js"
 import { equalIgnoreCase } from "utils/common"
 import { MachineConfig, route } from "utils/router"
+
 import * as processor from "./processor"
 
 export const machineConfig: (
@@ -60,12 +61,14 @@ export const machineConfig: (
     },
     select: {
       depositDetail: async (i, _ev, ctx) => {
+        const values = i.values.map((v) => v.split(".")[1])
+
         return {
           msgOpts: await processor.depositDetail(
             i,
             amount,
             ctx.addresses.find((a: any) =>
-              equalIgnoreCase(a.address, i.values.at(0)),
+              equalIgnoreCase(a.address, values.at(0)),
             ),
           ),
         }
