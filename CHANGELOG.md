@@ -1,3 +1,10 @@
+## [6.32.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.3-rc.1...v6.32.3-rc.2) (2023-09-18)
+
+
+### Bug Fixes
+
+* domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
+
 ## [6.32.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.2...v6.32.3) (2023-09-18)
 
 
