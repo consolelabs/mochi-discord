@@ -6,7 +6,7 @@ import {
 } from "env"
 
 export default new API({
-  payUrl: MOCHI_PAY_API_SERVER_HOST,
-  baseUrl: API_SERVER_HOST,
-  profileUrl: MOCHI_PROFILE_API_SERVER_HOST,
+  payUrl: `${MOCHI_PAY_API_SERVER_HOST}/api/v1`,
+  baseUrl: `${API_SERVER_HOST}/api/v1`,
+  profileUrl: `${MOCHI_PROFILE_API_SERVER_HOST}/api/v1`,
 })
