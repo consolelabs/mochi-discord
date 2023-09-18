@@ -1,3 +1,13 @@
+## [6.32.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.0...v6.32.1) (2023-09-18)
+
+
+### Bug Fixes
+
+* **airdrop:** update airdrop messages ([#1489](https://github.com/consolelabs/mochi-discord/issues/1489)) ([eda5eaf](https://github.com/consolelabs/mochi-discord/commit/eda5eafd7fa3dd2d4fe2fb4b9ccbc4ea8d8d6619))
+* **airdrop:** update styling airdrop dm message ([#1490](https://github.com/consolelabs/mochi-discord/issues/1490)) ([1a1f3d0](https://github.com/consolelabs/mochi-discord/commit/1a1f3d0c6842f7198a2123b7a4dbeb5a5cd499fb))
+* **general:** use scientific notation for token format ([2ac03ac](https://github.com/consolelabs/mochi-discord/commit/2ac03ac80b0a744396e4710b9205022ff3ef16f2))
+* optimize profile cmd ([#1491](https://github.com/consolelabs/mochi-discord/issues/1491)) ([01c51f7](https://github.com/consolelabs/mochi-discord/commit/01c51f73dafdafa038893af51649066ff73ca888))
+
 ## [6.32.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.3...v6.32.1-rc.4) (2023-09-18)
 
 
