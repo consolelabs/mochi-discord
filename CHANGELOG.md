@@ -1,3 +1,10 @@
+## [6.32.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.3...v6.32.1-rc.4) (2023-09-18)
+
+
+### Bug Fixes
+
+* **general:** use scientific notation for token format ([2ac03ac](https://github.com/consolelabs/mochi-discord/commit/2ac03ac80b0a744396e4710b9205022ff3ef16f2))
+
 ## [6.32.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.2...v6.32.1-rc.3) (2023-09-17)
 
 
