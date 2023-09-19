@@ -25,7 +25,7 @@ import {
   getEmojiURL,
   roundFloatNumber,
 } from "utils/common"
-import { isMessage, reply } from "utils/discord"
+import { getChannelInviteUrl, isMessage, reply } from "utils/discord"
 import {
   getBalances,
   getTargets,
@@ -98,6 +98,7 @@ export async function tip(
     msgOrInteraction.channel instanceof TextChannel
       ? msgOrInteraction.channel.name
       : ""
+  const channel_url = await getChannelInviteUrl(msgOrInteraction)
 
   const payload: TransferPayload = {
     sender: author.id,
@@ -106,6 +107,7 @@ export async function tip(
     guild_id: msgOrInteraction.guildId ?? "",
     channel_id: msgOrInteraction.channelId,
     channel_name: `${guildName}:${channelName}`,
+    channel_url,
     amount,
     token: symbol,
     each,
