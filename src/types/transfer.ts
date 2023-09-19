@@ -21,6 +21,7 @@ export type TransferPayload = {
   moniker?: string
   original_amount?: number
   channel_name: string
+  channel_url?: string
 }
 
 export type AirdropOptions = {

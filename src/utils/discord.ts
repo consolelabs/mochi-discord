@@ -1,4 +1,10 @@
-import { CommandInteraction, Message, MessageOptions, User } from "discord.js"
+import {
+  CommandInteraction,
+  Message,
+  MessageOptions,
+  TextChannel,
+  User,
+} from "discord.js"
 import _ from "lodash"
 import { RunResult } from "types/common"
 import { authorFilter, getAuthor } from "./common"
@@ -96,4 +102,20 @@ function getMessageReplyPayload(result: RunResult<MessageOptions>) {
     "stickers",
     "flags",
   )
+}
+
+export async function getChannelInviteUrl(
+  msgOrInteraction: Message | CommandInteraction,
+) {
+  let inviteUrl = ""
+  const channel = msgOrInteraction.channel
+  if (channel instanceof TextChannel) {
+    try {
+      const invite = await channel.createInvite({
+        maxAge: 0,
+      })
+      inviteUrl = invite.url
+    } catch {}
+  }
+  return inviteUrl
 }
