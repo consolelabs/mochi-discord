@@ -113,5 +113,9 @@
     "node": "18.x"
   },
   "name": "mochi-discord",
+<<<<<<< HEAD
   "version": "6.32.3-rc.2"
+=======
+  "version": "6.32.3"
+>>>>>>> master
 }
