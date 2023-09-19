@@ -38,15 +38,14 @@ import {
   truncateAmountDecimal,
   validateTipAmount,
 } from "utils/tip-bot"
-import defi from "../../../adapters/defi"
-import config from "../../../adapters/config"
-import { UnsupportedTokenError } from "../../../errors/unsupported-token"
-import { RunResult } from "../../../types/common"
-import { TransferPayload } from "../../../types/transfer"
-import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { APPROX } from "../../../utils/constants"
-import { getProfileIdByDiscord } from "../../../utils/profile"
-import api from "api"
+import defi from "adapters/defi"
+import config from "adapters/config"
+import { UnsupportedTokenError } from "errors/unsupported-token"
+import { RunResult } from "types/common"
+import { TransferPayload } from "types/transfer"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { APPROX } from "utils/constants"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
