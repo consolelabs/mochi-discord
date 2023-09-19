@@ -37,7 +37,7 @@ import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { formatDigit } from "../../../utils/defi"
-import { getChannelInviteUrl, reply } from "../../../utils/discord"
+import { getChannelInviteUrl, reply } from "utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
 import * as processor from "./processor"
 
