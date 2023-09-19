@@ -7,6 +7,7 @@ import {
   SelectMenuInteraction,
 } from "discord.js"
 import { APIError, InternalError } from "errors"
+import qrcode from "qrcode"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import {
   emojis,
@@ -16,9 +17,9 @@ import {
   getEmojiURL,
   TokenEmojiKey,
 } from "utils/common"
+
 import mochiPay from "../../../adapters/mochi-pay"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import qrcode from "qrcode"
 
 export async function deposit(
   interaction: CommandInteraction | ButtonInteraction,
@@ -61,7 +62,7 @@ export async function deposit(
     address: string
     symbol: string
   }> = Array.from<any>(
-    new Map(addressesDup.map((a: any) => [a.contract.address, a])).values(),
+    new Map(addressesDup.map((a: any) => [a.contract.id, a])).values(),
   ).map((a) => ({
     symbol: a.contract.chain.symbol.toUpperCase(),
     address: a.contract.address,
@@ -156,7 +157,7 @@ export function renderListDepositAddress({
             custom_id: "VIEW_DEPOSIT_ADDRESS",
             options: addresses.map((a) => ({
               label: a.address,
-              value: a.address,
+              value: a.symbol + "." + a.address,
               emoji: getEmojiToken(a.symbol as TokenEmojiKey),
             })),
           }),
