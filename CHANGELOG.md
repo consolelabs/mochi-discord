@@ -1,3 +1,12 @@
+## [6.32.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.3...v6.32.4-rc.1) (2023-09-19)
+
+
+### Bug Fixes
+
+* domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
+* **tip:** showing channel url in tip notification message ([#1494](https://github.com/consolelabs/mochi-discord/issues/1494)) ([a289e79](https://github.com/consolelabs/mochi-discord/commit/a289e79fccce6c61efa7194ff1f363faa1e99722))
+* version conflict ([7431e4d](https://github.com/consolelabs/mochi-discord/commit/7431e4d1b0e7114aa71978566d288116da7ec3ed))
+
 ## [6.32.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.3-rc.1...v6.32.3-rc.2) (2023-09-18)
 
 
