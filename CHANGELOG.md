@@ -1,3 +1,21 @@
+# [6.33.0](https://github.com/consolelabs/mochi-discord/compare/v6.32.3...v6.33.0) (2023-09-20)
+
+
+### Bug Fixes
+
+* **deposit:** handle case same contract address at different chains ([#1493](https://github.com/consolelabs/mochi-discord/issues/1493)) ([6e252cb](https://github.com/consolelabs/mochi-discord/commit/6e252cbc3fd38011b34b3fb7803d3a741502d768))
+* domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
+* **general:** /sync command refresh emojis cache ([afe6bc2](https://github.com/consolelabs/mochi-discord/commit/afe6bc2b1d654645a75263ed7eb125477058ec10))
+* **general:** amount format containing <emoji> breaks the bot ([3badabb](https://github.com/consolelabs/mochi-discord/commit/3badabbc171e1b0e710e48301080fa4bce1cb166))
+* **tip:** change text "Message" to "with message" ([964655b](https://github.com/consolelabs/mochi-discord/commit/964655bd0e6c39304d3027ef23a863c43403deb4))
+* **tip:** showing channel url in tip notification message ([#1494](https://github.com/consolelabs/mochi-discord/issues/1494)) ([a289e79](https://github.com/consolelabs/mochi-discord/commit/a289e79fccce6c61efa7194ff1f363faa1e99722))
+* version conflict ([7431e4d](https://github.com/consolelabs/mochi-discord/commit/7431e4d1b0e7114aa71978566d288116da7ec3ed))
+
+
+### Features
+
+* **general:** define new format when dealing with amount ([78f8e32](https://github.com/consolelabs/mochi-discord/commit/78f8e32392705f74d5909bfe9f1e781133a1ad4d))
+
 # [6.33.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.33.0-rc.2...v6.33.0-rc.3) (2023-09-20)
 
 
