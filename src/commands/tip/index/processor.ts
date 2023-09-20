@@ -25,7 +25,7 @@ import {
   getEmojiURL,
   roundFloatNumber,
 } from "utils/common"
-import { isMessage, reply } from "utils/discord"
+import { getChannelInviteUrl, isMessage, reply } from "utils/discord"
 import {
   getBalances,
   getTargets,
@@ -38,15 +38,14 @@ import {
   truncateAmountDecimal,
   validateTipAmount,
 } from "utils/tip-bot"
-import defi from "../../../adapters/defi"
-import config from "../../../adapters/config"
-import { UnsupportedTokenError } from "../../../errors/unsupported-token"
-import { RunResult } from "../../../types/common"
-import { TransferPayload } from "../../../types/transfer"
-import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
-import { APPROX } from "../../../utils/constants"
-import { getProfileIdByDiscord } from "../../../utils/profile"
-import api from "api"
+import defi from "adapters/defi"
+import config from "adapters/config"
+import { UnsupportedTokenError } from "errors/unsupported-token"
+import { RunResult } from "types/common"
+import { TransferPayload } from "types/transfer"
+import { composeDiscordSelectionRow } from "ui/discord/select-menu"
+import { APPROX } from "utils/constants"
+import { getProfileIdByDiscord } from "utils/profile"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -98,6 +97,7 @@ export async function tip(
     msgOrInteraction.channel instanceof TextChannel
       ? msgOrInteraction.channel.name
       : ""
+  const channel_url = await getChannelInviteUrl(msgOrInteraction)
 
   const payload: TransferPayload = {
     sender: author.id,
@@ -106,6 +106,7 @@ export async function tip(
     guild_id: msgOrInteraction.guildId ?? "",
     channel_id: msgOrInteraction.channelId,
     channel_name: `${guildName}:${channelName}`,
+    channel_url,
     amount,
     token: symbol,
     each,
@@ -286,20 +287,8 @@ function showSuccesfulResponse(
 
   let contentMsg = ``
 
-  let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${
-    res.tx_id ?? "N/A"
-  }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
-    payload.token,
-  )} **${amountWithCurrency}** ${amountApprox} ${
-    payload.recipients.length > 1 ? "each" : ""
-  }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
-    payload.sender,
-  )}\n${getEmoji("SHARE")}\`Receiver. \`${recipientDescription}`
   if (payload.message) {
-    description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
-      payload.message
-    }`
-    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`Message. \`${
+    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`with message.  \`${
       payload.message
     }`
   }

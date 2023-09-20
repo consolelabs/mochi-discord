@@ -99,7 +99,7 @@ All source code located under `src/`, which contains multiple modules
 - `errors/`: custom bot errors’ handlers
 - `events/`: where discord events are listened and handled (e.g. logging a text when the bot launched successfully with event `ready`
 - `types/`: types’ definitions for usage across the project. There are 2 files needs to be noticed
-  - `api.ts`: auto-generated file by `swagger-typescript-api`. Containing all model definitions from [mochi-api’s swagger documentation](https://develop-api.mochi.pod.town/swagger/doc.json)
+  - `api.ts`: auto-generated file by `swagger-typescript-api`. Containing all model definitions from [mochi-api’s swagger documentation](https://develop-api.mochi.console.so/swagger/doc.json)
   - `common.ts`: contains 2 important types `Command` (text command) and `SlashCommand`. Will go deeper in next section
 - `utils`: utility methods for general usages (e.g. `composeEmbedMessage()`)
 
@@ -121,7 +121,7 @@ export type Command = {
   // command's handler
   run: (
     msg: Message,
-    action?: string
+    action?: string,
   ) => Promise<
     | RunResult<MessageOptions>
     | MultipleResult<Message>
@@ -162,12 +162,12 @@ export type SlashCommand = {
   onlyAdministrator?: boolean;
   // auto-complete suggestions for command's arguments
   prepare: (
-    slashCommands?: Record<string, SlashCommand>
+    slashCommands?: Record<string, SlashCommand>,
   ) =>
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
     | SlashCommandSubcommandBuilder;
   run: (
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) => Promise<
     | RunResult<MessageOptions>
     | MultipleResult<CommandInteraction>

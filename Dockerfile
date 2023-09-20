@@ -1,7 +1,7 @@
 ## this is stage two , where the app actually runs
 FROM node:18-alpine
 
-ARG SWAGGER_URL=https://api.mochi.pod.town/swagger/doc.json
+ARG SWAGGER_URL=https://api.mochi.console.so/swagger/doc.json
 ENV SWAGGER_URL=$SWAGGER_URL 
 ARG NODE_ENV=production
 ENV NODE_ENV=$NODE_ENV

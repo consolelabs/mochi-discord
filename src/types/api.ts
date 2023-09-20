@@ -328,39 +328,6 @@ export interface ModelOffchainTipBotToken {
   updated_at?: string
 }
 
-export interface ModelProductBotCommand {
-  code?: string
-  created_at?: string
-  description?: string
-  discord_alias?: string
-  discord_command?: string
-  id?: number
-  scope?: number
-  telegram_alias?: string
-  telegram_command?: string
-  updated_at?: string
-}
-
-export interface ModelProductChangelogView {
-  changelog_name?: string
-  created_at?: string
-  key?: string
-  metadata?: number[]
-  updated_at?: string
-}
-
-export interface ModelProductChangelogs {
-  content?: string
-  created_at?: string
-  file_name?: string
-  github_url?: string
-  is_expired?: boolean
-  product?: string
-  thumbnail_url?: string
-  title?: string
-  updated_at?: string
-}
-
 export interface ModelProductMetadataEmojis {
   code?: string
   discord_id?: string
@@ -647,11 +614,6 @@ export interface RequestCreateNFTCollectionRequest {
   priority_flag?: boolean
 }
 
-export interface RequestCreateProductChangelogsViewRequest {
-  changelog_name?: string
-  key?: string
-}
-
 export interface RequestCreateProfileAirdropCampaignRequest {
   airdrop_campaign_id?: number
   is_favorite?: boolean
@@ -771,11 +733,6 @@ export interface RequestOffchainTransferRequest {
   transfer_type?: string
 }
 
-export interface RequestOnboardingStartRequest {
-  platform: "discord" | "telegram"
-  profile_id: string
-}
-
 export interface RequestRoleReactionRequest {
   guild_id?: string
   message_id?: string
@@ -805,13 +762,6 @@ export interface RequestSwapRequest {
   userDiscordId: string
 }
 
-export interface RequestTrackFriendTechKeyRequest {
-  decrease_alert_at?: number
-  increase_alert_at?: number
-  key_address: string
-  profile_id: string
-}
-
 export interface RequestTrackWalletRequest {
   address: string
   alias?: string
@@ -827,18 +777,15 @@ export interface RequestTransferV2Request {
   amount?: number
   chain_id?: string
   channel_id?: string
+  channel_name?: string
   each?: boolean
   guild_id?: string
   message?: string
   metadata?: Record<string, any>
-  moniker?: string
-  original_amount?: number
-  original_tx_id?: string
   platform?: string
   recipients?: string[]
   sender?: string
   token?: string
-  transfer_type?: "transfer" | "airdrop"
 }
 
 export interface RequestUnlinkBinance {
@@ -848,11 +795,6 @@ export interface RequestUnlinkBinance {
 export interface RequestUpdateDaoVoteRequest {
   choice: string
   user_id: string
-}
-
-export interface RequestUpdateFriendTechKeyTrackRequest {
-  decrease_alert_at?: number
-  increase_alert_at?: number
 }
 
 export interface RequestUpdateGuildRequest {
@@ -1132,10 +1074,6 @@ export interface ResponseCreateNFTCollectionResponse {
   data?: ModelNFTCollection
 }
 
-export interface ResponseCreateProductChangelogsViewed {
-  data?: ModelProductChangelogView
-}
-
 export interface ResponseCreateProposalChannelConfigResponse {
   data?: ModelGuildConfigDaoProposal
 }
@@ -1175,42 +1113,6 @@ export interface ResponseDefaultRoleResponse {
   data?: ResponseDefaultRole
 }
 
-export interface ResponseDexPair {
-  address?: string
-  base_token?: ResponseDexToken
-  chain_id?: string
-  created_at?: number
-  dex_id?: string
-  fdv?: number
-  holders?: ResponseDexTokenHolder[]
-  id?: string
-  liquidity_usd?: number
-  market_cap_usd?: number
-  name?: string
-  owner?: string
-  price?: number
-  price_percent_change_24h?: number
-  price_usd?: number
-  quote_token?: ResponseDexToken
-  txn_24h_buy?: number
-  txn_24h_sell?: number
-  url?: Record<string, string>
-  volume_usd_24h?: number
-}
-
-export interface ResponseDexToken {
-  address?: string
-  name?: string
-  symbol?: string
-}
-
-export interface ResponseDexTokenHolder {
-  address?: string
-  alias?: string
-  balance?: number
-  percent?: number
-}
-
 export interface ResponseDiscordGuildResponse {
   bot_addable?: boolean
   bot_arrived?: boolean
@@ -1243,18 +1145,19 @@ export interface ResponseFindTokenByContractAddressResponse {
 
 export interface ResponseFriendTechKey {
   address?: string
-  createdAt?: string
+  created_at?: string
   holders?: number
   id?: number
   price?: number
-  profileChecked?: boolean
+  price_change_percentage?: number
+  profile_checked?: boolean
   supply?: number
-  twitterPfpUrl?: string
-  twitterUsername?: string
-  updatedAt?: string
+  twitter_pfp_url?: string
+  twitter_username?: string
+  updated_at?: string
 }
 
-export interface ResponseFriendTechKeyWatchlistItemRespose {
+export interface ResponseFriendTechKeyWatchlistItemResponse {
   created_at?: string
   decrease_alert_at?: number
   id?: number
@@ -1508,10 +1411,6 @@ export interface ResponseGetOneWalletResponse {
   data?: ModelUserWalletWatchlistItem
 }
 
-export interface ResponseGetProductChangelogsViewed {
-  data?: ModelProductChangelogView[]
-}
-
 export interface ResponseGetSalesTrackerConfigResponse {
   data?: ModelGuildConfigSalesTracker[]
 }
@@ -1589,10 +1488,6 @@ export interface ResponseGetUserQuestListResponse {
 
 export interface ResponseGetUserResponse {
   data?: ResponseUser
-}
-
-export interface ResponseGetVaultResponse {
-  data?: ModelVault
 }
 
 export interface ResponseGetVaultsResponse {
@@ -2045,6 +1940,11 @@ export interface ResponseNftWatchlistSuggestResponse {
 
 export interface ResponseOffchainTipBotTransferToken {
   amount_each?: number
+
+  /**
+   * SenderID    string  `json:"sender_id"`
+   * Recipients  string  `json:"recipient_id"`
+   */
   id?: string
   total_amount?: number
   tx_id?: number
@@ -2052,20 +1952,6 @@ export interface ResponseOffchainTipBotTransferToken {
 
 export interface ResponseOffchainTipBotTransferTokenResponse {
   data?: ResponseOffchainTipBotTransferToken[]
-}
-
-export interface ResponseOnboardingStartData {
-  reward?: ResponseOnboardingStartReward
-  user_already_started?: boolean
-}
-
-export interface ResponseOnboardingStartResponse {
-  data?: ResponseOnboardingStartData
-}
-
-export interface ResponseOnboardingStartReward {
-  amount?: string
-  token?: string
 }
 
 export interface ResponseOnchainInvestData {
@@ -2083,14 +1969,6 @@ export interface ResponsePaginationResponse {
   /** page size */
   size?: number
   total?: number
-}
-
-export interface ResponseProductBotCommand {
-  data?: ModelProductBotCommand[]
-}
-
-export interface ResponseProductChangelogs {
-  data?: ModelProductChangelogs[]
 }
 
 export interface ResponseProfileAirdropCampaignResponse {
@@ -2166,10 +2044,6 @@ export interface ResponseRouteToken {
 
 export interface ResponseSearchCoinResponse {
   data?: ModelCoingeckoSupportedTokens[]
-}
-
-export interface ResponseSearchDexPairResponse {
-  pairs?: ResponseDexPair[]
 }
 
 export interface ResponseSparkLineIn7D {
@@ -2267,12 +2141,16 @@ export interface ResponseTopUser {
 }
 
 export interface ResponseTrackFriendTechKeyResponse {
-  data?: ResponseFriendTechKeyWatchlistItemRespose
+  data?: ResponseFriendTechKeyWatchlistItemResponse
 }
 
 export interface ResponseTransferTokenV2Data {
   amount_each?: number
-  external_id?: string
+
+  /**
+   * SenderID    string  `json:"sender_id"`
+   * Recipients  string  `json:"recipient_id"`
+   */
   id?: string
   total_amount?: number
   tx_id?: number

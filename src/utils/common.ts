@@ -893,6 +893,7 @@ CacheManager.init({
   checkperiod: 604800,
 })
 export async function resolveNamingServiceDomain(domain: string) {
+  if (!domain) return domain
   return await CacheManager.get({
     pool: "naming-service",
     key: domain,

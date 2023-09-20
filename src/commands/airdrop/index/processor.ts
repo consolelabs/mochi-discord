@@ -37,7 +37,7 @@ import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { formatDigit } from "../../../utils/defi"
-import { reply } from "../../../utils/discord"
+import { getChannelInviteUrl, reply } from "utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
 import * as processor from "./processor"
 
@@ -66,6 +66,7 @@ export async function airdrop(i: CommandInteraction) {
   }
   const guildName = i.guild?.name ?? ""
   const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
+  const channel_url = await getChannelInviteUrl(i)
 
   const payload: TransferPayload = {
     sender: i.user.id,
@@ -79,6 +80,7 @@ export async function airdrop(i: CommandInteraction) {
     transfer_type: "airdrop",
     chain_id: "",
     channel_name: `${guildName}:${channelName}`,
+    channel_url,
   }
 
   // only one matching token -> proceed to send tip
