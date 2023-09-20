@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-rest':
-    specifier: ^3.0.0
-    version: 3.0.0
+    specifier: ^3.0.2
+    version: 3.0.2
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.2
-    version: 10.0.2(@consolelabs/mochi-rest@3.0.0)(ioredis@5.3.2)
+    specifier: ^10.0.4
+    version: 10.0.4(@consolelabs/mochi-rest@3.0.2)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -818,8 +818,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-rest@3.0.0:
-    resolution: {integrity: sha512-63uVyjUlscVxJfOW0JFXQ90EdfM/REgHJe4NcY/8fyKMKWqsL362proDJbBzTYb3V0KZzmzcYQ3aFO28AUJk0w==}
+  /@consolelabs/mochi-rest@3.0.2:
+    resolution: {integrity: sha512-lLNb6hjpOCXTIM4D3TTu0f+qADSZdyKfOJPlodWle0wpJmuEB3ftciNrwKN0dJYpKY3SQcameXk/balY06QUQg==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
@@ -831,14 +831,14 @@ packages:
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.2(@consolelabs/mochi-rest@3.0.0)(ioredis@5.3.2):
-    resolution: {integrity: sha512-VAAoV967XKE42Ts6g8GuvCErKt/v6qzDE5HDFoRzKIgDKSxMALEIW+w9+mBnhlIbEMxg4aX9UJKm7TQHOoFaxw==}
+  /@consolelabs/mochi-ui@10.0.4(@consolelabs/mochi-rest@3.0.2)(ioredis@5.3.2):
+    resolution: {integrity: sha512-Yb2tRE/w1FpqkdnnXVhpr58yjLmtfW5Qs4KD50527TjQQjoS87LfkEW1qoC3Yvg+iMx+VMBCsIvnbGjgFYwLOw==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^3.0.0
+      '@consolelabs/mochi-rest': ^3.0.2
       ioredis: ^5.x.x
     dependencies:
       '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.78.5)
-      '@consolelabs/mochi-rest': 3.0.0
+      '@consolelabs/mochi-rest': 3.0.2
       '@solana/web3.js': 1.78.5
       change-case: 4.1.2
       ethers: 6.7.1
