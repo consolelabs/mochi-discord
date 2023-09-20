@@ -1,3 +1,16 @@
+# [6.33.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.4-rc.1...v6.33.0-rc.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* **deposit:** handle case same contract address at different chains ([#1493](https://github.com/consolelabs/mochi-discord/issues/1493)) ([6e252cb](https://github.com/consolelabs/mochi-discord/commit/6e252cbc3fd38011b34b3fb7803d3a741502d768))
+* **tip:** change text "Message" to "with message" ([964655b](https://github.com/consolelabs/mochi-discord/commit/964655bd0e6c39304d3027ef23a863c43403deb4))
+
+
+### Features
+
+* **general:** define new format when dealing with amount ([78f8e32](https://github.com/consolelabs/mochi-discord/commit/78f8e32392705f74d5909bfe9f1e781133a1ad4d))
+
 ## [6.32.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.3...v6.32.4-rc.1) (2023-09-19)
 
 
