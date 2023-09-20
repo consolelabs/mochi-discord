@@ -1,3 +1,10 @@
+# [6.33.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.33.0-rc.2...v6.33.0-rc.3) (2023-09-20)
+
+
+### Bug Fixes
+
+* **general:** /sync command refresh emojis cache ([afe6bc2](https://github.com/consolelabs/mochi-discord/commit/afe6bc2b1d654645a75263ed7eb125477058ec10))
+
 # [6.33.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.33.0-rc.1...v6.33.0-rc.2) (2023-09-20)
 
 
