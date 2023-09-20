@@ -1,3 +1,10 @@
+# [6.33.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.33.0-rc.1...v6.33.0-rc.2) (2023-09-20)
+
+
+### Bug Fixes
+
+* **general:** amount format containing <emoji> breaks the bot ([3badabb](https://github.com/consolelabs/mochi-discord/commit/3badabbc171e1b0e710e48301080fa4bce1cb166))
+
 # [6.33.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.4-rc.1...v6.33.0-rc.1) (2023-09-20)
 
 
