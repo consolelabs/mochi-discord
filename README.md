@@ -118,11 +118,11 @@ As for the format, the log generally need to show 2 **W**s and 1 **H**:
 
 ## :robot: API
 
-| Name                      | Value                                      | Documentation                                                     | Note                                                                     |
-| ------------------------- | ------------------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `API_SERVER_HOST`         | [Link](https://develop-api.mochi.pod.town) | [Swagger](https://develop-api.mochi.pod.town/swagger/index.html#) | The main api, 90% of the time you will be interacting with this endpoint |
-| `PT_API_SERVER_HOST`      | [Link](https://backend.pod.so)             |                                                                   | Pod Town's api, only used for integrating character into the verse       |
-| `INDEXER_API_SERVER_HOST` | [Link](https://api.indexer.console.so)     | [Swagger](https://api.indexer.console.so/swagger/index.html#)     | Indexer api, only used for profile command                               |
+| Name                      | Value                                        | Documentation                                                       | Note                                                                     |
+| ------------------------- | -------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `API_SERVER_HOST`         | [Link](https://develop-api.mochi.console.so) | [Swagger](https://develop-api.mochi.console.so/swagger/index.html#) | The main api, 90% of the time you will be interacting with this endpoint |
+| `PT_API_SERVER_HOST`      | [Link](https://backend.pod.so)               |                                                                     | Pod Town's api, only used for integrating character into the verse       |
+| `INDEXER_API_SERVER_HOST` | [Link](https://api.indexer.console.so)       | [Swagger](https://api.indexer.console.so/swagger/index.html#)       | Indexer api, only used for profile command                               |
 
 ## :chains: Third-party services
 

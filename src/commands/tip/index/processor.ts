@@ -287,20 +287,8 @@ function showSuccesfulResponse(
 
   let contentMsg = ``
 
-  let description = `${getEmoji("PROPOSAL")}\`Tx ID.    ${
-    res.tx_id ?? "N/A"
-  }\`\n${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
-    payload.token,
-  )} **${amountWithCurrency}** ${amountApprox} ${
-    payload.recipients.length > 1 ? "each" : ""
-  }\n${getEmoji("ANIMATED_MONEY", true)}\`Sender.   \`${userMention(
-    payload.sender,
-  )}\n${getEmoji("SHARE")}\`Receiver. \`${recipientDescription}`
   if (payload.message) {
-    description += `\n${getEmoji("ANIMATED_ROBOT", true)}\`Message.  \`${
-      payload.message
-    }`
-    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`Message. \`${
+    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)}\`with message.  \`${
       payload.message
     }`
   }
