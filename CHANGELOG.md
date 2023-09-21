@@ -1,3 +1,17 @@
+# [6.34.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.33.1-rc.1...v6.34.0-rc.1) (2023-09-21)
+
+
+### Features
+
+* **recap, feed:** port command from telegram ([4e1a5c4](https://github.com/consolelabs/mochi-discord/commit/4e1a5c4367681ad892c3ec65967da18cf43faa29))
+
+## [6.33.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.33.0...v6.33.1-rc.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* **general:** amount format handle case emoji not found ([6cfa2a7](https://github.com/consolelabs/mochi-discord/commit/6cfa2a75337b18a18c8bedad5093ddd3877db138))
+
 # [6.33.0](https://github.com/consolelabs/mochi-discord/compare/v6.32.3...v6.33.0) (2023-09-20)
 
 
