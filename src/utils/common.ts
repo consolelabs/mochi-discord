@@ -569,7 +569,7 @@ export function getEmoji(
 ) {
   const emoji = api.emojis.get(key.toUpperCase())
   const text = emoji?.emoji?.replaceAll("_", key.toLowerCase()) ?? fallback
-  return text
+  return (text as string).trim()
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {
