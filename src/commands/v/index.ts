@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
 import { version } from "../../../package.json"
-import { DMChannel, TextChannel } from "discord.js"
 
 const slashCmd: SlashCommand = {
   name: "v",

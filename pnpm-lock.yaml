@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-rest':
-    specifier: ^3.0.2
-    version: 3.0.2
+    specifier: ^3.0.3
+    version: 3.0.3
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.5
-    version: 10.0.5(@consolelabs/mochi-rest@3.0.2)(ioredis@5.3.2)
+    specifier: ^10.0.7
+    version: 10.0.7(@consolelabs/mochi-rest@3.0.3)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -818,27 +818,27 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-rest@3.0.2:
-    resolution: {integrity: sha512-lLNb6hjpOCXTIM4D3TTu0f+qADSZdyKfOJPlodWle0wpJmuEB3ftciNrwKN0dJYpKY3SQcameXk/balY06QUQg==}
+  /@consolelabs/mochi-rest@3.0.3:
+    resolution: {integrity: sha512-fUeZpdaPGFu6YE6lPnNBMf1OD3qMj7Dsy1AlI6bXpkwGstJdJoCR72o7aTgZGP1G9WoBcl4LvY/VjzbU/XuNIg==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
       path-parser: 6.1.0
       pino: 8.15.1
       pino-pretty: 10.2.0
-      snakecase-keys: 5.4.6
+      snakecase-keys: 5.4.7
       wretch: 2.7.0
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.5(@consolelabs/mochi-rest@3.0.2)(ioredis@5.3.2):
-    resolution: {integrity: sha512-yhBraCjCXibBiOWGW9TT6WSInZJe4uiyXLxFxDGvehR0vSMnZPdPWYLdoYB3FJprlKArWIWMYlH2kchrl4s29Q==}
+  /@consolelabs/mochi-ui@10.0.7(@consolelabs/mochi-rest@3.0.3)(ioredis@5.3.2):
+    resolution: {integrity: sha512-dXwvi0M8jUM7cRRXI1dBTq9yUIZ5YACaXgQJGMHX4PzU7b5JNsypSyPT6PHt8/9LvND8Stv72WLVGz4hgCp/+w==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^3.0.2
+      '@consolelabs/mochi-rest': ^3.0.3
       ioredis: ^5.x.x
     dependencies:
       '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.78.5)
-      '@consolelabs/mochi-rest': 3.0.2
+      '@consolelabs/mochi-rest': 3.0.3
       '@solana/web3.js': 1.78.5
       change-case: 4.1.2
       ethers: 6.7.1
@@ -8168,8 +8168,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /snakecase-keys@5.4.6:
-    resolution: {integrity: sha512-7ipeNts8YTLbx/6zIaT1mQGrHG2vK+0TjywPD79QzIDJDcvNXBLX7DXQOt6by4DFdncu8lDPc+QHKHemtDEoQg==}
+  /snakecase-keys@5.4.7:
+    resolution: {integrity: sha512-li/JvhIBDTbualWBSlUJoHws/kVqMYN9GSw//NyatvoAWBppiGRJVOOniMcRa/PNN5FCwOTYMoZT/SJ2IuBUBw==}
     engines: {node: '>=12'}
     dependencies:
       map-obj: 4.3.0

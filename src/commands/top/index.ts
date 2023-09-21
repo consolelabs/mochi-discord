@@ -1,7 +1,6 @@
 import { SlashCommand } from "types/common"
 import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { run as topSlash } from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
 
 const slashCmd: SlashCommand = {
@@ -10,9 +9,9 @@ const slashCmd: SlashCommand = {
   prepare: () => {
     return new SlashCommandBuilder()
       .setName("top")
-      .setDescription("Show members with the highest server XP score")
+      .setDescription("Show top senders and receivers")
   },
-  run: topSlash,
+  run: async function (i) {},
   help: () =>
     Promise.resolve({
       embeds: [
