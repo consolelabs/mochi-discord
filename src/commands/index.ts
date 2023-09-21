@@ -95,6 +95,8 @@ import guess from "./guess"
 import changelog from "./changelog"
 import v from "./v"
 import sync from "./sync"
+import recap from "./recap"
+import feed from "./feed"
 
 CacheManager.init({
   ttl: 0,
@@ -171,6 +173,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   changelog: changelog.slashCmd,
   v: v.slashCmd,
   sync: sync.slashCmd,
+  recap: recap.slashCmd,
+  feed: feed.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version
