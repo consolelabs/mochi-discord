@@ -13,7 +13,7 @@ const slashCmd: SlashCommand = {
   run: async function () {
     return {
       messageOptions: {
-        content: `v${version} - ${process.env.NODE_ENV}`,
+        content: `v${version} ⎯  ${process.env.NODE_ENV}`,
       },
     }
   },
