@@ -1,3 +1,10 @@
+## [6.34.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.0...v6.34.1-rc.1) (2023-09-21)
+
+
+### Bug Fixes
+
+* **top:** refactor top command to show top senders/receivers ([effbc36](https://github.com/consolelabs/mochi-discord/commit/effbc36a5d6d272b178c9ae12701b18922b67225))
+
 # [6.34.0](https://github.com/consolelabs/mochi-discord/compare/v6.33.0...v6.34.0) (2023-09-21)
 
 
