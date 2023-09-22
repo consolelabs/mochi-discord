@@ -1,3 +1,10 @@
+## [6.34.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.2...v6.34.1-rc.3) (2023-09-22)
+
+
+### Bug Fixes
+
+* **general:** update dependency lockfile ([401821e](https://github.com/consolelabs/mochi-discord/commit/401821e01d7afa1cae2522b4d494b5f459049ced))
+
 ## [6.34.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.1...v6.34.1-rc.2) (2023-09-22)
 
 
