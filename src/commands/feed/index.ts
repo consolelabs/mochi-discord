@@ -34,7 +34,9 @@ const slashCmd: SlashCommand = {
     const embed = composeEmbedMessage2(i, {
       author: ["Latest tips", thumbnails.MOCHI],
       description: [
-        `👇 This is the ${length} latest transactions on mochi.gg`,
+        `${getEmoji(
+          "ANIMATED_POINTING_DOWN",
+        )} This is the ${length} latest transactions on mochi.gg`,
         getEmoji("BLANK"),
         text,
       ].join("\n"),
