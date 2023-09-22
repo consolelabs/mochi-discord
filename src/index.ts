@@ -65,7 +65,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 
     runHttpServer()
   } catch (error) {
-    logger.error("Failed to refresh application (/) commands.")
+    logger.error(`Failed to refresh application (/) commands. ${error}`)
   }
 })()
 ;(async () => {
