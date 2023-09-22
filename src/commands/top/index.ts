@@ -5,7 +5,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import { MachineConfig, route } from "utils/router"
 import api from "api"
 import UI, { Platform, utils } from "@consolelabs/mochi-ui"
-import { getEmoji, thumbnails } from "utils/common"
+import { getEmoji, getEmojiImage, thumbnails } from "utils/common"
 import {
   CommandInteraction,
   Message,
@@ -127,7 +127,10 @@ async function render(i: CommandInteraction, timerange: any) {
   lines.push(`_This data is recorded ${timePhrase}_`)
 
   const embed = composeEmbedMessage2(i as any, {
-    author: [`🏆 ${leaderboardTitle} Tip Leaderboard`, thumbnails.MOCHI],
+    author: [
+      `${leaderboardTitle} Tip Leaderboard`,
+      getEmojiImage("ANIMATED_TROPHY"),
+    ],
     description: lines.join("\n"),
   })
 
