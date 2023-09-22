@@ -8,9 +8,9 @@ import { getEmoji, thumbnails } from "utils/common"
 const slashCmd: SlashCommand = {
   name: "feed",
   category: "Defi",
-  prepare: () => {
+  prepare: (aliasName = "feed") => {
     return new SlashCommandBuilder()
-      .setName("feed")
+      .setName(aliasName)
       .setDescription("See the global tipfeed")
   },
   run: async function (i) {
@@ -34,7 +34,9 @@ const slashCmd: SlashCommand = {
     const embed = composeEmbedMessage2(i, {
       author: ["Latest tips", thumbnails.MOCHI],
       description: [
-        `👇 This is the ${length} latest transactions on mochi.gg`,
+        `${getEmoji(
+          "ANIMATED_POINTING_DOWN",
+        )} This is the ${length} latest transactions on mochi.gg`,
         getEmoji("BLANK"),
         text,
       ].join("\n"),

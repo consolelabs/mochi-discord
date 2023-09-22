@@ -111,6 +111,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   ticker: ticker.slashCmd,
   help: help.slashCmd,
   top: top.slashCmd,
+  //
+  leaderboard: top.slashCmd,
   watchlist: watchlist.slashCmd,
   // alias
   wlv: watchlistView,
@@ -175,6 +177,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   sync: sync.slashCmd,
   recap: recap.slashCmd,
   feed: feed.slashCmd,
+  //
+  tipfeed: feed.slashCmd,
 }
 
 // text commands is being deprecated, refer to slashCommands for latest version

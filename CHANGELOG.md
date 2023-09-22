@@ -1,3 +1,52 @@
+## [6.34.1-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.6...v6.34.1-rc.7) (2023-09-22)
+
+
+### Bug Fixes
+
+* **tip:** with message -> With a message: ([7825ad6](https://github.com/consolelabs/mochi-discord/commit/7825ad6c64c80428952a88a112f1ed0d495b8068))
+
+## [6.34.1-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.5...v6.34.1-rc.6) (2023-09-22)
+
+
+### Bug Fixes
+
+* **recap:** add token emojis in spending and receive section ([8957b9d](https://github.com/consolelabs/mochi-discord/commit/8957b9dd98d6fbad1b329b407e2dd26827a8940b))
+
+## [6.34.1-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.4...v6.34.1-rc.5) (2023-09-22)
+
+
+### Bug Fixes
+
+* **general:** alias name not found for /top and /feed ([1e1475f](https://github.com/consolelabs/mochi-discord/commit/1e1475f6896ea64185cfc7cf74b0e3f1546ee79e))
+
+## [6.34.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.3...v6.34.1-rc.4) (2023-09-22)
+
+
+### Bug Fixes
+
+* **paylink:** hide 'new' text when link is about to end ([3b56101](https://github.com/consolelabs/mochi-discord/commit/3b56101ec5c8c119f89b32cafd34befff24c06f9))
+
+## [6.34.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.2...v6.34.1-rc.3) (2023-09-22)
+
+
+### Bug Fixes
+
+* **general:** update dependency lockfile ([401821e](https://github.com/consolelabs/mochi-discord/commit/401821e01d7afa1cae2522b4d494b5f459049ced))
+
+## [6.34.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.1...v6.34.1-rc.2) (2023-09-22)
+
+
+### Bug Fixes
+
+* **top,feed:** emoji ([3e0eeb6](https://github.com/consolelabs/mochi-discord/commit/3e0eeb6b29eb1d684c75f310e11137ce2e84bbdf))
+
+## [6.34.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.0...v6.34.1-rc.1) (2023-09-21)
+
+
+### Bug Fixes
+
+* **top:** refactor top command to show top senders/receivers ([effbc36](https://github.com/consolelabs/mochi-discord/commit/effbc36a5d6d272b178c9ae12701b18922b67225))
+
 # [6.34.0](https://github.com/consolelabs/mochi-discord/compare/v6.33.0...v6.34.0) (2023-09-21)
 
 
