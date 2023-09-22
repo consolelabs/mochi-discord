@@ -22,6 +22,7 @@ async function mostSpend(stats: any) {
       {
         cols: ["token", "amount"],
         separator: [` ${APPROX} `],
+        row: (f, i) => `${getEmoji(stats.spending[i].token.symbol)} ${f}`,
       },
     ),
   ]
@@ -34,7 +35,7 @@ async function mostSpend(stats: any) {
   const empty = !stats.spending.length && !to?.value
 
   return {
-    highlight: `🔹 You sent the most **${stats.most_send?.token.symbol}**${
+    highlight: `\\🔹 You sent the most **${stats.most_send?.token.symbol}**${
       to?.value ? ` to ${to.value}` : ""
     }`,
     text: [
@@ -63,6 +64,7 @@ async function mostReceive(stats: any) {
       {
         cols: ["token", "amount"],
         separator: [` ${APPROX} `],
+        row: (f, i) => `${getEmoji(stats.receive[i].token.symbol)}${f}`,
       },
     ),
   ]
@@ -75,7 +77,7 @@ async function mostReceive(stats: any) {
   const empty = !stats.receive.length && !from?.value
 
   return {
-    highlight: `🔸 You received most **${stats.most_receive?.token.symbol}**${
+    highlight: `\\🔸 You received most **${stats.most_receive?.token.symbol}**${
       from?.value ? ` from ${from.value}` : ""
     }`,
     text: [
@@ -143,9 +145,9 @@ const slashCmd: SlashCommand = {
       author: ["Your last 30 days recap", thumbnails.MOCHI],
       description: [
         isNeg
-          ? "🔴 You spend more than you receive"
+          ? "\\🔴 You spend more than you receive"
           : isPos
-          ? "🟢 You receive more than you spend"
+          ? "\\🟢 You receive more than you spend"
           : "Your spend = your receive",
         hlSpend,
         hlReceive,
