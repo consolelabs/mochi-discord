@@ -1,3 +1,10 @@
+## [6.34.1-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.4...v6.34.1-rc.5) (2023-09-22)
+
+
+### Bug Fixes
+
+* **general:** alias name not found for /top and /feed ([1e1475f](https://github.com/consolelabs/mochi-discord/commit/1e1475f6896ea64185cfc7cf74b0e3f1546ee79e))
+
 ## [6.34.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.3...v6.34.1-rc.4) (2023-09-22)
 
 
