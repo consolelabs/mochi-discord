@@ -1,3 +1,10 @@
+## [6.34.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.3...v6.34.1-rc.4) (2023-09-22)
+
+
+### Bug Fixes
+
+* **paylink:** hide 'new' text when link is about to end ([3b56101](https://github.com/consolelabs/mochi-discord/commit/3b56101ec5c8c119f89b32cafd34befff24c06f9))
+
 ## [6.34.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.2...v6.34.1-rc.3) (2023-09-22)
 
 
