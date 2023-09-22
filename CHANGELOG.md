@@ -1,3 +1,10 @@
+## [6.34.1-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.6...v6.34.1-rc.7) (2023-09-22)
+
+
+### Bug Fixes
+
+* **tip:** with message -> With a message: ([7825ad6](https://github.com/consolelabs/mochi-discord/commit/7825ad6c64c80428952a88a112f1ed0d495b8068))
+
 ## [6.34.1-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.5...v6.34.1-rc.6) (2023-09-22)
 
 
