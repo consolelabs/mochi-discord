@@ -166,9 +166,9 @@ async function render(i: CommandInteraction, timerange: any) {
 const slashCmd: SlashCommand = {
   name: "top",
   category: "Community",
-  prepare: () => {
+  prepare: (aliasName = "top") => {
     return new SlashCommandBuilder()
-      .setName("top")
+      .setName(aliasName)
       .setDescription("Show top senders and receivers")
       .addStringOption((opt) =>
         opt
@@ -195,8 +195,8 @@ const slashCmd: SlashCommand = {
     Promise.resolve({
       embeds: [
         composeEmbedMessage(null, {
-          usage: `${SLASH_PREFIX}top [page]`,
-          examples: `${SLASH_PREFIX}top\n${SLASH_PREFIX}top 2`,
+          usage: `${SLASH_PREFIX}top`,
+          examples: `${SLASH_PREFIX}top`,
         }),
       ],
     }),

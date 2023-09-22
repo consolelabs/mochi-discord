@@ -8,9 +8,9 @@ import { getEmoji, thumbnails } from "utils/common"
 const slashCmd: SlashCommand = {
   name: "feed",
   category: "Defi",
-  prepare: () => {
+  prepare: (aliasName = "feed") => {
     return new SlashCommandBuilder()
-      .setName("feed")
+      .setName(aliasName)
       .setDescription("See the global tipfeed")
   },
   run: async function (i) {
