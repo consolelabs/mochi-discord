@@ -1,3 +1,10 @@
+## [6.34.1-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.5...v6.34.1-rc.6) (2023-09-22)
+
+
+### Bug Fixes
+
+* **recap:** add token emojis in spending and receive section ([8957b9d](https://github.com/consolelabs/mochi-discord/commit/8957b9dd98d6fbad1b329b407e2dd26827a8940b))
+
 ## [6.34.1-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.4...v6.34.1-rc.5) (2023-09-22)
 
 
