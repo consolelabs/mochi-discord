@@ -1,3 +1,10 @@
+## [6.34.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.1...v6.34.1-rc.2) (2023-09-22)
+
+
+### Bug Fixes
+
+* **top,feed:** emoji ([3e0eeb6](https://github.com/consolelabs/mochi-discord/commit/3e0eeb6b29eb1d684c75f310e11137ce2e84bbdf))
+
 ## [6.34.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.0...v6.34.1-rc.1) (2023-09-21)
 
 
