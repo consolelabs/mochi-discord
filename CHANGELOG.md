@@ -1,3 +1,10 @@
+## [6.34.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.2...v6.34.2-rc.3) (2023-09-25)
+
+
+### Bug Fixes
+
+* **general:** use new version of UI library ([215e7b0](https://github.com/consolelabs/mochi-discord/commit/215e7b0e2e91dc71983c9755ff96f0cd0349a160))
+
 ## [6.34.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.1...v6.34.2-rc.2) (2023-09-25)
 
 
