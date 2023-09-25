@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { PAY_LINK_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { run } from "./processor"
+import { parsePaylinkArgs, run } from "./processor"
 import { TokenEmojiKey } from "utils/common"
 
 const slashCmd: SlashCommand = {
@@ -31,15 +31,16 @@ const slashCmd: SlashCommand = {
           .setRequired(false),
       )
   },
-  run: (interaction) => {
-    const amount = interaction.options.getNumber("amount", true)
-    const token = interaction.options.getString("token", true)
-    const message = interaction.options.getString("message") ?? undefined
+  run: async (interaction) => {
+    const validatedPayload = await parsePaylinkArgs(interaction)
+
     return run({
       msgOrInteraction: interaction,
-      amount,
-      token: token.toUpperCase() as TokenEmojiKey,
-      note: message,
+      token: validatedPayload.token.toUpperCase() as TokenEmojiKey,
+      amount: validatedPayload.amount,
+      note: validatedPayload.note,
+      moniker: validatedPayload.moniker,
+      original_amount: validatedPayload.originalAmount,
     })
   },
   help: async () => ({
