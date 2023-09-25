@@ -262,6 +262,7 @@ export function composeEmbedMessage(
     includeCommandsList,
     actions,
     document,
+    noFooter,
   } = props
   const author = _author.map((a) => a ?? "").filter(Boolean)
   const commandObj = getCommandObject(commands, msg)
@@ -327,6 +328,7 @@ export function composeEmbedMessage(
   const start = profilingAsyncStore.getStore() ?? 0
   const timeInSeconds = Number((stop - start) / 1000).toFixed(3)
 
+  if (noFooter === true) return embed
   if (!footer.length) footer = [getRandomTip()]
   embed
     .setFooter({
