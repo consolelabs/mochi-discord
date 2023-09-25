@@ -1,3 +1,10 @@
+## [6.34.2-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.3...v6.34.2-rc.4) (2023-09-25)
+
+
+### Bug Fixes
+
+* **general:** command freeze when ran ([2b92276](https://github.com/consolelabs/mochi-discord/commit/2b92276b350827f31a27ea0f7e1e46bd27cd1788))
+
 ## [6.34.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.2...v6.34.2-rc.3) (2023-09-25)
 
 
