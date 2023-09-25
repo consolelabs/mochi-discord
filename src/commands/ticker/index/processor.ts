@@ -164,12 +164,16 @@ export async function renderSingle(
     },
     {
       name: "Change (H1)",
-      value: getChangePercentage(price_change_percentage_1h_in_currency.usd),
+      value: getChangePercentage(
+        price_change_percentage_1h_in_currency.usd ?? 0,
+      ),
       inline: true,
     },
     {
       name: `Change (D1)`,
-      value: getChangePercentage(price_change_percentage_24h_in_currency.usd),
+      value: getChangePercentage(
+        price_change_percentage_24h_in_currency.usd ?? 0,
+      ),
       inline: true,
     },
     {
