@@ -1,5 +1,5 @@
 import { SlashCommand } from "types/common"
-import { MOCHI_PAY_API_BASE_URL, SLASH_PREFIX } from "utils/constants"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { MachineConfig, route } from "utils/router"
@@ -37,29 +37,24 @@ const machineConfig: MachineConfig = {
 }
 
 async function render(i: CommandInteraction, timerange: any) {
-  console.log("fetch")
-  const res = await fetch(
-    `${MOCHI_PAY_API_BASE_URL}/leaderboard?interval=alltime&size=10`,
-  )
-  console.log("json")
-  const json = await res.json()
-  console.log("data")
-  const leaderboard = json.data
-  // const { title, text } = await UI.components.top({
-  //   timerange,
-  //   api,
-  //   on: Platform.Discord,
-  // })
+  console.log("before component")
+  const { title, text } = await UI.components.top({
+    timerange,
+    api,
+    on: Platform.Discord,
+  })
 
-  // const embed = composeEmbedMessage2(i as any, {
-  //   author: [title, thumbnails.MOCHI],
-  //   description: text,
-  // })
+  console.log("after", title, text)
 
-  console.log(leaderboard)
+  const embed = composeEmbedMessage2(i as any, {
+    author: [title, thumbnails.MOCHI],
+    description: text,
+  })
+
+  console.log("render", embed)
   return {
     msgOpts: {
-      content: "asd",
+      embeds: [embed],
       components: [
         new MessageActionRow().addComponents(
           new MessageButton({
