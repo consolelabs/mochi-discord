@@ -329,3 +329,13 @@ export const MOCHI_PLATFORM_DISCORD = "discord"
 export const TRACKING_TYPE_FOLLOW = "follow"
 export const TRACKING_TYPE_TRACK = "track"
 export const TRACKING_TYPE_COPY = "copy"
+
+export const PREFIX_EMAIL_HANDLER = ["mail:", "email:", "gmail:"]
+export const PREFIX_DISCORD_HANDLER = ["<@", "discord:", "dc:", "dsc:"]
+export const PREFIX_TELEGRAM_HANDLER = [
+  "telegram:",
+  "tel:",
+  "tg@",
+  "tg:",
+  "t.me/",
+]
