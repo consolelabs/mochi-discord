@@ -1,3 +1,10 @@
+## [6.34.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.1...v6.34.2-rc.1) (2023-09-25)
+
+
+### Bug Fixes
+
+* **recap, top:** use component from UI library ([c009c0e](https://github.com/consolelabs/mochi-discord/commit/c009c0e5c0123f0fd12179455ae7915d9f87c920))
+
 ## [6.34.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.0...v6.34.1) (2023-09-22)
 
 
