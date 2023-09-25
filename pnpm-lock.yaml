@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-rest':
-    specifier: ^3.0.5
-    version: 3.0.5
+    specifier: ^3.0.6
+    version: 3.0.6
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.10
-    version: 10.0.10(@consolelabs/mochi-rest@3.0.5)(ioredis@5.3.2)
+    specifier: ^10.0.13
+    version: 10.0.13(@consolelabs/mochi-rest@3.0.6)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -734,8 +734,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-rest@3.0.5:
-    resolution: {integrity: sha512-+nqwcVEUDBm+LnsNekGhqeDXNgXJcobIpaoVCASn0K2f+iUdDGWlWwqG0Jy2Z9xw4lbLK95fBde84p/j6ZIC7Q==}
+  /@consolelabs/mochi-rest@3.0.6:
+    resolution: {integrity: sha512-wNz8dR5VSjPw69aKmC8KuOwkDyFe/SmfIfl+ti+hk/LgncclKjGZIumSZpU7HIqjf4McPPgdYPostvYoWwBn9g==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
@@ -747,14 +747,14 @@ packages:
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.10(@consolelabs/mochi-rest@3.0.5)(ioredis@5.3.2):
-    resolution: {integrity: sha512-9fsy7GC5WuUkRC9omH491V6HP40a7jZbgHSES30I5Qpwlw+X0ForIAUeEhtKppTNfJK6F0caIHeovemFilpz0w==}
+  /@consolelabs/mochi-ui@10.0.13(@consolelabs/mochi-rest@3.0.6)(ioredis@5.3.2):
+    resolution: {integrity: sha512-C/9Mk9eKEygAyDQ41d881aM/EkyUnMy+zcdbVFtQYTOFHpoEI3MUGXv2v9QBShZ2VZL9VJBjDaxQVphHKRu9Zg==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^3.0.5
+      '@consolelabs/mochi-rest': ^3.0.6
       ioredis: ^5.x.x
     dependencies:
       '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.78.5)
-      '@consolelabs/mochi-rest': 3.0.5
+      '@consolelabs/mochi-rest': 3.0.6
       '@solana/web3.js': 1.78.5
       change-case: 4.1.2
       ethers: 6.7.1
@@ -2262,8 +2262,8 @@ packages:
       '@types/node': 20.6.3
     dev: true
 
-  /@types/debug@4.1.8:
-    resolution: {integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==}
+  /@types/debug@4.1.9:
+    resolution: {integrity: sha512-8Hz50m2eoS56ldRlepxSBa6PWEVCtzUo/92HgLc2qTMnotJNIm7xP+UZhyWoYsyOdd5dxZ+NZLb24rsKyFs2ow==}
     dependencies:
       '@types/ms': 0.7.31
     dev: false
@@ -6526,7 +6526,7 @@ packages:
   /micromark@3.2.0:
     resolution: {integrity: sha512-uD66tJj54JLYq0De10AhWycZWGQNUvDI55xPgk2sQM5kn1JYlhbCMTtEeT27+vAhW2FBQxLlOmS3pmA7/2z4aA==}
     dependencies:
-      '@types/debug': 4.1.8
+      '@types/debug': 4.1.9
       debug: 4.3.4
       decode-named-character-reference: 1.0.2
       micromark-core-commonmark: 1.1.0
