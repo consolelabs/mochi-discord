@@ -269,6 +269,29 @@ class Profile extends Fetcher {
     return await res?.json()
   }
 
+  public async getByTelegramUsernames(usernames: string[]) {
+    return await this.jsonFetch(`${MOCHI_PROFILE_API_BASE_URL}/telegram`, {
+      query: { usernames: usernames.join("|") },
+    })
+  }
+
+  public async getByTelegramIds(ids: string[]) {
+    return (
+      await this.jsonFetch(`/profiles/get-by-telegram`),
+      {
+        method: "POST",
+        body: { ids: ids },
+      }
+    )
+  }
+
+  public async getByDiscordUsername(username: string) {
+    const res = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/discord/get-by-username/${username}`,
+    )
+    return await res?.json()
+  }
+
   public async getUserActivities(
     profileId: string,
     {
