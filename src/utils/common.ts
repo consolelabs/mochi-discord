@@ -34,7 +34,7 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import api from "api"
+import { emojis as fetchedEmojis } from ".."
 
 dayjs.extend(relativeTime)
 
@@ -566,14 +566,10 @@ export function getEmoji(
   _animated?: boolean,
   fallback = "<a:coin:1093923016691421205>",
 ) {
-  const emoji = api.emojis.get(key.toUpperCase())
-  const text = emoji?.emoji?.replaceAll("_", key.toLowerCase()) ?? fallback
-  return (text as string).trim()
-}
-
-export function getEmojiImage(key: EmojiKey | "") {
-  const emoji = api.emojis.get(key.toUpperCase())
-  return emoji?.emoji_url ?? getEmojiURL("1093923016691421205")
+  return fetchedEmojis?.get(key.toUpperCase())?.emoji ?? fallback
+  // const emoji = api.emojis.get(key.toUpperCase())
+  // const text = emoji?.emoji?.replaceAll("_", key.toLowerCase()) ?? fallback
+  // return (text as string).trim()
 }
 
 export function getEmojiToken(key: TokenEmojiKey, animated?: boolean) {

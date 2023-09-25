@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Discord from "discord.js"
-import { APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
+import { API_SERVER_HOST, APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
@@ -11,6 +11,8 @@ import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
+
+export let emojis = new Map()
 
 let server: Server | null = null
 
@@ -64,6 +66,7 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
     logger.info("Success init Mochi API")
 
     runHttpServer()
+    fetchEmojis()
   } catch (error) {
     logger.error(`Failed to refresh application (/) commands. ${error}`)
   }
@@ -103,6 +106,19 @@ function runHttpServer() {
   server.listen(PORT, () => {
     logger.info(`Server listening on port ${PORT}`)
   })
+}
+
+export async function fetchEmojis() {
+  try {
+    const res = await fetch(
+      `${API_SERVER_HOST}/api/v1/product-metadata/emoji?size=1000`,
+    )
+    const json = await res.json()
+    const data = json.data
+    if (data) {
+      emojis = new Map(data.map((d: any) => [d.code.toUpperCase(), d]))
+    }
+  } catch (e) {}
 }
 
 // cleanup
