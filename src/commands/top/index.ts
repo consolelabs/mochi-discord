@@ -37,21 +37,17 @@ const machineConfig: MachineConfig = {
 }
 
 async function render(i: CommandInteraction, timerange: any) {
-  console.log("before component")
   const { title, text } = await UI.components.top({
     timerange,
     api,
     on: Platform.Discord,
   })
 
-  console.log("after", title, text)
-
   const embed = composeEmbedMessage2(i as any, {
     author: [title, thumbnails.MOCHI],
     description: text,
   })
 
-  console.log("render", embed)
   return {
     msgOpts: {
       embeds: [embed],
