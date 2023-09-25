@@ -15,8 +15,8 @@ dependencies:
     specifier: ^3.0.6
     version: 3.0.6
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.14
-    version: 10.0.14(@consolelabs/mochi-rest@3.0.6)(ioredis@5.3.2)
+    specifier: ^10.0.15
+    version: 10.0.15(@consolelabs/mochi-rest@3.0.6)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -319,7 +319,7 @@ packages:
       '@babel/generator': 7.23.0
       '@babel/helper-compilation-targets': 7.22.15
       '@babel/helper-module-transforms': 7.23.0(@babel/core@7.23.0)
-      '@babel/helpers': 7.23.0
+      '@babel/helpers': 7.23.1
       '@babel/parser': 7.23.0
       '@babel/template': 7.22.15
       '@babel/traverse': 7.23.0
@@ -529,8 +529,8 @@ packages:
       - supports-color
     dev: true
 
-  /@babel/helpers@7.23.0:
-    resolution: {integrity: sha512-cMceqRGsK0dZiEkIT+NujINkOddEbZGv7/+OCaxRQL0+VRkP4SfdCo43K8x9lZM0wZojMDD5evkjNRb0EmBORA==}
+  /@babel/helpers@7.23.1:
+    resolution: {integrity: sha512-chNpneuK18yW5Oxsr+t553UZzzAs3aZnFm4bxhebsNTeshrC95yA7l5yl7GBAG+JG1rF0F7zzD2EixK9mWSDoA==}
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.22.15
@@ -725,8 +725,8 @@ packages:
       regenerator-runtime: 0.14.0
     dev: false
 
-  /@babel/runtime@7.23.0:
-    resolution: {integrity: sha512-RoPqO1qxWZPZkBKhNaoswZyfvAVr8NtikWfTS4h3ovzbqMghQtGvzDSUXCJEeOu7wz6yNr8ZTIDLkVOAT1z1kA==}
+  /@babel/runtime@7.23.1:
+    resolution: {integrity: sha512-hC2v6p8ZSI/W0HUzh3V8C5g+NwSKzKPtJwSpTjwl0o297GP9+ZLQSkdvHz46CM3LqyoXxq+5G9komY+eSqSO0g==}
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.0
@@ -865,8 +865,8 @@ packages:
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.14(@consolelabs/mochi-rest@3.0.6)(ioredis@5.3.2):
-    resolution: {integrity: sha512-hdEs2Dqc78NOM/Kl7dsBYCoJ6ylBdb3br9cM/vbR4AjiU+u8NA9e/yHttTEci22KfFrqFxxoro9oqAIHvx8Xaw==}
+  /@consolelabs/mochi-ui@10.0.15(@consolelabs/mochi-rest@3.0.6)(ioredis@5.3.2):
+    resolution: {integrity: sha512-L9UGr761cVj/3mpAk8zbAuuH6FcqsxBKOROcK/RMkGVTbpxPvDN9WLZHjK8YAV5+MNsJTzMImDcnuMygU32Znw==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^3.0.6
       ioredis: ^5.x.x
@@ -2308,7 +2308,7 @@ packages:
   /@solana/web3.js@1.78.5:
     resolution: {integrity: sha512-2ZHsDNqkKdglJQrIvJ3p2DmgS3cGnary3VJyqt9C1SPrpAtLYzcElr3xyXJOznyQTU/8AMw+GoF11lFoKbicKg==}
     dependencies:
-      '@babel/runtime': 7.23.0
+      '@babel/runtime': 7.23.1
       '@noble/curves': 1.2.0
       '@noble/hashes': 1.3.2
       '@solana/buffer-layout': 4.0.1
