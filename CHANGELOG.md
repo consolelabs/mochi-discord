@@ -1,3 +1,10 @@
+## [6.34.2-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.4...v6.34.2-rc.5) (2023-09-25)
+
+
+### Bug Fixes
+
+* **payme:** fix payme cmd allow send payme request in discord platform ([#1497](https://github.com/consolelabs/mochi-discord/issues/1497)) ([175d233](https://github.com/consolelabs/mochi-discord/commit/175d233c804989471f8c84d29dafb4c19a18774b))
+
 ## [6.34.2-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.3...v6.34.2-rc.4) (2023-09-25)
 
 
