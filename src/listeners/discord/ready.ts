@@ -21,15 +21,14 @@ const event: DiscordEvent<"ready"> = {
       ChannelLogger.ready(client)
       InteractionManager.client = client
       // get gas price and show in presence message every 15s
-      const chains = ["eth", "ftm", "bnb", "matic"]
+      const chains = ["eth", "ftm", "bsc", "matic"]
       const presence = async () => {
         const chain = chains.shift()
         if (chain) chains.push(chain)
-        const res = await defi.getGasPrice(chain ?? "eth")
-        if (res !== null && res.ok) {
-          const data = res.result
-          const normalGasPrice = (+data.ProposeGasPrice).toFixed()
-          const fastGasPrice = (+data.FastGasPrice).toFixed()
+        const { data, ok } = await defi.getChainGasTracker(chain ?? "eth")
+        if (ok) {
+          const normalGasPrice = (+data.propose_gas_price).toFixed()
+          const fastGasPrice = (+data.fast_gas_price).toFixed()
           client.user?.setPresence({
             status: "online",
             activities: [
