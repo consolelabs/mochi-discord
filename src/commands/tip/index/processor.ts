@@ -24,7 +24,7 @@ import {
   getEmojiToken,
   getEmojiURL,
 } from "utils/common"
-import { getChannelInviteUrl, isMessage, reply } from "utils/discord"
+import { getChannelUrl, isMessage, reply } from "utils/discord"
 import {
   getBalances,
   getTargets,
@@ -96,7 +96,7 @@ export async function tip(
     msgOrInteraction.channel instanceof TextChannel
       ? msgOrInteraction.channel.name
       : ""
-  const channel_url = await getChannelInviteUrl(msgOrInteraction)
+  const channel_url = await getChannelUrl(msgOrInteraction)
 
   const payload: TransferPayload = {
     sender: author.id,
