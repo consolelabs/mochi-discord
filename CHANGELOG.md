@@ -1,3 +1,18 @@
+## [6.34.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1...v6.34.2) (2023-09-26)
+
+
+### Bug Fixes
+
+* **general:** command freeze when ran ([2b92276](https://github.com/consolelabs/mochi-discord/commit/2b92276b350827f31a27ea0f7e1e46bd27cd1788))
+* **general:** use new version of UI library ([27d6563](https://github.com/consolelabs/mochi-discord/commit/27d65632729392eaf0fce85ecc93da60e7d4dede))
+* **general:** use new version of UI library ([b742b2f](https://github.com/consolelabs/mochi-discord/commit/b742b2f0567420d359e6c627416a30a8d4981345))
+* **general:** use new version of UI library ([215e7b0](https://github.com/consolelabs/mochi-discord/commit/215e7b0e2e91dc71983c9755ff96f0cd0349a160))
+* **general:** use new version of UI library ([b59010f](https://github.com/consolelabs/mochi-discord/commit/b59010f0de0048a2b37f4ae9a9065fd3bcd25265))
+* **payme:** fix payme cmd allow send payme request in discord platform ([#1497](https://github.com/consolelabs/mochi-discord/issues/1497)) ([175d233](https://github.com/consolelabs/mochi-discord/commit/175d233c804989471f8c84d29dafb4c19a18774b))
+* **recap, top:** use component from UI library ([c009c0e](https://github.com/consolelabs/mochi-discord/commit/c009c0e5c0123f0fd12179455ae7915d9f87c920))
+* **tip:** remove message title emoji ([eeaaeae](https://github.com/consolelabs/mochi-discord/commit/eeaaeaeddf282dee7f43700a21c8556033deabe5))
+* **tip:** use new rendering rule for small number ([2ddf0ee](https://github.com/consolelabs/mochi-discord/commit/2ddf0ee41fcd29db18fbaeb852649ccd4424b8bd))
+
 ## [6.34.2-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.8...v6.34.2-rc.9) (2023-09-26)
 
 
