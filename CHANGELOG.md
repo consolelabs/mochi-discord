@@ -1,3 +1,10 @@
+## [6.34.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.2...v6.34.3-rc.1) (2023-09-26)
+
+
+### Bug Fixes
+
+* **notification:** update notification channel format to be more readable ([#1500](https://github.com/consolelabs/mochi-discord/issues/1500)) ([0a2f2eb](https://github.com/consolelabs/mochi-discord/commit/0a2f2eb6fe34bc224386ef81b17d667c8058f8b8))
+
 ## [6.34.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1...v6.34.2) (2023-09-26)
 
 
