@@ -104,18 +104,8 @@ function getMessageReplyPayload(result: RunResult<MessageOptions>) {
   )
 }
 
-export async function getChannelInviteUrl(
+export async function getChannelUrl(
   msgOrInteraction: Message | CommandInteraction,
 ) {
-  let inviteUrl = ""
-  const channel = msgOrInteraction.channel
-  if (channel instanceof TextChannel) {
-    try {
-      const invite = await channel.createInvite({
-        maxAge: 0,
-      })
-      inviteUrl = invite.url
-    } catch {}
-  }
-  return inviteUrl
+  return `https://discord.com/channels/${msgOrInteraction.guildId}/${msgOrInteraction.channelId}`
 }

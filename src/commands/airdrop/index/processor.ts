@@ -37,7 +37,7 @@ import { RunResult } from "../../../types/common"
 import { AirdropOptions, TransferPayload } from "../../../types/transfer"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { formatDigit } from "../../../utils/defi"
-import { getChannelInviteUrl, reply } from "utils/discord"
+import { getChannelUrl, reply } from "utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
 import * as processor from "./processor"
 
@@ -66,7 +66,7 @@ export async function airdrop(i: CommandInteraction) {
   }
   const guildName = i.guild?.name ?? ""
   const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
-  const channel_url = await getChannelInviteUrl(i)
+  const channel_url = await getChannelUrl(i)
 
   const payload: TransferPayload = {
     sender: i.user.id,
