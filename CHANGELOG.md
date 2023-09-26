@@ -1,3 +1,10 @@
+## [6.34.2-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.7...v6.34.2-rc.8) (2023-09-26)
+
+
+### Bug Fixes
+
+* **tip:** use new rendering rule for small number ([2ddf0ee](https://github.com/consolelabs/mochi-discord/commit/2ddf0ee41fcd29db18fbaeb852649ccd4424b8bd))
+
 ## [6.34.2-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.6...v6.34.2-rc.7) (2023-09-25)
 
 
