@@ -290,9 +290,7 @@ function showSuccesfulResponse(
   let contentMsg = ``
 
   if (payload.message) {
-    contentMsg += `\n${getEmoji("ANIMATED_CHAT", true)} With a message: ${
-      payload.message
-    }`
+    contentMsg += `\nwith a message: ${payload.message}`
   }
 
   const content = `${userMention(
