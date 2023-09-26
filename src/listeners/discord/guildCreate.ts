@@ -1,6 +1,5 @@
 import { Guild } from "discord.js"
 import config from "../../adapters/config"
-import webhook from "adapters/webhook"
 import { logger } from "logger"
 import { wrapError } from "utils/wrap-error"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -37,9 +36,6 @@ const event: DiscordEvent<"guildCreate"> = {
       async () => {
         await wrapError(metadata, async () => {
           await config.createGuild(guild.id, guild.name)
-          await webhook.pushDiscordWebhook("guildCreate", {
-            guild_id: guild.id,
-          })
           await introduceMochiToAdmin(guild)
         })
       },
