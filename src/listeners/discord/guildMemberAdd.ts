@@ -9,8 +9,6 @@ import { logger } from "logger"
 import client from "index"
 import { getEmoji, roundFloatNumber, thumbnails } from "utils/common"
 import { wrapError } from "utils/wrap-error"
-import { createBEGuildMember } from "types/webhook"
-import webhook from "adapters/webhook"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { eventAsyncStore } from "utils/async-storages"
 import { getSlashCommand } from "utils/commands"
@@ -36,11 +34,6 @@ const event: DiscordEvent<"guildMemberAdd"> = {
 
           // await welcomeFirstTimeMember(member)
           await welcomeNewMember(member)
-
-          await webhook.pushDiscordWebhook(
-            "guildMemberAdd",
-            createBEGuildMember(member),
-          )
         })
       },
     )
