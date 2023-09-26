@@ -17,11 +17,13 @@ export async function runCreateThreshold({
     throw new GuildIdNotFoundError({ message: i })
   }
 
+  const name = i.options.getString("name", true)
+  const threshold = i.options.getString("threshold", true)
   const { data, ok, status, curl, error, log } =
     await config.createVaultConfigThreshold({
       guild_id: guildId,
-      name: i.options.getString("name", true),
-      threshold: i.options.getString("threshold", true),
+      name,
+      threshold,
     })
   if (!ok) {
     if (status == 404) {
@@ -36,10 +38,7 @@ export async function runCreateThreshold({
 
   const description = `**${
     data.name
-  }** has been configured vault threshold of \`${i.options.getString(
-    "value",
-    true,
-  )}%\` for approval\n${getEmoji(
+  }** has been configured vault threshold of \`${threshold}%\` for approval\n${getEmoji(
     "ANIMATED_POINTING_RIGHT",
     true,
   )} Set or change vault threshold by run ${await getSlashCommand(

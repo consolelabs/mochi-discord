@@ -39,8 +39,7 @@ const command: SlashCommand = {
       )
   },
   autocomplete: async (i) => {
-    const user = i.options.get("user", true).value as string | undefined
-    const discordId = user ?? i.user.id
+    const discordId = i.options.getUser("user")?.id ?? i.user.id
     const focusedValue = i.options.getFocused()
     // do not fetch amount because
     // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)

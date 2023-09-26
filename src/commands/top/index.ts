@@ -1,11 +1,11 @@
 import { SlashCommand } from "types/common"
-import { SLASH_PREFIX, VERTICAL_BAR } from "utils/constants"
+import { SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { MachineConfig, route } from "utils/router"
 import api from "api"
-import UI, { Platform, utils } from "@consolelabs/mochi-ui"
-import { getEmoji, getEmojiImage, thumbnails } from "utils/common"
+import UI, { Platform } from "@consolelabs/mochi-ui"
+import { thumbnails } from "utils/common"
 import {
   CommandInteraction,
   Message,
@@ -36,102 +36,16 @@ const machineConfig: MachineConfig = {
   },
 }
 
-let pos: Array<string> = []
-
 async function render(i: CommandInteraction, timerange: any) {
-  if (!pos.length) {
-    pos = [
-      getEmoji("ANIMATED_BADGE_3"),
-      getEmoji("ANIMATED_BADGE_1"),
-      getEmoji("ANIMATED_BADGE_2"),
-      ...Array(7).fill(getEmoji("BLANK")),
-    ]
-  }
-  const { ok, data: leaderboard } = await api.pay.users.getLeaderboard(
+  const { title, text } = await UI.components.top({
     timerange,
-  )
-  if (!ok) throw new Error("Couldn't get leaderboard data")
-
-  const topSender = await Promise.all(
-    leaderboard.top_sender.map(async (d: any) => {
-      const [name] = await UI.resolve(Platform.Discord, d.profile.id)
-
-      return {
-        name: name?.value ?? "",
-        usd: utils.formatUsdDigit(d.usd_amount),
-      }
-    }),
-  )
-
-  const topReceiver = await Promise.all(
-    leaderboard.top_receiver.map(async (d: any) => {
-      const [name] = await UI.resolve(Platform.Discord, d.profile.id)
-
-      return {
-        name: name?.value ?? "",
-        usd: utils.formatUsdDigit(d.usd_amount),
-      }
-    }),
-  )
-
-  const sender = utils.mdTable(topSender, {
-    cols: ["usd", "name"],
-    wrapCol: [true, false],
-    alignment: ["right", "left"],
-    row: (f, i) => `${pos[i]}${VERTICAL_BAR}${f}`,
+    api,
+    on: Platform.Discord,
   })
-
-  const receiver = utils.mdTable(topReceiver, {
-    cols: ["usd", "name"],
-    wrapCol: [true, false],
-    alignment: ["right", "left"],
-    row: (f, i) => `${pos[i]}${VERTICAL_BAR}${f}`,
-  })
-
-  let timePhrase = ""
-  let leaderboardTitle = ""
-  switch (timerange) {
-    case "weekly":
-      timePhrase = "in the last 7d"
-      leaderboardTitle = "Weekly"
-      break
-    case "monthly":
-      timePhrase = "in the last 30d"
-      leaderboardTitle = "Monthly"
-      break
-    case "alltime":
-    default:
-      timePhrase = "since Mochi was born"
-      break
-  }
-
-  const lines = []
-  lines.push(getEmoji("BLANK"))
-  lines.push(`**🚀 Top 10 senders**`)
-
-  if (sender.length == 0) {
-    lines.push("There are no outstanding senders, yet\\.")
-  } else {
-    lines.push(sender)
-  }
-
-  lines.push(getEmoji("BLANK"))
-  lines.push(`**🎯 Top 10 receivers**`)
-  if (receiver.length == 0) {
-    lines.push("There are no outstanding receivers, yet\\.")
-  } else {
-    lines.push(receiver)
-  }
-  lines.push(getEmoji("BLANK"))
-
-  lines.push(`_This data is recorded ${timePhrase}_`)
 
   const embed = composeEmbedMessage2(i as any, {
-    author: [
-      `${leaderboardTitle} Tip Leaderboard`,
-      getEmojiImage("ANIMATED_TROPHY"),
-    ],
-    description: lines.join("\n"),
+    author: [title, thumbnails.MOCHI],
+    description: text,
   })
 
   return {

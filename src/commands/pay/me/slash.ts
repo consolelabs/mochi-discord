@@ -1,9 +1,14 @@
 import { TokenEmojiKey } from "utils/common"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { PAY_ME_GITBOOK, SLASH_PREFIX as PREFIX } from "utils/constants"
-import { preprocessTarget, run } from "./processor"
+import {
+  PAY_ME_GITBOOK,
+  SLASH_PREFIX as PREFIX,
+  SPACES_REGEX,
+} from "utils/constants"
+import { parsePaymeArgs, run } from "./processor"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import { CommandInteraction } from "discord.js"
 
 const slashCmd: SlashCommand = {
   name: "me",
@@ -32,39 +37,22 @@ const slashCmd: SlashCommand = {
       )
       .addStringOption((option) =>
         option
-          .setName("platform")
-          .setDescription("Platform to pay")
-          .setRequired(false)
-          .addChoices([
-            ["discord", "discord"],
-            ["telegram", "telegram"],
-            ["mail", "mail"],
-          ]),
-      )
-      .addStringOption((option) =>
-        option
           .setName("note")
           .setDescription("Note for the payment")
           .setRequired(false),
       )
   },
-  run: async (interaction) => {
-    const amount = interaction.options.getNumber("amount", true)
-    const token = interaction.options.getString("token", true)
-    const target = interaction.options.getString("target") ?? undefined
-    const hasTarget = !!target
-    const platform = interaction.options.getString("platform") ?? undefined
-    const note = interaction.options.getString("note") ?? undefined
-    const processedTarget = preprocessTarget(interaction, target, platform)
+  run: async (interaction: CommandInteraction) => {
+    const validatedPayload = await parsePaymeArgs(interaction)
 
     await run({
       msgOrInteraction: interaction,
-      amount: amount,
-      token: token.toUpperCase() as TokenEmojiKey,
-      hasTarget,
-      target: processedTarget,
-      platform,
-      note,
+      targets: validatedPayload.targets,
+      token: validatedPayload.token.toUpperCase() as TokenEmojiKey,
+      amount: validatedPayload.amount,
+      note: validatedPayload.note,
+      moniker: validatedPayload.moniker,
+      original_amount: validatedPayload.originalAmount,
     })
   },
   help: async () => ({

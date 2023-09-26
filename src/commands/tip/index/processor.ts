@@ -23,7 +23,6 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  roundFloatNumber,
 } from "utils/common"
 import { getChannelInviteUrl, isMessage, reply } from "utils/discord"
 import {
@@ -280,10 +279,13 @@ function showSuccesfulResponse(
   let amountWithCurrency = `${emojiAmountWithCurrency} ${amount} ${unitCurrency}`
   amountWithCurrency = amountWithCurrency.trim()
 
-  const amountApprox = `(${amountApproxMoniker}${APPROX} $${roundFloatNumber(
+  const amountUsd = mochiUtils.formatUsdDigit(
     res.amount_each * payload.token_price,
-    4,
-  )})`
+  )
+
+  const amountApprox = `(${amountApproxMoniker}${
+    amountUsd.startsWith("<") ? "" : APPROX
+  } ${amountUsd})`
 
   let contentMsg = ``
 

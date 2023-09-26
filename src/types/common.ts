@@ -167,6 +167,7 @@ export type EmbedProperties = {
   includeCommandsList?: boolean
   actions?: Record<string, Command>
   document?: string
+  noFooter?: boolean
 }
 
 // TODO: move all below
@@ -322,6 +323,10 @@ export type KafkaNotificationPayRequestMessageMetadata = {
   price?: string
   pay_link?: string
   request_id?: string
+  moniker?: string
+  original_amount?: string
+  usd_amount?: string
+  target_platform?: string
   wallets?: KafkaNotificationPayRequestWalletMessage[]
 }
 
