@@ -15,8 +15,8 @@ dependencies:
     specifier: ^3.0.9
     version: 3.0.9
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.20
-    version: 10.0.20(@consolelabs/mochi-rest@3.0.9)(ioredis@5.3.2)
+    specifier: ^10.0.22
+    version: 10.0.22(@consolelabs/mochi-rest@3.0.9)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -865,8 +865,8 @@ packages:
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.20(@consolelabs/mochi-rest@3.0.9)(ioredis@5.3.2):
-    resolution: {integrity: sha512-0rYLmieDkB1ZF7H04hi4YVf/tQ5r3kxqDhgbP7cvd/9ysq/klmSg8T5hhKpQzpZlxrHehdqG0fTg73XBkqXUwg==}
+  /@consolelabs/mochi-ui@10.0.22(@consolelabs/mochi-rest@3.0.9)(ioredis@5.3.2):
+    resolution: {integrity: sha512-FqGIKkTP3vxguEuTYZzdp8gRMNO83qcIm3hAcl8gjpTCnsQqPoRKQPQuiLi+B1/bumoOPsjY5AVkn89ksNx9Iw==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^3.0.9
       ioredis: ^5.x.x
@@ -7440,7 +7440,7 @@ packages:
       pump: 3.0.0
       readable-stream: 4.4.2
       secure-json-parse: 2.7.0
-      sonic-boom: 3.3.0
+      sonic-boom: 3.4.0
       strip-json-comments: 3.1.1
     dev: false
 
@@ -7477,7 +7477,7 @@ packages:
       quick-format-unescaped: 4.0.4
       real-require: 0.2.0
       safe-stable-stringify: 2.4.3
-      sonic-boom: 3.3.0
+      sonic-boom: 3.4.0
       thread-stream: 2.4.0
     dev: false
 
@@ -8220,6 +8220,12 @@ packages:
     resolution: {integrity: sha512-LYxp34KlZ1a2Jb8ZQgFCK3niIHzibdwtwNUWKg0qQRzsDoJ3Gfgkf8KdBTFU3SkejDEIlWwnSnpVdOZIhFMl/g==}
     dependencies:
       atomic-sleep: 1.0.0
+
+  /sonic-boom@3.4.0:
+    resolution: {integrity: sha512-zSe9QQW30nPzjkSJ0glFQO5T9lHsk39tz+2bAAwCj8CNgEG8ItZiX7Wb2ZgA8I04dwRGCcf1m3ABJa8AYm12Fw==}
+    dependencies:
+      atomic-sleep: 1.0.0
+    dev: false
 
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
