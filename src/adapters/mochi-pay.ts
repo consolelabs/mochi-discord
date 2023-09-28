@@ -304,6 +304,28 @@ class MochiPay extends Fetcher {
       },
     )
   }
+
+  async getPaymes(profileId: string): Promise<any> {
+    const { data: res, ok } = await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profile/${profileId}/pay-me`,
+    )
+    let data = []
+    if (ok) {
+      data = res as any
+    }
+    return data
+  }
+
+  async getPaylinks(profileId: string): Promise<any> {
+    const { data: res, ok } = await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profile/${profileId}/pay-link`,
+    )
+    let data = []
+    if (ok) {
+      data = res as any
+    }
+    return data
+  }
 }
 
 export default new MochiPay()

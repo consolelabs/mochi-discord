@@ -12,10 +12,14 @@ import {
 } from "utils/constants"
 import link from "./link/slash"
 import me from "./me/slash"
+import meStatus from "./me-status/slash"
+import linkStatus from "./link-status/slash"
 
 const actions: Record<string, SlashCommand> = {
   link,
   me,
+  "me-status": meStatus,
+  "link-status": linkStatus,
 }
 
 const slashCmd: SlashCommand = {
@@ -27,6 +31,8 @@ const slashCmd: SlashCommand = {
       .setDescription("Finish all due payments right in Discord")
       .addSubcommand(<SlashCommandSubcommandBuilder>link.prepare())
       .addSubcommand(<SlashCommandSubcommandBuilder>me.prepare())
+      .addSubcommand(<SlashCommandSubcommandBuilder>meStatus.prepare())
+      .addSubcommand(<SlashCommandSubcommandBuilder>linkStatus.prepare())
   },
   run: (interaction) => {
     return actions[interaction.options.getSubcommand()].run(interaction)
