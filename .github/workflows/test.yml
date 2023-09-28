@@ -12,10 +12,13 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+      
+      - name: Install dependencies
+        run: |
+          npm install -g pnpm
+          pnpm install
 
       - name: Run tests
         env:
           SWAGGER_URL: ${{ secrets.SWAGGER_URL_DEV }}
-        run: |
-          pnpm
-          pnpm test:ci
+        run: pnpm test:ci
