@@ -62,7 +62,18 @@ export async function wrapError(
         // something went wrong
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
-          Sentry.captureException(e)
+          Sentry.captureException(e, {
+            contexts: {
+              user: {
+                id: message.author.id,
+                username: message.author.username,
+              },
+              command: {
+                raw: commandStr,
+                args,
+              },
+            },
+          })
         }
         error.handle?.()
         ChannelLogger.alert(message, error).catch(catchAll)
@@ -80,18 +91,44 @@ export async function wrapError(
         // something went wrong
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
-          Sentry.captureException(e)
+          Sentry.captureException(e, {
+            contexts: {
+              user: {
+                id: message.user.id,
+                username: message.user.username,
+              },
+              command: {
+                raw: commandStr,
+                args: message.options.data
+                  .filter((option) => option.value)
+                  .map((option) => option.value)
+                  .join(" "),
+              },
+            },
+          })
         }
         error.handle?.()
         ChannelLogger.alertSlash(message, error).catch(catchAll)
       } else if (message.isMessageComponent()) {
         if (!(error instanceof BotBaseError)) {
           error = new BotBaseError(message, e.message as string)
-          Sentry.captureException(e)
+          Sentry.captureException(e, {
+            contexts: {
+              user: {
+                id: message.user.id,
+                username: message.user.username,
+              },
+              command: {
+                raw: commandStr,
+                args,
+              },
+            },
+          })
         }
         error.handle?.()
         ChannelLogger.alert(message.message as Message, error).catch(catchAll)
       }
+
       // send command info to kafka
       try {
         const kafkaMsg: KafkaQueueMessage = {
