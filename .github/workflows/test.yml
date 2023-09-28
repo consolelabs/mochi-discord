@@ -16,9 +16,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm install -g pnpm
-          pnpm install
 
       - name: Run tests
         env:
           SWAGGER_URL: ${{ secrets.SWAGGER_URL_DEV }}
-        run: pnpm test:ci
+        run: |
+          pnpm
+          pnpm test:ci
