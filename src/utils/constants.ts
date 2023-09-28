@@ -324,6 +324,7 @@ export const MOCHI_ACTION_MONIKER = "moniker"
 export const MOCHI_ACTION_WALLET = "wallet"
 export const MOCHI_ACTION_TELEGRAM = "telegram"
 export const MOCHI_ACTION_PAY_ME = "payme"
+export const MOCHI_ACTION_PAY_LINK = "paylink"
 export const MOCHI_PLATFORM_DISCORD = "discord"
 
 export const TRACKING_TYPE_FOLLOW = "follow"

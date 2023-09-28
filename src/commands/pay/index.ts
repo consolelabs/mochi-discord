@@ -46,6 +46,7 @@ const slashCmd: SlashCommand = {
       ],
     }),
   colorType: "Defi",
+  ephemeral: true,
 }
 
 export default { slashCmd }

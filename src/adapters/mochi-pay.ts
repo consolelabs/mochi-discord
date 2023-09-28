@@ -112,14 +112,16 @@ class MochiPay extends Fetcher {
   public async getBalances({
     profileId,
     token,
+    unique,
   }: {
     profileId: string
     token?: string
+    unique?: boolean
   }) {
     const url = `${MOCHI_PAY_API_BASE_URL}/mochi-wallet/${profileId}/balances/${
       token ?? ""
     }`
-    return await this.jsonFetch(url)
+    return await this.jsonFetch(url, { query: { unique: unique } })
   }
 
   public async withdraw(body: {
