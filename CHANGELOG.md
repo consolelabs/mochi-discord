@@ -1,3 +1,36 @@
+# [6.35.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.0-rc.1...v6.35.0-rc.2) (2023-09-29)
+
+
+### Bug Fixes
+
+* **pay:** fix render ui cmd payme paylink status ([#1505](https://github.com/consolelabs/mochi-discord/issues/1505)) ([1fb1328](https://github.com/consolelabs/mochi-discord/commit/1fb13284b674dfdb97664757c1a4e0be2c8809fd))
+
+# [6.35.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.2...v6.35.0-rc.1) (2023-09-29)
+
+
+### Bug Fixes
+
+* **paylink:** fix paylink cmd allow create paylink request in discord platform ([#1499](https://github.com/consolelabs/mochi-discord/issues/1499)) ([7edafa3](https://github.com/consolelabs/mochi-discord/commit/7edafa35089e5651e58215e5e4f50cddadce0ef9))
+
+
+### Features
+
+* **pay:** add payme and paylink status list cmd ([#1503](https://github.com/consolelabs/mochi-discord/issues/1503)) ([5a8fe83](https://github.com/consolelabs/mochi-discord/commit/5a8fe83123631c4c54e922fab352f2a9b7ecbf87))
+
+## [6.34.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.1...v6.34.3-rc.2) (2023-09-27)
+
+
+### Bug Fixes
+
+* **general:** use new version of UI library ([676a339](https://github.com/consolelabs/mochi-discord/commit/676a339aa6cc267b0193c22096c1080815d2e1d2))
+
+## [6.34.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.2...v6.34.3-rc.1) (2023-09-26)
+
+
+### Bug Fixes
+
+* **notification:** update notification channel format to be more readable ([#1500](https://github.com/consolelabs/mochi-discord/issues/1500)) ([0a2f2eb](https://github.com/consolelabs/mochi-discord/commit/0a2f2eb6fe34bc224386ef81b17d667c8058f8b8))
+
 ## [6.34.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1...v6.34.2) (2023-09-26)
 
 
