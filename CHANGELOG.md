@@ -1,3 +1,10 @@
+# [6.35.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.0-rc.1...v6.35.0-rc.2) (2023-09-29)
+
+
+### Bug Fixes
+
+* **pay:** fix render ui cmd payme paylink status ([#1505](https://github.com/consolelabs/mochi-discord/issues/1505)) ([1fb1328](https://github.com/consolelabs/mochi-discord/commit/1fb13284b674dfdb97664757c1a4e0be2c8809fd))
+
 # [6.35.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.2...v6.35.0-rc.1) (2023-09-29)
 
 
