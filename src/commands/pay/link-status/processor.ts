@@ -6,6 +6,8 @@ import profile from "adapters/profile"
 import { APIError } from "errors"
 import { reply } from "utils/discord"
 import api from "api"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { embedsColors } from "types/common"
 
 export async function render(i: CommandInteraction, page = 0) {
   const author = getAuthor(i)
@@ -36,9 +38,14 @@ export async function render(i: CommandInteraction, page = 0) {
   lines.push("⎯".repeat(5))
   lines.push("\\✅ Paid \\| \\⚠️ End soon \\| \\🔵 New \\| \\⚪ Expired")
 
+  const embed = composeEmbedMessage(null, {
+    description: lines.join("\n"),
+    color: embedsColors.PayStatusList,
+  })
+
   return reply(i, {
     messageOptions: {
-      content: lines.join("\n"),
+      embeds: [embed],
     },
   })
 }

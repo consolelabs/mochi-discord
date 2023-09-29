@@ -44,6 +44,7 @@ export const embedsColors: Record<string, string> = {
   Wallet: "#5CD97D",
   Payme: "#FFD652",
   Paylink: "#FF9900",
+  PayStatusList: "#36CFFF",
 }
 
 export type SlashCommandChoiceOption = {
