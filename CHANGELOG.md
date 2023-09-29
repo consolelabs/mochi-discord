@@ -1,3 +1,15 @@
+# [6.35.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.2...v6.35.0-rc.1) (2023-09-29)
+
+
+### Bug Fixes
+
+* **paylink:** fix paylink cmd allow create paylink request in discord platform ([#1499](https://github.com/consolelabs/mochi-discord/issues/1499)) ([7edafa3](https://github.com/consolelabs/mochi-discord/commit/7edafa35089e5651e58215e5e4f50cddadce0ef9))
+
+
+### Features
+
+* **pay:** add payme and paylink status list cmd ([#1503](https://github.com/consolelabs/mochi-discord/issues/1503)) ([5a8fe83](https://github.com/consolelabs/mochi-discord/commit/5a8fe83123631c4c54e922fab352f2a9b7ecbf87))
+
 ## [6.34.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.1...v6.34.3-rc.2) (2023-09-27)
 
 
