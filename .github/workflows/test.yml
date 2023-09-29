@@ -9,13 +9,38 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+          
+      - name: Restore Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pnpm
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+  
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip make build-essential g++ libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev imagemagick
+          pip3 install --upgrade pip
+          npm install -g pnpm
+          pnpm i
+          
+      - name: Save Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pnpm
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Run tests
         env:
           SWAGGER_URL: ${{ secrets.SWAGGER_URL_DEV }}
         run: |
-          pnpm
           pnpm test:ci
+
+  

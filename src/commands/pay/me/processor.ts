@@ -2,10 +2,12 @@ import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { utils } from "@consolelabs/mochi-ui"
 import { CommandInteraction } from "discord.js"
-import { APIError, InternalError } from "errors"
+import { APIError, InternalError, OriginalMessage } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { UnsupportedTokenError } from "errors/unsupported-token"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
+import { embedsColors } from "types/common"
+import { composeButtonLink } from "ui/discord/button"
 
 import {
   TokenEmojiKey,
@@ -15,7 +17,6 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
-  isValidAmount,
 } from "utils/common"
 import {
   MOCHI_ACTION_PAY_ME,
@@ -52,7 +53,6 @@ export async function run({
   original_amount: number
 }) {
   const author = getAuthor(msgOrInteraction)
-  const tokenEmoji = getEmojiToken(token)
   // get profile id
   const p = await profile.getByDiscord(author.id)
   if (p.err) {
@@ -102,15 +102,33 @@ export async function run({
         return equalIgnoreCase(w.chain.symbol, t?.chain?.symbol ?? "")
       }) ?? []
   const isDm = msgOrInteraction.channel?.type === "DM"
-
+  let dm: any
   if (targets?.length) {
     const dmPayrequestMsg1 = composeEmbedMessage(null, {
       description: `Your payment request is created! Send this message to the friend to request the payment ${getEmoji(
         "ANIMATED_POINTING_DOWN",
         true,
       )}`,
+      color: embedsColors.Payme,
       noFooter: true,
     })
+    if (isDm) {
+      await reply(msgOrInteraction, {
+        messageOptions: {
+          embeds: [dmPayrequestMsg1],
+        },
+      })
+    } else {
+      dm = await dmUser(
+        {
+          embeds: [dmPayrequestMsg1],
+        },
+        author,
+        null,
+        null,
+      )
+    }
+
     for (const target of targets) {
       const res: any = await mochiPay.generatePaymentCode({
         profileId: p.id,
@@ -132,45 +150,25 @@ export async function run({
         res.data.code
       }`
 
-      const dmPayrequestMsg2 = composeEmbedMessage(null, {
-        description: [
-          `Hey! ${author} requests you pay **${amount} ${token}**${
-            note ? " with message:" : ""
-          }`,
-          ...(note ? [`\`${note}\``] : []),
-          "",
-          `You can pay me by using /tip ${author} ${amount} ${token} through ${
-            msgOrInteraction.client.user
-          } or via this pay link .[${res.data.code.substr(0, 5)}](${link})`,
-        ].join("\n"),
-        originalMsgAuthor: author,
-        noFooter: true,
-      })
-      if (!isDm) {
-        const dm = await dmUser(
-          {
-            embeds: [dmPayrequestMsg1, dmPayrequestMsg2],
-          },
-          author,
-          null,
-          null,
-        )
-        reply(msgOrInteraction, {
-          messageOptions: {
-            embeds: [
-              composeEmbedMessage(null, {
-                description: `A new Pay Me request has been generated in your ${msgOrInteraction.client.user}, forward it to your payer!`,
-              }),
-            ],
-          },
-        })
-      } else {
-        reply(msgOrInteraction, {
-          messageOptions: {
-            embeds: [dmPayrequestMsg1, dmPayrequestMsg2],
-          },
-        })
-      }
+      const content = [
+        `Hey! ${author} requests you pay **${amount} ${token}**${
+          note ? " with message:" : ""
+        }`,
+        ...(note ? [`\`${note}\``] : []),
+        "",
+        `You can pay me by using /tip ${author} ${amount} ${token} through ${
+          msgOrInteraction.client.user
+        } or via this pay link .[${res.data.code.substr(0, 5)}](${link})`,
+      ].join("\n")
+
+      await dmUser(
+        {
+          content: content,
+        },
+        author,
+        null,
+        null,
+      )
       await sendNotificationMsg({
         type: typePayRequest,
         pay_request_metadata: {
@@ -200,6 +198,19 @@ export async function run({
         },
       })
     }
+    if (!isDm) {
+      reply(msgOrInteraction, {
+        messageOptions: {
+          embeds: [
+            composeEmbedMessage(null, {
+              description: `A new Pay Me request has been generated in your ${msgOrInteraction.client.user}, forward it to your payer!`,
+              color: embedsColors.Payme,
+            }),
+          ],
+          components: [composeButtonLink("See the DM", dm?.url ?? "")],
+        },
+      })
+    }
   } else {
     const res: any = await mochiPay.generatePaymentCode({
       profileId: p.id,
@@ -219,27 +230,27 @@ export async function run({
       res.data.code
     }`
     const dmPayrequestMsg1 = composeEmbedMessage(null, {
-      author: [
-        `[${res.data.code.substr(0, 5)}] New payment request`,
-        getEmojiURL(emojis.BELL),
-      ],
+      author: [`[${res.data.code.substr(0, 5)}] New payment request`],
+      thumbnail: `${getEmojiURL(emojis.BELL)}`,
       description: [
-        `\`Pay link.   \`[${res.data.code}](${link})`,
-        `\`Amount.     \`${
+        `${getEmoji("PROPOSAL", false)}\`Pay link.   \`[${
+          res.data.code
+        }](${link})`,
+        `${getEmoji("NFT", false)}\`Amount.     \`${
           moniker !== ""
             ? `**${utils.formatTokenDigit(
                 original_amount,
               )} ${moniker}** \\( **${utils.formatTokenDigit(
                 amount,
               )} ${token}** ≈ ${utils.formatUsdDigit(res.data.usd_amount)}\\)`
-            : `**${utils.formatTokenDigit(
+            : `${getEmojiToken(token, false)} **${utils.formatTokenDigit(
                 amount,
               )} ${token}** \\(≈ ${utils.formatUsdDigit(
                 res.data.usd_amount,
               )}\\)`
         }`,
-        `\`Requester.  \`${author}`,
-        note !== "" ? `\`Message.    \`${note}` : "",
+        `${getEmoji("ANIMATED_MONEY", false)}\`Requester.  \`${author}`,
+        note !== "" ? `${getEmoji("CHAT", false)}\`Message.    \`${note}` : "",
         ...(note !== "" ? [""] : []),
         `${getEmoji(
           "ANIMATED_POINTING_DOWN",
@@ -249,26 +260,33 @@ export async function run({
         .filter((line) => line !== undefined) // Remove undefined elements (empty lines)
         .join("\n"),
       originalMsgAuthor: author,
+      color: embedsColors.Payme,
       noFooter: true,
     })
-    const dmPayrequestMsg2 = composeEmbedMessage(null, {
-      description: [
-        `Hey! ${author} requests you pay **${amount} ${token}**${
-          note ? " with message:" : ""
-        }`,
-        ...(note ? [`\`${note}\``] : []),
-        "",
-        `You can pay me by using /tip ${author} ${amount} ${token} through ${
-          msgOrInteraction.client.user
-        } or via this pay link .[${res.data.code.substr(0, 5)}](${link})`,
-      ].join("\n"),
-      originalMsgAuthor: author,
-      noFooter: true,
-    })
+
+    let content = [
+      `Hey! ${author} requests you pay **${amount} ${token}**${
+        note ? " with message:" : ""
+      }`,
+      ...(note ? [`\`${note}\``] : []),
+      "",
+      `You can pay me by using /tip ${author} ${amount} ${token} through ${
+        msgOrInteraction.client.user
+      } or via this pay link .[${res.data.code.substr(0, 5)}](${link})`,
+    ].join("\n")
+
     if (!isDm) {
+      dm = await dmUser(
+        {
+          embeds: [dmPayrequestMsg1],
+        },
+        author,
+        null,
+        null,
+      )
       await dmUser(
         {
-          embeds: [dmPayrequestMsg1, dmPayrequestMsg2],
+          content: content,
         },
         author,
         null,
@@ -279,14 +297,25 @@ export async function run({
           embeds: [
             composeEmbedMessage(null, {
               description: `Forward the Pay Me request from ${msgOrInteraction.client.user} to the payer, as the payer was not mentioned.`,
+              color: embedsColors.Payme,
             }),
           ],
+          components: [composeButtonLink("See the DM", dm?.url ?? "")],
         },
       })
     } else {
+      await dmUser(
+        {
+          content: content,
+        },
+        author,
+        null,
+        null,
+      )
+
       return reply(msgOrInteraction, {
         messageOptions: {
-          embeds: [dmPayrequestMsg1, dmPayrequestMsg2],
+          embeds: [dmPayrequestMsg1],
         },
       })
     }
@@ -364,9 +393,7 @@ export async function resolveTarget(receivers: string[]) {
   return targetIds
 }
 
-export async function parsePaymeArgs(
-  interaction: CommandInteraction | Message,
-): Promise<{
+export async function parsePaymeArgs(interaction: CommandInteraction): Promise<{
   targets: any
   amount: number
   token: string
@@ -376,14 +403,13 @@ export async function parsePaymeArgs(
 }> {
   let amount = interaction.options.getNumber("amount", true)
   let token = interaction.options.getString("token", true)
-  const recievers = interaction.options
-    .getString("target", false)
-    ?.split(SPACES_REGEX)
+  const receivers =
+    interaction.options.getString("target", false)?.split(SPACES_REGEX) ?? []
   const note = interaction.options.getString("note") ?? ""
   let parsedAmount = amount
 
-  const targets = await resolveTarget(recievers)
-  if (recievers?.length && targets?.length === 0) {
+  const targets = await resolveTarget(receivers)
+  if (receivers?.length && targets?.length === 0) {
     throw new InternalError({
       title: "Incorrect recipients",
       description:
@@ -404,7 +430,7 @@ export async function parsePaymeArgs(
   // if unit is not either a token or a moniker -> reject
   if (!moniker && !isToken) {
     throw new UnsupportedTokenError({
-      msgOrInteraction: interaction,
+      msgOrInteraction: interaction as OriginalMessage,
       symbol: token,
     })
   }
