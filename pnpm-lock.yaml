@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-rest':
-    specifier: ^3.0.9
-    version: 3.0.9
+    specifier: ^3.0.13
+    version: 3.0.13
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.25
-    version: 10.0.25(@consolelabs/mochi-rest@3.0.9)(ioredis@5.3.2)
+    specifier: ^10.0.29
+    version: 10.0.29(@consolelabs/mochi-rest@3.0.13)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -852,27 +852,27 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-rest@3.0.9:
-    resolution: {integrity: sha512-PgkLxFVmLwGlg7StVXJjRnOuY7c48G5hKGLrNOk27MCl7e8kulONUNRl32T0u+pu6ISjArVELXmUKJyjCwuIzw==}
+  /@consolelabs/mochi-rest@3.0.13:
+    resolution: {integrity: sha512-ntYusLcIL9QL+0mJA16KqF2v6pcecAnNKIPwUzTVASb3nCv07cBWqhRNe25sQKhbnejQyxXv/o5F6Iv80ZU8yw==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
       path-parser: 6.1.0
-      pino: 8.15.1
+      pino: 8.15.3
       pino-pretty: 10.2.0
       snakecase-keys: 5.4.7
       wretch: 2.7.0
       zod: 3.22.2
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.25(@consolelabs/mochi-rest@3.0.9)(ioredis@5.3.2):
-    resolution: {integrity: sha512-lZgO2jjhhccYDxRx6imPlMCYNDipci+cxKb7S+0sW5+sjVtV2u8KcyvhBqXJbpSbwivSvd2McULHKqC5ZMr4TQ==}
+  /@consolelabs/mochi-ui@10.0.29(@consolelabs/mochi-rest@3.0.13)(ioredis@5.3.2):
+    resolution: {integrity: sha512-wIOajUYCmkoMaiZ4tjDsJBJ310JuxkRpDB4Ikf3HW26MOlx1o+YGMczkThghhu2NiC6svYGQTDGlzfnC3KwnVw==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^3.0.9
+      '@consolelabs/mochi-rest': ^3.0.13
       ioredis: ^5.x.x
     dependencies:
       '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.78.5)
-      '@consolelabs/mochi-rest': 3.0.9
+      '@consolelabs/mochi-rest': 3.0.13
       '@solana/web3.js': 1.78.5
       change-case: 4.1.2
       ethers: 6.7.1
@@ -7115,6 +7115,11 @@ packages:
     resolution: {integrity: sha512-VuCaZZAjReZ3vUwgOB8LxAosIurDiAW0s13rI1YwmaP++jvcxP77AWoQvenZebpCA2m8WC1/EosPYPMjnRAp/w==}
     dev: false
 
+  /on-exit-leak-free@2.1.1:
+    resolution: {integrity: sha512-IPTBZ175tI0sSg0ikDcCDfa5dPgcFbJgABsTHsY+Mkdm6Y2VKGuchubXSvTuu5tSPl4mqt53o3nLI74HTs8UgQ==}
+    engines: {node: '>=14.0.0'}
+    dev: false
+
   /once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
     dependencies:
@@ -7435,12 +7440,12 @@ packages:
       help-me: 4.2.0
       joycon: 3.1.1
       minimist: 1.2.8
-      on-exit-leak-free: 2.1.0
+      on-exit-leak-free: 2.1.1
       pino-abstract-transport: 1.1.0
       pump: 3.0.0
       readable-stream: 4.4.2
       secure-json-parse: 2.7.0
-      sonic-boom: 3.4.0
+      sonic-boom: 3.5.0
       strip-json-comments: 3.1.1
     dev: false
 
@@ -7464,20 +7469,20 @@ packages:
       thread-stream: 2.4.0
     dev: false
 
-  /pino@8.15.1:
-    resolution: {integrity: sha512-Cp4QzUQrvWCRJaQ8Lzv0mJzXVk4z2jlq8JNKMGaixC2Pz5L4l2p95TkuRvYbrEbe85NQsDKrAd4zalf7Ml6WiA==}
+  /pino@8.15.3:
+    resolution: {integrity: sha512-wDds1+DH8VaREe4fpLEKttGnDoLiX3KR3AP5bHsrRwEZ93y+Z/HFC03zkGSxpIGWKDHg24sloVqGcIWoLCkTLQ==}
     hasBin: true
     dependencies:
       atomic-sleep: 1.0.0
       fast-redact: 3.3.0
-      on-exit-leak-free: 2.1.0
+      on-exit-leak-free: 2.1.1
       pino-abstract-transport: 1.1.0
       pino-std-serializers: 6.2.2
       process-warning: 2.2.0
       quick-format-unescaped: 4.0.4
       real-require: 0.2.0
       safe-stable-stringify: 2.4.3
-      sonic-boom: 3.4.0
+      sonic-boom: 3.5.0
       thread-stream: 2.4.0
     dev: false
 
@@ -8221,8 +8226,8 @@ packages:
     dependencies:
       atomic-sleep: 1.0.0
 
-  /sonic-boom@3.4.0:
-    resolution: {integrity: sha512-zSe9QQW30nPzjkSJ0glFQO5T9lHsk39tz+2bAAwCj8CNgEG8ItZiX7Wb2ZgA8I04dwRGCcf1m3ABJa8AYm12Fw==}
+  /sonic-boom@3.5.0:
+    resolution: {integrity: sha512-02A0wEmj4d3aEIW/Sp6LMP1dNcG5cYmQPjhgtytIXa9tNmFZx3ragUPFmyBdgdM0yJJVSWwlLLEVHgrYfA0wtQ==}
     dependencies:
       atomic-sleep: 1.0.0
     dev: false
