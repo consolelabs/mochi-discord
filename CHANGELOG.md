@@ -1,4 +1,5 @@
 ## [6.35.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1-rc.1) (2023-10-03)
+## [6.35.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1) (2023-10-03)
 
 
 ### Bug Fixes
