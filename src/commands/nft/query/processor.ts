@@ -943,7 +943,3 @@ export async function queryNft(msg: Message, symbol: string, tokenId: string) {
   }
   await reply(msg, response)
 }
-
-async function test() {
-  throw "Custom error"
-}
