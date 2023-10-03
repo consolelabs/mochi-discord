@@ -1,3 +1,11 @@
+## [6.35.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.1...v6.35.2-rc.1) (2023-10-03)
+
+
+### Bug Fixes
+
+* **general:** schema update from backend ([fff5199](https://github.com/consolelabs/mochi-discord/commit/fff5199fbf82f1315b521b6dcf36b4ea9145c098))
+* replace is evm by chain type ([#1507](https://github.com/consolelabs/mochi-discord/issues/1507)) ([6ecd39a](https://github.com/consolelabs/mochi-discord/commit/6ecd39a992267606b4b69dd0303b3c57141e914e))
+
 ## [6.35.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1-rc.1) (2023-10-03)
 ## [6.35.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1) (2023-10-03)
 
