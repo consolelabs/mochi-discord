@@ -55,7 +55,7 @@ export async function handleBackToQuestList(i: ButtonInteraction) {
     msgOpts: { embeds },
   } = await run(i.user.id, msg)
 
-  i.editReply({
+  await i.editReply({
     embeds,
     ...getClaimButton(true, authorId),
   })
@@ -109,7 +109,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
     }
   })
 
-  i.editReply({
+  await i.editReply({
     embeds: [embed],
     components: [
       new MessageActionRow().addComponents(

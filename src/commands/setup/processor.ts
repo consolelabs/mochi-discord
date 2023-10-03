@@ -90,7 +90,7 @@ async function execute(i: ButtonInteraction, ctx: Context) {
     })
   }
 
-  i.editReply({
+  await i.editReply({
     content: [
       ...opts.map((opt) => {
         if (!ctx.currentOptions.includes(opt.value)) {

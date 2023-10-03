@@ -9,6 +9,7 @@ import {
 import { APIError, InternalError } from "errors"
 import qrcode from "qrcode"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
+import { isEvm } from "utils/chain"
 import {
   emojis,
   getAuthor,
@@ -69,7 +70,7 @@ export async function deposit(
     decimal: a.token.decimal,
     chainId: Number(a.token.chain_id ?? 1),
     tokenAddress: a.token.address,
-    isEVM: a.contract.chain.is_evm,
+    chainType: a.contract.chain.type,
     isNative: a.token.native,
     explorer: a.contract.chain.explorer,
   }))
@@ -102,7 +103,7 @@ export function renderListDepositAddress({
     }
 
   const dataRows = addresses.map((a) => {
-    const link = a.isEVM
+    const link = isEvm(a.chainType)
       ? toMetamaskDeeplink(
           a.address,
           amount,
@@ -201,7 +202,7 @@ export async function depositDetail(
 ) {
   let link
   // create QR code image
-  if (depositObj.isEVM) {
+  if (isEvm(depositObj.chainType)) {
     link = toMetamaskDeeplink(
       i.values.at(0) ?? "",
       amount,
@@ -225,7 +226,7 @@ export async function depositDetail(
         "ANIMATED_POINTING_RIGHT",
         true,
       )} Transactions take up to 5 minutes to process.`,
-      ...(depositObj.isEVM
+      ...(isEvm(depositObj.chainType)
         ? [`${getEmoji("METAMASK")} Scan QR to auto-fill in Metamask.`]
         : []),
       getEmoji("LINE").repeat(5),

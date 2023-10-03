@@ -1,16 +1,19 @@
-import { CommandInteraction, Message } from "discord.js"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
-import { composeEmbedMessage } from "ui/discord/embed"
-import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { SlashCommand } from "types/common"
-import { runGetVaultDetail } from "./processor"
 import config from "adapters/config"
-import { MachineConfig, route } from "utils/router"
 import {
-  renderListDepositAddress,
   depositDetail,
+  renderListDepositAddress,
 } from "commands/deposit/index/processor"
+import { CommandInteraction, Message } from "discord.js"
+import { SlashCommand } from "types/common"
+import { composeEmbedMessage } from "ui/discord/embed"
+import { chainTypes } from "utils/chain"
 import { equalIgnoreCase } from "utils/common"
+import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
+import { MachineConfig, route } from "utils/router"
+
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+
+import { runGetVaultDetail } from "./processor"
 
 const machineConfig: MachineConfig = {
   id: "vault-info",
@@ -89,7 +92,7 @@ const command: SlashCommand = {
               address: context.deposit.evm,
               decimal: 18,
               chainId: 1,
-              isEVM: true,
+              chainType: chainTypes.EVM,
               isNative: true,
             },
             {
@@ -97,7 +100,7 @@ const command: SlashCommand = {
               address: context.deposit.sol,
               decimal: 18,
               chainId: 1,
-              isEVM: false,
+              chainType: chainTypes.SOL,
               isNative: true,
               explorer: "https://solscan.io",
             },
