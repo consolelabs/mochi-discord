@@ -37,7 +37,7 @@ const run = async (interaction: CommandInteraction) => {
       })
     })
     .on("end", () => {
-      await interaction.editReply({ components: [] }).catch(() => null)
+      interaction.editReply({ components: [] }).catch(() => null)
     })
 
   return {}
