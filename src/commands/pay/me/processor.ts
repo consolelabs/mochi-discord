@@ -199,7 +199,7 @@ export async function run({
       })
     }
     if (!isDm) {
-      reply(msgOrInteraction, {
+      await reply(msgOrInteraction, {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {
@@ -292,7 +292,7 @@ export async function run({
         null,
         null,
       )
-      reply(msgOrInteraction, {
+      await reply(msgOrInteraction, {
         messageOptions: {
           embeds: [
             composeEmbedMessage(null, {

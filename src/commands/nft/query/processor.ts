@@ -941,5 +941,5 @@ export async function queryNft(msg: Message, symbol: string, tokenId: string) {
     }),
     buttonCollector: { handler: buttonHandler },
   }
-  reply(msg, response)
+  await reply(msg, response)
 }

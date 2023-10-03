@@ -418,7 +418,7 @@ export async function handleNftTicker(
       })),
       buttonCollector: { handler: buttonHandler },
     }
-    reply(msg, response)
+    await reply(msg, response)
     return
   }
 
@@ -442,7 +442,7 @@ export async function handleNftTicker(
       })),
       buttonCollector: { handler: buttonHandler },
     }
-    reply(msg, response)
+    await reply(msg, response)
     return
   }
 
@@ -517,7 +517,7 @@ export async function handleNftTicker(
       handler: buttonHandler,
     },
   }
-  reply(msg, response)
+  await reply(msg, response)
 }
 
 async function askToSetDefault(
