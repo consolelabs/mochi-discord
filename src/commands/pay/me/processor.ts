@@ -1,38 +1,39 @@
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
-import { utils } from "@consolelabs/mochi-ui"
 import { CommandInteraction } from "discord.js"
 import { APIError, InternalError, OriginalMessage } from "errors"
-import { composeEmbedMessage } from "ui/discord/embed"
 import { UnsupportedTokenError } from "errors/unsupported-token"
-import { isTokenSupported, parseMoniker } from "utils/tip-bot"
+import { parseUnits } from "ethers/lib/utils"
 import { embedsColors } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
-
+import { composeEmbedMessage } from "ui/discord/embed"
+import { isEvm } from "utils/chain"
 import {
-  TokenEmojiKey,
   emojis,
   equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
+  TokenEmojiKey,
 } from "utils/common"
 import {
   MOCHI_ACTION_PAY_ME,
   MOCHI_PLATFORM_DISCORD,
-  PREFIX_EMAIL_HANDLER,
   PREFIX_DISCORD_HANDLER,
+  PREFIX_EMAIL_HANDLER,
   PREFIX_TELEGRAM_HANDLER,
   SPACES_REGEX,
 } from "utils/constants"
 import { reply } from "utils/discord"
 import { sendNotificationMsg } from "utils/kafka"
-import { dmUser } from "../../../utils/dm"
-import { parseUnits } from "ethers/lib/utils"
-import { getToken } from "../../../utils/tip-bot"
+import { isTokenSupported, parseMoniker } from "utils/tip-bot"
+
+import { utils } from "@consolelabs/mochi-ui"
+
 import { parseDiscordToken } from "../../../utils/commands"
-import { Message } from "@solana/web3.js"
+import { dmUser } from "../../../utils/dm"
+import { getToken } from "../../../utils/tip-bot"
 
 const typePayRequest = 16
 export async function run({
@@ -70,7 +71,7 @@ export async function run({
   if (!mochiWalletResOk) throw new Error()
   inAppWallets ||= []
   inAppWallets = inAppWallets.filter((w: any) => {
-    if (t?.chain?.is_evm) {
+    if (t?.chain?.type && isEvm(t?.chain?.type)) {
       return equalIgnoreCase(w.chain.symbol, "evm")
     }
     return equalIgnoreCase(w.chain.symbol, t?.chain?.symbol ?? "")
@@ -96,7 +97,7 @@ export async function run({
         }
       })
       .filter((w: any) => {
-        if (t?.chain?.is_evm) {
+        if (t?.chain?.type && isEvm(t?.chain?.type)) {
           return equalIgnoreCase(w.chain.symbol, "evm")
         }
         return equalIgnoreCase(w.chain.symbol, t?.chain?.symbol ?? "")

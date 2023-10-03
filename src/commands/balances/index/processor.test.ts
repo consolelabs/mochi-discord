@@ -1,8 +1,10 @@
 import profile from "adapters/profile"
 import { CommandInteraction } from "discord.js"
 import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
+import { chainTypes } from "utils/chain"
 import { getSlashCommand } from "utils/commands"
 import { emojis, getEmoji, getEmojiURL } from "utils/common"
+
 import mockdc from "../../../../tests/mocks/discord"
 import mochiPay from "../../../adapters/mochi-pay"
 import { BalanceType, renderBalances } from "./processor"
@@ -40,7 +42,7 @@ describe("balances", () => {
         rpc: "https://polygon.llamarpc.com",
         explorer: "https://polygonscan.com",
         icon: "https://cdn.discordapp.com/emojis/928216430535671818.png?size=240&quality=lossless",
-        is_evm: true,
+        type: chainTypes.EVM,
       },
     },
     other_profile: null,
