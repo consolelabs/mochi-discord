@@ -7,6 +7,7 @@ import ChannelLogger from "../logger/channel"
 import { getCommandMetadata } from "./commands"
 import { kafkaQueue } from "queue/kafka/queue"
 import { Sentry } from "sentry"
+import { version } from "../../package.json"
 
 function catchAll(e: any) {
   logger.error(e)
@@ -72,6 +73,9 @@ export async function wrapError(
                 raw: commandStr,
                 args,
               },
+              app: {
+                app_version: `v${version}`,
+              },
             },
           })
         }
@@ -104,6 +108,9 @@ export async function wrapError(
                   .map((option) => option.value)
                   .join(" "),
               },
+              app: {
+                app_version: `v${version}`,
+              },
             },
           })
         }
@@ -121,6 +128,9 @@ export async function wrapError(
               command: {
                 raw: commandStr,
                 args,
+              },
+              app: {
+                app_version: `v${version}`,
               },
             },
           })
