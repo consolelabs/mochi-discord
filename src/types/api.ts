@@ -765,6 +765,7 @@ export interface RequestOffchainTransferRequest {
   platform?: string
   recipients?: string[]
   sender?: string
+
   /** AmountString string   `json:"amount_string"` */
   token?: string
   transfer_type?: string
@@ -1062,9 +1063,7 @@ export interface ResponseCoinMarketItemData {
   price_change_percentage_24h?: number
   price_change_percentage_24h_in_currency?: number
   price_change_percentage_7d_in_currency?: number
-  sparkline_in_7d?: {
-    price?: number[]
-  }
+  sparkline_in_7d?: { price?: number[] }
   symbol?: string
 }
 
@@ -1148,8 +1147,10 @@ export interface ResponseCreateUserTokenSupportRequest {
 
 export interface ResponseDataFilterConfigByReaction {
   data?: ResponseRoleReactionResponse
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1157,8 +1158,10 @@ export interface ResponseDataFilterConfigByReaction {
 
 export interface ResponseDataListRoleReactionResponse {
   data?: ResponseListRoleReactionResponse
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1217,6 +1220,7 @@ export interface ResponseDiscordGuildResponse {
   id?: string
   name?: string
   owner?: boolean
+
   /** @example 0 */
   permissions?: string
 }
@@ -1437,8 +1441,10 @@ export interface ResponseGetInvestListResponse {
 
 export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[]
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1556,6 +1562,7 @@ export interface ResponseGetTrackingWalletsResponse {
 
 export interface ResponseGetTrendingSearch {
   coins?: ResponseGetTrendingSearchCoin[]
+
   /** this field coingecko return empty */
   exchanges?: any
 }
@@ -2074,6 +2081,7 @@ export interface ResponseOnchainInvestDataResponse {
 export interface ResponsePaginationResponse {
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -2321,6 +2329,7 @@ export interface UtilPagination {
 
 export interface UuidNullUUID {
   uuid?: string
+
   /** Valid is true if UUID is not NULL */
   valid?: boolean
 }
