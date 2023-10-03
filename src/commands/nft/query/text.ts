@@ -2,6 +2,7 @@ import { Command } from "types/common"
 import { getCommandArguments } from "utils/commands"
 import { SPACE } from "utils/constants"
 import { queryNft } from "./processor"
+import { logger } from "logger"
 
 const command: Command = {
   id: "nft_query",

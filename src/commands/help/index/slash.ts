@@ -28,7 +28,7 @@ const run = async (interaction: CommandInteraction) => {
         const embed = getHelpEmbed(interaction.user)
         await buildHelpInterface(embed, pageType)
 
-        interaction
+        await interaction
           .editReply({
             embeds: [embed],
             components: pagination(pageType),
@@ -37,7 +37,7 @@ const run = async (interaction: CommandInteraction) => {
       })
     })
     .on("end", () => {
-      interaction.editReply({ components: [] }).catch(() => null)
+      await interaction.editReply({ components: [] }).catch(() => null)
     })
 
   return {}
