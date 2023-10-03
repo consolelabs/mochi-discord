@@ -1,3 +1,10 @@
+## [6.35.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1-rc.1) (2023-10-03)
+
+
+### Bug Fixes
+
+* **gm:** brings gm back ([#1508](https://github.com/consolelabs/mochi-discord/issues/1508)) ([a871d25](https://github.com/consolelabs/mochi-discord/commit/a871d25c56270cb6ae5cf5b571c4374e3a249242))
+
 # [6.35.0](https://github.com/consolelabs/mochi-discord/compare/v6.34.2...v6.35.0) (2023-09-29)
 
 
