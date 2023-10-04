@@ -74,7 +74,7 @@ if (!TEST) {
 
   api.init().then(() => {
     UI.api = api
-    // UI.redis = redis
+    UI.redis = redis
   })
 }
 
