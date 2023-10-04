@@ -57,9 +57,13 @@ let cache = {
 if (!TEST) {
   logger.info("Connecting to Redis...")
 
-  const redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`, {
-    name: `${REDIS_MASTER_NAME}`,
-  })
+  let redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
+  // add redis sentinel support
+  if (REDIS_MASTER_NAME != "") {
+    redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`, {
+      name: REDIS_MASTER_NAME,
+    })
+  }
 
   redis
     .on("ready", () => {

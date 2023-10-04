@@ -92,7 +92,7 @@ export const FETCH_TIMEOUT_SECONDS = process.env.FETCH_TIMEOUT_SECONDS || 5
 export const CACHE_TTL_SECONDS = process.env.CACHE_TTL_SECONDS || 1800
 export const REDIS_HOST = process.env.REDIS_HOST || "localhost:6379"
 export const REDIS_DB = process.env.REDIS_DB || "0"
-export const REDIS_MASTER_NAME = process.env.REDIS_MASTER_NAME || "mymaster"
+export const REDIS_MASTER_NAME = process.env.REDIS_MASTER_NAME || ""
 
 export const MOCHI_GUESS_API_KEY = process.env.MOCHI_GUESS_API_KEY || ""
 export const MOCHI_GUESS_API_HOST = process.env.MOCHI_GUESS_API_HOST || ""
