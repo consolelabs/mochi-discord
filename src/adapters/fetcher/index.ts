@@ -54,7 +54,13 @@ let cache = {
 
 if (!TEST) {
   logger.info("Connecting to Redis...")
-  const redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
+  // ;`redis://${REDIS_HOST}/${REDIS_DB}`
+  const redis = new Redis.Cluster([
+    {
+      port: 6379,
+      host: "127.0.0.1",
+    },
+  ])
 
   redis
     .on("ready", () => {
@@ -69,7 +75,7 @@ if (!TEST) {
 
   api.init().then(() => {
     UI.api = api
-    UI.redis = redis
+    // UI.redis = redis
   })
 }
 
