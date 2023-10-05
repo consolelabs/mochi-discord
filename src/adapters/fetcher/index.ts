@@ -7,11 +7,13 @@ import { attachAuthorization, convertToSnakeCase, makeLog } from "./utils"
 import toCurl from "fetch-to-curl"
 import { kafkaQueue } from "queue/kafka/queue"
 import { stack } from "utils/stack-trace"
+
 import {
   CACHE_TTL_SECONDS,
   FETCH_TIMEOUT_SECONDS,
   REDIS_HOST,
   REDIS_DB,
+  REDIS_MASTER_NAME,
   TEST,
 } from "env"
 import {
@@ -54,7 +56,14 @@ let cache = {
 
 if (!TEST) {
   logger.info("Connecting to Redis...")
-  const redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
+
+  let redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
+  // add redis sentinel support
+  if (REDIS_MASTER_NAME != "") {
+    redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`, {
+      name: REDIS_MASTER_NAME,
+    })
+  }
 
   redis
     .on("ready", () => {
