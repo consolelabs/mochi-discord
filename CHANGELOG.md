@@ -1,3 +1,11 @@
+## [6.35.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.1...v6.35.2-rc.2) (2023-10-05)
+
+
+### Bug Fixes
+
+* cannot connect redis sentinel ([#1511](https://github.com/consolelabs/mochi-discord/issues/1511)) ([06a3e2d](https://github.com/consolelabs/mochi-discord/commit/06a3e2d57a23f4ac1d896b348eb3760ccbf6ce42))
+* **general:** use new version of UI ([f6d660e](https://github.com/consolelabs/mochi-discord/commit/f6d660e44461f568cb0792d254c6b4f82f542980))
+
 ## [6.35.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.1...v6.35.2-rc.1) (2023-10-03)
 
 
