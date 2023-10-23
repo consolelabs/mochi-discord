@@ -62,10 +62,12 @@ async function undo(i: ButtonInteraction) {
       options,
       i.channelId,
     )
-    i.editReply({
-      embeds: [embed],
-      ...(state === "queued-detail" ? { components: [] } : { components }),
-    }).catch(() => null)
+    await i
+      .editReply({
+        embeds: [embed],
+        ...(state === "queued-detail" ? { components: [] } : { components }),
+      })
+      .catch(() => null)
     buttonCollector?.stop()
     buttonCollector = null
   }

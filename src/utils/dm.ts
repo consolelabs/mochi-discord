@@ -21,14 +21,14 @@ export async function dmUser(
     return await author.send(options)
   } catch (e) {
     if (msgOrInteraction) {
-      reply(msgOrInteraction, {
+      await reply(msgOrInteraction, {
         messageOptions: {
           embeds: [enableDMMessage(prefixDesc, suffixDesc)],
           components: [],
         },
       })
     } else {
-      button?.editReply({
+      await button?.editReply({
         embeds: [enableDMMessage(prefixDesc, suffixDesc)],
         components: [],
       })

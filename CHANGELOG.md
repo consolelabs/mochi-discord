@@ -1,3 +1,27 @@
+## [6.35.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.2...v6.35.2-rc.3) (2023-10-23)
+
+
+### Bug Fixes
+
+* redis connection ([#1512](https://github.com/consolelabs/mochi-discord/issues/1512)) ([7013970](https://github.com/consolelabs/mochi-discord/commit/70139709a284f56388c22d73399746ac9e158272))
+
+## [6.35.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.1...v6.35.2-rc.2) (2023-10-05)
+
+
+### Bug Fixes
+
+* cannot connect redis sentinel ([#1511](https://github.com/consolelabs/mochi-discord/issues/1511)) ([06a3e2d](https://github.com/consolelabs/mochi-discord/commit/06a3e2d57a23f4ac1d896b348eb3760ccbf6ce42))
+* **general:** use new version of UI ([f6d660e](https://github.com/consolelabs/mochi-discord/commit/f6d660e44461f568cb0792d254c6b4f82f542980))
+
+## [6.35.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.1...v6.35.2-rc.1) (2023-10-03)
+
+
+### Bug Fixes
+
+* **general:** schema update from backend ([fff5199](https://github.com/consolelabs/mochi-discord/commit/fff5199fbf82f1315b521b6dcf36b4ea9145c098))
+* replace is evm by chain type ([#1507](https://github.com/consolelabs/mochi-discord/issues/1507)) ([6ecd39a](https://github.com/consolelabs/mochi-discord/commit/6ecd39a992267606b4b69dd0303b3c57141e914e))
+
+## [6.35.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1-rc.1) (2023-10-03)
 ## [6.35.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1) (2023-10-03)
 
 

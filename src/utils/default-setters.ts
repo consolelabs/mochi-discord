@@ -25,9 +25,11 @@ export function getDefaultSetter({
       title: "Default ENABLED",
       description,
     })
-    i.editReply({
-      embeds: [embed],
-      components: [],
-    }).catch(() => null)
+    await i
+      .editReply({
+        embeds: [embed],
+        components: [],
+      })
+      .catch(() => null)
   }
 }

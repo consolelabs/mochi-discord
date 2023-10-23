@@ -83,7 +83,7 @@ class Tagme {
 
     const gotoMessageBtn = i.message.components?.[0].components[0]
 
-    i.editReply({
+    await i.editReply({
       components: [
         new MessageActionRow().addComponents(
           ...(gotoMessageBtn ? [gotoMessageBtn] : []),
