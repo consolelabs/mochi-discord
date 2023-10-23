@@ -1,3 +1,10 @@
+## [6.35.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.2...v6.35.2-rc.3) (2023-10-23)
+
+
+### Bug Fixes
+
+* redis connection ([#1512](https://github.com/consolelabs/mochi-discord/issues/1512)) ([7013970](https://github.com/consolelabs/mochi-discord/commit/70139709a284f56388c22d73399746ac9e158272))
+
 ## [6.35.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.1...v6.35.2-rc.2) (2023-10-05)
 
 
