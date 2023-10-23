@@ -60,7 +60,10 @@ if (!TEST) {
   let redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
   // add redis sentinel support
   if (REDIS_MASTER_NAME != "") {
+    const [rHost, rPort] = REDIS_HOST.split(":")
     redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`, {
+      sentinels: [{ host: rHost, port: +rPort }],
+      retryStrategy: () => null,
       name: REDIS_MASTER_NAME,
     })
   }

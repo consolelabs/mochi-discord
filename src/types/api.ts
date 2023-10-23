@@ -443,6 +443,16 @@ export interface ModelToken {
   symbol?: string
 }
 
+export interface ModelTonoCommandPermission {
+  code?: string
+  created_at?: string
+  description?: string
+  discord_permission_flag?: string
+  id?: number
+  need_dm?: boolean
+  updated_at?: string
+}
+
 export interface ModelUser {
   discriminator?: string
   guild_users?: ModelGuildUser[]
@@ -828,6 +838,7 @@ export interface RequestTransferV2Request {
   chain_id?: string
   channel_id?: string
   channel_name?: string
+  channel_url?: string
   each?: boolean
   guild_id?: string
   message?: string
@@ -1244,16 +1255,16 @@ export interface ResponseFindTokenByContractAddressResponse {
 
 export interface ResponseFriendTechKey {
   address?: string
-  created_at?: string
+  createdAt?: string
   holders?: number
   id?: number
   price?: number
-  price_change_percentage?: number
-  profile_checked?: boolean
+  priceChangePercentage?: number
+  profileChecked?: boolean
   supply?: number
-  twitter_pfp_url?: string
-  twitter_username?: string
-  updated_at?: string
+  twitterPfpUrl?: string
+  twitterUsername?: string
+  updatedAt?: string
 }
 
 export interface ResponseFriendTechKeyWatchlistItemResponse {
@@ -1262,7 +1273,7 @@ export interface ResponseFriendTechKeyWatchlistItemResponse {
   id?: number
   increase_alert_at?: number
   key_address?: string
-  metadata?: ResponseFriendTechKey
+  metadata?: ResponseTrackedFriendTechKey
   profile_id?: string
   updated_at?: string
 }
@@ -2262,6 +2273,10 @@ export interface ResponseTokenPriceAlertResponseData {
   value?: number
 }
 
+export interface ResponseTonoCommandPermissions {
+  data?: ModelTonoCommandPermission[]
+}
+
 export interface ResponseTopUser {
   author?: ModelGuildUserXP
   leaderboard?: ModelGuildUserXP[]
@@ -2270,6 +2285,20 @@ export interface ResponseTopUser {
 
 export interface ResponseTrackFriendTechKeyResponse {
   data?: ResponseFriendTechKeyWatchlistItemResponse
+}
+
+export interface ResponseTrackedFriendTechKey {
+  address?: string
+  created_at?: string
+  holders?: number
+  id?: number
+  price?: number
+  price_change_percentage?: number
+  profile_checked?: boolean
+  supply?: number
+  twitter_pfp_url?: string
+  twitter_username?: string
+  updated_at?: string
 }
 
 export interface ResponseTransferTokenV2Data {
