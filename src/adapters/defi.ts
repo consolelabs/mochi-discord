@@ -1,4 +1,4 @@
-import { FTMSCAN_API_KEY } from "env"
+import { FTMSCAN_API_KEY, MOCHI_BOT_SECRET } from "env"
 import fetch from "node-fetch"
 import {
   RequestCreateTipConfigNotify,
@@ -508,6 +508,9 @@ class Defi extends Fetcher {
     return await this.jsonFetch(`${API_BASE_URL}/tip/transfer-v2`, {
       method: "POST",
       body: req,
+      headers: {
+        Authorization: `Bearer ${MOCHI_BOT_SECRET}`,
+      },
     })
   }
 }

@@ -96,3 +96,5 @@ export const REDIS_MASTER_NAME = process.env.REDIS_MASTER_NAME || ""
 
 export const MOCHI_GUESS_API_KEY = process.env.MOCHI_GUESS_API_KEY || ""
 export const MOCHI_GUESS_API_HOST = process.env.MOCHI_GUESS_API_HOST || ""
+
+export const MOCHI_BOT_SECRET = process.env.MOCHI_BOT_SECRET || ""
