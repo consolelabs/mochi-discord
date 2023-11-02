@@ -1,4 +1,4 @@
-# [6.36.0](https://github.com/consolelabs/mochi-discord/compare/v6.35.2...v6.36.0) (2023-11-02)
+# [6.36.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.3...v6.36.0-rc.1) (2023-11-02)
 
 
 ### Features
