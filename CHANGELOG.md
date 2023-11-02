@@ -1,3 +1,10 @@
+# [6.36.0](https://github.com/consolelabs/mochi-discord/compare/v6.35.2...v6.36.0) (2023-11-02)
+
+
+### Features
+
+* upgrade mochi packages ([#1513](https://github.com/consolelabs/mochi-discord/issues/1513)) ([542f8f7](https://github.com/consolelabs/mochi-discord/commit/542f8f7b7c103d3178aa3aced1d17769f7572ea6))
+
 ## [6.35.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.1...v6.35.2) (2023-10-23)
 
 
