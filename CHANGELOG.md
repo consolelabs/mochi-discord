@@ -1,486 +1,429 @@
-# [6.36.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.3...v6.36.0-rc.1) (2023-11-02)
-
+# [6.36.0](https://github.com/consolelabs/mochi-discord/compare/v6.35.2...v6.36.0) (2023-11-02)
 
 ### Features
 
-* upgrade mochi packages ([#1513](https://github.com/consolelabs/mochi-discord/issues/1513)) ([542f8f7](https://github.com/consolelabs/mochi-discord/commit/542f8f7b7c103d3178aa3aced1d17769f7572ea6))
+- upgrade mochi packages ([#1513](https://github.com/consolelabs/mochi-discord/issues/1513)) ([542f8f7](https://github.com/consolelabs/mochi-discord/commit/542f8f7b7c103d3178aa3aced1d17769f7572ea6))
+
+# [6.36.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.3...v6.36.0-rc.1) (2023-11-02)
+
+### Features
+
+- upgrade mochi packages ([#1513](https://github.com/consolelabs/mochi-discord/issues/1513)) ([542f8f7](https://github.com/consolelabs/mochi-discord/commit/542f8f7b7c103d3178aa3aced1d17769f7572ea6))
 
 ## [6.35.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.1...v6.35.2) (2023-10-23)
 
-
 ### Bug Fixes
 
-* cannot connect redis sentinel ([#1511](https://github.com/consolelabs/mochi-discord/issues/1511)) ([06a3e2d](https://github.com/consolelabs/mochi-discord/commit/06a3e2d57a23f4ac1d896b348eb3760ccbf6ce42))
-* **general:** schema update from backend ([fff5199](https://github.com/consolelabs/mochi-discord/commit/fff5199fbf82f1315b521b6dcf36b4ea9145c098))
-* **general:** use new version of UI ([f6d660e](https://github.com/consolelabs/mochi-discord/commit/f6d660e44461f568cb0792d254c6b4f82f542980))
-* redis connection ([#1512](https://github.com/consolelabs/mochi-discord/issues/1512)) ([7013970](https://github.com/consolelabs/mochi-discord/commit/70139709a284f56388c22d73399746ac9e158272))
-* replace is evm by chain type ([#1507](https://github.com/consolelabs/mochi-discord/issues/1507)) ([6ecd39a](https://github.com/consolelabs/mochi-discord/commit/6ecd39a992267606b4b69dd0303b3c57141e914e))
+- cannot connect redis sentinel ([#1511](https://github.com/consolelabs/mochi-discord/issues/1511)) ([06a3e2d](https://github.com/consolelabs/mochi-discord/commit/06a3e2d57a23f4ac1d896b348eb3760ccbf6ce42))
+- **general:** schema update from backend ([fff5199](https://github.com/consolelabs/mochi-discord/commit/fff5199fbf82f1315b521b6dcf36b4ea9145c098))
+- **general:** use new version of UI ([f6d660e](https://github.com/consolelabs/mochi-discord/commit/f6d660e44461f568cb0792d254c6b4f82f542980))
+- redis connection ([#1512](https://github.com/consolelabs/mochi-discord/issues/1512)) ([7013970](https://github.com/consolelabs/mochi-discord/commit/70139709a284f56388c22d73399746ac9e158272))
+- replace is evm by chain type ([#1507](https://github.com/consolelabs/mochi-discord/issues/1507)) ([6ecd39a](https://github.com/consolelabs/mochi-discord/commit/6ecd39a992267606b4b69dd0303b3c57141e914e))
 
 ## [6.35.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.2...v6.35.2-rc.3) (2023-10-23)
 
-
 ### Bug Fixes
 
-* redis connection ([#1512](https://github.com/consolelabs/mochi-discord/issues/1512)) ([7013970](https://github.com/consolelabs/mochi-discord/commit/70139709a284f56388c22d73399746ac9e158272))
+- redis connection ([#1512](https://github.com/consolelabs/mochi-discord/issues/1512)) ([7013970](https://github.com/consolelabs/mochi-discord/commit/70139709a284f56388c22d73399746ac9e158272))
 
 ## [6.35.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.2-rc.1...v6.35.2-rc.2) (2023-10-05)
 
-
 ### Bug Fixes
 
-* cannot connect redis sentinel ([#1511](https://github.com/consolelabs/mochi-discord/issues/1511)) ([06a3e2d](https://github.com/consolelabs/mochi-discord/commit/06a3e2d57a23f4ac1d896b348eb3760ccbf6ce42))
-* **general:** use new version of UI ([f6d660e](https://github.com/consolelabs/mochi-discord/commit/f6d660e44461f568cb0792d254c6b4f82f542980))
+- cannot connect redis sentinel ([#1511](https://github.com/consolelabs/mochi-discord/issues/1511)) ([06a3e2d](https://github.com/consolelabs/mochi-discord/commit/06a3e2d57a23f4ac1d896b348eb3760ccbf6ce42))
+- **general:** use new version of UI ([f6d660e](https://github.com/consolelabs/mochi-discord/commit/f6d660e44461f568cb0792d254c6b4f82f542980))
 
 ## [6.35.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.1...v6.35.2-rc.1) (2023-10-03)
 
-
 ### Bug Fixes
 
-* **general:** schema update from backend ([fff5199](https://github.com/consolelabs/mochi-discord/commit/fff5199fbf82f1315b521b6dcf36b4ea9145c098))
-* replace is evm by chain type ([#1507](https://github.com/consolelabs/mochi-discord/issues/1507)) ([6ecd39a](https://github.com/consolelabs/mochi-discord/commit/6ecd39a992267606b4b69dd0303b3c57141e914e))
+- **general:** schema update from backend ([fff5199](https://github.com/consolelabs/mochi-discord/commit/fff5199fbf82f1315b521b6dcf36b4ea9145c098))
+- replace is evm by chain type ([#1507](https://github.com/consolelabs/mochi-discord/issues/1507)) ([6ecd39a](https://github.com/consolelabs/mochi-discord/commit/6ecd39a992267606b4b69dd0303b3c57141e914e))
 
 ## [6.35.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1-rc.1) (2023-10-03)
-## [6.35.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1) (2023-10-03)
 
+## [6.35.1](https://github.com/consolelabs/mochi-discord/compare/v6.35.0...v6.35.1) (2023-10-03)
 
 ### Bug Fixes
 
-* **gm:** brings gm back ([#1508](https://github.com/consolelabs/mochi-discord/issues/1508)) ([a871d25](https://github.com/consolelabs/mochi-discord/commit/a871d25c56270cb6ae5cf5b571c4374e3a249242))
+- **gm:** brings gm back ([#1508](https://github.com/consolelabs/mochi-discord/issues/1508)) ([a871d25](https://github.com/consolelabs/mochi-discord/commit/a871d25c56270cb6ae5cf5b571c4374e3a249242))
 
 # [6.35.0](https://github.com/consolelabs/mochi-discord/compare/v6.34.2...v6.35.0) (2023-09-29)
 
-
 ### Bug Fixes
 
-* **general:** use new version of UI library ([676a339](https://github.com/consolelabs/mochi-discord/commit/676a339aa6cc267b0193c22096c1080815d2e1d2))
-* **notification:** update notification channel format to be more readable ([#1500](https://github.com/consolelabs/mochi-discord/issues/1500)) ([0a2f2eb](https://github.com/consolelabs/mochi-discord/commit/0a2f2eb6fe34bc224386ef81b17d667c8058f8b8))
-* **pay:** fix render ui cmd payme paylink status ([#1505](https://github.com/consolelabs/mochi-discord/issues/1505)) ([1fb1328](https://github.com/consolelabs/mochi-discord/commit/1fb13284b674dfdb97664757c1a4e0be2c8809fd))
-* **paylink:** fix paylink cmd allow create paylink request in discord platform ([#1499](https://github.com/consolelabs/mochi-discord/issues/1499)) ([7edafa3](https://github.com/consolelabs/mochi-discord/commit/7edafa35089e5651e58215e5e4f50cddadce0ef9))
-
+- **general:** use new version of UI library ([676a339](https://github.com/consolelabs/mochi-discord/commit/676a339aa6cc267b0193c22096c1080815d2e1d2))
+- **notification:** update notification channel format to be more readable ([#1500](https://github.com/consolelabs/mochi-discord/issues/1500)) ([0a2f2eb](https://github.com/consolelabs/mochi-discord/commit/0a2f2eb6fe34bc224386ef81b17d667c8058f8b8))
+- **pay:** fix render ui cmd payme paylink status ([#1505](https://github.com/consolelabs/mochi-discord/issues/1505)) ([1fb1328](https://github.com/consolelabs/mochi-discord/commit/1fb13284b674dfdb97664757c1a4e0be2c8809fd))
+- **paylink:** fix paylink cmd allow create paylink request in discord platform ([#1499](https://github.com/consolelabs/mochi-discord/issues/1499)) ([7edafa3](https://github.com/consolelabs/mochi-discord/commit/7edafa35089e5651e58215e5e4f50cddadce0ef9))
 
 ### Features
 
-* **pay:** add payme and paylink status list cmd ([#1503](https://github.com/consolelabs/mochi-discord/issues/1503)) ([5a8fe83](https://github.com/consolelabs/mochi-discord/commit/5a8fe83123631c4c54e922fab352f2a9b7ecbf87))
+- **pay:** add payme and paylink status list cmd ([#1503](https://github.com/consolelabs/mochi-discord/issues/1503)) ([5a8fe83](https://github.com/consolelabs/mochi-discord/commit/5a8fe83123631c4c54e922fab352f2a9b7ecbf87))
 
 # [6.35.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.35.0-rc.1...v6.35.0-rc.2) (2023-09-29)
 
-
 ### Bug Fixes
 
-* **pay:** fix render ui cmd payme paylink status ([#1505](https://github.com/consolelabs/mochi-discord/issues/1505)) ([1fb1328](https://github.com/consolelabs/mochi-discord/commit/1fb13284b674dfdb97664757c1a4e0be2c8809fd))
+- **pay:** fix render ui cmd payme paylink status ([#1505](https://github.com/consolelabs/mochi-discord/issues/1505)) ([1fb1328](https://github.com/consolelabs/mochi-discord/commit/1fb13284b674dfdb97664757c1a4e0be2c8809fd))
 
 # [6.35.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.2...v6.35.0-rc.1) (2023-09-29)
 
-
 ### Bug Fixes
 
-* **paylink:** fix paylink cmd allow create paylink request in discord platform ([#1499](https://github.com/consolelabs/mochi-discord/issues/1499)) ([7edafa3](https://github.com/consolelabs/mochi-discord/commit/7edafa35089e5651e58215e5e4f50cddadce0ef9))
-
+- **paylink:** fix paylink cmd allow create paylink request in discord platform ([#1499](https://github.com/consolelabs/mochi-discord/issues/1499)) ([7edafa3](https://github.com/consolelabs/mochi-discord/commit/7edafa35089e5651e58215e5e4f50cddadce0ef9))
 
 ### Features
 
-* **pay:** add payme and paylink status list cmd ([#1503](https://github.com/consolelabs/mochi-discord/issues/1503)) ([5a8fe83](https://github.com/consolelabs/mochi-discord/commit/5a8fe83123631c4c54e922fab352f2a9b7ecbf87))
+- **pay:** add payme and paylink status list cmd ([#1503](https://github.com/consolelabs/mochi-discord/issues/1503)) ([5a8fe83](https://github.com/consolelabs/mochi-discord/commit/5a8fe83123631c4c54e922fab352f2a9b7ecbf87))
 
 ## [6.34.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.3-rc.1...v6.34.3-rc.2) (2023-09-27)
 
-
 ### Bug Fixes
 
-* **general:** use new version of UI library ([676a339](https://github.com/consolelabs/mochi-discord/commit/676a339aa6cc267b0193c22096c1080815d2e1d2))
+- **general:** use new version of UI library ([676a339](https://github.com/consolelabs/mochi-discord/commit/676a339aa6cc267b0193c22096c1080815d2e1d2))
 
 ## [6.34.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.2...v6.34.3-rc.1) (2023-09-26)
 
-
 ### Bug Fixes
 
-* **notification:** update notification channel format to be more readable ([#1500](https://github.com/consolelabs/mochi-discord/issues/1500)) ([0a2f2eb](https://github.com/consolelabs/mochi-discord/commit/0a2f2eb6fe34bc224386ef81b17d667c8058f8b8))
+- **notification:** update notification channel format to be more readable ([#1500](https://github.com/consolelabs/mochi-discord/issues/1500)) ([0a2f2eb](https://github.com/consolelabs/mochi-discord/commit/0a2f2eb6fe34bc224386ef81b17d667c8058f8b8))
 
 ## [6.34.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1...v6.34.2) (2023-09-26)
 
-
 ### Bug Fixes
 
-* **general:** command freeze when ran ([2b92276](https://github.com/consolelabs/mochi-discord/commit/2b92276b350827f31a27ea0f7e1e46bd27cd1788))
-* **general:** use new version of UI library ([27d6563](https://github.com/consolelabs/mochi-discord/commit/27d65632729392eaf0fce85ecc93da60e7d4dede))
-* **general:** use new version of UI library ([b742b2f](https://github.com/consolelabs/mochi-discord/commit/b742b2f0567420d359e6c627416a30a8d4981345))
-* **general:** use new version of UI library ([215e7b0](https://github.com/consolelabs/mochi-discord/commit/215e7b0e2e91dc71983c9755ff96f0cd0349a160))
-* **general:** use new version of UI library ([b59010f](https://github.com/consolelabs/mochi-discord/commit/b59010f0de0048a2b37f4ae9a9065fd3bcd25265))
-* **payme:** fix payme cmd allow send payme request in discord platform ([#1497](https://github.com/consolelabs/mochi-discord/issues/1497)) ([175d233](https://github.com/consolelabs/mochi-discord/commit/175d233c804989471f8c84d29dafb4c19a18774b))
-* **recap, top:** use component from UI library ([c009c0e](https://github.com/consolelabs/mochi-discord/commit/c009c0e5c0123f0fd12179455ae7915d9f87c920))
-* **tip:** remove message title emoji ([eeaaeae](https://github.com/consolelabs/mochi-discord/commit/eeaaeaeddf282dee7f43700a21c8556033deabe5))
-* **tip:** use new rendering rule for small number ([2ddf0ee](https://github.com/consolelabs/mochi-discord/commit/2ddf0ee41fcd29db18fbaeb852649ccd4424b8bd))
+- **general:** command freeze when ran ([2b92276](https://github.com/consolelabs/mochi-discord/commit/2b92276b350827f31a27ea0f7e1e46bd27cd1788))
+- **general:** use new version of UI library ([27d6563](https://github.com/consolelabs/mochi-discord/commit/27d65632729392eaf0fce85ecc93da60e7d4dede))
+- **general:** use new version of UI library ([b742b2f](https://github.com/consolelabs/mochi-discord/commit/b742b2f0567420d359e6c627416a30a8d4981345))
+- **general:** use new version of UI library ([215e7b0](https://github.com/consolelabs/mochi-discord/commit/215e7b0e2e91dc71983c9755ff96f0cd0349a160))
+- **general:** use new version of UI library ([b59010f](https://github.com/consolelabs/mochi-discord/commit/b59010f0de0048a2b37f4ae9a9065fd3bcd25265))
+- **payme:** fix payme cmd allow send payme request in discord platform ([#1497](https://github.com/consolelabs/mochi-discord/issues/1497)) ([175d233](https://github.com/consolelabs/mochi-discord/commit/175d233c804989471f8c84d29dafb4c19a18774b))
+- **recap, top:** use component from UI library ([c009c0e](https://github.com/consolelabs/mochi-discord/commit/c009c0e5c0123f0fd12179455ae7915d9f87c920))
+- **tip:** remove message title emoji ([eeaaeae](https://github.com/consolelabs/mochi-discord/commit/eeaaeaeddf282dee7f43700a21c8556033deabe5))
+- **tip:** use new rendering rule for small number ([2ddf0ee](https://github.com/consolelabs/mochi-discord/commit/2ddf0ee41fcd29db18fbaeb852649ccd4424b8bd))
 
 ## [6.34.2-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.8...v6.34.2-rc.9) (2023-09-26)
 
-
 ### Bug Fixes
 
-* **tip:** remove message title emoji ([eeaaeae](https://github.com/consolelabs/mochi-discord/commit/eeaaeaeddf282dee7f43700a21c8556033deabe5))
+- **tip:** remove message title emoji ([eeaaeae](https://github.com/consolelabs/mochi-discord/commit/eeaaeaeddf282dee7f43700a21c8556033deabe5))
 
 ## [6.34.2-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.7...v6.34.2-rc.8) (2023-09-26)
 
-
 ### Bug Fixes
 
-* **tip:** use new rendering rule for small number ([2ddf0ee](https://github.com/consolelabs/mochi-discord/commit/2ddf0ee41fcd29db18fbaeb852649ccd4424b8bd))
+- **tip:** use new rendering rule for small number ([2ddf0ee](https://github.com/consolelabs/mochi-discord/commit/2ddf0ee41fcd29db18fbaeb852649ccd4424b8bd))
 
 ## [6.34.2-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.6...v6.34.2-rc.7) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **general:** use new version of UI library ([27d6563](https://github.com/consolelabs/mochi-discord/commit/27d65632729392eaf0fce85ecc93da60e7d4dede))
+- **general:** use new version of UI library ([27d6563](https://github.com/consolelabs/mochi-discord/commit/27d65632729392eaf0fce85ecc93da60e7d4dede))
 
 ## [6.34.2-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.5...v6.34.2-rc.6) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **general:** use new version of UI library ([b742b2f](https://github.com/consolelabs/mochi-discord/commit/b742b2f0567420d359e6c627416a30a8d4981345))
+- **general:** use new version of UI library ([b742b2f](https://github.com/consolelabs/mochi-discord/commit/b742b2f0567420d359e6c627416a30a8d4981345))
 
 ## [6.34.2-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.4...v6.34.2-rc.5) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **payme:** fix payme cmd allow send payme request in discord platform ([#1497](https://github.com/consolelabs/mochi-discord/issues/1497)) ([175d233](https://github.com/consolelabs/mochi-discord/commit/175d233c804989471f8c84d29dafb4c19a18774b))
+- **payme:** fix payme cmd allow send payme request in discord platform ([#1497](https://github.com/consolelabs/mochi-discord/issues/1497)) ([175d233](https://github.com/consolelabs/mochi-discord/commit/175d233c804989471f8c84d29dafb4c19a18774b))
 
 ## [6.34.2-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.3...v6.34.2-rc.4) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **general:** command freeze when ran ([2b92276](https://github.com/consolelabs/mochi-discord/commit/2b92276b350827f31a27ea0f7e1e46bd27cd1788))
+- **general:** command freeze when ran ([2b92276](https://github.com/consolelabs/mochi-discord/commit/2b92276b350827f31a27ea0f7e1e46bd27cd1788))
 
 ## [6.34.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.2...v6.34.2-rc.3) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **general:** use new version of UI library ([215e7b0](https://github.com/consolelabs/mochi-discord/commit/215e7b0e2e91dc71983c9755ff96f0cd0349a160))
+- **general:** use new version of UI library ([215e7b0](https://github.com/consolelabs/mochi-discord/commit/215e7b0e2e91dc71983c9755ff96f0cd0349a160))
 
 ## [6.34.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.2-rc.1...v6.34.2-rc.2) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **general:** use new version of UI library ([b59010f](https://github.com/consolelabs/mochi-discord/commit/b59010f0de0048a2b37f4ae9a9065fd3bcd25265))
+- **general:** use new version of UI library ([b59010f](https://github.com/consolelabs/mochi-discord/commit/b59010f0de0048a2b37f4ae9a9065fd3bcd25265))
 
 ## [6.34.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.1...v6.34.2-rc.1) (2023-09-25)
 
-
 ### Bug Fixes
 
-* **recap, top:** use component from UI library ([c009c0e](https://github.com/consolelabs/mochi-discord/commit/c009c0e5c0123f0fd12179455ae7915d9f87c920))
+- **recap, top:** use component from UI library ([c009c0e](https://github.com/consolelabs/mochi-discord/commit/c009c0e5c0123f0fd12179455ae7915d9f87c920))
 
 ## [6.34.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.0...v6.34.1) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **general:** alias name not found for /top and /feed ([1e1475f](https://github.com/consolelabs/mochi-discord/commit/1e1475f6896ea64185cfc7cf74b0e3f1546ee79e))
-* **general:** update dependency lockfile ([401821e](https://github.com/consolelabs/mochi-discord/commit/401821e01d7afa1cae2522b4d494b5f459049ced))
-* **paylink:** hide 'new' text when link is about to end ([3b56101](https://github.com/consolelabs/mochi-discord/commit/3b56101ec5c8c119f89b32cafd34befff24c06f9))
-* **recap:** add token emojis in spending and receive section ([8957b9d](https://github.com/consolelabs/mochi-discord/commit/8957b9dd98d6fbad1b329b407e2dd26827a8940b))
-* **tip:** with message -> With a message: ([7825ad6](https://github.com/consolelabs/mochi-discord/commit/7825ad6c64c80428952a88a112f1ed0d495b8068))
-* **top,feed:** emoji ([3e0eeb6](https://github.com/consolelabs/mochi-discord/commit/3e0eeb6b29eb1d684c75f310e11137ce2e84bbdf))
-* **top:** refactor top command to show top senders/receivers ([effbc36](https://github.com/consolelabs/mochi-discord/commit/effbc36a5d6d272b178c9ae12701b18922b67225))
+- **general:** alias name not found for /top and /feed ([1e1475f](https://github.com/consolelabs/mochi-discord/commit/1e1475f6896ea64185cfc7cf74b0e3f1546ee79e))
+- **general:** update dependency lockfile ([401821e](https://github.com/consolelabs/mochi-discord/commit/401821e01d7afa1cae2522b4d494b5f459049ced))
+- **paylink:** hide 'new' text when link is about to end ([3b56101](https://github.com/consolelabs/mochi-discord/commit/3b56101ec5c8c119f89b32cafd34befff24c06f9))
+- **recap:** add token emojis in spending and receive section ([8957b9d](https://github.com/consolelabs/mochi-discord/commit/8957b9dd98d6fbad1b329b407e2dd26827a8940b))
+- **tip:** with message -> With a message: ([7825ad6](https://github.com/consolelabs/mochi-discord/commit/7825ad6c64c80428952a88a112f1ed0d495b8068))
+- **top,feed:** emoji ([3e0eeb6](https://github.com/consolelabs/mochi-discord/commit/3e0eeb6b29eb1d684c75f310e11137ce2e84bbdf))
+- **top:** refactor top command to show top senders/receivers ([effbc36](https://github.com/consolelabs/mochi-discord/commit/effbc36a5d6d272b178c9ae12701b18922b67225))
 
 ## [6.34.1-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.6...v6.34.1-rc.7) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **tip:** with message -> With a message: ([7825ad6](https://github.com/consolelabs/mochi-discord/commit/7825ad6c64c80428952a88a112f1ed0d495b8068))
+- **tip:** with message -> With a message: ([7825ad6](https://github.com/consolelabs/mochi-discord/commit/7825ad6c64c80428952a88a112f1ed0d495b8068))
 
 ## [6.34.1-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.5...v6.34.1-rc.6) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **recap:** add token emojis in spending and receive section ([8957b9d](https://github.com/consolelabs/mochi-discord/commit/8957b9dd98d6fbad1b329b407e2dd26827a8940b))
+- **recap:** add token emojis in spending and receive section ([8957b9d](https://github.com/consolelabs/mochi-discord/commit/8957b9dd98d6fbad1b329b407e2dd26827a8940b))
 
 ## [6.34.1-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.4...v6.34.1-rc.5) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **general:** alias name not found for /top and /feed ([1e1475f](https://github.com/consolelabs/mochi-discord/commit/1e1475f6896ea64185cfc7cf74b0e3f1546ee79e))
+- **general:** alias name not found for /top and /feed ([1e1475f](https://github.com/consolelabs/mochi-discord/commit/1e1475f6896ea64185cfc7cf74b0e3f1546ee79e))
 
 ## [6.34.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.3...v6.34.1-rc.4) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **paylink:** hide 'new' text when link is about to end ([3b56101](https://github.com/consolelabs/mochi-discord/commit/3b56101ec5c8c119f89b32cafd34befff24c06f9))
+- **paylink:** hide 'new' text when link is about to end ([3b56101](https://github.com/consolelabs/mochi-discord/commit/3b56101ec5c8c119f89b32cafd34befff24c06f9))
 
 ## [6.34.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.2...v6.34.1-rc.3) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **general:** update dependency lockfile ([401821e](https://github.com/consolelabs/mochi-discord/commit/401821e01d7afa1cae2522b4d494b5f459049ced))
+- **general:** update dependency lockfile ([401821e](https://github.com/consolelabs/mochi-discord/commit/401821e01d7afa1cae2522b4d494b5f459049ced))
 
 ## [6.34.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.34.1-rc.1...v6.34.1-rc.2) (2023-09-22)
 
-
 ### Bug Fixes
 
-* **top,feed:** emoji ([3e0eeb6](https://github.com/consolelabs/mochi-discord/commit/3e0eeb6b29eb1d684c75f310e11137ce2e84bbdf))
+- **top,feed:** emoji ([3e0eeb6](https://github.com/consolelabs/mochi-discord/commit/3e0eeb6b29eb1d684c75f310e11137ce2e84bbdf))
 
 ## [6.34.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.34.0...v6.34.1-rc.1) (2023-09-21)
 
-
 ### Bug Fixes
 
-* **top:** refactor top command to show top senders/receivers ([effbc36](https://github.com/consolelabs/mochi-discord/commit/effbc36a5d6d272b178c9ae12701b18922b67225))
+- **top:** refactor top command to show top senders/receivers ([effbc36](https://github.com/consolelabs/mochi-discord/commit/effbc36a5d6d272b178c9ae12701b18922b67225))
 
 # [6.34.0](https://github.com/consolelabs/mochi-discord/compare/v6.33.0...v6.34.0) (2023-09-21)
 
-
 ### Bug Fixes
 
-* **general:** amount format handle case emoji not found ([6cfa2a7](https://github.com/consolelabs/mochi-discord/commit/6cfa2a75337b18a18c8bedad5093ddd3877db138))
-
+- **general:** amount format handle case emoji not found ([6cfa2a7](https://github.com/consolelabs/mochi-discord/commit/6cfa2a75337b18a18c8bedad5093ddd3877db138))
 
 ### Features
 
-* **recap, feed:** port command from telegram ([4e1a5c4](https://github.com/consolelabs/mochi-discord/commit/4e1a5c4367681ad892c3ec65967da18cf43faa29))
+- **recap, feed:** port command from telegram ([4e1a5c4](https://github.com/consolelabs/mochi-discord/commit/4e1a5c4367681ad892c3ec65967da18cf43faa29))
 
 # [6.34.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.33.1-rc.1...v6.34.0-rc.1) (2023-09-21)
 
-
 ### Features
 
-* **recap, feed:** port command from telegram ([4e1a5c4](https://github.com/consolelabs/mochi-discord/commit/4e1a5c4367681ad892c3ec65967da18cf43faa29))
+- **recap, feed:** port command from telegram ([4e1a5c4](https://github.com/consolelabs/mochi-discord/commit/4e1a5c4367681ad892c3ec65967da18cf43faa29))
 
 ## [6.33.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.33.0...v6.33.1-rc.1) (2023-09-20)
 
-
 ### Bug Fixes
 
-* **general:** amount format handle case emoji not found ([6cfa2a7](https://github.com/consolelabs/mochi-discord/commit/6cfa2a75337b18a18c8bedad5093ddd3877db138))
+- **general:** amount format handle case emoji not found ([6cfa2a7](https://github.com/consolelabs/mochi-discord/commit/6cfa2a75337b18a18c8bedad5093ddd3877db138))
 
 # [6.33.0](https://github.com/consolelabs/mochi-discord/compare/v6.32.3...v6.33.0) (2023-09-20)
 
-
 ### Bug Fixes
 
-* **deposit:** handle case same contract address at different chains ([#1493](https://github.com/consolelabs/mochi-discord/issues/1493)) ([6e252cb](https://github.com/consolelabs/mochi-discord/commit/6e252cbc3fd38011b34b3fb7803d3a741502d768))
-* domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
-* **general:** /sync command refresh emojis cache ([afe6bc2](https://github.com/consolelabs/mochi-discord/commit/afe6bc2b1d654645a75263ed7eb125477058ec10))
-* **general:** amount format containing <emoji> breaks the bot ([3badabb](https://github.com/consolelabs/mochi-discord/commit/3badabbc171e1b0e710e48301080fa4bce1cb166))
-* **tip:** change text "Message" to "with message" ([964655b](https://github.com/consolelabs/mochi-discord/commit/964655bd0e6c39304d3027ef23a863c43403deb4))
-* **tip:** showing channel url in tip notification message ([#1494](https://github.com/consolelabs/mochi-discord/issues/1494)) ([a289e79](https://github.com/consolelabs/mochi-discord/commit/a289e79fccce6c61efa7194ff1f363faa1e99722))
-* version conflict ([7431e4d](https://github.com/consolelabs/mochi-discord/commit/7431e4d1b0e7114aa71978566d288116da7ec3ed))
-
+- **deposit:** handle case same contract address at different chains ([#1493](https://github.com/consolelabs/mochi-discord/issues/1493)) ([6e252cb](https://github.com/consolelabs/mochi-discord/commit/6e252cbc3fd38011b34b3fb7803d3a741502d768))
+- domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
+- **general:** /sync command refresh emojis cache ([afe6bc2](https://github.com/consolelabs/mochi-discord/commit/afe6bc2b1d654645a75263ed7eb125477058ec10))
+- **general:** amount format containing <emoji> breaks the bot ([3badabb](https://github.com/consolelabs/mochi-discord/commit/3badabbc171e1b0e710e48301080fa4bce1cb166))
+- **tip:** change text "Message" to "with message" ([964655b](https://github.com/consolelabs/mochi-discord/commit/964655bd0e6c39304d3027ef23a863c43403deb4))
+- **tip:** showing channel url in tip notification message ([#1494](https://github.com/consolelabs/mochi-discord/issues/1494)) ([a289e79](https://github.com/consolelabs/mochi-discord/commit/a289e79fccce6c61efa7194ff1f363faa1e99722))
+- version conflict ([7431e4d](https://github.com/consolelabs/mochi-discord/commit/7431e4d1b0e7114aa71978566d288116da7ec3ed))
 
 ### Features
 
-* **general:** define new format when dealing with amount ([78f8e32](https://github.com/consolelabs/mochi-discord/commit/78f8e32392705f74d5909bfe9f1e781133a1ad4d))
+- **general:** define new format when dealing with amount ([78f8e32](https://github.com/consolelabs/mochi-discord/commit/78f8e32392705f74d5909bfe9f1e781133a1ad4d))
 
 # [6.33.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.33.0-rc.2...v6.33.0-rc.3) (2023-09-20)
 
-
 ### Bug Fixes
 
-* **general:** /sync command refresh emojis cache ([afe6bc2](https://github.com/consolelabs/mochi-discord/commit/afe6bc2b1d654645a75263ed7eb125477058ec10))
+- **general:** /sync command refresh emojis cache ([afe6bc2](https://github.com/consolelabs/mochi-discord/commit/afe6bc2b1d654645a75263ed7eb125477058ec10))
 
 # [6.33.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.33.0-rc.1...v6.33.0-rc.2) (2023-09-20)
 
-
 ### Bug Fixes
 
-* **general:** amount format containing <emoji> breaks the bot ([3badabb](https://github.com/consolelabs/mochi-discord/commit/3badabbc171e1b0e710e48301080fa4bce1cb166))
+- **general:** amount format containing <emoji> breaks the bot ([3badabb](https://github.com/consolelabs/mochi-discord/commit/3badabbc171e1b0e710e48301080fa4bce1cb166))
 
 # [6.33.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.4-rc.1...v6.33.0-rc.1) (2023-09-20)
 
-
 ### Bug Fixes
 
-* **deposit:** handle case same contract address at different chains ([#1493](https://github.com/consolelabs/mochi-discord/issues/1493)) ([6e252cb](https://github.com/consolelabs/mochi-discord/commit/6e252cbc3fd38011b34b3fb7803d3a741502d768))
-* **tip:** change text "Message" to "with message" ([964655b](https://github.com/consolelabs/mochi-discord/commit/964655bd0e6c39304d3027ef23a863c43403deb4))
-
+- **deposit:** handle case same contract address at different chains ([#1493](https://github.com/consolelabs/mochi-discord/issues/1493)) ([6e252cb](https://github.com/consolelabs/mochi-discord/commit/6e252cbc3fd38011b34b3fb7803d3a741502d768))
+- **tip:** change text "Message" to "with message" ([964655b](https://github.com/consolelabs/mochi-discord/commit/964655bd0e6c39304d3027ef23a863c43403deb4))
 
 ### Features
 
-* **general:** define new format when dealing with amount ([78f8e32](https://github.com/consolelabs/mochi-discord/commit/78f8e32392705f74d5909bfe9f1e781133a1ad4d))
+- **general:** define new format when dealing with amount ([78f8e32](https://github.com/consolelabs/mochi-discord/commit/78f8e32392705f74d5909bfe9f1e781133a1ad4d))
 
 ## [6.32.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.3...v6.32.4-rc.1) (2023-09-19)
 
-
 ### Bug Fixes
 
-* domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
-* **tip:** showing channel url in tip notification message ([#1494](https://github.com/consolelabs/mochi-discord/issues/1494)) ([a289e79](https://github.com/consolelabs/mochi-discord/commit/a289e79fccce6c61efa7194ff1f363faa1e99722))
-* version conflict ([7431e4d](https://github.com/consolelabs/mochi-discord/commit/7431e4d1b0e7114aa71978566d288116da7ec3ed))
+- domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
+- **tip:** showing channel url in tip notification message ([#1494](https://github.com/consolelabs/mochi-discord/issues/1494)) ([a289e79](https://github.com/consolelabs/mochi-discord/commit/a289e79fccce6c61efa7194ff1f363faa1e99722))
+- version conflict ([7431e4d](https://github.com/consolelabs/mochi-discord/commit/7431e4d1b0e7114aa71978566d288116da7ec3ed))
 
 ## [6.32.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.3-rc.1...v6.32.3-rc.2) (2023-09-18)
 
-
 ### Bug Fixes
 
-* domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
+- domain validation before resolving ([#1492](https://github.com/consolelabs/mochi-discord/issues/1492)) ([86d4469](https://github.com/consolelabs/mochi-discord/commit/86d4469038a49a980fe9f14a469a4142da1e2c6c))
 
 ## [6.32.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.2...v6.32.3) (2023-09-18)
 
-
 ### Bug Fixes
 
-* **general:** pass env url to rest client ([c7f011c](https://github.com/consolelabs/mochi-discord/commit/c7f011cf171da8093590724056604ae513cb681f))
+- **general:** pass env url to rest client ([c7f011c](https://github.com/consolelabs/mochi-discord/commit/c7f011cf171da8093590724056604ae513cb681f))
 
 ## [6.32.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.2...v6.32.3-rc.1) (2023-09-18)
 
-
 ### Bug Fixes
 
-* **general:** pass env url to rest client ([c7f011c](https://github.com/consolelabs/mochi-discord/commit/c7f011cf171da8093590724056604ae513cb681f))
+- **general:** pass env url to rest client ([c7f011c](https://github.com/consolelabs/mochi-discord/commit/c7f011cf171da8093590724056604ae513cb681f))
 
 ## [6.32.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.1...v6.32.2) (2023-09-18)
 
-
 ### Bug Fixes
 
-* **general:** pass env url to rest client ([884031d](https://github.com/consolelabs/mochi-discord/commit/884031d3153b1b4af67b578385492f47491e0e94))
+- **general:** pass env url to rest client ([884031d](https://github.com/consolelabs/mochi-discord/commit/884031d3153b1b4af67b578385492f47491e0e94))
 
 ## [6.32.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.1...v6.32.2-rc.1) (2023-09-18)
 
-
 ### Bug Fixes
 
-* **general:** pass env url to rest client ([884031d](https://github.com/consolelabs/mochi-discord/commit/884031d3153b1b4af67b578385492f47491e0e94))
+- **general:** pass env url to rest client ([884031d](https://github.com/consolelabs/mochi-discord/commit/884031d3153b1b4af67b578385492f47491e0e94))
 
 ## [6.32.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.0...v6.32.1) (2023-09-18)
 
-
 ### Bug Fixes
 
-* **airdrop:** update airdrop messages ([#1489](https://github.com/consolelabs/mochi-discord/issues/1489)) ([eda5eaf](https://github.com/consolelabs/mochi-discord/commit/eda5eafd7fa3dd2d4fe2fb4b9ccbc4ea8d8d6619))
-* **airdrop:** update styling airdrop dm message ([#1490](https://github.com/consolelabs/mochi-discord/issues/1490)) ([1a1f3d0](https://github.com/consolelabs/mochi-discord/commit/1a1f3d0c6842f7198a2123b7a4dbeb5a5cd499fb))
-* **general:** use scientific notation for token format ([2ac03ac](https://github.com/consolelabs/mochi-discord/commit/2ac03ac80b0a744396e4710b9205022ff3ef16f2))
-* optimize profile cmd ([#1491](https://github.com/consolelabs/mochi-discord/issues/1491)) ([01c51f7](https://github.com/consolelabs/mochi-discord/commit/01c51f73dafdafa038893af51649066ff73ca888))
+- **airdrop:** update airdrop messages ([#1489](https://github.com/consolelabs/mochi-discord/issues/1489)) ([eda5eaf](https://github.com/consolelabs/mochi-discord/commit/eda5eafd7fa3dd2d4fe2fb4b9ccbc4ea8d8d6619))
+- **airdrop:** update styling airdrop dm message ([#1490](https://github.com/consolelabs/mochi-discord/issues/1490)) ([1a1f3d0](https://github.com/consolelabs/mochi-discord/commit/1a1f3d0c6842f7198a2123b7a4dbeb5a5cd499fb))
+- **general:** use scientific notation for token format ([2ac03ac](https://github.com/consolelabs/mochi-discord/commit/2ac03ac80b0a744396e4710b9205022ff3ef16f2))
+- optimize profile cmd ([#1491](https://github.com/consolelabs/mochi-discord/issues/1491)) ([01c51f7](https://github.com/consolelabs/mochi-discord/commit/01c51f73dafdafa038893af51649066ff73ca888))
 
 ## [6.32.1-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.3...v6.32.1-rc.4) (2023-09-18)
 
-
 ### Bug Fixes
 
-* **general:** use scientific notation for token format ([2ac03ac](https://github.com/consolelabs/mochi-discord/commit/2ac03ac80b0a744396e4710b9205022ff3ef16f2))
+- **general:** use scientific notation for token format ([2ac03ac](https://github.com/consolelabs/mochi-discord/commit/2ac03ac80b0a744396e4710b9205022ff3ef16f2))
 
 ## [6.32.1-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.2...v6.32.1-rc.3) (2023-09-17)
 
-
 ### Bug Fixes
 
-* optimize profile cmd ([#1491](https://github.com/consolelabs/mochi-discord/issues/1491)) ([01c51f7](https://github.com/consolelabs/mochi-discord/commit/01c51f73dafdafa038893af51649066ff73ca888))
+- optimize profile cmd ([#1491](https://github.com/consolelabs/mochi-discord/issues/1491)) ([01c51f7](https://github.com/consolelabs/mochi-discord/commit/01c51f73dafdafa038893af51649066ff73ca888))
 
 ## [6.32.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.1-rc.1...v6.32.1-rc.2) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **airdrop:** update styling airdrop dm message ([#1490](https://github.com/consolelabs/mochi-discord/issues/1490)) ([1a1f3d0](https://github.com/consolelabs/mochi-discord/commit/1a1f3d0c6842f7198a2123b7a4dbeb5a5cd499fb))
+- **airdrop:** update styling airdrop dm message ([#1490](https://github.com/consolelabs/mochi-discord/issues/1490)) ([1a1f3d0](https://github.com/consolelabs/mochi-discord/commit/1a1f3d0c6842f7198a2123b7a4dbeb5a5cd499fb))
 
 ## [6.32.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.32.0...v6.32.1-rc.1) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **airdrop:** update airdrop messages ([#1489](https://github.com/consolelabs/mochi-discord/issues/1489)) ([eda5eaf](https://github.com/consolelabs/mochi-discord/commit/eda5eafd7fa3dd2d4fe2fb4b9ccbc4ea8d8d6619))
+- **airdrop:** update airdrop messages ([#1489](https://github.com/consolelabs/mochi-discord/issues/1489)) ([eda5eaf](https://github.com/consolelabs/mochi-discord/commit/eda5eafd7fa3dd2d4fe2fb4b9ccbc4ea8d8d6619))
 
 # [6.32.0](https://github.com/consolelabs/mochi-discord/compare/v6.31.1...v6.32.0) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **airdrop:** add channel info for notification airdrop ([#1487](https://github.com/consolelabs/mochi-discord/issues/1487)) ([49ebcd7](https://github.com/consolelabs/mochi-discord/commit/49ebcd76c7a4bdbd17baa6550a14a20fb9b2752c))
-* **changelog:** rename title ([09c719e](https://github.com/consolelabs/mochi-discord/commit/09c719ef6dfac3095d01508dc5905f09634f01a7))
-* **general:** re-sync emojis: NEAR, APT, BOO, SAMO, XRP ([8e75633](https://github.com/consolelabs/mochi-discord/commit/8e756330cf8c731aa1fc3b6ceb852d56cb4ab9b6))
-* **general:** use emoji from backend api ([518b72e](https://github.com/consolelabs/mochi-discord/commit/518b72e75bee1ac0a43224289ad85bc14dc82018))
-* **general:** use new format usd price in /wlv and /ticker ([e009b8f](https://github.com/consolelabs/mochi-discord/commit/e009b8f65922f407271164fd6a74fe1f54b7dd7c))
-* **tip:** change from /transfer to /tx in receipt link ([5babbe3](https://github.com/consolelabs/mochi-discord/commit/5babbe303cfffb7645a65cf1226c1d85d337e827))
-* **tip:** hashtag tip message ([#1488](https://github.com/consolelabs/mochi-discord/issues/1488)) ([23421e3](https://github.com/consolelabs/mochi-discord/commit/23421e314e1fca37d9856bc50a85822cedf9b52f))
-* **tip:** resolve user format in message to username before showing ([2a39689](https://github.com/consolelabs/mochi-discord/commit/2a396894cc2708fbd875f9dad8781e32df322b5d))
-* **tip:** show discord channel to tip noti ([#1486](https://github.com/consolelabs/mochi-discord/issues/1486)) ([dbeacb3](https://github.com/consolelabs/mochi-discord/commit/dbeacb31995cf4e9628bf99e013752b7b7cf8883))
-* **tip:** use animated version of chat emoji ([fa1d95b](https://github.com/consolelabs/mochi-discord/commit/fa1d95bcf7427b5bd1f66050cee66b77b7d69bb9))
-* **tip:** use format rule from shared lib ([497b71c](https://github.com/consolelabs/mochi-discord/commit/497b71c6503d8e6e56c8c9b83d52699280c47452))
-
+- **airdrop:** add channel info for notification airdrop ([#1487](https://github.com/consolelabs/mochi-discord/issues/1487)) ([49ebcd7](https://github.com/consolelabs/mochi-discord/commit/49ebcd76c7a4bdbd17baa6550a14a20fb9b2752c))
+- **changelog:** rename title ([09c719e](https://github.com/consolelabs/mochi-discord/commit/09c719ef6dfac3095d01508dc5905f09634f01a7))
+- **general:** re-sync emojis: NEAR, APT, BOO, SAMO, XRP ([8e75633](https://github.com/consolelabs/mochi-discord/commit/8e756330cf8c731aa1fc3b6ceb852d56cb4ab9b6))
+- **general:** use emoji from backend api ([518b72e](https://github.com/consolelabs/mochi-discord/commit/518b72e75bee1ac0a43224289ad85bc14dc82018))
+- **general:** use new format usd price in /wlv and /ticker ([e009b8f](https://github.com/consolelabs/mochi-discord/commit/e009b8f65922f407271164fd6a74fe1f54b7dd7c))
+- **tip:** change from /transfer to /tx in receipt link ([5babbe3](https://github.com/consolelabs/mochi-discord/commit/5babbe303cfffb7645a65cf1226c1d85d337e827))
+- **tip:** hashtag tip message ([#1488](https://github.com/consolelabs/mochi-discord/issues/1488)) ([23421e3](https://github.com/consolelabs/mochi-discord/commit/23421e314e1fca37d9856bc50a85822cedf9b52f))
+- **tip:** resolve user format in message to username before showing ([2a39689](https://github.com/consolelabs/mochi-discord/commit/2a396894cc2708fbd875f9dad8781e32df322b5d))
+- **tip:** show discord channel to tip noti ([#1486](https://github.com/consolelabs/mochi-discord/issues/1486)) ([dbeacb3](https://github.com/consolelabs/mochi-discord/commit/dbeacb31995cf4e9628bf99e013752b7b7cf8883))
+- **tip:** use animated version of chat emoji ([fa1d95b](https://github.com/consolelabs/mochi-discord/commit/fa1d95bcf7427b5bd1f66050cee66b77b7d69bb9))
+- **tip:** use format rule from shared lib ([497b71c](https://github.com/consolelabs/mochi-discord/commit/497b71c6503d8e6e56c8c9b83d52699280c47452))
 
 ### Features
 
-* **sync:** sync command to sync metadata ([58ad92b](https://github.com/consolelabs/mochi-discord/commit/58ad92b0a0cb87eb133e85f3b48584097843a5f8))
-* **tip:** add support for hashtag in message + show image by that hashtag's context([#1485](https://github.com/consolelabs/mochi-discord/issues/1485)) ([5c5ffa7](https://github.com/consolelabs/mochi-discord/commit/5c5ffa76f195dcdafdd006085228651e7a965feb))
+- **sync:** sync command to sync metadata ([58ad92b](https://github.com/consolelabs/mochi-discord/commit/58ad92b0a0cb87eb133e85f3b48584097843a5f8))
+- **tip:** add support for hashtag in message + show image by that hashtag's context([#1485](https://github.com/consolelabs/mochi-discord/issues/1485)) ([5c5ffa7](https://github.com/consolelabs/mochi-discord/commit/5c5ffa76f195dcdafdd006085228651e7a965feb))
 
 # [6.32.0-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.7...v6.32.0-rc.8) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **general:** use new format usd price in /wlv and /ticker ([e009b8f](https://github.com/consolelabs/mochi-discord/commit/e009b8f65922f407271164fd6a74fe1f54b7dd7c))
+- **general:** use new format usd price in /wlv and /ticker ([e009b8f](https://github.com/consolelabs/mochi-discord/commit/e009b8f65922f407271164fd6a74fe1f54b7dd7c))
 
 # [6.32.0-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.6...v6.32.0-rc.7) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **tip:** hashtag tip message ([#1488](https://github.com/consolelabs/mochi-discord/issues/1488)) ([23421e3](https://github.com/consolelabs/mochi-discord/commit/23421e314e1fca37d9856bc50a85822cedf9b52f))
+- **tip:** hashtag tip message ([#1488](https://github.com/consolelabs/mochi-discord/issues/1488)) ([23421e3](https://github.com/consolelabs/mochi-discord/commit/23421e314e1fca37d9856bc50a85822cedf9b52f))
 
 # [6.32.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.5...v6.32.0-rc.6) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **airdrop:** add channel info for notification airdrop ([#1487](https://github.com/consolelabs/mochi-discord/issues/1487)) ([49ebcd7](https://github.com/consolelabs/mochi-discord/commit/49ebcd76c7a4bdbd17baa6550a14a20fb9b2752c))
+- **airdrop:** add channel info for notification airdrop ([#1487](https://github.com/consolelabs/mochi-discord/issues/1487)) ([49ebcd7](https://github.com/consolelabs/mochi-discord/commit/49ebcd76c7a4bdbd17baa6550a14a20fb9b2752c))
 
 # [6.32.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.4...v6.32.0-rc.5) (2023-09-15)
 
-
 ### Bug Fixes
 
-* **tip:** show discord channel to tip noti ([#1486](https://github.com/consolelabs/mochi-discord/issues/1486)) ([dbeacb3](https://github.com/consolelabs/mochi-discord/commit/dbeacb31995cf4e9628bf99e013752b7b7cf8883))
+- **tip:** show discord channel to tip noti ([#1486](https://github.com/consolelabs/mochi-discord/issues/1486)) ([dbeacb3](https://github.com/consolelabs/mochi-discord/commit/dbeacb31995cf4e9628bf99e013752b7b7cf8883))
 
 # [6.32.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.3...v6.32.0-rc.4) (2023-09-14)
 
-
 ### Features
 
-* **sync:** sync command to sync metadata ([58ad92b](https://github.com/consolelabs/mochi-discord/commit/58ad92b0a0cb87eb133e85f3b48584097843a5f8))
+- **sync:** sync command to sync metadata ([58ad92b](https://github.com/consolelabs/mochi-discord/commit/58ad92b0a0cb87eb133e85f3b48584097843a5f8))
 
 # [6.32.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.2...v6.32.0-rc.3) (2023-09-14)
 
-
 ### Bug Fixes
 
-* **general:** use emoji from backend api ([518b72e](https://github.com/consolelabs/mochi-discord/commit/518b72e75bee1ac0a43224289ad85bc14dc82018))
+- **general:** use emoji from backend api ([518b72e](https://github.com/consolelabs/mochi-discord/commit/518b72e75bee1ac0a43224289ad85bc14dc82018))
 
 # [6.32.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.32.0-rc.1...v6.32.0-rc.2) (2023-09-14)
 
-
 ### Bug Fixes
 
-* **changelog:** rename title ([09c719e](https://github.com/consolelabs/mochi-discord/commit/09c719ef6dfac3095d01508dc5905f09634f01a7))
-* **tip:** use format rule from shared lib ([497b71c](https://github.com/consolelabs/mochi-discord/commit/497b71c6503d8e6e56c8c9b83d52699280c47452))
+- **changelog:** rename title ([09c719e](https://github.com/consolelabs/mochi-discord/commit/09c719ef6dfac3095d01508dc5905f09634f01a7))
+- **tip:** use format rule from shared lib ([497b71c](https://github.com/consolelabs/mochi-discord/commit/497b71c6503d8e6e56c8c9b83d52699280c47452))
 
 # [6.32.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.2-rc.1...v6.32.0-rc.1) (2023-09-13)
 
-
 ### Bug Fixes
 
-* **tip:** change from /transfer to /tx in receipt link ([5babbe3](https://github.com/consolelabs/mochi-discord/commit/5babbe303cfffb7645a65cf1226c1d85d337e827))
-
+- **tip:** change from /transfer to /tx in receipt link ([5babbe3](https://github.com/consolelabs/mochi-discord/commit/5babbe303cfffb7645a65cf1226c1d85d337e827))
 
 ### Features
 
-* **tip:** add support for hashtag in message + show image by that hashtag's context([#1485](https://github.com/consolelabs/mochi-discord/issues/1485)) ([5c5ffa7](https://github.com/consolelabs/mochi-discord/commit/5c5ffa76f195dcdafdd006085228651e7a965feb))
+- **tip:** add support for hashtag in message + show image by that hashtag's context([#1485](https://github.com/consolelabs/mochi-discord/issues/1485)) ([5c5ffa7](https://github.com/consolelabs/mochi-discord/commit/5c5ffa76f195dcdafdd006085228651e7a965feb))
 
 ## [6.31.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.1...v6.31.2-rc.1) (2023-09-13)
 
-
 ### Bug Fixes
 
-* **general:** re-sync emojis: NEAR, APT, BOO, SAMO, XRP ([8e75633](https://github.com/consolelabs/mochi-discord/commit/8e756330cf8c731aa1fc3b6ceb852d56cb4ab9b6))
-* **tip:** resolve user format in message to username before showing ([2a39689](https://github.com/consolelabs/mochi-discord/commit/2a396894cc2708fbd875f9dad8781e32df322b5d))
-* **tip:** use animated version of chat emoji ([fa1d95b](https://github.com/consolelabs/mochi-discord/commit/fa1d95bcf7427b5bd1f66050cee66b77b7d69bb9))
+- **general:** re-sync emojis: NEAR, APT, BOO, SAMO, XRP ([8e75633](https://github.com/consolelabs/mochi-discord/commit/8e756330cf8c731aa1fc3b6ceb852d56cb4ab9b6))
+- **tip:** resolve user format in message to username before showing ([2a39689](https://github.com/consolelabs/mochi-discord/commit/2a396894cc2708fbd875f9dad8781e32df322b5d))
+- **tip:** use animated version of chat emoji ([fa1d95b](https://github.com/consolelabs/mochi-discord/commit/fa1d95bcf7427b5bd1f66050cee66b77b7d69bb9))
 
 ## [6.31.1](https://github.com/consolelabs/mochi-discord/compare/v6.31.0...v6.31.1) (2023-09-12)
 
