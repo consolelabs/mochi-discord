@@ -1,3 +1,11 @@
+## [6.36.1](https://github.com/consolelabs/mochi-discord/compare/v6.36.0...v6.36.1) (2023-11-03)
+
+
+### Bug Fixes
+
+* transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([ef456fd](https://github.com/consolelabs/mochi-discord/commit/ef456fd99658d90f8c773ec405410e70200d94bd))
+* transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([bad88b2](https://github.com/consolelabs/mochi-discord/commit/bad88b2e1342095ef240a262fd438bfe1a45f2b4))
+
 # [6.36.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.36.0-rc.1...v6.36.0-rc.2) (2023-11-02)
 
 
