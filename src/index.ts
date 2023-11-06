@@ -45,6 +45,21 @@ process.on("SIGTERM", () => {
   process.exit(0)
 })
 
+// Prevent app crashing
+process.on("uncaughtException", (error, origin) => {
+  logger.info("----- Uncaught exception -----")
+  logger.info(error)
+  logger.info("----- Exception origin -----")
+  logger.info(origin)
+})
+
+process.on("unhandledRejection", (reason, promise) => {
+  logger.info("----- Unhandled Rejection at -----")
+  logger.info(promise)
+  logger.info("----- Reason -----")
+  logger.info(reason)
+})
+
 // register slash commands
 const body = Object.entries(slashCommands ?? {}).map((e) =>
   e[1].prepare(e[0]).toJSON(),
