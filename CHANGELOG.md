@@ -1,3 +1,10 @@
+# [6.37.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.36.1...v6.37.0-rc.1) (2023-11-06)
+
+
+### Features
+
+* show vault tx in /feed command ([74986f2](https://github.com/consolelabs/mochi-discord/commit/74986f2ea28ec4295116966d5242f8e428faaabf))
+
 ## [6.36.1](https://github.com/consolelabs/mochi-discord/compare/v6.36.0...v6.36.1) (2023-11-03)
 
 
