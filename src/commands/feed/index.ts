@@ -17,7 +17,7 @@ const slashCmd: SlashCommand = {
     const { ok, data } = await api.pay.transactions.getAll({
       page: 0,
       size: 10,
-      action: "transfer",
+      action: ["transfer", "vault_transfer"],
     })
     if (!ok) {
       throw new Error("Cannot get transactions")
