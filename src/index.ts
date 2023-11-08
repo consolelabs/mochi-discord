@@ -4,7 +4,7 @@ import { API_SERVER_HOST, APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
 import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
-import { slashCommands } from "commands/const"
+import { slashCommands } from "commands"
 import { createServer, Server, IncomingMessage, ServerResponse } from "http"
 import { assignKafka } from "queue/kafka/queue"
 import { run } from "queue/kafka/producer"
@@ -12,6 +12,7 @@ import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
 import { initCommands } from "utils/slash-command"
+export { slashCommands }
 
 export let emojis = new Map()
 

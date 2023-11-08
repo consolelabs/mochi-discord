@@ -1,8 +1,8 @@
+import { slashCommands as slCMDs } from ".."
 import { Routes } from "discord-api-types/v9"
 import { APPLICATION_ID, DISCORD_TOKEN } from "env"
 import { logger } from "logger"
 import { SlashCommand } from "types/common"
-import { slashCommands as slCMDs } from "commands/const"
 import { REST } from "@discordjs/rest"
 import {
   unleash,
