@@ -1,3 +1,10 @@
+# [6.37.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.37.0-rc.1...v6.37.0-rc.2) (2023-11-09)
+
+
+### Features
+
+* add feature flag to manage cmds ([#1516](https://github.com/consolelabs/mochi-discord/issues/1516)) ([15332ab](https://github.com/consolelabs/mochi-discord/commit/15332abc186e2b48174c9b314aaacc52fc86f553))
+
 # [6.37.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.36.1...v6.37.0-rc.1) (2023-11-06)
 
 
