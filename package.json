@@ -9,7 +9,7 @@
     "guilds:prune": "node ./scripts/leave-server.js",
     "format": "npx prettier src/** --write",
     "cmd:sync": "vite-node ./scripts/sync-commands.js",
-    "cmd:global:destroy": "node ./scripts/destroy-global-commands.js"
+    "cmd:global:destroy": "vite-node ./scripts/destroy-global-commands.js"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",

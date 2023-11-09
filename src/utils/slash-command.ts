@@ -12,7 +12,6 @@ import {
 } from "adapters/unleash/unleash"
 import mochiAPI from "adapters/mochi-api"
 import { ResponseDiscordGuildResponse } from "types/api"
-import util from "util"
 
 export let slashCommands = new Map<string, SlashCommand>()
 
@@ -42,7 +41,10 @@ export async function syncCommands() {
   }
 
   const slashCmds = await fetchCommands()
-  const body = slashCmds.map((c) => c.prepare())
+  // const body = slashCmds.map((c) => c.prepare())
+  const body = Object.entries(slashCmds ?? {}).map((e) =>
+    e[1].prepare(e[0]).toJSON(),
+  )
 
   // Filter to global and guild commands
   const whitelistGuildCommands: any[] = []
@@ -121,6 +123,7 @@ export async function syncCommands() {
             body: commands.flat(),
           },
         )
+
         await mochiAPI.updateGuild(guildId, response)
 
         logger.info(
