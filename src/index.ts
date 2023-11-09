@@ -11,6 +11,8 @@ import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
+import { initCommands } from "utils/slash-command"
+export { slashCommands }
 
 export let emojis = new Map()
 
@@ -67,11 +69,7 @@ const body = Object.entries(slashCommands ?? {}).map((e) =>
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
   try {
-    logger.info("Started refreshing application (/) commands.")
-    await rest.put(Routes.applicationCommands(APPLICATION_ID), {
-      body,
-    })
-    logger.info("Successfully reloaded application (/) commands.")
+    await initCommands()
 
     logger.info("Getting tips and facts.")
     await getTipsAndFacts()
