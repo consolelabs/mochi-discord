@@ -9,7 +9,7 @@ import fetch from "node-fetch"
 import { Unleash } from "unleash-client"
 import { logger } from "logger"
 
-export const appName = "tono"
+export const appName = "mochi"
 export let featureData: Record<string, FeatureData>[] = []
 export const unleash = new Unleash({
   url: `${UNLEASH_SERVER_HOST}/api`,
@@ -71,7 +71,10 @@ export async function getFeatures(): Promise<Record<string, string[]>> {
   const data = await getProjectFeatures(UNLEASH_PROJECT) // change the projectName
   if (data) {
     const featureNames: string[] = data.features.map((d: any) => d.name)
-    for (const name of featureNames) {
+    const filteredNames: string[] = featureNames.filter((name: string) =>
+      name.includes(appName),
+    )
+    for (const name of filteredNames) {
       const d = await getProjectFeatureByName(UNLEASH_PROJECT, name) // change the projectName
       if (d) {
         const environmentData = d.environments.find(

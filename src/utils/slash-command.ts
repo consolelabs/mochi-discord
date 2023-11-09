@@ -19,7 +19,7 @@ export let slashCommands = new Map<string, SlashCommand>()
 export async function fetchCommands(): Promise<SlashCommand[]> {
   logger.info(`Loading commands...`)
   const slashCmds: SlashCommand[] = []
-  for (const [name, cmd] of Object.entries(slCMDs)) {
+  for (const [_, cmd] of Object.entries(slCMDs)) {
     slashCmds.push(cmd)
   }
   return slashCmds
@@ -42,10 +42,6 @@ export async function syncCommands() {
   }
 
   const slashCmds = await fetchCommands()
-  slashCmds.forEach((c) => {
-    logger.info(`Slash command: ${util.inspect(c.name)}`)
-  })
-  return
   const body = slashCmds.map((c) => c.prepare())
 
   // Filter to global and guild commands
@@ -103,7 +99,7 @@ export async function syncCommands() {
     }
   })
 
-  logger.info("Number of guilds:", Object.keys(guildCommandsByGuild).length)
+  console.log("Number of guilds:", Object.keys(guildCommandsByGuild).length)
   await Promise.all(
     Object.keys(guildCommandsByGuild).map(async (guildId) => {
       try {
