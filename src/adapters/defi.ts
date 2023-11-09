@@ -19,7 +19,6 @@ import {
   INDEXER_API_BASE_URL,
   POLYGONSCAN_API,
 } from "utils/constants"
-import { logger } from "logger"
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
