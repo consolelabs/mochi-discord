@@ -7,7 +7,9 @@
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts .",
     "generate:types": "node ./scripts/generate-types.js",
     "guilds:prune": "node ./scripts/leave-server.js",
-    "format": "npx prettier src/** --write"
+    "format": "npx prettier src/** --write",
+    "cmd:sync": "vite-node ./scripts/sync-commands.js",
+    "cmd:global:destroy": "vite-node ./scripts/destroy-global-commands.js"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.15.0",
@@ -43,8 +45,8 @@
   },
   "dependencies": {
     "@bonfida/spl-name-service": "^1.0.11",
-    "@consolelabs/mochi-rest": "^3.0.15",
-    "@consolelabs/mochi-ui": "^10.0.33",
+    "@consolelabs/mochi-rest": "^3.0.16",
+    "@consolelabs/mochi-ui": "^10.0.35",
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.5.0",
     "@haileybot/captcha-generator": "^1.7.0",
@@ -88,6 +90,7 @@
     "turndown": "^7.1.1",
     "tweetnacl": "^1.0.3",
     "type-fest": "^3.12.0",
+    "unleash-client": "^5.0.0",
     "vite": "^4.3.9",
     "vite-node": "^0.33.0",
     "vite-plugin-checker": "^0.6.1",
@@ -113,5 +116,5 @@
     "node": "18.x"
   },
   "name": "mochi-discord",
-  "version": "6.36.1"
+  "version": "6.37.0-rc.2"
 }

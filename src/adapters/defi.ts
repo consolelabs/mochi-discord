@@ -7,6 +7,7 @@ import {
   ResponseGetSupportedTokenResponse,
   ResponseGetTrackingWalletsResponse,
   ResponseGetWatchlistResponse,
+  ResponseListMyGuildsResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
 import { Coin, CoinComparisionData, CoinPrice, GasPriceData } from "types/defi"
@@ -18,7 +19,6 @@ import {
   INDEXER_API_BASE_URL,
   POLYGONSCAN_API,
 } from "utils/constants"
-
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {

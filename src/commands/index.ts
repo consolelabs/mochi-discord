@@ -1,6 +1,5 @@
 // external
 import { ButtonInteraction, Constants, Message } from "discord.js"
-import FuzzySet from "fuzzyset"
 
 // internal
 import CacheManager from "cache/node-cache"
@@ -9,9 +8,9 @@ import { CommandArgumentError, CommandNotAllowedToRunError } from "errors"
 import InteractionManager from "handlers/discord/select-menu"
 import {
   Category,
+  SlashCommand,
   Command,
   KafkaQueueMessage,
-  SlashCommand,
 } from "types/common"
 import {
   getActionCommand,
@@ -38,6 +37,7 @@ import {
   composeDiscordSelectionRow,
   setDefaultMiddleware,
 } from "ui/discord/select-menu"
+import FuzzySet from "fuzzyset"
 import airdrop from "./airdrop"
 import balances from "./balances"
 import deposit from "./deposit"
@@ -97,12 +97,6 @@ import v from "./v"
 import sync from "./sync"
 import recap from "./recap"
 import feed from "./feed"
-
-CacheManager.init({
-  ttl: 0,
-  pool: "imagepool",
-  checkperiod: 3600,
-})
 
 export const slashCommands: Record<string, SlashCommand> = {
   setup: setup.slashCmd,
@@ -211,6 +205,12 @@ export const adminCategories: Record<Category, boolean> = {
   Config: true,
   Game: false,
 }
+
+CacheManager.init({
+  ttl: 0,
+  pool: "imagepool",
+  checkperiod: 3600,
+})
 
 /**
  * Check if command is allowed in DM or need specific permissions to run
