@@ -1,3 +1,11 @@
+# [6.37.0](https://github.com/consolelabs/mochi-discord/compare/v6.36.1...v6.37.0) (2023-11-09)
+
+
+### Features
+
+* add feature flag to manage cmds ([#1516](https://github.com/consolelabs/mochi-discord/issues/1516)) ([15332ab](https://github.com/consolelabs/mochi-discord/commit/15332abc186e2b48174c9b314aaacc52fc86f553))
+* show vault tx in /feed command ([74986f2](https://github.com/consolelabs/mochi-discord/commit/74986f2ea28ec4295116966d5242f8e428faaabf))
+
 # [6.37.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.37.0-rc.1...v6.37.0-rc.2) (2023-11-09)
 
 
