@@ -96,5 +96,10 @@ export const REDIS_MASTER_NAME = process.env.REDIS_MASTER_NAME || ""
 
 export const MOCHI_GUESS_API_KEY = process.env.MOCHI_GUESS_API_KEY || ""
 export const MOCHI_GUESS_API_HOST = process.env.MOCHI_GUESS_API_HOST || ""
-
 export const MOCHI_BOT_SECRET = process.env.MOCHI_BOT_SECRET || ""
+
+export const UNLEASH_SERVER_HOST =
+  process.env.UNLEASH_SERVER_HOST || "http://localhost:4242"
+export const UNLEASH_PAT_TOKEN = process.env.UNLEASH_PAT_TOKEN || ""
+export const UNLEASH_API_TOKEN = process.env.UNLEASH_API_TOKEN || ""
+export const UNLEASH_PROJECT = process.env.UNLEASH_PROJECT || "default"

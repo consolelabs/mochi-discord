@@ -111,9 +111,24 @@ export interface ModelDaoVoteOption {
   updated_at?: string
 }
 
+export interface ModelDiscordCMD {
+  application_id?: string
+  default_member_permissions?: number
+  description?: string
+  description_localizations?: string
+  guild_id?: string
+  id?: string
+  name?: string
+  name_localizations?: string
+  nsfw?: boolean
+  type?: number
+  version?: string
+}
+
 export interface ModelDiscordGuild {
   active?: boolean
   alias?: string
+  available_cmds?: ModelJSONNullString
   bot_scopes?: string[]
   created_at?: string
   global_xp?: boolean
@@ -260,6 +275,13 @@ export interface ModelGuildUserXP {
   total_xp?: number
   user?: ModelUser
   user_id?: string
+}
+
+export interface ModelJSONNullString {
+  string?: string
+
+  /** Valid is true if String is not NULL */
+  valid?: boolean
 }
 
 export interface ModelMonikerConfig {
@@ -869,6 +891,7 @@ export interface RequestUpdateFriendTechKeyTrackRequest {
 
 export interface RequestUpdateGuildRequest {
   active?: boolean
+  available_cmds?: ModelDiscordCMD[]
   global_xp?: boolean
   left_at?: string
   log_channel?: string
@@ -1418,6 +1441,7 @@ export interface ResponseGetGuildDefaultTickerResponse {
 export interface ResponseGetGuildResponse {
   active?: boolean
   alias?: string
+  available_cmds?: ModelDiscordCMD[]
   bot_scopes?: string[]
   global_xp?: boolean
   icon?: string
