@@ -13,23 +13,6 @@ import {
 import mochiAPI from "adapters/mochi-api"
 import { ResponseDiscordGuildResponse } from "types/api"
 
-export let slashCommands = new Map<string, SlashCommand>()
-
-export async function fetchCommands(): Promise<SlashCommand[]> {
-  logger.info(`Loading commands...`)
-  const slashCmds: SlashCommand[] = []
-  for (const [_, cmd] of Object.entries(slCMDs)) {
-    slashCmds.push(cmd)
-  }
-  return slashCmds
-}
-
-export async function initCommands() {
-  logger.info("Started init application (/) commands.")
-  const slashCmds = await fetchCommands()
-  slashCommands = new Map(slashCmds.map((c) => [c.name, c]))
-}
-
 export async function syncCommands() {
   // Get all guilds from db
   let guilds: ResponseDiscordGuildResponse[] | undefined
@@ -40,11 +23,10 @@ export async function syncCommands() {
     return
   }
 
-  const slashCmds = await fetchCommands()
-  // const body = slashCmds.map((c) => c.prepare())
-  const body = Object.entries(slashCmds ?? {}).map((e) =>
-    e[1].prepare(e[0]).toJSON(),
-  )
+  const body = Object.entries(slCMDs).map((e) => ({
+    ...e[1].prepare(e[0]).toJSON(),
+    name: e[0],
+  }))
 
   // Filter to global and guild commands
   const whitelistGuildCommands: any[] = []
@@ -107,6 +89,9 @@ export async function syncCommands() {
       try {
         const commands = guildCommandsByGuild[guildId]
 
+        if (guildId != "878692765683298344") {
+          return
+        }
         logger.info(
           `Started refreshing application guild (/) commands for guild: ${guildId}`,
         )
