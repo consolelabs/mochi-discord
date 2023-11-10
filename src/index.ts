@@ -10,7 +10,7 @@ import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
-import { initCommands } from "utils/slash-command"
+import { syncCommands } from "utils/slash-command"
 export { slashCommands }
 
 export let emojis = new Map()
@@ -68,7 +68,7 @@ const body = Object.entries(slashCommands ?? {}).map((e) =>
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
   try {
-    await initCommands()
+    await syncCommands()
 
     logger.info("Getting tips and facts.")
     await getTipsAndFacts()

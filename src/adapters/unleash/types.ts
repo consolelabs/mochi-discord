@@ -60,6 +60,12 @@ interface ProjectFeatureResponse {
   lastSeenAt: null | string
   createdAt: string
   type: string
+  tags: FeatureTag[]
   variants: any[] // Define the actual structure
   archived: boolean
+}
+
+interface FeatureTag {
+  type: string
+  value: string
 }

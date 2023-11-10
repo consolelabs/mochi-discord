@@ -62,13 +62,33 @@ async function getProjectFeatureByName(projectId: string, name: string) {
   return data
 }
 
-export async function getFeatures(): Promise<Record<string, string[]>> {
+export interface FilterFeatures {
+  global?: boolean
+}
+
+export async function getFeatures(
+  f?: FilterFeatures,
+): Promise<Record<string, string[]>> {
   // Get feature data from Unleash
   const featureData: Record<string, string[]> = {}
 
   const desiredEnv = PROD ? "production" : "development"
 
-  const data = await getProjectFeatures(UNLEASH_PROJECT) // change the projectName
+  let data = await getProjectFeatures(UNLEASH_PROJECT) // change the projectName
+
+  if (f?.global) {
+    const globalFeatures = data.features.filter((d: any) => {
+      const tags = d.tags as FeatureTag[]
+      if (!tags) {
+        return false
+      }
+      if (tags.some((tag) => tag.value === "global")) {
+        return true
+      }
+    })
+    data.features = globalFeatures
+  }
+
   if (data) {
     const featureNames: string[] = data.features.map((d: any) => d.name)
     const filteredNames: string[] = featureNames.filter((name: string) =>
