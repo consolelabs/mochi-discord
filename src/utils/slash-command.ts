@@ -40,9 +40,9 @@ export async function syncCommands() {
     return
   }
 
-  const slashCmds = await fetchCommands()
+  // const slashCmds = await fetchCommands()
   // const body = slashCmds.map((c) => c.prepare())
-  const body = Object.entries(slashCmds ?? {}).map((e) =>
+  const body = Object.entries(slCMDs ?? {}).map((e) =>
     e[1].prepare(e[0]).toJSON(),
   )
 
@@ -64,7 +64,7 @@ export async function syncCommands() {
     whitelistGuildCommands.push(command)
   })
 
-  const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
+  const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN)
 
   const guildCommandsByGuild: Record<string, any[]> = {}
 
@@ -107,22 +107,31 @@ export async function syncCommands() {
       try {
         const commands = guildCommandsByGuild[guildId]
 
+        if (guildId !== "891310117658705931") {
+          return
+        }
+
         logger.info(
           `Started refreshing application guild (/) commands for guild: ${guildId}`,
         )
-        await rest.put(
-          Routes.applicationGuildCommands(APPLICATION_ID, guildId),
-          {
-            body: [],
-          },
-        )
 
-        const response: any = await rest.put(
-          Routes.applicationGuildCommands(APPLICATION_ID, guildId),
-          {
+        // await rest.put(Routes.applicationCommands(APPLICATION_ID), {
+        //   body: body,
+        // })
+
+        await rest
+          .put(Routes.applicationGuildCommands(APPLICATION_ID, guildId), {
+            body: [],
+          })
+          .catch(console.log)
+
+        // console.log(commands.flat())
+
+        const response: any = await rest
+          .put(Routes.applicationGuildCommands(APPLICATION_ID, guildId), {
             body: commands.flat(),
-          },
-        )
+          })
+          .catch(console.log)
 
         await mochiAPI.updateGuild(guildId, response)
 
