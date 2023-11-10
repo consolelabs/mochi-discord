@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Discord from "discord.js"
-import { API_SERVER_HOST, APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
+import { API_SERVER_HOST, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
-import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
 import { createServer, Server, IncomingMessage, ServerResponse } from "http"
