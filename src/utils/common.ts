@@ -871,11 +871,12 @@ export function isAddress(address: string): {
     if (isValidSuiAddress(address)) {
       return { valid: true, chainType: AddressChainType.SUI }
     }
-    if (PublicKey.isOnCurve(new PublicKey(address))) {
-      return { valid: true, chainType: AddressChainType.SOL }
-    }
     if (isValidTonAddress(address)) {
       return { valid: true, chainType: AddressChainType.TON }
+    }
+    // TODO: consider catching error inside SOL addr checking, because if any error occurs it will return false immediately even if it's a valid address of another chain that is checked after this sol check
+    if (PublicKey.isOnCurve(new PublicKey(address))) {
+      return { valid: true, chainType: AddressChainType.SOL }
     }
   } catch (e) {
     return { valid: false, chainType: AddressChainType.UNKNOWN }
