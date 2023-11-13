@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Discord from "discord.js"
-import { API_SERVER_HOST, APPLICATION_ID, DISCORD_TOKEN, PORT } from "./env"
+import { API_SERVER_HOST, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
-import { Routes } from "discord-api-types/v9"
 import { logger } from "logger"
 import { slashCommands } from "commands"
 import { createServer, Server, IncomingMessage, ServerResponse } from "http"
@@ -11,7 +10,7 @@ import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
-import { initCommands } from "utils/slash-command"
+import { syncCommands } from "utils/slash-command"
 export { slashCommands }
 
 export let emojis = new Map()
@@ -69,7 +68,7 @@ const body = Object.entries(slashCommands ?? {}).map((e) =>
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
   try {
-    await initCommands()
+    await syncCommands()
 
     logger.info("Getting tips and facts.")
     await getTipsAndFacts()

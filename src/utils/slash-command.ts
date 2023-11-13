@@ -11,26 +11,13 @@ import {
   featureData,
 } from "adapters/unleash/unleash"
 import mochiAPI from "adapters/mochi-api"
-import { ResponseDiscordGuildResponse } from "types/api"
+import { ModelDiscordCMD, ResponseDiscordGuildResponse } from "types/api"
 
-export let slashCommands = new Map<string, SlashCommand>()
-
-export async function fetchCommands(): Promise<SlashCommand[]> {
-  logger.info(`Loading commands...`)
-  const slashCmds: SlashCommand[] = []
-  for (const [_, cmd] of Object.entries(slCMDs)) {
-    slashCmds.push(cmd)
-  }
-  return slashCmds
-}
-
-export async function initCommands() {
-  logger.info("Started init application (/) commands.")
-  const slashCmds = await fetchCommands()
-  slashCommands = new Map(slashCmds.map((c) => [c.name, c]))
-}
+const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 
 export async function syncCommands() {
+  logger.info("Started refreshing application (/) commands.")
+
   // Get all guilds from db
   let guilds: ResponseDiscordGuildResponse[] | undefined
   try {
@@ -40,110 +27,100 @@ export async function syncCommands() {
     return
   }
 
-  const slashCmds = await fetchCommands()
-  // const body = slashCmds.map((c) => c.prepare())
-  const body = Object.entries(slashCmds ?? {}).map((e) =>
+  const body = Object.entries(slCMDs ?? {}).map((e) =>
     e[1].prepare(e[0]).toJSON(),
   )
 
   // Filter to global and guild commands
-  const whitelistGuildCommands: any[] = []
-  const guildCommands: any[] = []
+  const commands: any[] = []
   const featureData = await getFeatures()
 
   body.forEach((command) => {
     if (!featureData.hasOwnProperty(command.name)) {
       return
     }
+
     // If feature flag is empty, add to command to all guilds
     if (featureData[command.name].length === 0) {
-      guildCommands.push(command)
+      commands.push(command)
       return
-    }
-    // If feature flag is not empty, add to command to whitelist guilds
-    whitelistGuildCommands.push(command)
-  })
-
-  const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
-
-  const guildCommandsByGuild: Record<string, any[]> = {}
-
-  const matchingCommandsMap = whitelistGuildCommands.reduce((map, command) => {
-    map[command.name] = command
-    return map
-  }, {})
-
-  // for each feature, find matching commands and add to whitelist guilds
-  Object.keys(featureData).forEach((feat) => {
-    if (!Array.isArray(featureData[feat]) || featureData[feat].length === 0) {
-      return
-    }
-
-    const matchingCommands = matchingCommandsMap[feat]
-    if (!matchingCommands) {
-      return
-    }
-
-    const guildIds = featureData[feat]
-    guildIds.forEach((guildId) => {
-      if (!guildCommandsByGuild[guildId]) {
-        guildCommandsByGuild[guildId] = []
-      }
-      guildCommandsByGuild[guildId].push(matchingCommands)
-    })
-  })
-
-  // commands that are not in features flag will be added to all guilds
-  guilds?.forEach((guild) => {
-    if (guild.id) {
-      guildCommandsByGuild[guild.id] = guildCommandsByGuild[guild.id] || []
-      guildCommandsByGuild[guild.id].push(guildCommands)
     }
   })
 
-  console.log("Number of guilds:", Object.keys(guildCommandsByGuild).length)
-  await Promise.all(
-    Object.keys(guildCommandsByGuild).map(async (guildId) => {
+  try {
+    logger.info("Started refreshing application (/) commands.")
+    const current = (await rest.get(
+      Routes.applicationCommands(APPLICATION_ID),
+    )) as ModelDiscordCMD[]
+
+    if (current.length < commands.length) {
+      logger.info("Started adding application (/) commands.")
       try {
-        const commands = guildCommandsByGuild[guildId]
-
-        logger.info(
-          `Started refreshing application guild (/) commands for guild: ${guildId}`,
-        )
-        await rest.put(
-          Routes.applicationGuildCommands(APPLICATION_ID, guildId),
+        const resp = await fetch(
+          `https://discord.com/api/v9/applications/${APPLICATION_ID}/commands`,
           {
-            body: [],
+            method: "PUT",
+            headers: {
+              Authorization: `Bot ${DISCORD_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(commands),
           },
         )
-
-        const response: any = await rest.put(
-          Routes.applicationGuildCommands(APPLICATION_ID, guildId),
-          {
-            body: commands.flat(),
-          },
-        )
-
-        await mochiAPI.updateGuild(guildId, response)
-
-        logger.info(
-          `Successfully reloaded application guild (/) commands for guild: ${guildId}. commands: [${commands
-            .flat()
-            .map((c) => c.name)
-            .join(", ")}]`,
-        )
-      } catch (error) {
-        logger.error(
-          `Failed to refresh application guild (/) commands for guild: ${guildId}. ${error}`,
-        )
+        const json = await resp.json()
+        // check if json is array
+        if (!Array.isArray(json)) {
+          console.log(json)
+        }
+      } catch (err) {
+        console.log(err)
       }
-    }),
+      return
+    }
+
+    if (current.length > commands.length) {
+      const promises: Promise<any>[] = []
+      current.forEach((cmd) => {
+        const command = commands.find((c) => c.name === cmd.name)
+        if (!command && cmd.id) {
+          promises.push(
+            new Promise<void>((resolve, reject) => {
+              if (cmd.id) {
+                rest
+                  .delete(Routes.applicationCommand(APPLICATION_ID, cmd.id))
+                  .then(() => {
+                    logger.info(`Deleted command ${cmd.id} ${cmd.name}`)
+                    resolve()
+                  })
+                  .catch((error) => {
+                    reject(error)
+                  })
+              }
+            }),
+          )
+        }
+      })
+      await Promise.all(promises)
+    }
+  } catch (error) {
+    await logger.error(`Failed to register application (/) commands. ${error}`)
+    return
+  }
+
+  await logger.info(
+    `Successfully reloaded application (/) commands. commands: [${commands
+      .map((c) => c.name)
+      .join(", ")}]`,
   )
 
   return
 }
 
 unleash.on("changed", (stream) => {
+  if (!unleash.isEnabled("mochi.discord.cmd.use_global_cmd")) {
+    return
+  }
+
   let changed = false
   try {
     stream.forEach((feature: any) => {
