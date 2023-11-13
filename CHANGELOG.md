@@ -4,49 +4,43 @@
 
 ### Bug Fixes
 
-* sync commands from unleash to reg global command ([#1517](https://github.com/consolelabs/mochi-discord/issues/1517)) ([70f7574](https://github.com/consolelabs/mochi-discord/commit/70f7574fc00c36a1e7c58e8fa8e7520894487b4b))
-
+- sync commands from unleash to reg global command ([#1517](https://github.com/consolelabs/mochi-discord/issues/1517)) ([70f7574](https://github.com/consolelabs/mochi-discord/commit/70f7574fc00c36a1e7c58e8fa8e7520894487b4b))
 
 ### Features
 
-* add ton address validation ([#1518](https://github.com/consolelabs/mochi-discord/issues/1518)) ([2ef1fb0](https://github.com/consolelabs/mochi-discord/commit/2ef1fb032cf0d9ddd5b062aa7c60c394771a9bc0))
+- add ton address validation ([#1518](https://github.com/consolelabs/mochi-discord/issues/1518)) ([2ef1fb0](https://github.com/consolelabs/mochi-discord/commit/2ef1fb032cf0d9ddd5b062aa7c60c394771a9bc0))
 
 # [6.37.0](https://github.com/consolelabs/mochi-discord/compare/v6.36.1...v6.37.0) (2023-11-09)
 
-
 ### Features
 
-* add feature flag to manage cmds ([#1516](https://github.com/consolelabs/mochi-discord/issues/1516)) ([15332ab](https://github.com/consolelabs/mochi-discord/commit/15332abc186e2b48174c9b314aaacc52fc86f553))
-* show vault tx in /feed command ([74986f2](https://github.com/consolelabs/mochi-discord/commit/74986f2ea28ec4295116966d5242f8e428faaabf))
+- add feature flag to manage cmds ([#1516](https://github.com/consolelabs/mochi-discord/issues/1516)) ([15332ab](https://github.com/consolelabs/mochi-discord/commit/15332abc186e2b48174c9b314aaacc52fc86f553))
+- show vault tx in /feed command ([74986f2](https://github.com/consolelabs/mochi-discord/commit/74986f2ea28ec4295116966d5242f8e428faaabf))
 
 # [6.37.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.37.0-rc.1...v6.37.0-rc.2) (2023-11-09)
 
-
 ### Features
 
-* add feature flag to manage cmds ([#1516](https://github.com/consolelabs/mochi-discord/issues/1516)) ([15332ab](https://github.com/consolelabs/mochi-discord/commit/15332abc186e2b48174c9b314aaacc52fc86f553))
+- add feature flag to manage cmds ([#1516](https://github.com/consolelabs/mochi-discord/issues/1516)) ([15332ab](https://github.com/consolelabs/mochi-discord/commit/15332abc186e2b48174c9b314aaacc52fc86f553))
 
 # [6.37.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.36.1...v6.37.0-rc.1) (2023-11-06)
 
-
 ### Features
 
-* show vault tx in /feed command ([74986f2](https://github.com/consolelabs/mochi-discord/commit/74986f2ea28ec4295116966d5242f8e428faaabf))
+- show vault tx in /feed command ([74986f2](https://github.com/consolelabs/mochi-discord/commit/74986f2ea28ec4295116966d5242f8e428faaabf))
 
 ## [6.36.1](https://github.com/consolelabs/mochi-discord/compare/v6.36.0...v6.36.1) (2023-11-03)
 
-
 ### Bug Fixes
 
-* transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([ef456fd](https://github.com/consolelabs/mochi-discord/commit/ef456fd99658d90f8c773ec405410e70200d94bd))
-* transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([bad88b2](https://github.com/consolelabs/mochi-discord/commit/bad88b2e1342095ef240a262fd438bfe1a45f2b4))
+- transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([ef456fd](https://github.com/consolelabs/mochi-discord/commit/ef456fd99658d90f8c773ec405410e70200d94bd))
+- transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([bad88b2](https://github.com/consolelabs/mochi-discord/commit/bad88b2e1342095ef240a262fd438bfe1a45f2b4))
 
 # [6.36.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.36.0-rc.1...v6.36.0-rc.2) (2023-11-02)
 
-
 ### Bug Fixes
 
-* transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([bad88b2](https://github.com/consolelabs/mochi-discord/commit/bad88b2e1342095ef240a262fd438bfe1a45f2b4))
+- transfer-v2 authorization ([#1514](https://github.com/consolelabs/mochi-discord/issues/1514)) ([bad88b2](https://github.com/consolelabs/mochi-discord/commit/bad88b2e1342095ef240a262fd438bfe1a45f2b4))
 
 # [6.36.0](https://github.com/consolelabs/mochi-discord/compare/v6.35.2...v6.36.0) (2023-11-02)
 
