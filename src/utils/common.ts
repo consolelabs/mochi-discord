@@ -26,7 +26,9 @@ import {
   reverseLookup as performReverseLookup,
 } from "@bonfida/spl-name-service"
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
+import { Address } from "@ton/core"
 
+import { emojis as fetchedEmojis } from "../"
 import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
@@ -34,7 +36,6 @@ import {
   traitEmojis,
   traitTypeMapping,
 } from "./nft"
-import { emojis as fetchedEmojis } from ".."
 
 dayjs.extend(relativeTime)
 
@@ -830,6 +831,16 @@ export function isValidSuiAddress(value: string): boolean {
   return isHex(value) && getHexByteLength(value) === SUI_ADDRESS_LENGTH
 }
 
+export function isValidTonAddress(value: string): boolean {
+  try {
+    Address.parse(value)
+  } catch (e) {
+    return false
+  }
+
+  return true
+}
+
 export function isValidRoninAddress(value: string): boolean {
   return value.length === 46 && value.toLowerCase().startsWith("ronin:")
 }
@@ -839,6 +850,7 @@ export enum AddressChainType {
   SOL = "SOL",
   SUI = "SUI",
   RON = "RON",
+  TON = "TON",
   UNKNOWN = "",
 }
 
@@ -861,6 +873,9 @@ export function isAddress(address: string): {
     }
     if (PublicKey.isOnCurve(new PublicKey(address))) {
       return { valid: true, chainType: AddressChainType.SOL }
+    }
+    if (isValidTonAddress(address)) {
+      return { valid: true, chainType: AddressChainType.TON }
     }
   } catch (e) {
     return { valid: false, chainType: AddressChainType.UNKNOWN }
