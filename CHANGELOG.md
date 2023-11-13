@@ -1,3 +1,15 @@
+# [6.37.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.37.0-rc.2...v6.37.0-rc.3) (2023-11-13)
+
+
+### Bug Fixes
+
+* sync commands from unleash to reg global command ([#1517](https://github.com/consolelabs/mochi-discord/issues/1517)) ([70f7574](https://github.com/consolelabs/mochi-discord/commit/70f7574fc00c36a1e7c58e8fa8e7520894487b4b))
+
+
+### Features
+
+* add ton address validation ([#1518](https://github.com/consolelabs/mochi-discord/issues/1518)) ([2ef1fb0](https://github.com/consolelabs/mochi-discord/commit/2ef1fb032cf0d9ddd5b062aa7c60c394771a9bc0))
+
 # [6.37.0](https://github.com/consolelabs/mochi-discord/compare/v6.36.1...v6.37.0) (2023-11-09)
 
 
