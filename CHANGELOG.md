@@ -1,3 +1,10 @@
+## [6.38.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.0...v6.38.1) (2023-11-13)
+
+
+### Bug Fixes
+
+* solana addr checking blocks any other checkings behind it ([#1519](https://github.com/consolelabs/mochi-discord/issues/1519)) ([fd4012d](https://github.com/consolelabs/mochi-discord/commit/fd4012d0a15593f91c6fabaf53557c87b5c0271c))
+
 ## [6.38.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.0...v6.38.1-rc.1) (2023-11-13)
 
 
