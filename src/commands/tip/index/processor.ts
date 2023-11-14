@@ -92,10 +92,7 @@ export async function tip(
   }
 
   const guildName = msgOrInteraction.guild?.name ?? ""
-  const channelName =
-    msgOrInteraction.channel instanceof TextChannel
-      ? msgOrInteraction.channel.name
-      : ""
+  const guildAvatar = msgOrInteraction.guild?.iconURL()
   const channel_url = await getChannelUrl(msgOrInteraction)
 
   const payload: TransferPayload = {
@@ -104,7 +101,7 @@ export async function tip(
     recipients: [...new Set(recipients)],
     guild_id: msgOrInteraction.guildId ?? "",
     channel_id: msgOrInteraction.channelId,
-    channel_name: `${guildName}:${channelName}`,
+    channel_name: `${guildName}`,
     channel_url,
     amount,
     token: symbol,
@@ -117,6 +114,7 @@ export async function tip(
     moniker: "",
     platform: "discord",
     original_amount: originalAmount,
+    channel_avatar: guildAvatar,
   }
 
   if (moniker !== undefined) {
