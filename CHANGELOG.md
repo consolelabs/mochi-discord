@@ -1,3 +1,10 @@
+## [6.38.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.1...v6.38.2) (2023-11-15)
+
+
+### Bug Fixes
+
+* track tx channel avatar ([#1521](https://github.com/consolelabs/mochi-discord/issues/1521)) ([32ff5a6](https://github.com/consolelabs/mochi-discord/commit/32ff5a6c348a0632de41ccc86b2d8b0841ef3a33))
+
 ## [6.38.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.1...v6.38.2-rc.1) (2023-11-14)
 
 
