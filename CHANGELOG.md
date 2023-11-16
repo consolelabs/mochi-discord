@@ -1,3 +1,10 @@
+## [6.38.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.38.2-rc.2...v6.38.2-rc.3) (2023-11-16)
+
+
+### Bug Fixes
+
+* mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([bc1cf2c](https://github.com/consolelabs/mochi-discord/commit/bc1cf2cec28d56f25c8b847fa8766aa23108d2f4))
+
 ## [6.38.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.2-rc.1...v6.38.2-rc.2) (2023-11-16)
 
 
