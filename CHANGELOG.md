@@ -1,3 +1,10 @@
+## [6.38.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.2-rc.1...v6.38.2-rc.2) (2023-11-16)
+
+
+### Bug Fixes
+
+* sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([a3afa71](https://github.com/consolelabs/mochi-discord/commit/a3afa719c853299a33d8f000ea599a951306df86))
+
 ## [6.38.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.1...v6.38.2) (2023-11-15)
 
 
