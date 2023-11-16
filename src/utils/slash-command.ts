@@ -27,9 +27,10 @@ export async function syncCommands() {
     return
   }
 
-  const body = Object.entries(slCMDs ?? {}).map((e) =>
-    e[1].prepare(e[0]).toJSON(),
-  )
+  const body = Object.entries(slCMDs ?? {}).map((e) => ({
+    ...e[1].prepare(e[0]).toJSON(),
+    name: e[0],
+  }))
 
   // Filter to global and guild commands
   const commands: any[] = []
