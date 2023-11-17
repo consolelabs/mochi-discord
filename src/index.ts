@@ -72,7 +72,6 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
   try {
     await initUnleash()
-    await syncCommands()
     unleash.on("changed", (stream: any) => {
       if (!unleash.isEnabled(`${appName}.discord.cmd.unleash_on_changed`)) {
         return
