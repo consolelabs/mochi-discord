@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Discord from "discord.js"
-import { API_SERVER_HOST, DISCORD_TOKEN, PORT } from "./env"
+import { API_SERVER_HOST, DEV, DISCORD_TOKEN, PORT } from "./env"
 import { REST } from "@discordjs/rest"
 import { logger } from "logger"
 import { slashCommands } from "commands"
@@ -10,7 +10,7 @@ import { run } from "queue/kafka/producer"
 import { IS_READY } from "listeners/discord/ready"
 import events from "listeners/discord"
 import { getTipsAndFacts } from "cache/tip-fact-cache"
-import { syncCommands } from "utils/slash-command"
+import { registerCommand, syncCommands } from "utils/slash-command"
 import { appName, initUnleash, unleash } from "adapters/unleash/unleash"
 import { isEqual } from "lodash"
 export { slashCommands }
@@ -71,50 +71,54 @@ const body = Object.entries(slashCommands ?? {}).map((e) =>
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 ;(async () => {
   try {
-    await initUnleash()
-    unleash.on("changed", (stream: any) => {
-      if (!unleash.isEnabled(`${appName}.discord.cmd.unleash_on_changed`)) {
-        return
-      }
+    if (DEV) {
+      await registerCommand()
+    } else {
+      await initUnleash()
+      unleash.on("changed", (stream: any) => {
+        if (!unleash.isEnabled(`${appName}.discord.cmd.unleash_on_changed`)) {
+          return
+        }
 
-      let changed = false
-      try {
-        stream.forEach((feature: any) => {
-          if (
-            typeof feature.name !== "string" ||
-            !feature.name.includes(appName)
-          ) {
-            return
-          }
+        let changed = false
+        try {
+          stream.forEach((feature: any) => {
+            if (
+              typeof feature.name !== "string" ||
+              !feature.name.includes(appName)
+            ) {
+              return
+            }
 
-          // if feature data is empty, it means that onchange is triggered by the first time
-          if (featureData.length === 0) {
-            changed = true
-          }
+            // if feature data is empty, it means that onchange is triggered by the first time
+            if (featureData.length === 0) {
+              changed = true
+            }
 
-          // assign feature data if feature data is empty to store featureData's stage
-          if (!featureData[feature.name]) {
+            // assign feature data if feature data is empty to store featureData's stage
+            if (!featureData[feature.name]) {
+              featureData[feature.name] = feature
+              return
+            }
+
+            if (!isEqual(featureData[feature.name], feature)) {
+              logger.info("Unleash toggles updated")
+              changed = true
+            }
+
             featureData[feature.name] = feature
-            return
-          }
-
-          if (!isEqual(featureData[feature.name], feature)) {
-            logger.info("Unleash toggles updated")
-            changed = true
-          }
-
-          featureData[feature.name] = feature
-        })
-      } catch (error) {
-        console.log(error)
-      }
-      if (changed) {
-        syncCommands()
-        logger.info("Unleash toggles synced")
-      } else {
-        logger.info("Unleash toggles not changed")
-      }
-    })
+          })
+        } catch (error) {
+          console.log(error)
+        }
+        if (changed) {
+          syncCommands()
+          logger.info("Unleash toggles synced")
+        } else {
+          logger.info("Unleash toggles not changed")
+        }
+      })
+    }
 
     logger.info("Getting tips and facts.")
     await getTipsAndFacts()
