@@ -1,3 +1,13 @@
+## [6.38.3](https://github.com/consolelabs/mochi-discord/compare/v6.38.2...v6.38.3) (2023-11-16)
+
+
+### Bug Fixes
+
+* mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([91e1844](https://github.com/consolelabs/mochi-discord/commit/91e1844f8de6917a4f1ce9e79c848df0b23c6b6e))
+* mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([bc1cf2c](https://github.com/consolelabs/mochi-discord/commit/bc1cf2cec28d56f25c8b847fa8766aa23108d2f4))
+* sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([cfa001e](https://github.com/consolelabs/mochi-discord/commit/cfa001e5e45f173bb2e9e2d5fd1784aaef4085ab))
+* sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([a3afa71](https://github.com/consolelabs/mochi-discord/commit/a3afa719c853299a33d8f000ea599a951306df86))
+
 ## [6.38.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.38.2-rc.2...v6.38.2-rc.3) (2023-11-16)
 
 
