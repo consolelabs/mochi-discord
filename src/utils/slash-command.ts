@@ -12,12 +12,6 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 
 export async function syncCommands() {
   logger.info("Started refreshing application (/) commands.")
-
-  if (DEV) {
-    await registerCommand()
-    return
-  }
-
   const body = Object.entries(slCMDs ?? {}).map((e) => ({
     ...e[1].prepare(e[0]).toJSON(),
     name: e[0],
