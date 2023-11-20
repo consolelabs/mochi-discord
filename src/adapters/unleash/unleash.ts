@@ -10,17 +10,20 @@ import { Unleash } from "unleash-client"
 import { logger } from "logger"
 
 export const appName = "mochi"
-export let featureData: Record<string, FeatureData>[] = []
-export const unleash = new Unleash({
-  url: `${UNLEASH_SERVER_HOST}/api`,
-  appName: appName,
-  projectName: UNLEASH_PROJECT,
-  customHeaders: { Authorization: UNLEASH_API_TOKEN },
-})
+export let unleash: Unleash
 
-unleash.on("ready", () => {
-  logger.info("Unleash READY")
-})
+export async function initUnleash() {
+  unleash = new Unleash({
+    url: `${UNLEASH_SERVER_HOST}/api`,
+    appName: appName,
+    projectName: UNLEASH_PROJECT,
+    customHeaders: { Authorization: UNLEASH_API_TOKEN },
+  })
+
+  unleash.on("ready", () => {
+    logger.info("Unleash READY")
+  })
+}
 
 export async function getProjectFeatures(
   projectId: string,
@@ -105,6 +108,12 @@ export async function getFeatures(
           const parts = name.split(".")
           // Extract values from "strategies" constraints with "contextName" as "guildId"
           environmentData.strategies.forEach((strat) => {
+            if (featureData[parts[parts.length - 1]]) {
+              featureData[parts[parts.length - 1]].push(
+                ...collectGuildIdValues(strat),
+              )
+              return
+            }
             featureData[parts[parts.length - 1]] = collectGuildIdValues(strat)
           })
         }
