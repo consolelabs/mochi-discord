@@ -1,3 +1,10 @@
+## [6.38.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.3...v6.38.4-rc.1) (2023-11-20)
+
+
+### Bug Fixes
+
+* handle tag me error and remove gm ([#1525](https://github.com/consolelabs/mochi-discord/issues/1525)) ([1380cac](https://github.com/consolelabs/mochi-discord/commit/1380cac3ff577825ff34bc82b7bf77f318035e53))
+
 ## [6.38.3](https://github.com/consolelabs/mochi-discord/compare/v6.38.2...v6.38.3) (2023-11-16)
 
 
