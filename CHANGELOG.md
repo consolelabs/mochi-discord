@@ -1,3 +1,12 @@
+## [6.38.5](https://github.com/consolelabs/mochi-discord/compare/v6.38.4...v6.38.5) (2023-11-20)
+
+
+### Bug Fixes
+
+* fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
+
+<<<<<<< HEAD
+=======
 ## [6.38.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.4-rc.1...v6.38.4-rc.2) (2023-11-20)
 
 
@@ -5,6 +14,7 @@
 
 * fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
 
+>>>>>>> preview
 ## [6.38.4](https://github.com/consolelabs/mochi-discord/compare/v6.38.3...v6.38.4) (2023-11-20)
 
 
