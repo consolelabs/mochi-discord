@@ -1,3 +1,10 @@
+## [6.38.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.5...v6.38.6-rc.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* bring reaction role back ([#1526](https://github.com/consolelabs/mochi-discord/issues/1526)) ([e70449a](https://github.com/consolelabs/mochi-discord/commit/e70449a333b421bfe983d5f08794b59158baaee6))
+
 ## [6.38.5](https://github.com/consolelabs/mochi-discord/compare/v6.38.4...v6.38.5) (2023-11-20)
 
 
