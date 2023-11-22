@@ -249,11 +249,12 @@ class MochiPay extends Fetcher {
     )
   }
 
-  // [@anhnh] TODO: hard code appId for now, need a patch
   async approveTransferRequest({
+    headers,
     requestCode,
     appId = "1",
   }: {
+    headers: Record<string, string>
     requestCode: string
     appId?: string
   }) {
@@ -261,15 +262,17 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/approved`,
       {
         method: "POST",
+        headers,
       },
     )
   }
 
-  // [@anhnh] TODO: hard code appId for now, need a patch
   async rejectTransferRequest({
+    headers,
     requestCode,
     appId = "1",
   }: {
+    headers: Record<string, string>
     requestCode: string
     appId?: string
   }) {
@@ -277,6 +280,7 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/rejected`,
       {
         method: "POST",
+        headers,
       },
     )
   }

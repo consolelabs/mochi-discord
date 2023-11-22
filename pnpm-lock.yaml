@@ -26,6 +26,9 @@ dependencies:
   '@haileybot/captcha-generator':
     specifier: ^1.7.0
     version: 1.7.0
+  '@noble/ed25519':
+    specifier: ^2.0.0
+    version: 2.0.0
   '@sentry/node':
     specifier: ^7.58.1
     version: 7.58.1
@@ -1826,6 +1829,10 @@ packages:
 
   /@noble/ed25519@1.7.3:
     resolution: {integrity: sha512-iR8GBkDt0Q3GyaVcIu7mSsVIqnFbkbRzGLWlvhwunacoLwt4J3swfKhfaM6rN6WY+TBGoYT1GtT1mIh2/jGbRQ==}
+    dev: false
+
+  /@noble/ed25519@2.0.0:
+    resolution: {integrity: sha512-/extjhkwFupyopDrt80OMWKdLgP429qLZj+z6sYJz90rF2Iz0gjZh2ArMKPImUl13Kx+0EXI2hN9T/KJV0/Zng==}
     dev: false
 
   /@noble/hashes@1.1.2:
