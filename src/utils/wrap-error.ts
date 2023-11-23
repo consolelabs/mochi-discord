@@ -5,32 +5,25 @@ import { Sentry } from "sentry"
 import { version } from "../../package.json"
 import { PRODUCT_NAME } from "./constants"
 
-const cc: Record<string, any> = {
-  extra: {
-    version: `v${version}`,
-  },
-  contexts: {},
+function isMsg(msg: any): msg is Message {
+  return msg instanceof Message
 }
 
 export async function wrapError(
   msg: Message | CommandInteraction | string,
   func: () => Promise<void>,
 ) {
+  const cc: Record<string, any> = {
+    extra: {
+      version: `v${version}`,
+    },
+    contexts: {},
+  }
+
   try {
     await func()
   } catch (e: any) {
     let commandStr = ""
-
-    // get command name from text command
-    if (msg instanceof Message) {
-      commandStr = `/${getCommandMetadata(commands, msg).commandKey}`
-    }
-
-    // get command name from slash command
-    if (msg instanceof CommandInteraction) commandStr = `/${msg.commandName}`
-
-    // prepend product name and command name
-    e.name = `${PRODUCT_NAME}: ${commandStr} ${e.name}`
 
     if (typeof msg === "string") {
       // event
@@ -45,9 +38,28 @@ export async function wrapError(
         id: msg.guildId,
         name: msg.guild?.name || "Unknown guild",
       }
-
       cc.contexts.command = { raw: commandStr }
+
+      // get command name from text command
+      if (
+        !commandStr &&
+        isMsg(msg) &&
+        msg.interaction?.type === "APPLICATION_COMMAND"
+      )
+        commandStr = `/${msg.interaction.commandName}`
+
+      // get command name from slash command
+      if (!commandStr && msg instanceof CommandInteraction)
+        commandStr = `/${msg.commandName}`
+
+      if (!commandStr && isMsg(msg))
+        commandStr = `/${
+          getCommandMetadata(commands, msg as Message).commandKey
+        }`
     }
+
+    // prepend product name and command name
+    e.name = `${PRODUCT_NAME}: ${commandStr} ⎯  ${e.name}`
 
     Sentry.captureException(e, cc)
   }

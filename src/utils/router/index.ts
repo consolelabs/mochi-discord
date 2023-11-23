@@ -15,7 +15,6 @@ import {
   StatesConfig,
 } from "xstate"
 import { authorFilter, getEmoji } from "../common"
-import { stack } from "../stack-trace"
 import { wrapError } from "../wrap-error"
 import CacheManager from "cache/node-cache"
 import { Handler, MachineConfig, MachineOptions } from "./types"
@@ -23,7 +22,6 @@ import { merge } from "lodash"
 import { getRandomFact } from "cache/tip-fact-cache"
 import { PROD } from "env"
 import { profilingAsyncStore } from "utils/async-storages"
-import { logger } from "logger"
 
 export type { MachineConfig }
 
@@ -155,21 +153,43 @@ export function route(
           if (!event.interaction || event.dry) return
           if (event.interaction.isButton()) {
             context.steps?.push(
-              `Click: button ${event.interaction.component.label} (id: ${event.interaction.customId})`,
+              {
+                type: "button",
+                data: {
+                  label: event.interaction.component.label,
+                  id: event.interaction.customId,
+                },
+              },
+              // `Click button ${event.interaction.component.label} (id: ${event.interaction.customId})`,
             )
-            context.steps?.push(
-              `Transition: ${event.prevState} -> ${event.state}`,
-            )
+            context.steps?.push({
+              type: "view",
+              data: {
+                old: event.prevState,
+                new: event.state,
+              },
+            })
           } else if (event.interaction.isSelectMenu()) {
             const [value] = event.interaction.values
             const label =
               event.interaction.component.options.find(
                 (opt: any) => opt.value === value,
               )?.label ?? "___"
-            context.steps?.push(`Select: option ${label} (value: ${value})`)
-            context.steps?.push(
-              `Transition: ${event.prevState} -> ${event.state}`,
-            )
+            context.steps?.push({
+              type: "select",
+              data: {
+                label,
+                value,
+                id: event.interaction.customId,
+              },
+            })
+            context.steps?.push({
+              type: "view",
+              data: {
+                old: event.prevState,
+                new: event.state,
+              },
+            })
           }
         },
         transition: (context, event) => {
@@ -179,6 +199,7 @@ export function route(
             interaction,
             state,
             context: oldContext,
+            reply,
           } = event
           if (!interaction || !state || dry || state === "steps") return
           let composer: Handler | undefined
@@ -188,7 +209,7 @@ export function route(
             composer = context.select?.[state]
           }
 
-          wrapError(interaction, async () => {
+          wrapError(reply, async () => {
             if (!composer) return
             try {
               // handle pagination for user
@@ -244,11 +265,15 @@ export function route(
                 }
               })
             } catch (e: any) {
-              context.steps?.push(e.name)
-              context.steps?.push(stack.clean(e.stack ?? ""))
+              const firstComponent = context.steps?.find(
+                (s) => s.type === "select" || s.type === "button",
+              )
 
-              if (context.steps) {
-                logger.error(context.steps?.toString())
+              if (firstComponent) {
+                const { type, data } = firstComponent
+                const { id } = data
+
+                e.name = `${type} ${id} ⎯  ${e.name}: ${e.message}`
               }
 
               throw e
@@ -299,6 +324,7 @@ export function route(
           interaction: i,
           dry: true,
           context,
+          reply,
         })
 
         if (!i.deferred && !modal[event]) {
@@ -314,6 +340,7 @@ export function route(
           interaction: i,
           context,
           dry: true,
+          reply,
         })
         if (can) {
           const prevState = currentState.toStrings().at(-1)?.split(".").at(-1)
@@ -326,6 +353,7 @@ export function route(
             state,
             canBack: nextState.can(RouterSpecialAction.BACK),
             context,
+            reply,
           })
         }
 
