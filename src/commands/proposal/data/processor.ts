@@ -5,6 +5,7 @@ import {
   EmbedFieldData,
   ButtonInteraction,
   MessageSelectMenu,
+  CommandInteraction,
 } from "discord.js"
 import { APIError, GuildIdNotFoundError, OriginalMessage } from "errors"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
@@ -16,7 +17,7 @@ import community from "adapters/community"
 import { PROPOSAL_INTERNAL_CHANNEL_ID } from "env"
 import { DOT } from "utils/constants"
 
-export async function process(message: OriginalMessage) {
+export async function process(message: Message | CommandInteraction) {
   // Just been used in mochi internal channel
   if (message.channelId !== PROPOSAL_INTERNAL_CHANNEL_ID) {
     return
@@ -274,10 +275,7 @@ export async function process(message: OriginalMessage) {
   }
 
   const collectPaginationButton = (msg: Message) => {
-    const render = async (
-      _message: OriginalMessage | undefined,
-      pageIdx: number,
-    ) => {
+    const render = async (pageIdx: number) => {
       const { embeds, components } = await composeCurrentView(pageIdx)
       return {
         messageOptions: {
@@ -288,7 +286,7 @@ export async function process(message: OriginalMessage) {
     }
     listenForPaginateAction(
       msg,
-      null,
+      message,
       render,
       false,
       true,

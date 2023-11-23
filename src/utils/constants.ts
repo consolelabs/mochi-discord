@@ -9,6 +9,8 @@ import {
   GAME_STORE_API_SERVER_HOST,
   ECOCAL_API_SERVER_HOST,
   MOCHI_GUESS_API_HOST,
+  PREVIEW,
+  PROD,
 } from "env"
 
 export const DOT = "•"
@@ -30,6 +32,10 @@ export const PROFILE_THUMBNAIL =
   "https://cdn.discordapp.com/emojis/916737804384485447.png?size=240"
 
 export const DEFI_DEFAULT_FOOTER = `Use ${PREFIX}tokens for a list of supported tokens`
+
+export const PRODUCT_NAME = `[Mochi Discord ${
+  PREVIEW ? "beta" : PROD ? "prod" : "dev"
+}]` as const
 
 export const API_BASE_URL = `${API_SERVER_HOST}/api/v1`
 export const PT_API_BASE_URL = `${PT_API_SERVER_HOST}/api/v1`
