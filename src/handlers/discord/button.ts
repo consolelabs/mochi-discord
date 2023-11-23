@@ -64,11 +64,8 @@ export function listenForPaginateInteraction(
 
 export function listenForPaginateAction(
   replyMsg: Message,
-  originalMsg: Message | null,
-  render: (
-    msg: Message | undefined,
-    pageIdx: number,
-  ) => Promise<{ messageOptions: MessageOptions }>,
+  originalMsg: Message | CommandInteraction,
+  render: (pageIdx: number) => Promise<{ messageOptions: MessageOptions }>,
   withAttachmentUpdate?: boolean,
   withMultipleComponents?: boolean,
   filter?: CollectorFilter<[ButtonInteraction]>,
@@ -81,15 +78,17 @@ export function listenForPaginateAction(
     .createMessageComponentCollector({
       componentType: Constants.MessageComponentTypes.BUTTON,
       idle: 60000,
-      filter: filter ? filter : authorFilter(originalMsg?.author.id ?? ""),
+      filter: filter
+        ? filter
+        : authorFilter(originalMsg?.member?.user.id ?? ""),
     })
     .on("collect", (i) => {
-      wrapError(i, async () => {
+      wrapError(originalMsg, async () => {
         const [pageStr, opStr, totalPage] = i.customId.split("_").slice(1)
         const page = +pageStr + operators[opStr]
         const {
           messageOptions: { embeds, components, files },
-        } = await render(originalMsg ?? undefined, page)
+        } = await render(page)
         const msgComponents = withMultipleComponents
           ? components
           : getPaginationRow(page, +totalPage)

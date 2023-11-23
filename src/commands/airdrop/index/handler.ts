@@ -176,7 +176,7 @@ async function confirmAirdrop(
   opts.entries =
     opts.entries || getMaximumRecipients(payload.amount, payload.decimal ?? 18)
 
-  checkExpiredAirdrop(i, cacheKey, payload, opts)
+  await checkExpiredAirdrop(i, cacheKey, payload, opts)
 
   const buttonRow = new MessageActionRow().addComponents(
     new MessageButton({
@@ -196,7 +196,7 @@ async function confirmAirdrop(
   }
 }
 
-function checkExpiredAirdrop(
+async function checkExpiredAirdrop(
   i: ButtonInteraction,
   cacheKey: string,
   payload: TransferPayload,
@@ -205,8 +205,15 @@ function checkExpiredAirdrop(
   const { token, amount_string = "", token_price = 0 } = payload
   const amount = +amount_string
   const usdAmount = amount * token_price
+
+  const msg = i.message as Message
+  let ref: Message | CommandInteraction = await msg.fetchReference()
+  if (ref?.interaction?.type === "APPLICATION_COMMAND") {
+    ref = ref.interaction as CommandInteraction
+  }
+
   airdropCache.on("expired", (key, participants: string[]) => {
-    wrapError(i, async () => {
+    wrapError(ref, async () => {
       if (key !== cacheKey) {
         return
       }
@@ -336,38 +343,6 @@ function sendAuthorDm(
 
   // send dm
   dmUser({ embeds: [embed] }, i.user, null, i)
-}
-
-function sendRecipientsDm(
-  i: ButtonInteraction,
-  participants: string[],
-  token: string,
-  amountEach: string,
-) {
-  participants.forEach(async (p) => {
-    const { value } = parseDiscordToken(p)
-    const user = await i.guild?.members.fetch(value)
-    const embed = composeEmbedMessage(null, {
-      author: [
-        `You have joined ${i.user.username}'s airdrop`,
-        getEmojiURL(emojis.CHECK),
-      ],
-      description: `You have received ${APPROX} ${getEmoji(
-        token as TokenEmojiKey,
-      )} ${formatDigit({ value: amountEach })} ${token} from ${
-        i.user
-      }'s airdrop! Let's claim it by using </withdraw:1062577077708136503>. ${getEmoji(
-        "ANIMATED_WITHDRAW",
-        true,
-      )}`,
-      color: msgColors.ACTIVITY,
-    })
-
-    // send dm
-    if (user !== undefined) {
-      dmUser({ embeds: [embed] }, user.user, null, i, `<@${user.id}>, `, "")
-    }
-  })
 }
 
 /*
