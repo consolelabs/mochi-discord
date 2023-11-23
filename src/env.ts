@@ -103,3 +103,5 @@ export const UNLEASH_SERVER_HOST =
 export const UNLEASH_PAT_TOKEN = process.env.UNLEASH_PAT_TOKEN || ""
 export const UNLEASH_API_TOKEN = process.env.UNLEASH_API_TOKEN || ""
 export const UNLEASH_PROJECT = process.env.UNLEASH_PROJECT || "default"
+
+export const MOCHI_APP_PRIVATE_KEY = process.env.MOCHI_APP_PRIVATE_KEY || ""

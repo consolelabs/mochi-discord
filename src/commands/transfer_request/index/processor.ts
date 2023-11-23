@@ -1,23 +1,46 @@
 import { ButtonInteraction, Message } from "discord.js"
 import mochiPay from "../../../adapters/mochi-pay"
 import { emojis, getEmojiURL } from "../../../utils/common"
+import * as ed25519 from "@noble/ed25519"
+import { sha512 } from "@noble/hashes/sha512"
+import { MOCHI_APP_PRIVATE_KEY } from "env"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+ed25519.etc.sha512Async = (...m) =>
+  Promise.resolve(sha512(ed25519.etc.concatBytes(...m)))
+
+export async function getMochiApplicationHeaders() {
+  const privKey = new Uint8Array(
+    Buffer.from(MOCHI_APP_PRIVATE_KEY, "hex"),
+  ).slice(0, 32)
+  const message = Math.floor(new Date().getTime() / 1000).toString()
+  const messageHex = Buffer.from(message, "utf-8")
+  const signature = await ed25519.signAsync(messageHex, privKey)
+  return {
+    "X-Message": message,
+    "X-Signature": ed25519.etc.bytesToHex(Buffer.from(signature)),
+    "X-Application": "Mochi",
+  }
+}
 
 export async function approveTransferReq(i: ButtonInteraction) {
-  await i.deferUpdate()
-  const requestCode = i.customId.split("-")[1]
-  if (!requestCode) {
+  // await i.deferReply()
+  const [_, requestCode, appId] = i.customId.split("-")
+  if (!requestCode || isNaN(+appId)) {
     return
   }
-  const msg = i.message as Message
 
+  const appHeaders = await getMochiApplicationHeaders()
   const { ok, status } = await mochiPay.approveTransferRequest({
+    headers: appHeaders,
+    appId,
     requestCode,
   })
   if (!ok) {
-    handleTransferRequestErr(msg, status)
+    handleTransferRequestErr(i, status)
     return
   }
 
+  const msg = i.message as Message
   const embed = msg.embeds[0]
   embed.setAuthor({
     iconURL: getEmojiURL(emojis.APPROVE),
@@ -27,21 +50,24 @@ export async function approveTransferReq(i: ButtonInteraction) {
 }
 
 export async function rejectTransferReq(i: ButtonInteraction) {
-  await i.deferUpdate()
-  const requestCode = i.customId.split("-")[1]
-  if (!requestCode) {
+  // await i.deferReply()
+  const [_, requestCode, appId] = i.customId.split("-")
+  if (!requestCode || isNaN(+appId)) {
     return
   }
-  const msg = i.message as Message
 
+  const appHeaders = await getMochiApplicationHeaders()
   const { ok, status } = await mochiPay.rejectTransferRequest({
+    headers: appHeaders,
+    appId,
     requestCode,
   })
   if (!ok) {
-    handleTransferRequestErr(msg, status)
+    handleTransferRequestErr(i, status)
     return
   }
 
+  const msg = i.message as Message
   const embed = msg.embeds[0]
   embed.setAuthor({
     iconURL: getEmojiURL(emojis.REVOKE),
@@ -51,20 +77,18 @@ export async function rejectTransferReq(i: ButtonInteraction) {
 }
 
 async function handleTransferRequestErr(
-  msg: Message,
+  i: ButtonInteraction,
   status: number | undefined,
 ) {
-  const embed = msg.embeds[0]
-  switch (status) {
-    case 400:
-      embed.setAuthor({
-        iconURL: getEmojiURL(emojis.REVOKE),
-        name: "Invalid request",
-      })
-      embed.setDescription("Transfer request is not found or expired")
-      await msg.edit({ embeds: [embed], components: [] })
-      return
-    default:
-      return
+  if (status === 400) {
+    const embed = composeEmbedMessage(null, {
+      author: ["Action failed!", getEmojiURL(emojis.REVOKE)],
+      description:
+        "Transfer request is not available at the moment!\nPlease try again later!",
+    })
+
+    await i.reply({ embeds: [embed], ephemeral: true })
   }
+
+  return
 }

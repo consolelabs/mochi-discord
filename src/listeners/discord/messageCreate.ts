@@ -4,6 +4,9 @@ import { textCommandAsyncStore } from "utils/async-storages"
 import { PREFIX } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "./index"
+import { logger } from "logger"
+import { Sentry } from "sentry"
+import { version } from "../../../package.json"
 
 const events: DiscordEvent<"messageCreate"> = {
   name: "messageCreate",
@@ -34,7 +37,23 @@ const events: DiscordEvent<"messageCreate"> = {
             return
           }
 
-          tagme.handle(message)
+          // not showing error to user
+          try {
+            await tagme.handle(message)
+          } catch (e: any) {
+            logger.error(e)
+            Sentry.captureException(e, {
+              contexts: {
+                user: {
+                  id: message.author.id,
+                  username: message.author.username,
+                },
+                app: {
+                  app_version: `v${version}`,
+                },
+              },
+            })
+          }
         })
       },
     )
