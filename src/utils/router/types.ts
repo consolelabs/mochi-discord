@@ -8,7 +8,7 @@ import { createMachine } from "xstate"
 export type Context = {
   button?: ButtonContext
   select?: SelectContext
-  steps?: string[]
+  steps?: { type: "button" | "select" | "view"; data: any }[]
   modal?: Record<string, true>
   ephemeral?: Record<string, true>
   [K: string]: any

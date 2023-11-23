@@ -1,7 +1,6 @@
 import { DiscordEvent } from "."
 import Discord from "discord.js"
 import { PREFIX } from "utils/constants"
-import ChannelLogger from "logger/channel"
 import { invites } from "utils/invites"
 import { setTimeout as wait } from "timers/promises"
 import defi from "adapters/defi"
@@ -15,10 +14,10 @@ const event: DiscordEvent<"ready"> = {
   name: "ready",
   once: false,
   execute: async (client) => {
-    return await wrapError({ event: "ready" }, async () => {
+    client
+    return await wrapError("ready", async () => {
       if (!client.user) return
       logger.info(`Bot [${client.user.username}] is ready`)
-      ChannelLogger.ready(client)
       InteractionManager.client = client
       // get gas price and show in presence message every 15s
       const chains = ["eth", "ftm", "bsc", "matic"]

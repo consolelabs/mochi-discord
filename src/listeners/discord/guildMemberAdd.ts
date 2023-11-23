@@ -1,18 +1,13 @@
 import { DiscordEvent } from "."
-import Discord, {
-  GuildMember,
-  MessageActionRow,
-  MessageButton,
-} from "discord.js"
+import Discord from "discord.js"
 import config from "adapters/config"
 import { logger } from "logger"
 import client from "index"
-import { getEmoji, roundFloatNumber, thumbnails } from "utils/common"
+import { getEmoji, roundFloatNumber } from "utils/common"
 import { wrapError } from "utils/wrap-error"
 import { composeEmbedMessage, getErrorEmbed } from "ui/discord/embed"
 import { eventAsyncStore } from "utils/async-storages"
 import { getSlashCommand } from "utils/commands"
-import { DOT, HOMEPAGE_URL, MOCHI_DOC_URL } from "utils/constants"
 
 const event: DiscordEvent<"guildMemberAdd"> = {
   name: "guildMemberAdd",
@@ -29,7 +24,7 @@ const event: DiscordEvent<"guildMemberAdd"> = {
         data: JSON.stringify(metadata),
       },
       async () => {
-        await wrapError(metadata, async () => {
+        await wrapError("guildMemberAdd", async () => {
           await setUserDefaultRoles(member)
 
           // await welcomeFirstTimeMember(member)
@@ -41,85 +36,6 @@ const event: DiscordEvent<"guildMemberAdd"> = {
 }
 
 export default event
-
-const image =
-  "https://cdn.discordapp.com/attachments/984660970624409630/1023869479521882193/help2.png"
-
-async function welcomeFirstTimeMember(member: GuildMember) {
-  const dmChannel = await member.createDM(true).catch(() => null)
-  if (!dmChannel) return
-  const lastMessageId = dmChannel.lastMessageId
-  // if there are a previous message -> try to fetch -> if not found or deleted -> do nothing
-  if (lastMessageId) {
-    const lastMessage = await dmChannel.messages
-      .fetch(lastMessageId)
-      .catch(() => null)
-    if (lastMessage) return
-  }
-
-  const embed = composeEmbedMessage(null, {
-    author: ["Welcome to Mochi!", thumbnails.MOCHI],
-    image,
-    description: [
-      "Hello there, if this is **your first time** you may be interested in what Mochi can do:",
-      `${getEmoji("ANIMATED_POINTING_RIGHT", true)} Track your portfolio`,
-      `${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-        true,
-      )} Present you with earning opportunities`,
-      getEmoji("LINE").repeat(10),
-    ].join("\n"),
-  }).addFields(
-    {
-      name: `${getEmoji("NUM_1")} Join the community`,
-      value: [
-        "Claim your PFP (most users recognize each other via this PFP)",
-        "Receive your Mochi collectible",
-      ]
-        .map((t) => `${DOT} ${t}`)
-        .join("\n"),
-      inline: false,
-    },
-    {
-      name: `${getEmoji("NUM_2")} Earn more with Mochi`,
-      value: [
-        `For starter, the quest list comes with token rewards ${await getSlashCommand(
-          "quest daily",
-        )}`,
-        `As developer, [**build your app on Mochi**](${MOCHI_DOC_URL}) and monetize it`,
-      ]
-        .map((t) => `${DOT} ${t}`)
-        .join("\n"),
-      inline: false,
-    },
-    {
-      name: `${getEmoji("NUM_3")} Navigate through the crypto space`,
-      value: [
-        `Here are your wallets on 10 difference chains (auto generated)`,
-        `Start tracking your own wallet ${await getSlashCommand(
-          "wallet track",
-        )}`,
-        `Enjoy the content at [**makeitwith.mochi**](https://mochi.gg) by the Mochi team`,
-      ]
-        .map((t) => `${DOT} ${t}`)
-        .join("\n"),
-      inline: false,
-    },
-  )
-
-  dmChannel.send({
-    embeds: [embed],
-    components: [
-      new MessageActionRow().addComponents(
-        new MessageButton({
-          label: "Claim your PFP",
-          style: "LINK",
-          url: HOMEPAGE_URL,
-        }),
-      ),
-    ],
-  })
-}
 
 async function setUserDefaultRoles(member: Discord.GuildMember) {
   const { ok, data } = await config.getCurrentDefaultRole(member.guild.id)

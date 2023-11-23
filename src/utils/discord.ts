@@ -1,10 +1,4 @@
-import {
-  CommandInteraction,
-  Message,
-  MessageOptions,
-  TextChannel,
-  User,
-} from "discord.js"
+import { CommandInteraction, Message, MessageOptions, User } from "discord.js"
 import _ from "lodash"
 import { RunResult } from "types/common"
 import { authorFilter, getAuthor } from "./common"
@@ -41,7 +35,7 @@ export async function reply(
   if (!reply) return
 
   // handle button/select-menu interactions
-  collectComponentInteraction(reply, response, author)
+  collectComponentInteraction(reply, response, author, msgOrInteraction)
 
   return reply
 }
@@ -50,6 +44,7 @@ function collectComponentInteraction(
   msg: Message,
   runResult: RunResult<MessageOptions>,
   author: User,
+  originalMsg: Message | CommandInteraction,
 ) {
   const { buttonCollector, selectMenuCollector } = runResult
   // handle button interaction
@@ -62,12 +57,12 @@ function collectComponentInteraction(
         ...buttonCollector.options,
       })
       .on("collect", async (i) => {
-        wrapError(i, async () => {
+        wrapError(originalMsg, async () => {
           const response = await buttonCollector.handler(i)
           if (!response) return
           const payload = getMessageReplyPayload(response)
           const edited = await msg.edit(payload)
-          collectComponentInteraction(edited, response, author)
+          collectComponentInteraction(edited, response, author, originalMsg)
         })
       })
   }
@@ -81,12 +76,12 @@ function collectComponentInteraction(
         ...selectMenuCollector.options,
       })
       .on("collect", async (i) => {
-        wrapError(i, async () => {
+        wrapError(originalMsg, async () => {
           const response = await selectMenuCollector.handler(i)
           if (!response) return
           const payload = getMessageReplyPayload(response)
           const edited = await msg.edit(payload)
-          collectComponentInteraction(edited, response, author)
+          collectComponentInteraction(edited, response, author, originalMsg)
         })
       })
   }
