@@ -1,3 +1,10 @@
+## [6.38.8](https://github.com/consolelabs/mochi-discord/compare/v6.38.7...v6.38.8) (2023-11-23)
+
+
+### Bug Fixes
+
+* update dependencies ([#1529](https://github.com/consolelabs/mochi-discord/issues/1529)) ([51b2bc4](https://github.com/consolelabs/mochi-discord/commit/51b2bc46650a004f4c32654c1808a11d54951268))
+
 ## [6.38.7](https://github.com/consolelabs/mochi-discord/compare/v6.38.6...v6.38.7) (2023-11-23)
 
 
