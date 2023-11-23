@@ -1,3 +1,12 @@
+## [6.38.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.6...v6.38.7-rc.1) (2023-11-23)
+
+
+### Bug Fixes
+
+* mochi should not show eror when tagme fail ([#1528](https://github.com/consolelabs/mochi-discord/issues/1528)) ([3d8570f](https://github.com/consolelabs/mochi-discord/commit/3d8570fc406c042e0e97b2932a77a3ae19668a40))
+* resolve conflict ([f06c1c5](https://github.com/consolelabs/mochi-discord/commit/f06c1c5e9d76bbedcddc7f6aeba4cd37ff67cda3))
+* transfer request interaction ([#1527](https://github.com/consolelabs/mochi-discord/issues/1527)) ([3426806](https://github.com/consolelabs/mochi-discord/commit/34268061c8375f0f90c095fe1e35138207d1fde7))
+
 ## [6.38.6](https://github.com/consolelabs/mochi-discord/compare/v6.38.5...v6.38.6) (2023-11-22)
 
 
@@ -12,8 +21,6 @@
 
 * fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
 
-<<<<<<< HEAD
-=======
 ## [6.38.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.4-rc.1...v6.38.4-rc.2) (2023-11-20)
 
 
@@ -21,7 +28,6 @@
 
 * fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
 
->>>>>>> preview
 ## [6.38.4](https://github.com/consolelabs/mochi-discord/compare/v6.38.3...v6.38.4) (2023-11-20)
 
 
