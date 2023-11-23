@@ -101,17 +101,14 @@ class Tagme {
   }
 
   async handle(msg: Message) {
-    try {
-      const { member, mentions, content } = msg
-      if (!member || member.user.bot) return
+    const { member, mentions, content } = msg
+    if (!member || member.user.bot) return
 
-      mentions.users.forEach((user) => {
-        // if the user is the one being replied -> do nothing
-        if (mentions.repliedUser?.id === user.id) return
-        this.notify(user, msg.guild?.id ?? "", msg.url, member, content)
-      })
-    } catch (e: any) {
-      logger.error(e)
+    for (const [_, user] of mentions.users) {
+      // if the user is the one being replied -> do nothing
+      if (mentions.repliedUser?.id === user.id) return
+
+      await this.notify(user, msg.guild?.id ?? "", msg.url, member, content)
     }
   }
 }
