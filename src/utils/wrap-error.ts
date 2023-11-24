@@ -61,6 +61,7 @@ export async function wrapError(
     // prepend product name and command name
     e.name = `${PRODUCT_NAME}: ${commandStr} ⎯  ${e.name}`
 
+    // send to sentry
     Sentry.captureException(e, cc)
   }
 }
