@@ -1,3 +1,10 @@
+## [6.38.9-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.8...v6.38.9-rc.1) (2023-11-24)
+
+
+### Bug Fixes
+
+* simplify wrapError ([449b326](https://github.com/consolelabs/mochi-discord/commit/449b3260783435c132b0b785a666edc8abc767ef))
+
 ## [6.38.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.7...v6.38.8-rc.1) (2023-11-23)
 ## [6.38.8](https://github.com/consolelabs/mochi-discord/compare/v6.38.7...v6.38.8) (2023-11-23)
 
