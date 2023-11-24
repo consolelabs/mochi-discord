@@ -31,7 +31,7 @@ const command: Command = {
       },
     }
     const reply = await msg.reply(msgOpts.messageOptions)
-    listenForPaginateAction(reply, msg, async (_msg, idx) => {
+    listenForPaginateAction(reply, msg, async (idx) => {
       const { embed } = await handleTokenList(idx)
       return {
         messageOptions: {
