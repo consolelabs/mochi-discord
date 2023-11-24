@@ -1,3 +1,10 @@
+# [6.39.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.39.0-rc.1...v6.39.0-rc.2) (2023-11-24)
+
+
+### Bug Fixes
+
+* mochi should not show error to user if background task fail ([#1532](https://github.com/consolelabs/mochi-discord/issues/1532)) ([7bdd4c8](https://github.com/consolelabs/mochi-discord/commit/7bdd4c837f3b835a7965d57c064eb347c4149068))
+
 # [6.39.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.10-rc.1...v6.39.0-rc.1) (2023-11-24)
 
 
