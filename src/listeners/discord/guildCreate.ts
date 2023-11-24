@@ -34,7 +34,7 @@ const event: DiscordEvent<"guildCreate"> = {
         data: JSON.stringify(metadata),
       },
       async () => {
-        await wrapError(metadata, async () => {
+        await wrapError("guildCreate", async () => {
           await config.createGuild(guild.id, guild.name)
           await introduceMochiToAdmin(guild)
         })

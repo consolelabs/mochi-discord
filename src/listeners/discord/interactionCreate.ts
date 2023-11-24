@@ -107,20 +107,21 @@ const event: DiscordEvent<"interactionCreate"> = {
         }),
       },
       () => {
-        wrapError(interaction, async () => {
-          if (interaction.isSelectMenu()) {
-            await handleSelectMenuInteraction(interaction)
-          }
-          if (interaction.isButton()) {
-            await handleButtonInteraction(interaction)
-          }
-          if (interaction.isCommand()) {
-            handleCommandInteraction(interaction)
-          }
-          if (interaction.isAutocomplete()) {
-            handleAutocompleteInteraction(interaction)
-          }
-        })
+        if (interaction.isCommand()) {
+          handleCommandInteraction(interaction)
+        } else {
+          wrapError("interactionCreate", async () => {
+            if (interaction.isSelectMenu()) {
+              await handleSelectMenuInteraction(interaction)
+            }
+            if (interaction.isButton()) {
+              await handleButtonInteraction(interaction)
+            }
+            if (interaction.isAutocomplete()) {
+              handleAutocompleteInteraction(interaction)
+            }
+          })
+        }
       },
     )
   },
@@ -129,14 +130,12 @@ const event: DiscordEvent<"interactionCreate"> = {
 export default event
 
 function handleAutocompleteInteraction(interaction: AutocompleteInteraction) {
-  wrapError(interaction, () => {
-    const command = slashCommands[interaction.commandName]
-    command.autocomplete?.(interaction)
-    return Promise.resolve()
-  })
+  const command = slashCommands[interaction.commandName]
+  command.autocomplete?.(interaction)
+  return Promise.resolve()
 }
 
-function handleCommandInteraction(interaction: Interaction) {
+function handleCommandInteraction(interaction: CommandInteraction) {
   profilingAsyncStore.run(performance.now(), () => {
     wrapError(interaction, async () => {
       const i = interaction as CommandInteraction

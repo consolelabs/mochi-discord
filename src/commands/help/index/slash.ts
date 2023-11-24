@@ -22,7 +22,7 @@ const run = async (interaction: CommandInteraction) => {
       filter: (i) => i.user.id === interaction.user.id,
     })
     .on("collect", (i) => {
-      wrapError(i, async () => {
+      wrapError(interaction, async () => {
         i.deferUpdate()
         const pageType = i.customId as Exclude<PageType, "profile">
         const embed = getHelpEmbed(interaction.user)
