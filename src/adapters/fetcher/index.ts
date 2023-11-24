@@ -56,16 +56,21 @@ let cache = {
 
 if (!TEST) {
   logger.info("Connecting to Redis...")
+  let redis: Redis
 
-  let redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
   // add redis sentinel support
-  if (REDIS_MASTER_NAME != "") {
-    const [rHost, rPort] = REDIS_HOST.split(":")
-    redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`, {
-      sentinels: [{ host: rHost, port: +rPort }],
-      retryStrategy: () => null,
-      name: REDIS_MASTER_NAME,
+  if (REDIS_MASTER_NAME) {
+    let sentinels = REDIS_HOST.split(",").map((s) => {
+      const [host, port] = s.split(":")
+      return { host, port: Number(port) }
     })
+    redis = new Redis({
+      name: REDIS_MASTER_NAME,
+      sentinels,
+      connectTimeout: 5000,
+    })
+  } else {
+    redis = new Redis(`redis://${REDIS_HOST}/${REDIS_DB}`)
   }
 
   redis
@@ -330,6 +335,7 @@ export class Fetcher {
           error: "Error while trying to serialize/deserialize data",
         })
       }
+
       Sentry.captureMessage(log, "fatal")
       await kafkaQueue?.produceAnalyticMsg([message])
       if (store?.msgOrInteraction && !isWebhook) {
