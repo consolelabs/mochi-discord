@@ -1,3 +1,10 @@
+# [6.39.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.10-rc.1...v6.39.0-rc.1) (2023-11-24)
+
+
+### Features
+
+* enhance Redis connection handling ([#1531](https://github.com/consolelabs/mochi-discord/issues/1531)) ([e52cfed](https://github.com/consolelabs/mochi-discord/commit/e52cfedae90a2556a64228330b8f7a57ecc5d8c4))
+
 ## [6.38.10](https://github.com/consolelabs/mochi-discord/compare/v6.38.9...v6.38.10) (2023-11-24)
 
 
