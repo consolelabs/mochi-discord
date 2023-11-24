@@ -274,15 +274,16 @@ export class Fetcher {
           await kafkaQueue?.produceAnalyticMsg([message])
 
           // if the error is from webhook api, we don't want to bother user with it, just kafka log is enough
-          if (store?.msgOrInteraction && !isWebhook) {
-            if (store.msgOrInteraction instanceof Message) {
-              await store.msgOrInteraction.reply(somethingWentWrongPayload())
-            } else if (!store.msgOrInteraction.isAutocomplete()) {
-              await store.msgOrInteraction.editReply(
-                somethingWentWrongPayload(),
-              )
-            }
-          }
+          // TODO: REFACTOR THIS
+          // if (store?.msgOrInteraction && !isWebhook) {
+          //   if (store.msgOrInteraction instanceof Message) {
+          //     await store.msgOrInteraction.reply(somethingWentWrongPayload())
+          //   } else if (!store.msgOrInteraction.isAutocomplete()) {
+          //     await store.msgOrInteraction.editReply(
+          //       somethingWentWrongPayload(),
+          //     )
+          //   }
+          // }
         }
 
         const json = await (res as ErrResponse)
