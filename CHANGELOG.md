@@ -1,3 +1,10 @@
+## [6.38.10](https://github.com/consolelabs/mochi-discord/compare/v6.38.9...v6.38.10) (2023-11-24)
+
+
+### Bug Fixes
+
+* no_fetch_amount ([4e9729b](https://github.com/consolelabs/mochi-discord/commit/4e9729b64786081e3d281401767d09e50d0b2ce8))
+
 ## [6.38.10-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.9...v6.38.10-rc.1) (2023-11-24)
 
 
