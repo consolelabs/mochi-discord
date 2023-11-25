@@ -57,7 +57,7 @@ export async function wrapError(
           getCommandMetadata(commands, msg as Message).commandKey
         }`
     }
-
+    e.handle?.()
     // prepend product name and command name
     e.name = `${PRODUCT_NAME}: ${commandStr} ⎯  ${e.name}`
 
