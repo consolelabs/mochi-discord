@@ -4,6 +4,7 @@ import { getCommandMetadata } from "./commands"
 import { Sentry } from "sentry"
 import { version } from "../../package.json"
 import { PRODUCT_NAME } from "./constants"
+import { BotBaseError } from "errors"
 
 function isMsg(msg: any): msg is Message {
   return msg instanceof Message
@@ -63,5 +64,10 @@ export async function wrapError(
 
     // send to sentry
     Sentry.captureException(e, cc)
+
+    // only handle the error (replying to user) if it's an expected error
+    if (e instanceof BotBaseError) {
+      e.handle?.()
+    }
   }
 }
