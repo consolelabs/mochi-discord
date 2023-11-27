@@ -1,169 +1,141 @@
-<<<<<<< HEAD
-# [6.39.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.39.0-rc.1...v6.39.0-rc.2) (2023-11-24)
-=======
 # [6.39.0](https://github.com/consolelabs/mochi-discord/compare/v6.38.10...v6.39.0) (2023-11-24)
->>>>>>> master
-
 
 ### Bug Fixes
 
-* mochi should not show error to user if background task fail ([#1532](https://github.com/consolelabs/mochi-discord/issues/1532)) ([7bdd4c8](https://github.com/consolelabs/mochi-discord/commit/7bdd4c837f3b835a7965d57c064eb347c4149068))
-
-<<<<<<< HEAD
-=======
+- mochi should not show error to user if background task fail ([#1532](https://github.com/consolelabs/mochi-discord/issues/1532)) ([7bdd4c8](https://github.com/consolelabs/mochi-discord/commit/7bdd4c837f3b835a7965d57c064eb347c4149068))
 
 ### Features
 
-* enhance Redis connection handling ([#1531](https://github.com/consolelabs/mochi-discord/issues/1531)) ([e52cfed](https://github.com/consolelabs/mochi-discord/commit/e52cfedae90a2556a64228330b8f7a57ecc5d8c4))
+- enhance Redis connection handling ([#1531](https://github.com/consolelabs/mochi-discord/issues/1531)) ([e52cfed](https://github.com/consolelabs/mochi-discord/commit/e52cfedae90a2556a64228330b8f7a57ecc5d8c4))
 
->>>>>>> master
 # [6.39.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.10-rc.1...v6.39.0-rc.1) (2023-11-24)
 
-
 ### Features
 
-* enhance Redis connection handling ([#1531](https://github.com/consolelabs/mochi-discord/issues/1531)) ([e52cfed](https://github.com/consolelabs/mochi-discord/commit/e52cfedae90a2556a64228330b8f7a57ecc5d8c4))
+- enhance Redis connection handling ([#1531](https://github.com/consolelabs/mochi-discord/issues/1531)) ([e52cfed](https://github.com/consolelabs/mochi-discord/commit/e52cfedae90a2556a64228330b8f7a57ecc5d8c4))
 
 ## [6.38.10](https://github.com/consolelabs/mochi-discord/compare/v6.38.9...v6.38.10) (2023-11-24)
 
-
 ### Bug Fixes
 
-* no_fetch_amount ([4e9729b](https://github.com/consolelabs/mochi-discord/commit/4e9729b64786081e3d281401767d09e50d0b2ce8))
+- no_fetch_amount ([4e9729b](https://github.com/consolelabs/mochi-discord/commit/4e9729b64786081e3d281401767d09e50d0b2ce8))
 
 ## [6.38.10-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.9...v6.38.10-rc.1) (2023-11-24)
 
-
 ### Bug Fixes
 
-* no_fetch_amount ([4e9729b](https://github.com/consolelabs/mochi-discord/commit/4e9729b64786081e3d281401767d09e50d0b2ce8))
+- no_fetch_amount ([4e9729b](https://github.com/consolelabs/mochi-discord/commit/4e9729b64786081e3d281401767d09e50d0b2ce8))
 
 ## [6.38.9](https://github.com/consolelabs/mochi-discord/compare/v6.38.8...v6.38.9) (2023-11-24)
 
-
 ### Bug Fixes
 
-* simplify wrapError ([449b326](https://github.com/consolelabs/mochi-discord/commit/449b3260783435c132b0b785a666edc8abc767ef))
+- simplify wrapError ([449b326](https://github.com/consolelabs/mochi-discord/commit/449b3260783435c132b0b785a666edc8abc767ef))
 
 ## [6.38.9-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.8...v6.38.9-rc.1) (2023-11-24)
 
-
 ### Bug Fixes
 
-* simplify wrapError ([449b326](https://github.com/consolelabs/mochi-discord/commit/449b3260783435c132b0b785a666edc8abc767ef))
+- simplify wrapError ([449b326](https://github.com/consolelabs/mochi-discord/commit/449b3260783435c132b0b785a666edc8abc767ef))
 
 ## [6.38.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.7...v6.38.8-rc.1) (2023-11-23)
-## [6.38.8](https://github.com/consolelabs/mochi-discord/compare/v6.38.7...v6.38.8) (2023-11-23)
 
+## [6.38.8](https://github.com/consolelabs/mochi-discord/compare/v6.38.7...v6.38.8) (2023-11-23)
 
 ### Bug Fixes
 
-* update dependencies ([#1529](https://github.com/consolelabs/mochi-discord/issues/1529)) ([51b2bc4](https://github.com/consolelabs/mochi-discord/commit/51b2bc46650a004f4c32654c1808a11d54951268))
+- update dependencies ([#1529](https://github.com/consolelabs/mochi-discord/issues/1529)) ([51b2bc4](https://github.com/consolelabs/mochi-discord/commit/51b2bc46650a004f4c32654c1808a11d54951268))
 
 ## [6.38.7](https://github.com/consolelabs/mochi-discord/compare/v6.38.6...v6.38.7) (2023-11-23)
 
-
 ### Bug Fixes
 
-* mochi should not show eror when tagme fail ([#1528](https://github.com/consolelabs/mochi-discord/issues/1528)) ([3d8570f](https://github.com/consolelabs/mochi-discord/commit/3d8570fc406c042e0e97b2932a77a3ae19668a40))
-* resolve conflict ([f06c1c5](https://github.com/consolelabs/mochi-discord/commit/f06c1c5e9d76bbedcddc7f6aeba4cd37ff67cda3))
-* transfer request interaction ([#1527](https://github.com/consolelabs/mochi-discord/issues/1527)) ([3426806](https://github.com/consolelabs/mochi-discord/commit/34268061c8375f0f90c095fe1e35138207d1fde7))
+- mochi should not show eror when tagme fail ([#1528](https://github.com/consolelabs/mochi-discord/issues/1528)) ([3d8570f](https://github.com/consolelabs/mochi-discord/commit/3d8570fc406c042e0e97b2932a77a3ae19668a40))
+- resolve conflict ([f06c1c5](https://github.com/consolelabs/mochi-discord/commit/f06c1c5e9d76bbedcddc7f6aeba4cd37ff67cda3))
+- transfer request interaction ([#1527](https://github.com/consolelabs/mochi-discord/issues/1527)) ([3426806](https://github.com/consolelabs/mochi-discord/commit/34268061c8375f0f90c095fe1e35138207d1fde7))
 
 ## [6.38.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.6...v6.38.7-rc.1) (2023-11-23)
 
-
 ### Bug Fixes
 
-* mochi should not show eror when tagme fail ([#1528](https://github.com/consolelabs/mochi-discord/issues/1528)) ([3d8570f](https://github.com/consolelabs/mochi-discord/commit/3d8570fc406c042e0e97b2932a77a3ae19668a40))
-* resolve conflict ([f06c1c5](https://github.com/consolelabs/mochi-discord/commit/f06c1c5e9d76bbedcddc7f6aeba4cd37ff67cda3))
-* transfer request interaction ([#1527](https://github.com/consolelabs/mochi-discord/issues/1527)) ([3426806](https://github.com/consolelabs/mochi-discord/commit/34268061c8375f0f90c095fe1e35138207d1fde7))
+- mochi should not show eror when tagme fail ([#1528](https://github.com/consolelabs/mochi-discord/issues/1528)) ([3d8570f](https://github.com/consolelabs/mochi-discord/commit/3d8570fc406c042e0e97b2932a77a3ae19668a40))
+- resolve conflict ([f06c1c5](https://github.com/consolelabs/mochi-discord/commit/f06c1c5e9d76bbedcddc7f6aeba4cd37ff67cda3))
+- transfer request interaction ([#1527](https://github.com/consolelabs/mochi-discord/issues/1527)) ([3426806](https://github.com/consolelabs/mochi-discord/commit/34268061c8375f0f90c095fe1e35138207d1fde7))
 
 ## [6.38.6](https://github.com/consolelabs/mochi-discord/compare/v6.38.5...v6.38.6) (2023-11-22)
 
-
 ### Bug Fixes
 
-* bring reaction role back ([#1526](https://github.com/consolelabs/mochi-discord/issues/1526)) ([e70449a](https://github.com/consolelabs/mochi-discord/commit/e70449a333b421bfe983d5f08794b59158baaee6))
+- bring reaction role back ([#1526](https://github.com/consolelabs/mochi-discord/issues/1526)) ([e70449a](https://github.com/consolelabs/mochi-discord/commit/e70449a333b421bfe983d5f08794b59158baaee6))
 
 ## [6.38.5](https://github.com/consolelabs/mochi-discord/compare/v6.38.4...v6.38.5) (2023-11-20)
 
-
 ### Bug Fixes
 
-* fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
+- fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
 
 ## [6.38.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.4-rc.1...v6.38.4-rc.2) (2023-11-20)
 
-
 ### Bug Fixes
 
-* fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
+- fix unleash not trigger to redeploy cmds correctly ([#1524](https://github.com/consolelabs/mochi-discord/issues/1524)) ([740bf9a](https://github.com/consolelabs/mochi-discord/commit/740bf9a1b9063698669f43fbea8ae49974b4de20))
 
 ## [6.38.4](https://github.com/consolelabs/mochi-discord/compare/v6.38.3...v6.38.4) (2023-11-20)
 
-
 ### Bug Fixes
 
-* handle tag me error and remove gm ([#1525](https://github.com/consolelabs/mochi-discord/issues/1525)) ([1380cac](https://github.com/consolelabs/mochi-discord/commit/1380cac3ff577825ff34bc82b7bf77f318035e53))
+- handle tag me error and remove gm ([#1525](https://github.com/consolelabs/mochi-discord/issues/1525)) ([1380cac](https://github.com/consolelabs/mochi-discord/commit/1380cac3ff577825ff34bc82b7bf77f318035e53))
 
 ## [6.38.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.3...v6.38.4-rc.1) (2023-11-20)
 
-
 ### Bug Fixes
 
-* handle tag me error and remove gm ([#1525](https://github.com/consolelabs/mochi-discord/issues/1525)) ([1380cac](https://github.com/consolelabs/mochi-discord/commit/1380cac3ff577825ff34bc82b7bf77f318035e53))
+- handle tag me error and remove gm ([#1525](https://github.com/consolelabs/mochi-discord/issues/1525)) ([1380cac](https://github.com/consolelabs/mochi-discord/commit/1380cac3ff577825ff34bc82b7bf77f318035e53))
 
 ## [6.38.3](https://github.com/consolelabs/mochi-discord/compare/v6.38.2...v6.38.3) (2023-11-16)
 
-
 ### Bug Fixes
 
-* mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([91e1844](https://github.com/consolelabs/mochi-discord/commit/91e1844f8de6917a4f1ce9e79c848df0b23c6b6e))
-* mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([bc1cf2c](https://github.com/consolelabs/mochi-discord/commit/bc1cf2cec28d56f25c8b847fa8766aa23108d2f4))
-* sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([cfa001e](https://github.com/consolelabs/mochi-discord/commit/cfa001e5e45f173bb2e9e2d5fd1784aaef4085ab))
-* sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([a3afa71](https://github.com/consolelabs/mochi-discord/commit/a3afa719c853299a33d8f000ea599a951306df86))
+- mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([91e1844](https://github.com/consolelabs/mochi-discord/commit/91e1844f8de6917a4f1ce9e79c848df0b23c6b6e))
+- mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([bc1cf2c](https://github.com/consolelabs/mochi-discord/commit/bc1cf2cec28d56f25c8b847fa8766aa23108d2f4))
+- sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([cfa001e](https://github.com/consolelabs/mochi-discord/commit/cfa001e5e45f173bb2e9e2d5fd1784aaef4085ab))
+- sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([a3afa71](https://github.com/consolelabs/mochi-discord/commit/a3afa719c853299a33d8f000ea599a951306df86))
 
 ## [6.38.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.38.2-rc.2...v6.38.2-rc.3) (2023-11-16)
 
-
 ### Bug Fixes
 
-* mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([bc1cf2c](https://github.com/consolelabs/mochi-discord/commit/bc1cf2cec28d56f25c8b847fa8766aa23108d2f4))
+- mochi-rest auth ([#1523](https://github.com/consolelabs/mochi-discord/issues/1523)) ([bc1cf2c](https://github.com/consolelabs/mochi-discord/commit/bc1cf2cec28d56f25c8b847fa8766aa23108d2f4))
 
 ## [6.38.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.2-rc.1...v6.38.2-rc.2) (2023-11-16)
 
-
 ### Bug Fixes
 
-* sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([a3afa71](https://github.com/consolelabs/mochi-discord/commit/a3afa719c853299a33d8f000ea599a951306df86))
+- sync commands ([#1522](https://github.com/consolelabs/mochi-discord/issues/1522)) ([a3afa71](https://github.com/consolelabs/mochi-discord/commit/a3afa719c853299a33d8f000ea599a951306df86))
 
 ## [6.38.2](https://github.com/consolelabs/mochi-discord/compare/v6.38.1...v6.38.2) (2023-11-15)
 
-
 ### Bug Fixes
 
-* track tx channel avatar ([#1521](https://github.com/consolelabs/mochi-discord/issues/1521)) ([32ff5a6](https://github.com/consolelabs/mochi-discord/commit/32ff5a6c348a0632de41ccc86b2d8b0841ef3a33))
+- track tx channel avatar ([#1521](https://github.com/consolelabs/mochi-discord/issues/1521)) ([32ff5a6](https://github.com/consolelabs/mochi-discord/commit/32ff5a6c348a0632de41ccc86b2d8b0841ef3a33))
 
 ## [6.38.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.1...v6.38.2-rc.1) (2023-11-14)
 
-
 ### Bug Fixes
 
-* track tx channel avatar ([#1521](https://github.com/consolelabs/mochi-discord/issues/1521)) ([32ff5a6](https://github.com/consolelabs/mochi-discord/commit/32ff5a6c348a0632de41ccc86b2d8b0841ef3a33))
+- track tx channel avatar ([#1521](https://github.com/consolelabs/mochi-discord/issues/1521)) ([32ff5a6](https://github.com/consolelabs/mochi-discord/commit/32ff5a6c348a0632de41ccc86b2d8b0841ef3a33))
 
 ## [6.38.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.0...v6.38.1) (2023-11-13)
 
-
 ### Bug Fixes
 
-* solana addr checking blocks any other checkings behind it ([#1519](https://github.com/consolelabs/mochi-discord/issues/1519)) ([fd4012d](https://github.com/consolelabs/mochi-discord/commit/fd4012d0a15593f91c6fabaf53557c87b5c0271c))
+- solana addr checking blocks any other checkings behind it ([#1519](https://github.com/consolelabs/mochi-discord/issues/1519)) ([fd4012d](https://github.com/consolelabs/mochi-discord/commit/fd4012d0a15593f91c6fabaf53557c87b5c0271c))
 
 ## [6.38.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.38.0...v6.38.1-rc.1) (2023-11-13)
 
-
 ### Bug Fixes
 
-* solana addr checking blocks any other checkings behind it ([#1519](https://github.com/consolelabs/mochi-discord/issues/1519)) ([fd4012d](https://github.com/consolelabs/mochi-discord/commit/fd4012d0a15593f91c6fabaf53557c87b5c0271c))
+- solana addr checking blocks any other checkings behind it ([#1519](https://github.com/consolelabs/mochi-discord/issues/1519)) ([fd4012d](https://github.com/consolelabs/mochi-discord/commit/fd4012d0a15593f91c6fabaf53557c87b5c0271c))
 
 # [6.38.0](https://github.com/consolelabs/mochi-discord/compare/v6.37.0...v6.38.0) (2023-11-13)
 
