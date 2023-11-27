@@ -1,12 +1,18 @@
 import { handlePrefixedCommand } from "commands"
 import tagme from "handlers/tagme"
 import { textCommandAsyncStore } from "utils/async-storages"
-import { PREFIX } from "utils/constants"
+import {
+  MOCHI_PROFILE_API_BASE_URL,
+  PREFIX,
+  VALID_BOOST_MESSAGE_TYPES,
+} from "utils/constants"
 import { wrapError } from "utils/wrap-error"
 import { DiscordEvent } from "./index"
 import { logger } from "logger"
 import { Sentry } from "sentry"
 import { version } from "../../../package.json"
+import webhook from "adapters/webhook"
+import { Message } from "discord.js"
 
 const events: DiscordEvent<"messageCreate"> = {
   name: "messageCreate",
@@ -54,6 +60,9 @@ const events: DiscordEvent<"messageCreate"> = {
               },
             })
           }
+
+          // GM
+          await handleNormalMessage(message)
         })
       },
     )
@@ -61,3 +70,37 @@ const events: DiscordEvent<"messageCreate"> = {
 }
 
 export default events
+
+const handleNormalMessage = async (message: Message) => {
+  try {
+    logger.info("[handleNormalMessage] start to create message")
+    if (message.channel.type === "DM") return
+
+    const messageType = VALID_BOOST_MESSAGE_TYPES.includes(message.type) ? 9 : 1
+
+    const stickers = Array.from(message.stickers.values())
+
+    const profileRes = await fetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/get-by-discord/${message.author.id}?no_fetch_amount=true`,
+    )
+    const profileId = (await profileRes.json())?.id
+    const body = {
+      author: {
+        id: message.author.id,
+        avatar: message.author.avatarURL(),
+        username: message.author.username,
+      },
+      guild_id: message.guildId,
+      channel_id: message.channelId,
+      timestamp: message.createdAt.toISOString(),
+      content: message.content,
+      sticker_items: stickers,
+      type: messageType,
+    }
+
+    await webhook.pushDiscordWebhook("messageCreate", body, profileId)
+  } catch (e) {
+    logger.error("[handleNormalMessage] catch error messageCreate", e)
+    // swallow, intentional
+  }
+}
