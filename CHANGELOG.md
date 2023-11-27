@@ -1,3 +1,10 @@
+## [6.39.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.1...v6.39.2-rc.1) (2023-11-27)
+
+
+### Bug Fixes
+
+* mochi should handle gm ([#1534](https://github.com/consolelabs/mochi-discord/issues/1534)) ([eb01f6c](https://github.com/consolelabs/mochi-discord/commit/eb01f6c8709d6ae978c250e51f3ca6b48abb8dfb))
+
 ## [6.39.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.0...v6.39.1) (2023-11-27)
 
 
