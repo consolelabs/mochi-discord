@@ -1,3 +1,10 @@
+## [6.39.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.0...v6.39.1-rc.1) (2023-11-27)
+
+
+### Bug Fixes
+
+* resolve conflict ([36542a3](https://github.com/consolelabs/mochi-discord/commit/36542a380ad1eb982924ee339874434e6671793a))
+
 # [6.39.0](https://github.com/consolelabs/mochi-discord/compare/v6.38.10...v6.39.0) (2023-11-24)
 
 ### Bug Fixes
