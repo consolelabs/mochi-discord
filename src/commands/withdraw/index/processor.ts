@@ -46,8 +46,6 @@ import CacheManager from "cache/node-cache"
 import { BigNumber, utils } from "ethers"
 import { getSlashCommand } from "utils/commands"
 import { formatEther, parseEther, parseUnits } from "ethers/lib/utils"
-import { i } from "vite-node/types-516036fa"
-import { formatEmoji } from "@discordjs/builders"
 
 type Params = {
   amount?: string
