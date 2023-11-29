@@ -66,6 +66,7 @@ export async function process(message: Message | CommandInteraction) {
         error: resp.error,
         curl: resp.curl,
         description: resp.log,
+        status: resp.status ?? 500,
       })
     }
     const { metadata, data = [] } = resp.data
@@ -120,7 +121,14 @@ export async function process(message: Message | CommandInteraction) {
     guildId: string
     guildName: string
   }) => {
-    const { ok, data, error, curl, log } = await community.getDaoProposals({
+    const {
+      ok,
+      data,
+      error,
+      curl,
+      log,
+      status = 500,
+    } = await community.getDaoProposals({
       guild_id: guildId,
     })
     if (!ok) {
@@ -128,6 +136,7 @@ export async function process(message: Message | CommandInteraction) {
         error: error,
         curl: curl,
         description: log,
+        status,
       })
     }
     const description = data.reduce(
@@ -154,12 +163,15 @@ export async function process(message: Message | CommandInteraction) {
     proposalId: string
     creatorId: string
   }) => {
-    const { data, ok, error, curl } = await community.getProposalResults(
-      proposalId,
-      creatorId,
-    )
+    const {
+      data,
+      ok,
+      error,
+      curl,
+      status = 500,
+    } = await community.getProposalResults(proposalId, creatorId)
     if (!ok) {
-      throw new APIError({ curl, description: error })
+      throw new APIError({ curl, description: error, status })
     }
 
     const voteYes = data.proposal?.points?.find((votes: any) => {
@@ -215,6 +227,7 @@ export async function process(message: Message | CommandInteraction) {
         error: resp.error,
         curl: resp.curl,
         description: resp.log,
+        status: resp.status ?? 500,
       })
     }
     const { metadata, data = [] } = resp.data

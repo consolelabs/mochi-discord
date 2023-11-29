@@ -33,7 +33,7 @@ export async function untrackWallet(
   const {
     data: wallet,
     ok,
-    status,
+    status = 500,
     curl,
     log,
   } = await defi.findWallet(profileId, addressOrAlias)
@@ -46,12 +46,19 @@ export async function untrackWallet(
       description: `Your inserted address or alias was not saved.\n${pointingright} Add more wallets to easily track by \`$wallet add <address> [alias]\`.`,
     })
   }
-  if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: log,
+      curl,
+      status,
+    })
 
   const {
     ok: removed,
     curl: untrackCurl,
     log: untrackLog,
+    status: untrackStatus = 500,
   } = await defi.untrackWallet({
     profileId,
     address: wallet.address,
@@ -62,6 +69,7 @@ export async function untrackWallet(
       msgOrInteraction: msg,
       curl: untrackCurl,
       description: untrackLog,
+      status: untrackStatus,
     })
   }
   // remove successfully

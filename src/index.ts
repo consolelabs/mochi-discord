@@ -13,6 +13,10 @@ import { getTipsAndFacts } from "cache/tip-fact-cache"
 import { registerCommand, syncCommands } from "utils/slash-command"
 import { appName, initUnleash, unleash } from "adapters/unleash/unleash"
 import { isEqual } from "lodash"
+import { PRODUCT_NAME } from "utils/constants"
+import { Sentry } from "sentry"
+import { version } from "../package.json"
+
 export { slashCommands }
 
 export let emojis = new Map()
@@ -113,7 +117,17 @@ const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
         }
         if (changed) {
           syncCommands()
-          logger.info("Unleash toggles synced")
+            .then(() => {
+              logger.info("Unleash toggles synced")
+            })
+            .catch((e) => {
+              e.name = `${PRODUCT_NAME}: syncCommands ⎯  ${e.name}`
+              Sentry.captureException(e, {
+                extra: {
+                  version: `v${version}`,
+                },
+              })
+            })
         } else {
           logger.info("Unleash toggles not changed")
         }

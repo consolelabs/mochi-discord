@@ -107,7 +107,7 @@ export const balanceEmbedProps: Record<
     const {
       data: wallet,
       ok,
-      status,
+      status = 500,
       log,
       curl,
     } = await defi.findWallet(profileId, addressOrAlias)
@@ -117,6 +117,7 @@ export const balanceEmbedProps: Record<
         msgOrInteraction: interaction,
         description: log,
         curl,
+        status,
       })
     }
     let address, addressType
@@ -210,6 +211,7 @@ export async function getBalances(
       msgOrInteraction: msg,
       curl: res.curl,
       description: "Couldn't get balance",
+      status: res.status,
     })
   }
   let data,
@@ -317,7 +319,7 @@ async function getTxns(
     return []
   }
   const fetcher = txnsFetcher[type]
-  const { data, ok, curl } = await fetcher(
+  const { data, ok, curl, status } = await fetcher(
     profileId,
     discordId,
     address,
@@ -329,6 +331,7 @@ async function getTxns(
       msgOrInteraction: msg,
       curl: curl,
       description: "Couldn't get txn",
+      status,
     })
   }
 
@@ -1202,7 +1205,13 @@ export async function unlinkWallet(
       reason: "Address or alias is incorrect",
     })
   }
-  if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: log,
+      curl,
+      status: status ?? 500,
+    })
   // remove successfully
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const embed = getSuccessEmbed({

@@ -15,9 +15,20 @@ const command: Command = {
   brief: "Remove the price alert",
   category: "Defi",
   run: async function (msg) {
-    const { ok, data, log, curl } = await Defi.getAlertList(msg.author.id)
+    const {
+      ok,
+      data,
+      log,
+      curl,
+      status = 500,
+    } = await Defi.getAlertList(msg.author.id)
     if (!ok) {
-      throw new APIError({ msgOrInteraction: msg, description: log, curl })
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: log,
+        curl,
+        status,
+      })
     }
 
     if (data.length === 0) {

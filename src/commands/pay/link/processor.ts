@@ -51,7 +51,8 @@ export async function run({
     throw new APIError({
       msgOrInteraction,
       description: `[getByDiscord] API error with status ${pfRes.status_code}`,
-      curl: "",
+      curl: pfRes.curl,
+      status: pfRes.status ?? 500,
     })
   }
 

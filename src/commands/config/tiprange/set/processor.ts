@@ -43,12 +43,18 @@ export default async function run(i: CommandInteraction) {
     })
   }
 
-  const { ok, curl, log } = await config.setTipRangeConfig({
+  const {
+    ok,
+    curl,
+    log,
+    status = 500,
+  } = await config.setTipRangeConfig({
     guildId: i.guildId,
     min,
     max,
   })
-  if (!ok) throw new APIError({ msgOrInteraction: i, curl, description: log })
+  if (!ok)
+    throw new APIError({ msgOrInteraction: i, curl, description: log, status })
   const embed = getSuccessEmbed({
     title: "The tip range was successfully set",
     description: `You've configured the tip range to:`,

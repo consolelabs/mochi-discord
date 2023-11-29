@@ -155,11 +155,18 @@ export async function validateBalance({
 }) {
   const author = getAuthor(msgOrInteraction)
   const profileId = await getProfileIdByDiscord(author.id)
-  const { ok, data, log, curl } = await mochiPay.getBalances({
+  const {
+    ok,
+    data,
+    log,
+    curl,
+    status = 500,
+  } = await mochiPay.getBalances({
     profileId,
     token,
   })
-  if (!ok) throw new APIError({ msgOrInteraction, curl, description: log })
+  if (!ok)
+    throw new APIError({ msgOrInteraction, curl, description: log, status })
   //
   const tokenBalance = data?.[0] ?? { amount: "0" }
   const { amount: balanceAmount = "0" } = tokenBalance

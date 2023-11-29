@@ -24,7 +24,12 @@ const slashCmd: SlashCommand = {
       throw new GuildIdNotFoundError({ message: i })
     }
 
-    const { ok, curl, log } = await community.upsertTagme({
+    const {
+      ok,
+      curl,
+      log,
+      status = 500,
+    } = await community.upsertTagme({
       userId: i.user.id,
       guildId: i.guild.id,
       isActive: true,
@@ -35,6 +40,7 @@ const slashCmd: SlashCommand = {
         msgOrInteraction: i,
         curl,
         description: log,
+        status,
       })
     }
 

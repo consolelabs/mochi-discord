@@ -310,14 +310,25 @@ async function composeNFTTicker(
 ) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(365, "day").unix() * 1000
-  const { data, ok, log, curl } = await community.getNFTTickers({
+  const {
+    data,
+    ok,
+    log,
+    curl,
+    status = 500,
+  } = await community.getNFTTickers({
     collectionAddress,
     tokenId,
     from,
     to,
   })
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: curl,
+      description: log,
+      status,
+    })
   }
 
   // collection is not exist, mochi has not added it yet
@@ -418,6 +429,7 @@ export async function fetchAndComposeNFTDetail(
       msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
     })
   }
   const addSuggestioncomponents = addSuggestionIfAny(
@@ -480,6 +492,7 @@ export async function composeNFTDetail(
         msgOrInteraction: msg,
         curl: res.curl,
         description: res.log,
+        status: res.status ?? 500,
       })
     }
   }
@@ -569,11 +582,18 @@ export async function composeNFTDetail(
     data: activityData,
     log,
     curl,
+    status = 500,
   } = await community.getNFTActivity({
     collectionAddress: collection_address,
     tokenId: token_id,
   })
-  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl,
+      description: log,
+      status,
+    })
 
   const txHistoryTitle = `${getEmoji("SWAP")} Transaction History`
   const txHistoryValue = (activityData.data ?? [])
@@ -723,7 +743,12 @@ async function composeResponse(
         description: "The NFT does not exist. Please choose another one",
       })
     }
-    throw new APIError({ msgOrInteraction, curl, description: log })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status: status ?? 500,
+    })
   }
   const {
     data: nft,
@@ -738,8 +763,8 @@ async function composeResponse(
       queryAddress: true,
     })
     if (!collectionDetailRes.ok) {
-      const { curl, log } = collectionDetailRes
-      throw new APIError({ msgOrInteraction, curl, description: log })
+      const { curl, log, status = 500 } = collectionDetailRes
+      throw new APIError({ msgOrInteraction, curl, description: log, status })
     }
     const { data: collection } = collectionDetailRes
 
@@ -834,8 +859,13 @@ function suggestionHandler(
       true,
     )
     if (!nftDetailRes.ok) {
-      const { curl, log } = nftDetailRes
-      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+      const { curl, log, status = 500 } = nftDetailRes
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl,
+        description: log,
+        status,
+      })
     }
     const { data: nft, suggestions } = nftDetailRes
     const collectionDetailRes = await community.getNFTCollectionDetail({
@@ -843,8 +873,13 @@ function suggestionHandler(
       queryAddress: true,
     })
     if (!collectionDetailRes.ok) {
-      const { curl, log } = collectionDetailRes
-      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+      const { curl, log, status = 500 } = collectionDetailRes
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl,
+        description: log,
+        status,
+      })
     }
     const { data: collection } = collectionDetailRes
     if (!nft) {

@@ -62,8 +62,20 @@ export async function handleWalletAddition(msg: OriginalMessage) {
   })
   // request profile code
   const profileId = await getProfileIdByDiscord(author.id)
-  const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
-  if (!ok) throw new APIError({ curl, description: log, msgOrInteraction: msg })
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+  } = await profile.requestProfileCode(profileId)
+  if (!ok)
+    throw new APIError({
+      curl,
+      description: log,
+      msgOrInteraction: msg,
+      status,
+    })
   const buttonRow = composeButtonLink(
     "Verify Wallet",
     `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${msg.guildId ?? ""}`,

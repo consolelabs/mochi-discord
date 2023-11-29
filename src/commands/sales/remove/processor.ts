@@ -215,6 +215,7 @@ export async function handleSalesRemove(
       msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
     })
   }
   if (!res.data?.length) {

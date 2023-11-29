@@ -15,6 +15,7 @@ export async function handleSalesList(
       msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
     })
   }
   if (!res.data) {

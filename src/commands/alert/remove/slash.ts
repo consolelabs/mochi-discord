@@ -18,9 +18,15 @@ const command: SlashCommand = {
       .setDescription("Remove the price alert")
   },
   run: async (interaction: CommandInteraction) => {
-    const { ok, data, log, curl } = await Defi.getAlertList(interaction.user.id)
+    const {
+      ok,
+      data,
+      log,
+      curl,
+      status = 500,
+    } = await Defi.getAlertList(interaction.user.id)
     if (!ok) {
-      throw new APIError({ description: log, curl })
+      throw new APIError({ description: log, curl, status })
     }
 
     const options: MessageSelectOptionData[] = []

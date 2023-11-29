@@ -69,7 +69,11 @@ export async function handleClaimReward(i: ButtonInteraction) {
 
   const res = await community.claimAllReward(i.user.id)
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log })
+    throw new APIError({
+      curl: res.curl,
+      description: res.log,
+      status: res.status ?? 500,
+    })
   }
   if (!res.data) return
 
@@ -130,6 +134,7 @@ export async function run(userId: string, msg?: Message) {
       curl: res.curl,
       msgOrInteraction: msg,
       description: res.log,
+      status: res.status ?? 500,
     })
   }
 

@@ -238,12 +238,20 @@ describe("parseMoniker", () => {
       unit: "coffee",
       guildId: "test",
     }
-    const apiRes = { ok: false, curl: "test", log: "test", data: [], error: "" }
+    const apiRes = {
+      ok: false,
+      curl: "test",
+      log: "test",
+      data: [],
+      error: "",
+      status: 500,
+    }
     config.getMonikerConfig = jest.fn().mockResolvedValueOnce(apiRes)
     await expect(parseMoniker(input.unit, input.guildId)).rejects.toThrow(
       new APIError({
         description: apiRes.log,
         curl: apiRes.curl,
+        status: apiRes.status,
       }),
     )
   })

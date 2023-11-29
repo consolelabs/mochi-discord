@@ -22,12 +22,19 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     )
   // request profile code
   const profileId = await getProfileIdByDiscord(interaction.user.id)
-  const { data, ok, curl, log } = await profile.requestProfileCode(profileId)
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+  } = await profile.requestProfileCode(profileId)
   if (!ok) {
     throw new APIError({
       curl,
       description: log,
       msgOrInteraction: interaction,
+      status,
     })
   }
   const row = new MessageActionRow().addComponents(

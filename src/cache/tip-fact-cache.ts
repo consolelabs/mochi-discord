@@ -3,6 +3,7 @@ import { TEST } from "env"
 import NodeCache from "node-cache"
 import { Sentry } from "sentry"
 import { getChance } from "utils/common"
+import { PRODUCT_NAME } from "utils/constants"
 
 const contentCache = new NodeCache({
   stdTTL: 3600,
@@ -11,13 +12,13 @@ const contentCache = new NodeCache({
 })
 
 export async function getTipsAndFacts() {
-  const { ok, status, data } = await config.getContent("header")
+  const { ok, status, data, error } = await config.getContent("header")
 
   if (ok) {
     contentCache.set("content", data)
   } else {
     Sentry.captureException(
-      new Error(`Product metadata tip & facts api error, status: ${status}`),
+      new Error(`${PRODUCT_NAME}: getTipsAndFacts ⎯ ${error}`),
     )
     contentCache.set("content", { description: { fact: [], tip: [] } })
     getTipsAndFacts()

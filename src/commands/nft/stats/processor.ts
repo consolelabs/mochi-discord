@@ -12,6 +12,7 @@ export async function handleNftStats(msg: Message | CommandInteraction) {
       msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
     })
   }
   let description = ``

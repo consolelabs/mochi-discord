@@ -53,9 +53,15 @@ export const handler: InteractionHandler = async (msgOrInteraction) => {
 }
 
 export async function handleTokenRemove(guildId: string, authorId: string) {
-  const { data: gTokens, ok, curl, log } = await Config.getGuildTokens(guildId)
+  const {
+    data: gTokens,
+    ok,
+    curl,
+    log,
+    status = 500,
+  } = await Config.getGuildTokens(guildId)
   if (!ok) {
-    throw new APIError({ curl, description: log })
+    throw new APIError({ curl, description: log, status })
   }
   if (!gTokens || !gTokens.length)
     return {

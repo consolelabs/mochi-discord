@@ -38,6 +38,7 @@ const command: SlashCommand = {
         description: res.log,
         msgOrInteraction: interaction,
         error: res.error,
+        status: res.status ?? 500,
       })
     }
 

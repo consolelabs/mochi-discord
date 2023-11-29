@@ -87,6 +87,7 @@ async function generateQRairdrop(
       curl: res.curl,
       description: res.log,
       error: res.error ?? "",
+      status: res.status ?? 500,
       msgOrInteraction: i,
     })
   const buffer = await qrcode.toBuffer(
@@ -251,7 +252,13 @@ async function checkExpiredAirdrop(
       // there are participants(s)
       // proceed to transfer
       payload.recipients = participants.map((p) => parseDiscordToken(p).value)
-      const { data, ok, curl, log } = await defi.transferV2({
+      const {
+        data,
+        ok,
+        curl,
+        log,
+        status = 500,
+      } = await defi.transferV2({
         ...payload,
         sender: await getProfileIdByDiscord(payload.sender),
         recipients: await Promise.all(
@@ -274,7 +281,12 @@ async function checkExpiredAirdrop(
           })
           .catch(() => null)
 
-        throw new APIError({ msgOrInteraction: i, description: log, curl })
+        throw new APIError({
+          msgOrInteraction: i,
+          description: log,
+          curl,
+          status,
+        })
       }
 
       // send airdrop results to author

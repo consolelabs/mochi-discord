@@ -35,11 +35,15 @@ export async function handle(
 export async function composeDaoVoteInfoEmbed(
   guildId: string,
 ): Promise<MessageEmbedOptions> {
-  const { ok, data, log, curl } = await config.getGuildConfigDaoProposal(
-    guildId,
-  )
+  const {
+    ok,
+    data,
+    log,
+    curl,
+    status = 500,
+  } = await config.getGuildConfigDaoProposal(guildId)
   if (!ok) {
-    throw new APIError({ curl, description: log })
+    throw new APIError({ curl, description: log, status })
   }
   if (!data) {
     return {

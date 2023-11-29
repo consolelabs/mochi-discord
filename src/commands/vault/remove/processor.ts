@@ -45,7 +45,7 @@ export async function runRemoveTreasurer({
   const vaultName = i.options.getString("name") ?? ""
   const {
     data: dataAddTreasurerReq,
-    status: statusAddTreasurerReq,
+    status: statusAddTreasurerReq = 500,
     curl: curlAddTreasurerReq,
     log: logAddTreasurerReq,
     originalError: originalErrorAddTreasurerReq,
@@ -63,6 +63,7 @@ export async function runRemoveTreasurer({
     throw new APIError({
       curl: curlAddTreasurerReq,
       description: logAddTreasurerReq,
+      status: statusAddTreasurerReq,
     })
   }
 
@@ -157,7 +158,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
 
   const {
     data: dataTreasurerSubmisison,
-    status,
+    status = 500,
     curl,
     log,
     originalError,
@@ -173,6 +174,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     throw new APIError({
       curl: curl,
       description: log,
+      status,
     })
   }
 
@@ -190,7 +192,12 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
 
   if (dataTreasurerSubmisison.vote_result.is_approved) {
     // add treasurer to vault
-    const { data, status, curl, log } = await config.removeTreasurerFromVault({
+    const {
+      data,
+      status = 500,
+      curl,
+      log,
+    } = await config.removeTreasurerFromVault({
       guild_id: dataTreasurerSubmisison.submission.guild_id,
       user_profile_id: user,
       vault_id: Number(vaultId),
@@ -200,6 +207,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
       throw new APIError({
         curl: curl,
         description: log,
+        status,
       })
     }
 

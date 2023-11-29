@@ -9,9 +9,14 @@ import { getSlashCommand } from "utils/commands"
 export const handleRemoveMoniker = async (
   payload: RequestDeleteMonikerConfigRequest,
 ) => {
-  const { ok, log, curl } = await config.deleteMonikerConfig(payload)
+  const {
+    ok,
+    log,
+    curl,
+    status = 500,
+  } = await config.deleteMonikerConfig(payload)
   if (!ok) {
-    throw new APIError({ description: log, curl })
+    throw new APIError({ description: log, curl, status })
   }
   return {
     messageOptions: {

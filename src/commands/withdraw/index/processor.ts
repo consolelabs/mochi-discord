@@ -579,7 +579,13 @@ export async function executeWithdraw(
     payload.amount.toLocaleString().replaceAll(",", ""),
     payload.decimal,
   ).toString()
-  const { ok, error, log, curl } = await mochiPay.withdrawV2({
+  const {
+    ok,
+    error,
+    log,
+    curl,
+    status = 500,
+  } = await mochiPay.withdrawV2({
     ...payload,
     amount,
   })
@@ -589,6 +595,7 @@ export async function executeWithdraw(
       curl,
       description: log,
       error,
+      status,
     })
   }
 

@@ -20,9 +20,9 @@ export async function handleAlertList({
     return null
   }
 
-  const { ok, data, log, curl } = await defi.getAlertList(userId)
+  const { ok, data, log, curl, status = 500 } = await defi.getAlertList(userId)
   if (!ok) {
-    throw new APIError({ curl, description: log })
+    throw new APIError({ curl, description: log, status })
   }
 
   if (!data) {

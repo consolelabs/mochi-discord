@@ -192,11 +192,18 @@ export async function parseRecipients(
 }
 
 export async function parseMonikerinCmd(args: string[], guildId: string) {
-  const { ok, data, log, curl } = await config.getMonikerConfig(guildId)
+  const {
+    ok,
+    data,
+    log,
+    curl,
+    status = 500,
+  } = await config.getMonikerConfig(guildId)
   if (!ok) {
     throw new APIError({
       description: log,
       curl,
+      status,
     })
   }
   let newArgs = args
@@ -219,11 +226,13 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
       data: dataDefault,
       log: logDefault,
       curl: curlDefault,
+      status: statusDefault = 500,
     } = await config.getDefaultMoniker()
     if (!okDefault) {
       throw new APIError({
         description: logDefault,
         curl: curlDefault,
+        status: statusDefault,
       })
     }
     if (dataDefault?.length) {
@@ -247,17 +256,31 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
 }
 
 export async function isTokenSupported(symbol: string): Promise<boolean> {
-  const { ok, error, curl, log, data } = await mochiPay.getTokens({ symbol })
+  const {
+    ok,
+    error,
+    curl,
+    log,
+    data,
+    status = 500,
+  } = await mochiPay.getTokens({ symbol })
   if (!ok) {
-    throw new APIError({ curl, description: log, error })
+    throw new APIError({ curl, description: log, error, status })
   }
   return data?.length > 0
 }
 
 export async function getToken(symbol: string) {
-  const { ok, error, curl, log, data } = await mochiPay.getTokens({ symbol })
+  const {
+    ok,
+    error,
+    curl,
+    log,
+    data,
+    status = 500,
+  } = await mochiPay.getTokens({ symbol })
   if (!ok) {
-    throw new APIError({ curl, description: log, error })
+    throw new APIError({ curl, description: log, error, status })
   }
   return data[0]
 }
@@ -317,11 +340,18 @@ export function getTargets(args: string[]): {
 
 export async function parseMoniker(unit: string, guildId: string) {
   // get all moniker configs
-  const { ok, data, log, curl } = await config.getMonikerConfig(guildId)
+  const {
+    ok,
+    data,
+    log,
+    curl,
+    status = 500,
+  } = await config.getMonikerConfig(guildId)
   if (!ok) {
     throw new APIError({
       description: log,
       curl,
+      status,
     })
   }
 
@@ -346,11 +376,13 @@ export async function parseMoniker(unit: string, guildId: string) {
     data: dataDefault,
     log: logDefault,
     curl: curlDefault,
+    status: statusDefault = 500,
   } = await config.getDefaultMoniker()
   if (!okDefault) {
     throw new APIError({
       description: logDefault,
       curl: curlDefault,
+      status: statusDefault,
     })
   }
 
