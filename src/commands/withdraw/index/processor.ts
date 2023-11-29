@@ -45,7 +45,7 @@ import { formatView } from "commands/balances/index/processor"
 import CacheManager from "cache/node-cache"
 import { BigNumber, utils } from "ethers"
 import { getSlashCommand } from "utils/commands"
-import { parseUnits } from "ethers/lib/utils"
+import { formatEther, parseEther, parseUnits } from "ethers/lib/utils"
 
 type Params = {
   amount?: string
@@ -567,6 +567,12 @@ export async function executeWithdraw(
     key: interaction.user.id,
     call: () => Promise.resolve(null),
   })
+
+  if (payload.amount === "all") {
+    const balances = await getBalances({ msgOrInteraction: interaction })
+    const balObj = balances.find((b: any) => b.token.id === payload.tokenId)
+    payload.amount = formatEther(balObj.amount)
+  }
 
   // withdraw
   const amount = parseUnits(
