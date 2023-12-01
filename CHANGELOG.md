@@ -1,3 +1,11 @@
+## [6.39.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.2...v6.39.3-rc.1) (2023-12-01)
+
+
+### Bug Fixes
+
+* handle withdraw all ([#1535](https://github.com/consolelabs/mochi-discord/issues/1535)) ([2bad7a1](https://github.com/consolelabs/mochi-discord/commit/2bad7a1b0696d9e5d5e68a588ef0dddfabe9849f))
+* reply to user if it's a known error ([e74f065](https://github.com/consolelabs/mochi-discord/commit/e74f0659b9f0f24b518540b7255f4d7b38329684))
+
 ## [6.39.2](https://github.com/consolelabs/mochi-discord/compare/v6.39.1...v6.39.2) (2023-11-27)
 
 
