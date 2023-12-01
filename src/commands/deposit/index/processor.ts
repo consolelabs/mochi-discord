@@ -49,11 +49,18 @@ export async function deposit(
   }
 
   const profileId = await getProfileIdByDiscord(author.id)
-  const { ok, curl, log, data } = await mochiPay.deposit({
+  const {
+    ok,
+    curl,
+    log,
+    data,
+    status = 500,
+    error,
+  } = await mochiPay.deposit({
     profileId,
     token: symbol,
   })
-  if (!ok) throw new APIError({ curl, description: log })
+  if (!ok) throw new APIError({ curl, description: log, status, error })
 
   const addressesDup = (data ?? []).filter(
     (d: any) => d.contract.chain.symbol && d.contract.address,

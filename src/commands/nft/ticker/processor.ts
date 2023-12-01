@@ -123,13 +123,26 @@ async function composeCollectionTickerEmbed({
 }) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(days, "day").unix() * 1000
-  const { data, ok, log, curl } = await community.getNFTCollectionTickers({
+  const {
+    data,
+    ok,
+    log,
+    curl,
+    status = 500,
+    error,
+  } = await community.getNFTCollectionTickers({
     collectionAddress,
     from,
     to,
   })
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: curl,
+      description: log,
+      status,
+      error,
+    })
   }
   // collection is not exist, mochi has not added it yet
   if (!data) {
@@ -393,8 +406,17 @@ export async function handleNftTicker(
     ok,
     log,
     curl,
+    status = 500,
+    error,
   } = await community.getNFTCollectionSuggestions(symbol)
-  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   if (!suggestions.length) {
     const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
     throw new InternalError({

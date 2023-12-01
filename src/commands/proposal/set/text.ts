@@ -21,10 +21,16 @@ const command: Command = {
       throw new GuildIdNotFoundError({})
     }
 
-    const { ok, data, curl, log, error } =
-      await config.getGuildConfigDaoProposal(msg.guild.id)
+    const {
+      ok,
+      data,
+      curl,
+      log,
+      error,
+      status = 500,
+    } = await config.getGuildConfigDaoProposal(msg.guild.id)
     if (!ok) {
-      throw new APIError({ curl, description: log, error })
+      throw new APIError({ curl, description: log, error, status })
     }
     // already config
     if (data !== null) {
@@ -132,7 +138,13 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [authority, channelId, chain, contract] = input.split("-")
   if (authority === "admin") {
-    const { ok, log, curl } = await config.createProposalChannel({
+    const {
+      ok,
+      log,
+      curl,
+      status = 500,
+      error,
+    } = await config.createProposalChannel({
       guild_id: interaction.guildId || "",
       channel_id: channelId,
       authority,
@@ -140,7 +152,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       address: contract,
     })
     if (!ok) {
-      throw new APIError({ curl, description: log })
+      throw new APIError({ curl, description: log, status, error })
     }
 
     return {

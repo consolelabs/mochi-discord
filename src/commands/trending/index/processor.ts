@@ -4,9 +4,16 @@ import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
 
 export async function render() {
-  const { data, ok, curl, error, log } = await defi.getTrendingSearch()
+  const {
+    data,
+    ok,
+    curl,
+    error,
+    log,
+    status = 500,
+  } = await defi.getTrendingSearch()
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
   if (!data || data.coins.length === 0) {
     return {

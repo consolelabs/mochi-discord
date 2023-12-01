@@ -18,7 +18,12 @@ export async function handle(
     sticker,
   })
   if (!config.ok) {
-    throw new APIError({ curl: config.curl, description: config.log })
+    throw new APIError({
+      curl: config.curl,
+      description: config.log,
+      status: config.status ?? 500,
+      error: config.error,
+    })
   }
   return {
     messageOptions: {

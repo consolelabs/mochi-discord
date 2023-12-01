@@ -46,7 +46,13 @@ export async function process(
         })
     }
 
-    throw new APIError({ msgOrInteraction: msg, error, curl, description: log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      error,
+      curl,
+      description: log,
+      status: status ?? 500,
+    })
   }
 
   // send activity
@@ -58,6 +64,8 @@ export async function process(
       msgOrInteraction: msg,
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: "",
+      status: dataProfile.status ?? 500,
+      error: dataProfile.error,
     })
   }
 
@@ -94,9 +102,21 @@ export async function handleTokenApprove(i: ButtonInteraction) {
       description: "invalid request id",
     })
   }
-  const { ok, error, log, curl } = await Defi.approveTokenSupport(+id)
+  const {
+    ok,
+    error,
+    log,
+    curl,
+    status = 500,
+  } = await Defi.approveTokenSupport(+id)
   if (!ok) {
-    throw new APIError({ msgOrInteraction: i, error, curl, description: log })
+    throw new APIError({
+      msgOrInteraction: i,
+      error,
+      curl,
+      description: log,
+      status,
+    })
   }
   const embed = i.message.embeds[0] as MessageEmbed
   embed
@@ -118,9 +138,21 @@ export async function handleTokenReject(i: ButtonInteraction) {
       description: "invalid request id",
     })
   }
-  const { ok, error, log, curl } = await Defi.rejectTokenSupport(+id)
+  const {
+    ok,
+    error,
+    log,
+    curl,
+    status = 500,
+  } = await Defi.rejectTokenSupport(+id)
   if (!ok) {
-    throw new APIError({ msgOrInteraction: i, error, curl, description: log })
+    throw new APIError({
+      msgOrInteraction: i,
+      error,
+      curl,
+      description: log,
+      status,
+    })
   }
   const embed = i.message.embeds[0] as MessageEmbed
   embed

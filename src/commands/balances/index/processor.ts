@@ -107,9 +107,10 @@ export const balanceEmbedProps: Record<
     const {
       data: wallet,
       ok,
-      status,
+      status = 500,
       log,
       curl,
+      error,
     } = await defi.findWallet(profileId, addressOrAlias)
 
     if (!ok && status !== 404) {
@@ -117,6 +118,8 @@ export const balanceEmbedProps: Record<
         msgOrInteraction: interaction,
         description: log,
         curl,
+        status,
+        error,
       })
     }
     let address, addressType
@@ -210,6 +213,8 @@ export async function getBalances(
       msgOrInteraction: msg,
       curl: res.curl,
       description: "Couldn't get balance",
+      status: res.status,
+      error: res.error,
     })
   }
   let data,
@@ -317,7 +322,7 @@ async function getTxns(
     return []
   }
   const fetcher = txnsFetcher[type]
-  const { data, ok, curl } = await fetcher(
+  const { data, ok, curl, status, error } = await fetcher(
     profileId,
     discordId,
     address,
@@ -329,6 +334,8 @@ async function getTxns(
       msgOrInteraction: msg,
       curl: curl,
       description: "Couldn't get txn",
+      status,
+      error,
     })
   }
 
@@ -1189,10 +1196,8 @@ export async function unlinkWallet(
   addressOrAlias: string,
 ) {
   const profileId = await getProfileIdByDiscord(author.id)
-  const { ok, status, log, curl } = await profile.disconnectOnChainWallet(
-    profileId,
-    addressOrAlias,
-  )
+  const { ok, status, log, curl, error } =
+    await profile.disconnectOnChainWallet(profileId, addressOrAlias)
   // wallet not found
   if (!ok && status === 404) {
     throw new InternalError({
@@ -1202,7 +1207,14 @@ export async function unlinkWallet(
       reason: "Address or alias is incorrect",
     })
   }
-  if (!ok) throw new APIError({ msgOrInteraction: msg, description: log, curl })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msg,
+      description: log,
+      curl,
+      status: status ?? 500,
+      error,
+    })
   // remove successfully
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   const embed = getSuccessEmbed({

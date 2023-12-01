@@ -24,6 +24,8 @@ export async function set(i: CommandInteraction, symbol: string) {
     ok: setOk,
     curl: setCurl,
     log: setLog,
+    status = 500,
+    error,
   } = await config.setDefaultCurrency({ symbol, guild_id: i.guildId })
 
   if (!setOk) {
@@ -31,6 +33,8 @@ export async function set(i: CommandInteraction, symbol: string) {
       msgOrInteraction: i,
       curl: setCurl,
       description: setLog,
+      status,
+      error,
     })
   }
 

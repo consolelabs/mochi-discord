@@ -210,7 +210,14 @@ async function transfer(
   ) // just to store discord username to show in web
 
   // send transfer request
-  const { data, ok, curl, log } = await defi.transferV2({
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
     recipients: await Promise.all(
@@ -218,7 +225,13 @@ async function transfer(
     ),
   })
   if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   }
 
   const member = await msgOrInteraction.guild?.members.fetch(payload.sender)

@@ -224,7 +224,12 @@ async function handleViewFeedbackList(
     : ""
   const res = await community.getFeedbackList(discordId, page, profileId)
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log })
+    throw new APIError({
+      curl: res.curl,
+      description: res.log,
+      status: res.status ?? 500,
+      error: res.error,
+    })
   }
 
   const data = res.data.data ?? []

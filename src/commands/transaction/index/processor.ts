@@ -17,6 +17,8 @@ export async function render(
     throw new APIError({
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: "",
+      status: dataProfile.status ?? 500,
+      error: dataProfile.error,
     })
   }
   if (!dataProfile)
@@ -45,9 +47,10 @@ export async function render(
     curl,
     error,
     log,
+    status = 500,
   } = await mochiPay.getListTx(dataProfile.id, { page, size: PageSize.Medium })
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
   if (!txns) {
     return {

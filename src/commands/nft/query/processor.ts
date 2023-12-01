@@ -310,14 +310,27 @@ async function composeNFTTicker(
 ) {
   const to = dayjs().unix() * 1000
   const from = dayjs().subtract(365, "day").unix() * 1000
-  const { data, ok, log, curl } = await community.getNFTTickers({
+  const {
+    data,
+    ok,
+    log,
+    curl,
+    status = 500,
+    error,
+  } = await community.getNFTTickers({
     collectionAddress,
     tokenId,
     from,
     to,
   })
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: curl,
+      description: log,
+      status,
+      error,
+    })
   }
 
   // collection is not exist, mochi has not added it yet
@@ -418,6 +431,8 @@ export async function fetchAndComposeNFTDetail(
       msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
+      error: res.error,
     })
   }
   const addSuggestioncomponents = addSuggestionIfAny(
@@ -480,6 +495,8 @@ export async function composeNFTDetail(
         msgOrInteraction: msg,
         curl: res.curl,
         description: res.log,
+        status: res.status ?? 500,
+        error: res.error,
       })
     }
   }
@@ -569,11 +586,20 @@ export async function composeNFTDetail(
     data: activityData,
     log,
     curl,
+    status = 500,
+    error,
   } = await community.getNFTActivity({
     collectionAddress: collection_address,
     tokenId: token_id,
   })
-  if (!ok) throw new APIError({ msgOrInteraction: msg, curl, description: log })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl,
+      description: log,
+      status,
+      error,
+    })
 
   const txHistoryTitle = `${getEmoji("SWAP")} Transaction History`
   const txHistoryValue = (activityData.data ?? [])
@@ -715,7 +741,7 @@ async function composeResponse(
     false,
   )
   if (!nftDetailRes.ok) {
-    const { curl, status, log } = nftDetailRes
+    const { curl, status, log, error } = nftDetailRes
     if (status == 404) {
       throw new InternalError({
         msgOrInteraction: msgOrInteraction,
@@ -723,7 +749,13 @@ async function composeResponse(
         description: "The NFT does not exist. Please choose another one",
       })
     }
-    throw new APIError({ msgOrInteraction, curl, description: log })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status: status ?? 500,
+      error,
+    })
   }
   const {
     data: nft,
@@ -738,8 +770,14 @@ async function composeResponse(
       queryAddress: true,
     })
     if (!collectionDetailRes.ok) {
-      const { curl, log } = collectionDetailRes
-      throw new APIError({ msgOrInteraction, curl, description: log })
+      const { curl, log, status = 500, error } = collectionDetailRes
+      throw new APIError({
+        msgOrInteraction,
+        curl,
+        description: log,
+        status,
+        error,
+      })
     }
     const { data: collection } = collectionDetailRes
 
@@ -834,8 +872,14 @@ function suggestionHandler(
       true,
     )
     if (!nftDetailRes.ok) {
-      const { curl, log } = nftDetailRes
-      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+      const { curl, log, status = 500, error } = nftDetailRes
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl,
+        description: log,
+        status,
+        error,
+      })
     }
     const { data: nft, suggestions } = nftDetailRes
     const collectionDetailRes = await community.getNFTCollectionDetail({
@@ -843,8 +887,14 @@ function suggestionHandler(
       queryAddress: true,
     })
     if (!collectionDetailRes.ok) {
-      const { curl, log } = collectionDetailRes
-      throw new APIError({ msgOrInteraction: msg, curl, description: log })
+      const { curl, log, status = 500, error } = collectionDetailRes
+      throw new APIError({
+        msgOrInteraction: msg,
+        curl,
+        description: log,
+        status,
+        error,
+      })
     }
     const { data: collection } = collectionDetailRes
     if (!nft) {

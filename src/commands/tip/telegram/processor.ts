@@ -53,11 +53,16 @@ async function getRecipients(
   const recipients: TelegramUser[] = []
   for (const target of targets) {
     // TODO: handle for case not have username telegram
-    const { data, ok, curl, error, log } = await mochiTelegram.getByUsername(
-      target,
-    )
+    const {
+      data,
+      ok,
+      curl,
+      error,
+      log,
+      status = 500,
+    } = await mochiTelegram.getByUsername(target)
     if (!ok) {
-      throw new APIError({ curl, error, description: log })
+      throw new APIError({ curl, error, description: log, status })
     }
 
     const recipientPf = await profile.getByTelegram(data.id)
@@ -73,6 +78,8 @@ async function getRecipients(
         msgOrInteraction,
         description: `[getByTelegram] failed with status ${recipientPf.status_code}: ${recipientPf.err}`,
         curl: "",
+        status: recipientPf.status ?? 500,
+        error: recipientPf.error,
       })
     }
 
@@ -103,8 +110,8 @@ export async function execute(
   })
 
   if (!res.ok) {
-    const { log: description, curl } = res
-    throw new APIError({ msgOrInteraction, description, curl })
+    const { log: description, curl, status = 500, error } = res
+    throw new APIError({ msgOrInteraction, description, curl, status, error })
   }
 
   // send msg to mochi-notification

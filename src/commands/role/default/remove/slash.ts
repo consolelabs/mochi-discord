@@ -27,6 +27,7 @@ const command: SlashCommand = {
         error: res.error,
         description: res.log,
         curl: res.curl,
+        status: res.status ?? 500,
       })
     }
 

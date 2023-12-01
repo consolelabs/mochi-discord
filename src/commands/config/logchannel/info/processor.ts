@@ -12,6 +12,8 @@ export default async function (i: CommandInteraction) {
       msgOrInteraction: i,
       curl: levelUpCfg.curl,
       description: levelUpCfg.log,
+      status: levelUpCfg.status ?? 500,
+      error: levelUpCfg.error,
     })
   }
 
@@ -21,6 +23,8 @@ export default async function (i: CommandInteraction) {
       msgOrInteraction: i,
       curl: gmCfg.curl,
       description: gmCfg.log,
+      status: gmCfg.status ?? 500,
+      error: gmCfg.error,
     })
   }
 
@@ -30,6 +34,8 @@ export default async function (i: CommandInteraction) {
       msgOrInteraction: i,
       curl: tipCfg.curl,
       description: tipCfg.log,
+      status: tipCfg.status ?? 500,
+      error: tipCfg.error,
     })
   }
 

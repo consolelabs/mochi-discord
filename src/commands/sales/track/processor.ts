@@ -70,6 +70,8 @@ export async function handleSalesTrack(
       msgOrInteraction: msg,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
+      error: res.error,
     })
   }
   // send activity
@@ -82,6 +84,8 @@ export async function handleSalesTrack(
       msgOrInteraction: msg,
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: "",
+      status: dataProfile.status ?? 500,
+      error: dataProfile.error,
     })
   }
 
