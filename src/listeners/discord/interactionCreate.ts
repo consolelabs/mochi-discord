@@ -2,6 +2,10 @@ import config from "adapters/config"
 import { getRandomFact } from "cache/tip-fact-cache"
 import { slashCommands } from "commands"
 import { handleInteraction } from "commands/balances/index/processor"
+import {
+  handleConfirmFollowTip,
+  handleCustomFollowTip,
+} from "commands/tip/index/processor"
 import { sendVerifyURL } from "commands/config/verify/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
 import { handleNFTTickerViews } from "commands/nft/ticker/processor"
@@ -477,6 +481,12 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("transfer_request_reject-"):
       await rejectTransferReq(i)
+      return
+    case i.customId.startsWith("confirm-follow-tip"):
+      await handleConfirmFollowTip(i)
+      return
+    case i.customId.startsWith("custom-follow-tip"):
+      await handleCustomFollowTip(i)
       return
     default: {
       return

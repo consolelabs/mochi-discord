@@ -187,6 +187,12 @@ class MochiPay extends Fetcher {
     })
   }
 
+  async getTxByExternalId(external_id: string) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/transfer/${external_id}`,
+    )
+  }
+
   async krystalStake(body: KrystalStakeRequest) {
     return await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/earns/krystal/stake`,
