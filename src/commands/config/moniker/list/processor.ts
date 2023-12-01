@@ -16,18 +16,32 @@ export async function handleMonikerList(
     data: _defaultMonikers,
     log: defaultLog,
     curl: defaultCurl,
+    status: defaultStatus = 500,
+    error: defaultError,
   } = await config.getDefaultMoniker()
   const {
     ok: guildMonikerOk,
     data: _guildMonikers,
     log: guildLog,
     curl: guildCurl,
+    status: guildStatus = 500,
+    error: guildError,
   } = await config.getMonikerConfig(guildId)
   if (!guildMonikerOk) {
-    throw new APIError({ description: guildLog, curl: guildCurl })
+    throw new APIError({
+      description: guildLog,
+      curl: guildCurl,
+      status: guildStatus,
+      error: guildError,
+    })
   }
   if (!defaultMonikerOk) {
-    throw new APIError({ description: defaultLog, curl: defaultCurl })
+    throw new APIError({
+      description: defaultLog,
+      curl: defaultCurl,
+      status: defaultStatus,
+      error: defaultError,
+    })
   }
 
   const defaultMonikers = _defaultMonikers.sort(

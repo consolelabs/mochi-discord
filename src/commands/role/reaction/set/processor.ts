@@ -82,6 +82,8 @@ export const handleRoleSet = async (
       msgOrInteraction: msg,
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: "",
+      status: dataProfile.status ?? 500,
+      error: dataProfile.Error,
     })
   }
   const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(

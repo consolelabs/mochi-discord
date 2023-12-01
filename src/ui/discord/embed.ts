@@ -681,6 +681,8 @@ export async function composeMyWalletSelection(
     throw new APIError({
       description: `[getByDiscord] API error with status ${pfRes.status_code}`,
       curl: "",
+      status: pfRes.status ?? 500,
+      error: pfRes.error,
     })
   }
   // TODO: uncomment after we've implemented wallet connect in mochi profile

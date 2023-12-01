@@ -87,9 +87,16 @@ const handlerAlertType: InteractionHandler = async (msgOrInteraction) => {
   const input = interaction.values[0]
   const [alertType, symbol, userID] = input.split("-")
 
-  const { ok, data, log, curl } = await Defi.getBinanceCoinPrice(symbol)
+  const {
+    ok,
+    data,
+    log,
+    curl,
+    status = 500,
+    error,
+  } = await Defi.getBinanceCoinPrice(symbol)
   if (!ok) {
-    throw new APIError({ description: log, curl })
+    throw new APIError({ description: log, curl, status, error })
   }
   const currentPrice = parseFloat(data?.price)
   let title = `${getEmoji(
@@ -226,7 +233,13 @@ const handleFrequency: InteractionHandler = async (msgOrInteraction) => {
   )
   const value = +amount
 
-  const { ok, log, curl } = await Defi.addAlertPrice({
+  const {
+    ok,
+    log,
+    curl,
+    status = 500,
+    error,
+  } = await Defi.addAlertPrice({
     userDiscordId,
     symbol,
     alertType,
@@ -235,7 +248,7 @@ const handleFrequency: InteractionHandler = async (msgOrInteraction) => {
   })
 
   if (!ok) {
-    throw new APIError({ description: log, curl })
+    throw new APIError({ description: log, curl, status, error })
   }
 
   return {

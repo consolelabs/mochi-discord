@@ -126,12 +126,22 @@ export async function composeCollectionInfoEmbed(
   if (chain === "SOL" || (chain as string) === "999") {
     collectionAddress = "solscan-" + collectionAddress
   }
-  const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
-    collectionAddress,
-    chain,
-  )
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await community.getNFTCollectionMetadata(collectionAddress, chain)
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl, description: log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   }
   if (!data) {
     throw new InternalError({
@@ -220,12 +230,22 @@ export async function composeCollectionSoulboundEmbed(
   collectionAddress: string,
   chain: string,
 ) {
-  const { data, ok, curl, log } = await community.getNFTCollectionMetadata(
-    collectionAddress,
-    chain,
-  )
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await community.getNFTCollectionMetadata(collectionAddress, chain)
   if (!ok) {
-    throw new APIError({ msgOrInteraction: msg, curl: curl, description: log })
+    throw new APIError({
+      msgOrInteraction: msg,
+      curl: curl,
+      description: log,
+      status,
+      error,
+    })
   }
   if (!data) {
     throw new InternalError({

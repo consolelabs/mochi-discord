@@ -37,6 +37,7 @@ import { nanoid } from "nanoid"
 import { Sentry } from "sentry"
 import UI from "@consolelabs/mochi-ui"
 import api from "api"
+import { PRODUCT_NAME } from "utils/constants"
 
 let cacheTtlSeconds = Number(CACHE_TTL_SECONDS)
 if (Number.isNaN(cacheTtlSeconds)) cacheTtlSeconds = 1800
@@ -270,7 +271,10 @@ export class Fetcher {
             error: log,
             stack: TEST ? "" : stack.clean(new Error().stack ?? ""),
           })
-          Sentry.captureMessage(log, "fatal")
+          Sentry.captureMessage(
+            `${PRODUCT_NAME}: API_CALL_500 ⎯ ${log}`,
+            "fatal",
+          )
           await kafkaQueue?.produceAnalyticMsg([message])
 
           // if the error is from webhook api, we don't want to bother user with it, just kafka log is enough
@@ -337,7 +341,7 @@ export class Fetcher {
         })
       }
 
-      Sentry.captureMessage(log, "fatal")
+      Sentry.captureMessage(`${PRODUCT_NAME}: API_CALL_ERROR ⎯ ${log}`, "fatal")
       await kafkaQueue?.produceAnalyticMsg([message])
       if (store?.msgOrInteraction && !isWebhook) {
         if (store.msgOrInteraction instanceof Message) {

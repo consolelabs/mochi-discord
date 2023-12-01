@@ -14,6 +14,8 @@ export async function runVerifyRemove(guildId: string | null) {
     throw new APIError({
       curl: infoRes.curl,
       description: infoRes.log,
+      status: infoRes.status ?? 500,
+      error: infoRes.error,
     })
   }
 
@@ -33,7 +35,12 @@ export async function runVerifyRemove(guildId: string | null) {
 
   const res = await community.deleteVerifyWalletChannel(guildId)
   if (!res.ok) {
-    throw new APIError({ curl: res.curl, description: res.log })
+    throw new APIError({
+      curl: res.curl,
+      description: res.log,
+      status: res.status ?? 500,
+      error: res.error,
+    })
   }
 
   return {

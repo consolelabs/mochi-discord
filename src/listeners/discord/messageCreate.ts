@@ -4,6 +4,7 @@ import { textCommandAsyncStore } from "utils/async-storages"
 import {
   MOCHI_PROFILE_API_BASE_URL,
   PREFIX,
+  PRODUCT_NAME,
   VALID_BOOST_MESSAGE_TYPES,
 } from "utils/constants"
 import { wrapError } from "utils/wrap-error"
@@ -48,6 +49,7 @@ const events: DiscordEvent<"messageCreate"> = {
             await tagme.handle(message)
           } catch (e: any) {
             logger.error(e)
+            e.name = `${PRODUCT_NAME}: tagme ⎯  ${e.name}`
             Sentry.captureException(e, {
               contexts: {
                 user: {

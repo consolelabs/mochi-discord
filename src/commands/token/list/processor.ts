@@ -11,9 +11,10 @@ export async function handleTokenList(page = 0, size = 15) {
     curl,
     error,
     log,
+    status = 500,
   } = await defi.getUserSupportTokens(page, size)
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
   if (!response?.data?.length)
     return {

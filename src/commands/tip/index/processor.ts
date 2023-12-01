@@ -223,7 +223,14 @@ async function transfer(
   ) // just to store discord username to show in web
 
   // send transfer request
-  const { data, ok, curl, log } = await defi.transferV2({
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
     recipients: await Promise.all(
@@ -231,7 +238,13 @@ async function transfer(
     ),
   })
   if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   }
 
   const member = await msgOrInteraction.guild?.members.fetch(payload.sender)
@@ -365,7 +378,7 @@ export async function handleFollowTip(
   await i.deferUpdate()
   const recipient = await i.guild?.members.fetch(payload.recipients[0])
   const embed = composeEmbedMessage(null, {
-    title: `New tip to ${recipient.displayName}`,
+    title: `New tip to ${recipient?.displayName}`,
     description: `
       \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
         payload.token
@@ -391,7 +404,6 @@ export async function handleFollowTip(
 
   await i.editReply({
     embeds: [embed],
-    ephemeral: true,
     components: [composeFollowTipButton],
   })
   return
@@ -405,12 +417,16 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     data: followTx,
     ok,
     curl,
+    status = 500,
+    error,
   } = await mochiPay.getTxByExternalId(followTxId)
   if (!ok) {
     throw new APIError({
       msgOrInteraction: i,
       description: "Cannot get transaction",
       curl,
+      status,
+      error,
     })
   }
 
@@ -435,12 +451,14 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
   const recipients = [followTx.other_profile_id]
+  const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
   const payload = {
     sender: i.user.id,
     recipients: recipients,
-    guild_id: i.channel?.guildId ?? "",
-    channel_id: i.channel.id,
-    channel_name: i.channel.name,
+    guild_id: guildID,
+    channel_id: i.channel?.id,
+    channel_name: channelName,
     channel_url: channel_url,
     amount: followTx.metadata.original_amount,
     token: followTx.token.symbol,
@@ -458,7 +476,8 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     ok: okTransfer,
     curl: curlTransfer,
     log: logTransfer,
-    status: statusTransfer,
+    status: statusTransfer = 500,
+    error: errorTransfer,
   } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
@@ -479,7 +498,9 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
       throw new APIError({
         msgOrInteraction: i,
         description: logTransfer,
-        curlTransfer,
+        curl: curlTransfer,
+        error: errorTransfer,
+        status: statusTransfer,
       })
     }
   }
@@ -488,7 +509,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     content: `<@${i.user.id}> sent <@${payload.recipients}> ${getEmojiToken(
       payload.token,
     )} ${payload.amount} ${payload.token}! .${mochiUtils.string.receiptLink(
-      dataTransfer.external_id,
+      dataTransfer?.external_id,
     )}`,
     components: [],
     embeds: [],
@@ -550,12 +571,16 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     data: followTx,
     ok,
     curl,
+    status = 500,
+    error,
   } = await mochiPay.getTxByExternalId(followTxId)
   if (!ok) {
     throw new APIError({
       msgOrInteraction: i,
       description: "Cannot get transaction",
       curl,
+      status,
+      error,
     })
   }
 
@@ -581,12 +606,14 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
   const recipients = [followTx.other_profile_id]
+  const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
   const payload = {
     sender: i.user.id,
     recipients: recipients,
-    guild_id: i.channel?.guildId ?? "",
-    channel_id: i.channel.id,
-    channel_name: i.channel.name,
+    guild_id: guildID,
+    channel_id: i.channel?.id,
+    channel_name: channelName,
     channel_url: channel_url,
     amount: +amount,
     token: token,
@@ -604,6 +631,8 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     ok: okTransfer,
     curl: curlTransfer,
     log: logTransfer,
+    status: statusTransfer = 500,
+    error: errorTransfer,
   } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
@@ -624,7 +653,9 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
       throw new APIError({
         msgOrInteraction: i,
         description: logTransfer,
-        curlTransfer,
+        curl: curlTransfer,
+        status: statusTransfer,
+        error: errorTransfer,
       })
     }
   }
@@ -634,10 +665,10 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
 
   await i.followUp({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
-      payload.token,
+      payload.token as TokenEmojiKey,
     )} ${payload.amount} ${payload.token} (≈ ${mochiUtils.formatUsdDigit(
-      +dataTransfer.amount_each * choosenToken.price,
-    )}})! .${mochiUtils.string.receiptLink(dataTransfer.external_id)}`,
+      +dataTransfer?.amount_each * choosenToken.price,
+    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
     components: [],
     embeds: [],
   })

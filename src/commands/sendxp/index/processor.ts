@@ -65,7 +65,13 @@ export async function handleSendXp(
       },
     }
   }
-  const { ok, log, curl, error } = await community.sendXPtoUsers({
+  const {
+    ok,
+    log,
+    curl,
+    error,
+    status = 500,
+  } = await community.sendXPtoUsers({
     recipients,
     sender: authorId,
     guild_id: msg.guildId ?? "",
@@ -73,7 +79,7 @@ export async function handleSendXp(
     each,
   })
   if (!ok) {
-    throw new APIError({ description: log, curl, error })
+    throw new APIError({ description: log, curl, error, status })
   }
   return {
     messageOptions: {

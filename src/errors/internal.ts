@@ -8,6 +8,7 @@ export class InternalError extends BotBaseError {
   private emojiUrl: string | undefined
   private color?: ColorResolvable
 
+  private title: string
   private descriptions?: string[]
   private reason?: string
   private extra?: { emoji: string; label: string; text: string }[]
@@ -41,6 +42,7 @@ export class InternalError extends BotBaseError {
   }) {
     super(msgOrInteraction, description)
     this.name = title ?? "Internal error"
+    this.title = title ?? "Internal error"
     this._customDescription = description
     this.emojiUrl = emojiUrl
     this.color = color ?? msgColors.GRAY
@@ -55,7 +57,7 @@ export class InternalError extends BotBaseError {
       this.reply?.({
         embeds: [
           errorEmbed(
-            this.name,
+            this.title,
             this.descriptions ?? [],
             this.reason,
             this.extra,
@@ -68,7 +70,7 @@ export class InternalError extends BotBaseError {
       this.reply?.({
         embeds: [
           getErrorEmbed({
-            title: this.name,
+            title: this.title,
             description: this.customDescription,
             emojiUrl: this.emojiUrl,
             color: this.color,
