@@ -464,12 +464,6 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     sender: await getProfileIdByDiscord(payload.sender),
   })
   if (!okTransfer) {
-    console.log(
-      "check in handleConfirmFollowTip",
-      okTransfer,
-      logTransfer,
-      statusTransfer,
-    )
     if (statusTransfer === 400) {
       await i.reply({
         embeds: [
@@ -567,7 +561,6 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
 
   const author = getAuthor(i)
   const balances = await getBalances({ msgOrInteraction: i, token: token })
-  console.log("balances: ", balances)
   if (!balances.length) {
     await i.followUp({
       embeds: [
