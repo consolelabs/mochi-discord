@@ -70,13 +70,25 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     ok: cfgOk,
     error: cfgErr,
     curl: cfgCurl,
+    status: cfgStatus = 500,
   } = await config.getGuildConfigDaoProposal(guild_id)
   if (!cfgOk) {
-    throw new APIError({ curl: cfgCurl, description: cfgErr })
+    throw new APIError({
+      curl: cfgCurl,
+      description: cfgErr,
+      status: cfgStatus,
+      error: cfgErr,
+    })
   }
 
   // create proposal, generate discussion channel and get id
-  const { data, ok, error, curl } = await community.createProposal({
+  const {
+    data,
+    ok,
+    error,
+    curl,
+    status = 500,
+  } = await community.createProposal({
     creator_id: i.user.id,
     description: proposalDesc,
     guild_id,
@@ -84,7 +96,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     voting_channel_id: cfgData.proposal_channel_id ?? "",
   })
   if (!ok) {
-    throw new APIError({ curl, description: error })
+    throw new APIError({ curl, description: error, status, error })
   }
 
   await i.editReply({
@@ -182,12 +194,15 @@ function checkExpiredProposal(
 
     await wrapError(msg, async () => {
       // get vote results
-      const { data, ok, error, curl } = await community.getProposalResults(
-        proposal_id,
-        creator_id,
-      )
+      const {
+        data,
+        ok,
+        error,
+        curl,
+        status = 500,
+      } = await community.getProposalResults(proposal_id, creator_id)
       if (!ok) {
-        throw new APIError({ curl, description: error })
+        throw new APIError({ curl, description: error, status, error })
       }
 
       const voteYes = data.proposal?.points?.find((votes: any) => {
@@ -252,14 +267,21 @@ export async function handleProposalForm(i: ButtonInteraction) {
 
   //check user's balance has met token requirements to post proposal
   if (authority === "tokenholder") {
-    const { data, ok, error, curl, log } = await community.getDaoVoterStatus(
+    const {
+      data,
+      ok,
+      error,
+      curl,
+      log,
+      status = 500,
+    } = await community.getDaoVoterStatus(
       null,
       i.user.id,
       i.guildId ?? "",
       "create_proposal",
     )
     if (!ok) {
-      throw new APIError({ curl, description: log, error })
+      throw new APIError({ curl, description: log, error, status })
     }
     if (!data.is_wallet_connected) {
       // request profile code
@@ -270,6 +292,8 @@ export async function handleProposalForm(i: ButtonInteraction) {
           curl: codeRes.curl,
           description: codeRes.log,
           msgOrInteraction: i,
+          status: codeRes.status ?? 500,
+          error: codeRes.error,
         })
       }
       await i
@@ -499,6 +523,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
     error: wError,
     curl: wCurl,
     log: wLog,
+    status: wStatus = 500,
   } = await community.getDaoVoterStatus(
     proposal_id,
     user_id,
@@ -506,7 +531,12 @@ export async function handleProposalVote(i: ButtonInteraction) {
     "vote",
   )
   if (!wOk) {
-    throw new APIError({ curl: wCurl, description: wLog, error: wError })
+    throw new APIError({
+      curl: wCurl,
+      description: wLog,
+      error: wError,
+      status: wStatus,
+    })
   }
   if (wData.is_wallet_connected === false) {
     // request profile code
@@ -517,6 +547,8 @@ export async function handleProposalVote(i: ButtonInteraction) {
         curl: codeRes.curl,
         description: codeRes.log,
         msgOrInteraction: i,
+        status: codeRes.status ?? 500,
+        error: codeRes.error,
       })
     }
     return await i
@@ -563,9 +595,9 @@ export async function handleProposalVote(i: ButtonInteraction) {
   else {
     res = await community.UpdateUserProposalVote(data.id, { user_id, choice })
   }
-  const { ok, curl, error, log } = res
+  const { ok, curl, error, log, status = 500 } = res
   if (!ok) {
-    throw new APIError({ curl, description: log, error })
+    throw new APIError({ curl, description: log, error, status })
   }
 
   await i.editReply({

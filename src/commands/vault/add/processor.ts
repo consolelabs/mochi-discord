@@ -45,10 +45,11 @@ export async function runAddTreasurer({
   const vaultName = i.options.getString("name") ?? ""
   const {
     data: dataAddTreasurerReq,
-    status: statusAddTreasurerReq,
+    status: statusAddTreasurerReq = 500,
     curl: curlAddTreasurerReq,
     log: logAddTreasurerReq,
     originalError: originalErrorAddTreasurerReq,
+    error: errorAddtreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
     user_profile_id: userProfileId,
@@ -64,6 +65,8 @@ export async function runAddTreasurer({
     throw new APIError({
       curl: curlAddTreasurerReq,
       description: logAddTreasurerReq,
+      status: statusAddTreasurerReq,
+      error: errorAddtreasurerReq,
     })
   }
 
@@ -156,10 +159,11 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
 
   const {
     data: dataAddTreasurer,
-    status,
+    status = 500,
     curl,
     log,
     originalError,
+    error,
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
     request_id: Number(requestId),
@@ -172,6 +176,8 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     throw new APIError({
       curl: curl,
       description: log,
+      status,
+      error,
     })
   }
 
@@ -189,7 +195,13 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
 
   if (dataAddTreasurer.vote_result.is_approved === true) {
     // add treasurer to vault
-    const { data, status, curl, log } = await config.addTreasurerToVault({
+    const {
+      data,
+      status = 500,
+      curl,
+      log,
+      error,
+    } = await config.addTreasurerToVault({
       guild_id: dataAddTreasurer.submission.guild_id,
       user_profile_id: user,
       vault_id: Number(vaultId),
@@ -199,6 +211,8 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
       throw new APIError({
         curl: curl,
         description: log,
+        status,
+        error,
       })
     }
 

@@ -27,6 +27,7 @@ describe("process", () => {
       error: "",
       log: "",
       curl: "",
+      status: 500,
     }
     Defi.requestSupportToken = jest.fn().mockResolvedValueOnce(res)
     await expect(processor.process(msg, args)).rejects.toThrow(
@@ -35,6 +36,7 @@ describe("process", () => {
         error: res.error,
         curl: res.curl,
         description: res.log,
+        status: res.status,
       }),
     )
   })

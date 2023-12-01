@@ -11,8 +11,10 @@ export async function render(userDiscordId: string, page = 0) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
   if (dataProfile.err) {
     throw new APIError({
-      description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
-      curl: "",
+      description: dataProfile.log,
+      curl: dataProfile.curl,
+      status: dataProfile.status ?? 500,
+      error: dataProfile.error,
     })
   }
   if (!dataProfile)

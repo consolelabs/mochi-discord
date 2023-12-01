@@ -20,12 +20,16 @@ const command: Command = {
       data,
       log: logGet,
       curl: curlGet,
+      status: statusGet = 500,
+      error: errorGet,
     } = await config.getGuildConfigDaoProposal(msg.guildId || "")
     if (!okGet) {
       throw new APIError({
         msgOrInteraction: msg,
         description: logGet,
         curl: curlGet,
+        status: statusGet,
+        error: errorGet,
       })
     }
     if (data === null) {
@@ -44,11 +48,23 @@ const command: Command = {
       }
     }
 
-    const { ok, log, curl } = await config.deleteProposalChannelConfig({
+    const {
+      ok,
+      log,
+      curl,
+      status = 500,
+      error,
+    } = await config.deleteProposalChannelConfig({
       id: `${data.id}`,
     })
     if (!ok) {
-      throw new APIError({ msgOrInteraction: msg, description: log, curl })
+      throw new APIError({
+        msgOrInteraction: msg,
+        description: log,
+        curl,
+        status,
+        error,
+      })
     }
     return {
       messageOptions: {

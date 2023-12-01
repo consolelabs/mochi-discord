@@ -64,6 +64,8 @@ async function getRecipients(
         msgOrInteraction,
         description: `[getByEmail] failed with status ${recipientPf.status_code}: ${recipientPf.err}`,
         curl: "",
+        status: recipientPf.status ?? 500,
+        error: recipientPf.error,
       })
     }
 
@@ -93,8 +95,8 @@ export async function execute(
   })
 
   if (!res.ok) {
-    const { log: description, curl } = res
-    throw new APIError({ msgOrInteraction, description, curl })
+    const { log: description, curl, status = 500, error } = res
+    throw new APIError({ msgOrInteraction, description, curl, status, error })
   }
 
   // send msg to mochi-notification

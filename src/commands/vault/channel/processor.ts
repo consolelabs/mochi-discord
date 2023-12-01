@@ -42,12 +42,18 @@ export async function runCreateChannel({
     }
   }
 
-  const { ok, curl, error, log } = await config.createVaultConfigChannel({
+  const {
+    ok,
+    curl,
+    error,
+    log,
+    status = 500,
+  } = await config.createVaultConfigChannel({
     guild_id: guildId,
     channel_id: channel.id,
   })
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
 
   const embed = composeEmbedMessage(null, {

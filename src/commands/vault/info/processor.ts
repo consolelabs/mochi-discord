@@ -24,8 +24,15 @@ export async function runGetVaultDetail(
   vaultName: string,
   interaction: OriginalMessage,
 ) {
-  const { data, ok, status, curl, error, originalError, log } =
-    await config.getVaultDetail(vaultName, interaction.guildId || "")
+  const {
+    data,
+    ok,
+    curl,
+    error,
+    originalError,
+    log,
+    status = 500,
+  } = await config.getVaultDetail(vaultName, interaction.guildId || "")
   if (!ok) {
     if (status === 400 && originalError) {
       throw new InternalError({
@@ -34,7 +41,7 @@ export async function runGetVaultDetail(
         description: originalError,
       })
     }
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
 
   data.recent_transaction = data.recent_transaction.slice(0, 5)

@@ -33,6 +33,7 @@ export async function handle(msg: OriginalMessage, statusText = "") {
       error: res.error,
       description: res.log,
       msgOrInteraction: msg,
+      status: res.status ?? 500,
     })
   }
 

@@ -12,9 +12,16 @@ const currency: any = {
 }
 
 export async function render() {
-  const { data, ok, curl, error, log } = await defi.getGasTracker()
+  const {
+    data,
+    ok,
+    curl,
+    error,
+    log,
+    status = 500,
+  } = await defi.getGasTracker()
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
   if (!data.length)
     return {
@@ -76,9 +83,16 @@ export async function render() {
 }
 
 export async function renderOne(chain: string) {
-  const { data, ok, curl, error, log } = await defi.getChainGasTracker(chain)
+  const {
+    data,
+    ok,
+    curl,
+    error,
+    log,
+    status = 500,
+  } = await defi.getChainGasTracker(chain)
   if (!ok) {
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
   if (!data)
     return {

@@ -23,15 +23,21 @@ const command: SlashCommand = {
     if (!interaction.guildId || !interaction.guild) {
       throw new GuildIdNotFoundError({ message: interaction })
     }
-    const { ok, error, data, log, curl } = await config.getConfigTokenRoleList(
-      interaction.guildId,
-    )
+    const {
+      ok,
+      error,
+      data,
+      log,
+      curl,
+      status = 500,
+    } = await config.getConfigTokenRoleList(interaction.guildId)
     if (!ok) {
       throw new APIError({
         msgOrInteraction: interaction,
         description: log,
         curl,
         error,
+        status,
       })
     }
     if (data.length === 0) {

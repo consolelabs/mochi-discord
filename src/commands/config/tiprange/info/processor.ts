@@ -18,6 +18,8 @@ export async function runTipRangeInfo(
       msgOrInteraction: msg ?? undefined,
       curl: res.curl,
       description: res.log,
+      status: res.status ?? 500,
+      error: res.error,
     })
   }
   if (!res.data) {

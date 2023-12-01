@@ -70,6 +70,8 @@ export async function run({
       msgOrInteraction,
       description: `[getByDiscord] API error with status ${pfRes.status_code}`,
       curl: "",
+      status: pfRes.status ?? 500,
+      error: pfRes.error,
     })
   }
   const profileId = pfRes.id
@@ -118,8 +120,14 @@ export async function run({
         }
         // api error
         if (!res.ok) {
-          const { log: description, curl } = res
-          throw new APIError({ msgOrInteraction, description, curl })
+          const { log: description, curl, status = 500, error } = res
+          throw new APIError({
+            msgOrInteraction,
+            description,
+            curl,
+            status,
+            error,
+          })
         }
         // compose pay-link embed
         const payCode = res.data.code

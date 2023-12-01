@@ -19,12 +19,18 @@ export async function runCreateThreshold({
 
   const name = i.options.getString("name", true)
   const threshold = i.options.getString("threshold", true)
-  const { data, ok, status, curl, error, log } =
-    await config.createVaultConfigThreshold({
-      guild_id: guildId,
-      name,
-      threshold,
-    })
+  const {
+    data,
+    ok,
+    status = 500,
+    curl,
+    error,
+    log,
+  } = await config.createVaultConfigThreshold({
+    guild_id: guildId,
+    name,
+    threshold,
+  })
   if (!ok) {
     if (status == 404) {
       throw new InternalError({
@@ -33,7 +39,7 @@ export async function runCreateThreshold({
         description: error,
       })
     }
-    throw new APIError({ curl, error, description: log })
+    throw new APIError({ curl, error, description: log, status })
   }
 
   const description = `**${

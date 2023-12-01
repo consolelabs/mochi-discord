@@ -45,11 +45,24 @@ export default async function run(i: CommandInteraction) {
     })
   }
 
-  const { ok, curl, log } = await config.setTipRangeConfig({
+  const {
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await config.setTipRangeConfig({
     guildId: i.guildId,
     max: value,
   })
-  if (!ok) throw new APIError({ msgOrInteraction: i, curl, description: log })
+  if (!ok)
+    throw new APIError({
+      msgOrInteraction: i,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   const embed = getSuccessEmbed({
     title: "You have set up successfully",
     description: `Changed the maxtipped to: $${value}`,
