@@ -365,7 +365,7 @@ export async function handleFollowTip(
   await i.deferUpdate()
   const recipient = await i.guild?.members.fetch(payload.recipients[0])
   const embed = composeEmbedMessage(null, {
-    title: `New tip to ${recipient.displayName}`,
+    title: `New tip to ${recipient?.displayName}`,
     description: `
       \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
         payload.token
@@ -391,7 +391,6 @@ export async function handleFollowTip(
 
   await i.editReply({
     embeds: [embed],
-    ephemeral: true,
     components: [composeFollowTipButton],
   })
   return
@@ -435,12 +434,14 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
   const recipients = [followTx.other_profile_id]
+  const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
   const payload = {
     sender: i.user.id,
     recipients: recipients,
-    guild_id: i.channel?.guildId ?? "",
-    channel_id: i.channel.id,
-    channel_name: i.channel.name,
+    guild_id: guildID,
+    channel_id: i.channel?.id,
+    channel_name: channelName,
     channel_url: channel_url,
     amount: followTx.metadata.original_amount,
     token: followTx.token.symbol,
@@ -479,7 +480,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
       throw new APIError({
         msgOrInteraction: i,
         description: logTransfer,
-        curlTransfer,
+        curl: curlTransfer,
       })
     }
   }
@@ -488,7 +489,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     content: `<@${i.user.id}> sent <@${payload.recipients}> ${getEmojiToken(
       payload.token,
     )} ${payload.amount} ${payload.token}! .${mochiUtils.string.receiptLink(
-      dataTransfer.external_id,
+      dataTransfer?.external_id,
     )}`,
     components: [],
     embeds: [],
@@ -581,12 +582,14 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
   const recipients = [followTx.other_profile_id]
+  const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
   const payload = {
     sender: i.user.id,
     recipients: recipients,
-    guild_id: i.channel?.guildId ?? "",
-    channel_id: i.channel.id,
-    channel_name: i.channel.name,
+    guild_id: guildID,
+    channel_id: i.channel?.id,
+    channel_name: channelName,
     channel_url: channel_url,
     amount: +amount,
     token: token,
@@ -604,6 +607,7 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     ok: okTransfer,
     curl: curlTransfer,
     log: logTransfer,
+    status: statusTransfer,
   } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
@@ -624,7 +628,7 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
       throw new APIError({
         msgOrInteraction: i,
         description: logTransfer,
-        curlTransfer,
+        curl: curlTransfer,
       })
     }
   }
@@ -634,10 +638,10 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
 
   await i.followUp({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
-      payload.token,
+      payload.token as TokenEmojiKey,
     )} ${payload.amount} ${payload.token} (≈ ${mochiUtils.formatUsdDigit(
-      +dataTransfer.amount_each * choosenToken.price,
-    )}})! .${mochiUtils.string.receiptLink(dataTransfer.external_id)}`,
+      +dataTransfer?.amount_each * choosenToken.price,
+    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
     components: [],
     embeds: [],
   })
