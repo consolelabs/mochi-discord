@@ -417,12 +417,16 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     data: followTx,
     ok,
     curl,
+    status = 500,
+    error,
   } = await mochiPay.getTxByExternalId(followTxId)
   if (!ok) {
     throw new APIError({
       msgOrInteraction: i,
       description: "Cannot get transaction",
       curl,
+      status,
+      error,
     })
   }
 
@@ -472,7 +476,8 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     ok: okTransfer,
     curl: curlTransfer,
     log: logTransfer,
-    status: statusTransfer,
+    status: statusTransfer = 500,
+    error: errorTransfer,
   } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
@@ -494,6 +499,8 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
         msgOrInteraction: i,
         description: logTransfer,
         curl: curlTransfer,
+        error: errorTransfer,
+        status: statusTransfer,
       })
     }
   }
@@ -564,12 +571,16 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     data: followTx,
     ok,
     curl,
+    status = 500,
+    error,
   } = await mochiPay.getTxByExternalId(followTxId)
   if (!ok) {
     throw new APIError({
       msgOrInteraction: i,
       description: "Cannot get transaction",
       curl,
+      status,
+      error,
     })
   }
 
@@ -620,7 +631,8 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     ok: okTransfer,
     curl: curlTransfer,
     log: logTransfer,
-    status: statusTransfer,
+    status: statusTransfer = 500,
+    error: errorTransfer,
   } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
@@ -642,6 +654,8 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
         msgOrInteraction: i,
         description: logTransfer,
         curl: curlTransfer,
+        status: statusTransfer,
+        error: errorTransfer,
       })
     }
   }
