@@ -1,3 +1,10 @@
+# [6.40.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.3-rc.1...v6.40.0-rc.1) (2023-12-01)
+
+
+### Features
+
+* follow tip ([#1537](https://github.com/consolelabs/mochi-discord/issues/1537)) ([e158994](https://github.com/consolelabs/mochi-discord/commit/e158994799a70d1f2773df1325bbe0b2e3638c65))
+
 ## [6.39.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.2...v6.39.3-rc.1) (2023-12-01)
 
 
