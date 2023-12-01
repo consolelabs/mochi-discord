@@ -161,12 +161,19 @@ export async function validateBalance({
     log,
     curl,
     status = 500,
+    error,
   } = await mochiPay.getBalances({
     profileId,
     token,
   })
   if (!ok)
-    throw new APIError({ msgOrInteraction, curl, description: log, status })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   //
   const tokenBalance = data?.[0] ?? { amount: "0" }
   const { amount: balanceAmount = "0" } = tokenBalance

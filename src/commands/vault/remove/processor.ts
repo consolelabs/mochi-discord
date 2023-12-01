@@ -49,6 +49,7 @@ export async function runRemoveTreasurer({
     curl: curlAddTreasurerReq,
     log: logAddTreasurerReq,
     originalError: originalErrorAddTreasurerReq,
+    error: errorAddTreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
     user_profile_id: userProfileId,
@@ -64,6 +65,7 @@ export async function runRemoveTreasurer({
       curl: curlAddTreasurerReq,
       description: logAddTreasurerReq,
       status: statusAddTreasurerReq,
+      error: errorAddTreasurerReq,
     })
   }
 
@@ -162,6 +164,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
     curl,
     log,
     originalError,
+    error,
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
     request_id: Number(requestId),
@@ -175,6 +178,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
       curl: curl,
       description: log,
       status,
+      error,
     })
   }
 
@@ -197,6 +201,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
       status = 500,
       curl,
       log,
+      error,
     } = await config.removeTreasurerFromVault({
       guild_id: dataTreasurerSubmisison.submission.guild_id,
       user_profile_id: user,
@@ -208,6 +213,7 @@ export async function handleTreasurerRemove(i: ButtonInteraction) {
         curl: curl,
         description: log,
         status,
+        error,
       })
     }
 

@@ -41,9 +41,10 @@ export async function composeDaoVoteInfoEmbed(
     log,
     curl,
     status = 500,
+    error,
   } = await config.getGuildConfigDaoProposal(guildId)
   if (!ok) {
-    throw new APIError({ curl, description: log, status })
+    throw new APIError({ curl, description: log, status, error })
   }
   if (!data) {
     return {

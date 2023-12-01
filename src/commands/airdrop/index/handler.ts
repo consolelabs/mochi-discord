@@ -258,6 +258,7 @@ async function checkExpiredAirdrop(
         curl,
         log,
         status = 500,
+        error,
       } = await defi.transferV2({
         ...payload,
         sender: await getProfileIdByDiscord(payload.sender),
@@ -286,6 +287,7 @@ async function checkExpiredAirdrop(
           description: log,
           curl,
           status,
+          error,
         })
       }
 

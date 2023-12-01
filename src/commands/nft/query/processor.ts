@@ -316,6 +316,7 @@ async function composeNFTTicker(
     log,
     curl,
     status = 500,
+    error,
   } = await community.getNFTTickers({
     collectionAddress,
     tokenId,
@@ -328,6 +329,7 @@ async function composeNFTTicker(
       curl: curl,
       description: log,
       status,
+      error,
     })
   }
 
@@ -430,6 +432,7 @@ export async function fetchAndComposeNFTDetail(
       curl: res.curl,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
   const addSuggestioncomponents = addSuggestionIfAny(
@@ -493,6 +496,7 @@ export async function composeNFTDetail(
         curl: res.curl,
         description: res.log,
         status: res.status ?? 500,
+        error: res.error,
       })
     }
   }
@@ -583,6 +587,7 @@ export async function composeNFTDetail(
     log,
     curl,
     status = 500,
+    error,
   } = await community.getNFTActivity({
     collectionAddress: collection_address,
     tokenId: token_id,
@@ -593,6 +598,7 @@ export async function composeNFTDetail(
       curl,
       description: log,
       status,
+      error,
     })
 
   const txHistoryTitle = `${getEmoji("SWAP")} Transaction History`
@@ -735,7 +741,7 @@ async function composeResponse(
     false,
   )
   if (!nftDetailRes.ok) {
-    const { curl, status, log } = nftDetailRes
+    const { curl, status, log, error } = nftDetailRes
     if (status == 404) {
       throw new InternalError({
         msgOrInteraction: msgOrInteraction,
@@ -748,6 +754,7 @@ async function composeResponse(
       curl,
       description: log,
       status: status ?? 500,
+      error,
     })
   }
   const {
@@ -763,8 +770,14 @@ async function composeResponse(
       queryAddress: true,
     })
     if (!collectionDetailRes.ok) {
-      const { curl, log, status = 500 } = collectionDetailRes
-      throw new APIError({ msgOrInteraction, curl, description: log, status })
+      const { curl, log, status = 500, error } = collectionDetailRes
+      throw new APIError({
+        msgOrInteraction,
+        curl,
+        description: log,
+        status,
+        error,
+      })
     }
     const { data: collection } = collectionDetailRes
 
@@ -859,12 +872,13 @@ function suggestionHandler(
       true,
     )
     if (!nftDetailRes.ok) {
-      const { curl, log, status = 500 } = nftDetailRes
+      const { curl, log, status = 500, error } = nftDetailRes
       throw new APIError({
         msgOrInteraction: msg,
         curl,
         description: log,
         status,
+        error,
       })
     }
     const { data: nft, suggestions } = nftDetailRes
@@ -873,12 +887,13 @@ function suggestionHandler(
       queryAddress: true,
     })
     if (!collectionDetailRes.ok) {
-      const { curl, log, status = 500 } = collectionDetailRes
+      const { curl, log, status = 500, error } = collectionDetailRes
       throw new APIError({
         msgOrInteraction: msg,
         curl,
         description: log,
         status,
+        error,
       })
     }
     const { data: collection } = collectionDetailRes

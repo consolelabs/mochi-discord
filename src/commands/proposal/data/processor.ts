@@ -171,7 +171,7 @@ export async function process(message: Message | CommandInteraction) {
       status = 500,
     } = await community.getProposalResults(proposalId, creatorId)
     if (!ok) {
-      throw new APIError({ curl, description: error, status })
+      throw new APIError({ curl, description: error, status, error })
     }
 
     const voteYes = data.proposal?.points?.find((votes: any) => {

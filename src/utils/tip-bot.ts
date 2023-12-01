@@ -198,12 +198,14 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
     log,
     curl,
     status = 500,
+    error,
   } = await config.getMonikerConfig(guildId)
   if (!ok) {
     throw new APIError({
       description: log,
       curl,
       status,
+      error,
     })
   }
   let newArgs = args
@@ -227,12 +229,14 @@ export async function parseMonikerinCmd(args: string[], guildId: string) {
       log: logDefault,
       curl: curlDefault,
       status: statusDefault = 500,
+      error: errorDefault,
     } = await config.getDefaultMoniker()
     if (!okDefault) {
       throw new APIError({
         description: logDefault,
         curl: curlDefault,
         status: statusDefault,
+        error: errorDefault,
       })
     }
     if (dataDefault?.length) {
@@ -346,12 +350,14 @@ export async function parseMoniker(unit: string, guildId: string) {
     log,
     curl,
     status = 500,
+    error,
   } = await config.getMonikerConfig(guildId)
   if (!ok) {
     throw new APIError({
       description: log,
       curl,
       status,
+      error,
     })
   }
 
@@ -377,12 +383,14 @@ export async function parseMoniker(unit: string, guildId: string) {
     log: logDefault,
     curl: curlDefault,
     status: statusDefault = 500,
+    error: errorDefault,
   } = await config.getDefaultMoniker()
   if (!okDefault) {
     throw new APIError({
       description: logDefault,
       curl: curlDefault,
       status: statusDefault,
+      error: errorDefault,
     })
   }
 

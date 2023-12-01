@@ -77,6 +77,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
       curl: cfgCurl,
       description: cfgErr,
       status: cfgStatus,
+      error: cfgErr,
     })
   }
 
@@ -95,7 +96,7 @@ export async function handleProposalCreate(i: ButtonInteraction) {
     voting_channel_id: cfgData.proposal_channel_id ?? "",
   })
   if (!ok) {
-    throw new APIError({ curl, description: error, status })
+    throw new APIError({ curl, description: error, status, error })
   }
 
   await i.editReply({
@@ -201,7 +202,7 @@ function checkExpiredProposal(
         status = 500,
       } = await community.getProposalResults(proposal_id, creator_id)
       if (!ok) {
-        throw new APIError({ curl, description: error, status })
+        throw new APIError({ curl, description: error, status, error })
       }
 
       const voteYes = data.proposal?.points?.find((votes: any) => {
@@ -292,6 +293,7 @@ export async function handleProposalForm(i: ButtonInteraction) {
           description: codeRes.log,
           msgOrInteraction: i,
           status: codeRes.status ?? 500,
+          error: codeRes.error,
         })
       }
       await i
@@ -546,6 +548,7 @@ export async function handleProposalVote(i: ButtonInteraction) {
         description: codeRes.log,
         msgOrInteraction: i,
         status: codeRes.status ?? 500,
+        error: codeRes.error,
       })
     }
     return await i

@@ -15,6 +15,7 @@ export async function runCurrencyRemove(guildId: string | null) {
       curl: infoRes.curl,
       description: infoRes.log,
       status: infoRes.status ?? 500,
+      error: infoRes.error,
     })
   }
 
@@ -39,6 +40,7 @@ export async function runCurrencyRemove(guildId: string | null) {
       curl: res.curl,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
 

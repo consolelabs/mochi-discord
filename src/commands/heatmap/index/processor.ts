@@ -19,9 +19,22 @@ import CacheManager from "../../../cache/node-cache"
 export async function heatmap(
   msgOrInteraction: Message | CommandInteraction,
 ): Promise<RunResult<MessageOptions>> {
-  const { data, ok, curl, log, status = 500 } = await defi.getCoinsMarketData()
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await defi.getCoinsMarketData()
   if (!ok)
-    throw new APIError({ msgOrInteraction, curl, description: log, status })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status,
+      error,
+    })
 
   const embed = composeEmbedMessage(null, {
     author: ["Heatmap Crypto", getEmojiURL(emojis.MOCHI_CIRCLE)],

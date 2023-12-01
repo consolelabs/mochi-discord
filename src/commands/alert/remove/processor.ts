@@ -7,10 +7,16 @@ import { getSuccessEmbed } from "ui/discord/embed"
 export const handler: InteractionHandler = async (msgOrInteraction) => {
   const interaction = msgOrInteraction as SelectMenuInteraction
   const alertId = interaction.values[0]
-  const { ok, log, curl, status = 500 } = await Defi.removeAlertPrice(alertId)
+  const {
+    ok,
+    log,
+    curl,
+    status = 500,
+    error,
+  } = await Defi.removeAlertPrice(alertId)
 
   if (!ok) {
-    throw new APIError({ description: log, curl, status })
+    throw new APIError({ description: log, curl, status, error })
   }
 
   return {

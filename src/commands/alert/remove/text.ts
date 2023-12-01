@@ -21,6 +21,7 @@ const command: Command = {
       log,
       curl,
       status = 500,
+      error,
     } = await Defi.getAlertList(msg.author.id)
     if (!ok) {
       throw new APIError({
@@ -28,6 +29,7 @@ const command: Command = {
         description: log,
         curl,
         status,
+        error,
       })
     }
 

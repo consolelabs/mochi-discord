@@ -252,6 +252,7 @@ describe("parseMoniker", () => {
         description: apiRes.log,
         curl: apiRes.curl,
         status: apiRes.status,
+        error: apiRes.error,
       }),
     )
   })

@@ -228,6 +228,7 @@ async function handleViewFeedbackList(
       curl: res.curl,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
 

@@ -16,6 +16,7 @@ export async function runVerify(msg: Message | null, guildId: string | null) {
       curl: res.curl,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
   if (!res.data) {

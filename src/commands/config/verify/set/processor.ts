@@ -105,6 +105,7 @@ export async function runVerifySet({
       curl: res.curl,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
 
@@ -119,6 +120,7 @@ export async function runVerifySet({
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: res.curl,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
   const kafkaMsg: KafkaQueueActivityDataCommand = defaultActivityMsg(

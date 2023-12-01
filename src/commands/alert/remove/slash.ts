@@ -24,9 +24,10 @@ const command: SlashCommand = {
       log,
       curl,
       status = 500,
+      error,
     } = await Defi.getAlertList(interaction.user.id)
     if (!ok) {
-      throw new APIError({ description: log, curl, status })
+      throw new APIError({ description: log, curl, status, error })
     }
 
     const options: MessageSelectOptionData[] = []

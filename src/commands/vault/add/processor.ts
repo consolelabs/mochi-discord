@@ -49,6 +49,7 @@ export async function runAddTreasurer({
     curl: curlAddTreasurerReq,
     log: logAddTreasurerReq,
     originalError: originalErrorAddTreasurerReq,
+    error: errorAddtreasurerReq,
   } = await config.createTreasureRequest({
     guild_id: guildId,
     user_profile_id: userProfileId,
@@ -65,6 +66,7 @@ export async function runAddTreasurer({
       curl: curlAddTreasurerReq,
       description: logAddTreasurerReq,
       status: statusAddTreasurerReq,
+      error: errorAddtreasurerReq,
     })
   }
 
@@ -161,6 +163,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
     curl,
     log,
     originalError,
+    error,
   } = await config.createTreasurerSubmissions({
     vault_id: Number(vaultId),
     request_id: Number(requestId),
@@ -174,6 +177,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
       curl: curl,
       description: log,
       status,
+      error,
     })
   }
 
@@ -196,6 +200,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
       status = 500,
       curl,
       log,
+      error,
     } = await config.addTreasurerToVault({
       guild_id: dataAddTreasurer.submission.guild_id,
       user_profile_id: user,
@@ -207,6 +212,7 @@ export async function handleTreasurerAdd(i: ButtonInteraction) {
         curl: curl,
         description: log,
         status,
+        error,
       })
     }
 

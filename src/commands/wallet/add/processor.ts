@@ -68,6 +68,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
     curl,
     log,
     status = 500,
+    error,
   } = await profile.requestProfileCode(profileId)
   if (!ok)
     throw new APIError({
@@ -75,6 +76,7 @@ export async function handleWalletAddition(msg: OriginalMessage) {
       description: log,
       msgOrInteraction: msg,
       status,
+      error,
     })
   const buttonRow = composeButtonLink(
     "Verify Wallet",

@@ -65,6 +65,7 @@ export async function process(
       description: `[getByDiscord] API error with status ${dataProfile.status_code}`,
       curl: "",
       status: dataProfile.status ?? 500,
+      error: dataProfile.error,
     })
   }
 

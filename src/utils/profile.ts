@@ -9,6 +9,7 @@ export async function getProfileIdByDiscord(discordId: string) {
       description: `[getProfileIdByDiscord] API error with status ${pf.status_code}`,
       curl: "",
       status: pf.status ?? 500,
+      error: pf.error,
     })
   }
   return pf.id
@@ -20,6 +21,7 @@ export async function getDiscordRenderableByProfileId(profileId: string) {
       description: `[getDiscordRenderableByProfileId] API error with status ${pf.status_code}`,
       curl: "",
       status: pf.status ?? 500,
+      error: pf.error,
     })
   }
 

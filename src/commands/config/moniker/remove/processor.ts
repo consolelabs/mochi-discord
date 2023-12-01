@@ -14,9 +14,10 @@ export const handleRemoveMoniker = async (
     log,
     curl,
     status = 500,
+    error,
   } = await config.deleteMonikerConfig(payload)
   if (!ok) {
-    throw new APIError({ description: log, curl, status })
+    throw new APIError({ description: log, curl, status, error })
   }
   return {
     messageOptions: {

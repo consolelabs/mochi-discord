@@ -29,6 +29,7 @@ const slashCmd: SlashCommand = {
       curl,
       log,
       status = 500,
+      error,
     } = await community.upsertTagme({
       userId: i.user.id,
       guildId: i.guild.id,
@@ -41,6 +42,7 @@ const slashCmd: SlashCommand = {
         curl,
         description: log,
         status,
+        error,
       })
     }
 

@@ -22,6 +22,7 @@ export async function handle(
       curl: config.curl,
       description: config.log,
       status: config.status ?? 500,
+      error: config.error,
     })
   }
   return {

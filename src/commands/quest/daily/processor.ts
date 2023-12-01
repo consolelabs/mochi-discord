@@ -73,6 +73,7 @@ export async function handleClaimReward(i: ButtonInteraction) {
       curl: res.curl,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
   if (!res.data) return
@@ -135,6 +136,7 @@ export async function run(userId: string, msg?: Message) {
       msgOrInteraction: msg,
       description: res.log,
       status: res.status ?? 500,
+      error: res.error,
     })
   }
 

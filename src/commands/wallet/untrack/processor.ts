@@ -36,6 +36,7 @@ export async function untrackWallet(
     status = 500,
     curl,
     log,
+    error,
   } = await defi.findWallet(profileId, addressOrAlias)
   const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)
   // wallet not found
@@ -52,6 +53,7 @@ export async function untrackWallet(
       description: log,
       curl,
       status,
+      error,
     })
 
   const {
@@ -59,6 +61,7 @@ export async function untrackWallet(
     curl: untrackCurl,
     log: untrackLog,
     status: untrackStatus = 500,
+    error: untrackError,
   } = await defi.untrackWallet({
     profileId,
     address: wallet.address,
@@ -70,6 +73,7 @@ export async function untrackWallet(
       curl: untrackCurl,
       description: untrackLog,
       status: untrackStatus,
+      error: untrackError,
     })
   }
   // remove successfully

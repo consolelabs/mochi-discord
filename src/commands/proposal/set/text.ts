@@ -143,6 +143,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       log,
       curl,
       status = 500,
+      error,
     } = await config.createProposalChannel({
       guild_id: interaction.guildId || "",
       channel_id: channelId,
@@ -151,7 +152,7 @@ const handler: InteractionHandler = async (msgOrInteraction) => {
       address: contract,
     })
     if (!ok) {
-      throw new APIError({ curl, description: log, status })
+      throw new APIError({ curl, description: log, status, error })
     }
 
     return {

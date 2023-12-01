@@ -14,6 +14,7 @@ export async function render(userDiscordId: string, page = 0) {
       description: dataProfile.log,
       curl: dataProfile.curl,
       status: dataProfile.status ?? 500,
+      error: dataProfile.error,
     })
   }
   if (!dataProfile)

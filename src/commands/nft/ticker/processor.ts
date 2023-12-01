@@ -129,6 +129,7 @@ async function composeCollectionTickerEmbed({
     log,
     curl,
     status = 500,
+    error,
   } = await community.getNFTCollectionTickers({
     collectionAddress,
     from,
@@ -140,6 +141,7 @@ async function composeCollectionTickerEmbed({
       curl: curl,
       description: log,
       status,
+      error,
     })
   }
   // collection is not exist, mochi has not added it yet
@@ -405,6 +407,7 @@ export async function handleNftTicker(
     log,
     curl,
     status = 500,
+    error,
   } = await community.getNFTCollectionSuggestions(symbol)
   if (!ok)
     throw new APIError({
@@ -412,6 +415,7 @@ export async function handleNftTicker(
       curl,
       description: log,
       status,
+      error,
     })
   if (!suggestions.length) {
     const pointingright = getEmoji("ANIMATED_POINTING_RIGHT", true)

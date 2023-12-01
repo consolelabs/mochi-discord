@@ -19,6 +19,7 @@ export async function render(i: CommandInteraction, page = 0) {
       description: `[getByDiscord] API error with status ${p.status_code}`,
       curl: p.curl,
       status: p.status ?? 500,
+      error: p.error,
     })
   }
 

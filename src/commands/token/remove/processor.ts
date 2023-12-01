@@ -59,9 +59,10 @@ export async function handleTokenRemove(guildId: string, authorId: string) {
     curl,
     log,
     status = 500,
+    error,
   } = await Config.getGuildTokens(guildId)
   if (!ok) {
-    throw new APIError({ curl, description: log, status })
+    throw new APIError({ curl, description: log, status, error })
   }
   if (!gTokens || !gTokens.length)
     return {

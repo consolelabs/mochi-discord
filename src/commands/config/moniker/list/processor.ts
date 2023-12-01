@@ -17,6 +17,7 @@ export async function handleMonikerList(
     log: defaultLog,
     curl: defaultCurl,
     status: defaultStatus = 500,
+    error: defaultError,
   } = await config.getDefaultMoniker()
   const {
     ok: guildMonikerOk,
@@ -24,12 +25,14 @@ export async function handleMonikerList(
     log: guildLog,
     curl: guildCurl,
     status: guildStatus = 500,
+    error: guildError,
   } = await config.getMonikerConfig(guildId)
   if (!guildMonikerOk) {
     throw new APIError({
       description: guildLog,
       curl: guildCurl,
       status: guildStatus,
+      error: guildError,
     })
   }
   if (!defaultMonikerOk) {
@@ -37,6 +40,7 @@ export async function handleMonikerList(
       description: defaultLog,
       curl: defaultCurl,
       status: defaultStatus,
+      error: defaultError,
     })
   }
 

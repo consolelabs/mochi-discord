@@ -28,6 +28,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
     curl,
     log,
     status = 500,
+    error,
   } = await profile.requestProfileCode(profileId)
   if (!ok) {
     throw new APIError({
@@ -35,6 +36,7 @@ export async function sendVerifyURL(interaction: ButtonInteraction) {
       description: log,
       msgOrInteraction: interaction,
       status,
+      error,
     })
   }
   const row = new MessageActionRow().addComponents(

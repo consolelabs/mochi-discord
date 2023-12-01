@@ -20,13 +20,14 @@ describe("handleTokenRemove", () => {
       curl: "",
       log: "",
       status: 500,
+      error: "",
     }
-    const { curl, log, status } = getGuildTokensRes
+    const { curl, log, status, error } = getGuildTokensRes
     // Defi.getSupportedTokens = jest.fn().mockResolvedValueOnce([])
     Config.getGuildTokens = jest.fn().mockResolvedValueOnce(getGuildTokensRes)
     await expect(
       processor.handleTokenRemove("guildId", "authorId"),
-    ).rejects.toThrow(new APIError({ curl, description: log, status }))
+    ).rejects.toThrow(new APIError({ curl, description: log, status, error }))
   })
 
   test("Your server has no tokens", async () => {

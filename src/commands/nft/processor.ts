@@ -132,6 +132,7 @@ export async function composeCollectionInfoEmbed(
     curl,
     log,
     status = 500,
+    error,
   } = await community.getNFTCollectionMetadata(collectionAddress, chain)
   if (!ok) {
     throw new APIError({
@@ -139,6 +140,7 @@ export async function composeCollectionInfoEmbed(
       curl,
       description: log,
       status,
+      error,
     })
   }
   if (!data) {
@@ -234,6 +236,7 @@ export async function composeCollectionSoulboundEmbed(
     curl,
     log,
     status = 500,
+    error,
   } = await community.getNFTCollectionMetadata(collectionAddress, chain)
   if (!ok) {
     throw new APIError({
@@ -241,6 +244,7 @@ export async function composeCollectionSoulboundEmbed(
       curl: curl,
       description: log,
       status,
+      error,
     })
   }
   if (!data) {

@@ -216,6 +216,7 @@ async function transfer(
     curl,
     log,
     status = 500,
+    error,
   } = await defi.transferV2({
     ...payload,
     sender: await getProfileIdByDiscord(payload.sender),
@@ -224,7 +225,13 @@ async function transfer(
     ),
   })
   if (!ok) {
-    throw new APIError({ msgOrInteraction, curl, description: log, status })
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   }
 
   const member = await msgOrInteraction.guild?.members.fetch(payload.sender)
