@@ -6,14 +6,24 @@ import {
   MessageOptions,
   SelectMenuInteraction,
   TextChannel,
+  MessageButton,
+  MessageActionRow,
   User,
   MessageMentions,
+  ButtonInteraction,
+  TextInputComponent,
+  ModalActionRowComponent,
+  Modal,
 } from "discord.js"
-import { GuildIdNotFoundError, InternalError } from "errors"
+import mochiPay from "adapters/mochi-pay"
+import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
-import { composeEmbedMessage } from "ui/discord/embed"
+import {
+  composeEmbedMessage,
+  composeInsufficientBalanceEmbed,
+} from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
   TokenEmojiKey,
@@ -44,7 +54,10 @@ import { RunResult } from "types/common"
 import { TransferPayload } from "types/transfer"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
 import { APPROX } from "utils/constants"
-import { getProfileIdByDiscord } from "utils/profile"
+import {
+  getProfileIdByDiscord,
+  getDiscordRenderableByProfileId,
+} from "utils/profile"
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -328,12 +341,347 @@ function showSuccesfulResponse(
     }
   }
 
+  const followTipButton = new MessageActionRow().addComponents(
+    new MessageButton({
+      customId: `follow-tip`,
+      label: "Join the tip",
+      style: "SECONDARY",
+    }),
+  )
+
   return {
     messageOptions: {
       content: `${content}${contentMsg}`,
-      components: [],
+      components: [followTipButton],
+    },
+    buttonCollector: {
+      handler: handleFollowTipHandler(payload, res, amountApprox),
     },
   }
+}
+
+export function handleFollowTipHandler(
+  payload: any,
+  res: any,
+  amountApprox: string,
+) {
+  return async (i: ButtonInteraction) =>
+    await handleFollowTip(i, payload, res, amountApprox)
+}
+
+export async function handleFollowTip(
+  i: ButtonInteraction,
+  payload: any,
+  res: any,
+  amountApprox: string,
+) {
+  await i.deferUpdate()
+  const recipient = await i.guild?.members.fetch(payload.recipients[0])
+  const embed = composeEmbedMessage(null, {
+    title: `New tip to ${recipient?.displayName}`,
+    description: `
+      \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
+        payload.token
+      } ${amountApprox}
+      \`Receiver.  \` <@${payload.recipients[0]}>
+      \`Message.   \` Send money
+    `,
+    color: "#89fa8e",
+  })
+
+  const composeFollowTipButton = new MessageActionRow().addComponents(
+    new MessageButton({
+      customId: `confirm-follow-tip-${i.message.id}-${res.external_id}`,
+      label: "Confirm",
+      style: "SECONDARY",
+    }),
+    new MessageButton({
+      customId: `custom-follow-tip-${i.message.id}-${res.external_id}`,
+      label: "Custom",
+      style: "SECONDARY",
+    }),
+  )
+
+  await i.editReply({
+    embeds: [embed],
+    components: [composeFollowTipButton],
+  })
+  return
+}
+
+export async function handleConfirmFollowTip(i: ButtonInteraction) {
+  const args = i.customId.split("-")
+  const followTxId = args[4]
+
+  const {
+    data: followTx,
+    ok,
+    curl,
+    status = 500,
+    error,
+  } = await mochiPay.getTxByExternalId(followTxId)
+  if (!ok) {
+    throw new APIError({
+      msgOrInteraction: i,
+      description: "Cannot get transaction",
+      curl,
+      status,
+      error,
+    })
+  }
+
+  const author = getAuthor(i)
+  const balances = await getBalances({
+    msgOrInteraction: i,
+    token: followTx.token.symbol,
+  })
+  if (!balances.length) {
+    await i.reply({
+      embeds: [
+        composeInsufficientBalanceEmbed({
+          current: 0,
+          required: followTx.metadata.original_amount,
+          symbol: followTx.token.symbol,
+          author,
+        }),
+      ],
+    })
+  }
+
+  const channel_url = await getChannelUrl(i as any)
+  const guildAvatar = i.guild?.iconURL()
+  const recipients = [followTx.other_profile_id]
+  const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
+  const payload = {
+    sender: i.user.id,
+    recipients: recipients,
+    guild_id: guildID,
+    channel_id: i.channel?.id,
+    channel_name: channelName,
+    channel_url: channel_url,
+    amount: followTx.metadata.original_amount,
+    token: followTx.token.symbol,
+    transfer_type: followTx.action,
+    message: "Send money",
+    chain_id: followTx.token.chain_id,
+    platform: "discord",
+    original_amount: followTx.metadata.original_amount,
+    channel_avatar: guildAvatar,
+    original_tx_id: followTxId,
+  }
+
+  const {
+    data: dataTransfer,
+    ok: okTransfer,
+    curl: curlTransfer,
+    log: logTransfer,
+    status: statusTransfer = 500,
+    error: errorTransfer,
+  } = await defi.transferV2({
+    ...payload,
+    sender: await getProfileIdByDiscord(payload.sender),
+  })
+  if (!okTransfer) {
+    if (statusTransfer === 400) {
+      await i.reply({
+        embeds: [
+          composeInsufficientBalanceEmbed({
+            current: 0,
+            required: followTx.metadata.original_amount,
+            symbol: followTx.token.symbol,
+            author,
+          }),
+        ],
+      })
+    } else {
+      throw new APIError({
+        msgOrInteraction: i,
+        description: logTransfer,
+        curl: curlTransfer,
+        error: errorTransfer,
+        status: statusTransfer,
+      })
+    }
+  }
+
+  await i.reply({
+    content: `<@${i.user.id}> sent <@${payload.recipients}> ${getEmojiToken(
+      payload.token,
+    )} ${payload.amount} ${payload.token}! .${mochiUtils.string.receiptLink(
+      dataTransfer?.external_id,
+    )}`,
+    components: [],
+    embeds: [],
+  })
+}
+
+export async function handleCustomFollowTip(i: ButtonInteraction) {
+  const args = i.customId.split("-")
+  const followTxId = args[4]
+
+  const modal = new Modal().setCustomId("amount-form").setTitle("New tip")
+
+  const valueInput = new TextInputComponent()
+    .setCustomId("custom_value")
+    .setLabel("Value")
+    .setRequired(true)
+    .setStyle("SHORT")
+
+  const tokenInput = new TextInputComponent()
+    .setCustomId("custom_token")
+    .setLabel("Token")
+    .setRequired(true)
+    .setStyle("SHORT")
+
+  const msgInput = new TextInputComponent()
+    .setCustomId("custom_message")
+    .setLabel("Message")
+    .setRequired(false)
+    .setStyle("SHORT")
+
+  const valueAction =
+    new MessageActionRow<ModalActionRowComponent>().addComponents(valueInput)
+  const tokenAction =
+    new MessageActionRow<ModalActionRowComponent>().addComponents(tokenInput)
+  const messageAction =
+    new MessageActionRow<ModalActionRowComponent>().addComponents(msgInput)
+
+  modal.addComponents(valueAction, tokenAction, messageAction)
+
+  await i.showModal(modal)
+
+  const submitted = await i
+    .awaitModalSubmit({
+      time: 300000,
+      filter: (mi) => mi.user.id === i.user.id,
+    })
+    .catch(() => null)
+
+  if (!submitted) return { msgOpts: i.message }
+
+  if (!submitted.deferred) {
+    await submitted.deferUpdate().catch(() => null)
+  }
+  const amount = submitted.fields.getTextInputValue("custom_value")
+  const token = submitted.fields.getTextInputValue("custom_token")
+  const message = submitted.fields.getTextInputValue("custom_message")
+
+  const {
+    data: followTx,
+    ok,
+    curl,
+    status = 500,
+    error,
+  } = await mochiPay.getTxByExternalId(followTxId)
+  if (!ok) {
+    throw new APIError({
+      msgOrInteraction: i,
+      description: "Cannot get transaction",
+      curl,
+      status,
+      error,
+    })
+  }
+
+  const author = getAuthor(i)
+  const balances = await getBalances({ msgOrInteraction: i, token: token })
+  if (!balances.length) {
+    await i.followUp({
+      embeds: [
+        composeInsufficientBalanceEmbed({
+          current: 0,
+          required: followTx.metadata.original_amount,
+          symbol: token as TokenEmojiKey,
+          author,
+        }),
+      ],
+    })
+    return
+  }
+
+  // when have multiple token, temp do like this until clarify logic
+  const choosenToken = identifyToken(balances)
+
+  const channel_url = await getChannelUrl(i as any)
+  const guildAvatar = i.guild?.iconURL()
+  const recipients = [followTx.other_profile_id]
+  const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
+  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
+  const payload = {
+    sender: i.user.id,
+    recipients: recipients,
+    guild_id: guildID,
+    channel_id: i.channel?.id,
+    channel_name: channelName,
+    channel_url: channel_url,
+    amount: +amount,
+    token: token,
+    transfer_type: followTx.action,
+    message: message,
+    chain_id: choosenToken.chain_id,
+    platform: "discord",
+    original_amount: +amount,
+    channel_avatar: guildAvatar,
+    original_tx_id: followTxId,
+  }
+
+  const {
+    data: dataTransfer,
+    ok: okTransfer,
+    curl: curlTransfer,
+    log: logTransfer,
+    status: statusTransfer = 500,
+    error: errorTransfer,
+  } = await defi.transferV2({
+    ...payload,
+    sender: await getProfileIdByDiscord(payload.sender),
+  })
+  if (!okTransfer) {
+    if (statusTransfer === 400) {
+      await i.followUp({
+        embeds: [
+          composeInsufficientBalanceEmbed({
+            current: 0,
+            required: followTx.metadata.original_amount,
+            symbol: followTx.token.symbol,
+            author,
+          }),
+        ],
+      })
+    } else {
+      throw new APIError({
+        msgOrInteraction: i,
+        description: logTransfer,
+        curl: curlTransfer,
+        status: statusTransfer,
+        error: errorTransfer,
+      })
+    }
+  }
+  const recipientDiscord = await getDiscordRenderableByProfileId(
+    followTx.other_profile_id,
+  )
+
+  await i.followUp({
+    content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
+      payload.token as TokenEmojiKey,
+    )} ${payload.amount} ${payload.token} (≈ ${mochiUtils.formatUsdDigit(
+      +dataTransfer?.amount_each * choosenToken.price,
+    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
+    components: [],
+    embeds: [],
+  })
+}
+
+function identifyToken(bals: any) {
+  for (const bal of bals) {
+    if (bal.token?.native) {
+      return bal.token
+    }
+  }
+
+  return bals[0].token
 }
 
 export async function parseTipArgs(

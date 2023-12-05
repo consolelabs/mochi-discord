@@ -1,4 +1,5 @@
 import { ResponseGetDataUserProfileResponse } from "types/api"
+import { MOCHI_BOT_SECRET } from "env"
 import {
   GetUserNFTCollectionResponse,
   GetUserNFTsResponse,
@@ -226,7 +227,14 @@ class Profile extends Fetcher {
   }
 
   public async getById(id: string): Promise<any> {
-    return await this.jsonFetch(`${MOCHI_PROFILE_API_BASE_URL}/profiles/${id}`)
+    return await this.jsonFetch(
+      `${MOCHI_PROFILE_API_BASE_URL}/profiles/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${MOCHI_BOT_SECRET}`,
+        },
+      },
+    )
   }
 
   public async getByDiscord(
