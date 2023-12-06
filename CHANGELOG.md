@@ -1,3 +1,11 @@
+## [6.40.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.0...v6.40.1-rc.1) (2023-12-06)
+
+
+### Bug Fixes
+
+* **feed:** tx feed is empty ([#1541](https://github.com/consolelabs/mochi-discord/issues/1541)) ([0e9f45a](https://github.com/consolelabs/mochi-discord/commit/0e9f45a39193e17e3e28b8c8b8ac0a4be01e7f4e))
+* **sentry:** handle read-only error ([#1540](https://github.com/consolelabs/mochi-discord/issues/1540)) ([8640a86](https://github.com/consolelabs/mochi-discord/commit/8640a86c0fdb8d5662806eb5ffd4fa07906c4d31))
+
 # [6.40.0](https://github.com/consolelabs/mochi-discord/compare/v6.39.3...v6.40.0) (2023-12-05)
 
 
