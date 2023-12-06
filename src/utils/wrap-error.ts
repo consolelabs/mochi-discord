@@ -60,7 +60,12 @@ export async function wrapError(
     }
 
     // prepend product name and command name
-    e.name = `${PRODUCT_NAME}: ${commandStr} ⎯  ${e.name}`
+    try {
+      e.name = `${PRODUCT_NAME}: ${commandStr} ⎯  ${e.name}`
+    } catch {
+      // Sometimes the name property is read-only
+      cc.extra.error = { readonly: true }
+    }
 
     // calling api failed, with status code 500, send to sentry
     if (e instanceof APIError && e.status === 500) {
