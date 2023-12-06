@@ -1,3 +1,18 @@
+# [6.40.0](https://github.com/consolelabs/mochi-discord/compare/v6.39.3...v6.40.0) (2023-12-05)
+
+
+### Bug Fixes
+
+* **follow-tip:** handle error ([#1539](https://github.com/consolelabs/mochi-discord/issues/1539)) ([3f8d1ad](https://github.com/consolelabs/mochi-discord/commit/3f8d1adc9776d13a707cfc91ac53dd7b056e201b))
+* handle null ([#1538](https://github.com/consolelabs/mochi-discord/issues/1538)) ([e4ceab9](https://github.com/consolelabs/mochi-discord/commit/e4ceab9955ae89bdb9137b7c81a69e38069f272d))
+* handle withdraw all ([#1535](https://github.com/consolelabs/mochi-discord/issues/1535)) ([2bad7a1](https://github.com/consolelabs/mochi-discord/commit/2bad7a1b0696d9e5d5e68a588ef0dddfabe9849f))
+* reply to user if it's a known error ([e74f065](https://github.com/consolelabs/mochi-discord/commit/e74f0659b9f0f24b518540b7255f4d7b38329684))
+
+
+### Features
+
+* follow tip ([#1537](https://github.com/consolelabs/mochi-discord/issues/1537)) ([e158994](https://github.com/consolelabs/mochi-discord/commit/e158994799a70d1f2773df1325bbe0b2e3638c65))
+
 # [6.40.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.0-rc.1...v6.40.0-rc.2) (2023-12-01)
 
 
