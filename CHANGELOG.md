@@ -1,3 +1,10 @@
+## [6.40.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.3...v6.40.4-rc.1) (2023-12-07)
+
+
+### Bug Fixes
+
+* ephemeral tip follow ([#1544](https://github.com/consolelabs/mochi-discord/issues/1544)) ([61ce87b](https://github.com/consolelabs/mochi-discord/commit/61ce87b0aeac91535a3f964f0801367902c293b8))
+
 ## [6.40.3](https://github.com/consolelabs/mochi-discord/compare/v6.40.2...v6.40.3) (2023-12-07)
 
 
