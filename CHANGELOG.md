@@ -1,3 +1,10 @@
+## [6.40.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.1...v6.40.2) (2023-12-07)
+
+
+### Bug Fixes
+
+* update typing for transaction ([#1542](https://github.com/consolelabs/mochi-discord/issues/1542)) ([6ddb2dc](https://github.com/consolelabs/mochi-discord/commit/6ddb2dc29dd27a5ce518e1f0bcf4653ea073a7e0))
+
 ## [6.40.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.1...v6.40.2-rc.1) (2023-12-07)
 
 
