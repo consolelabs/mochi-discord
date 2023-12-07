@@ -375,7 +375,8 @@ export async function handleFollowTip(
   res: any,
   amountApprox: string,
 ) {
-  await i.deferUpdate()
+  await i.deferReply({ ephemeral: true })
+
   const recipient = await i.guild?.members.fetch(payload.recipients[0])
   const embed = composeEmbedMessage(null, {
     title: `New tip to ${recipient?.displayName}`,
@@ -505,12 +506,16 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     }
   }
 
+  const recipientDiscord = await getDiscordRenderableByProfileId(
+    payload.recipients[0],
+  )
+
   await i.reply({
-    content: `<@${i.user.id}> sent <@${payload.recipients}> ${getEmojiToken(
+    content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
       payload.token,
-    )} ${payload.amount} ${payload.token}! .${mochiUtils.string.receiptLink(
-      dataTransfer?.external_id,
-    )}`,
+    )} ${payload.amount} ${payload.token}(≈ ${mochiUtils.formatUsdDigit(
+      +dataTransfer?.amount_each * followTx.token.price,
+    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
     components: [],
     embeds: [],
   })
@@ -666,7 +671,9 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   await i.followUp({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
       payload.token as TokenEmojiKey,
-    )} ${payload.amount} ${payload.token} (≈ ${mochiUtils.formatUsdDigit(
+    )} ${
+      payload.amount
+    } ${payload.token.toUpperCase()} (≈ ${mochiUtils.formatUsdDigit(
       +dataTransfer?.amount_each * choosenToken.price,
     )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
     components: [],
