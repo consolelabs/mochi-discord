@@ -1,3 +1,10 @@
+## [6.40.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.2...v6.40.3-rc.1) (2023-12-07)
+
+
+### Bug Fixes
+
+* **leaderboard:** update schema type for leaderboard ([#1543](https://github.com/consolelabs/mochi-discord/issues/1543)) ([5a9a937](https://github.com/consolelabs/mochi-discord/commit/5a9a9377abc18dfbf1dd5e19ba38797cec5dd141))
+
 ## [6.40.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.1...v6.40.2) (2023-12-07)
 
 
