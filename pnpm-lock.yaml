@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-rest':
-    specifier: ^5.1.5
-    version: 5.1.5
+    specifier: ^5.1.6
+    version: 5.1.6
   '@consolelabs/mochi-ui':
-    specifier: ^10.0.35
-    version: 10.0.35(@consolelabs/mochi-rest@5.1.5)(ioredis@5.3.2)
+    specifier: ^16.0.6
+    version: 16.0.6(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -746,8 +746,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-rest@5.1.5:
-    resolution: {integrity: sha512-8rcNCIGMdg1W8NEwjCSWwaC9Kr3pjaVDEONGI2Gu37OMIcwzYBnRNN67Y/hH7GAUvwE4RIDV500K9+dAbn/FhQ==}
+  /@consolelabs/mochi-rest@5.1.6:
+    resolution: {integrity: sha512-ARFa/ETUlAYLE/s51layGldIuKPvJxZp655Jol5PODn5O454w0PemW9qHNkxaBFG9nvx2JFq4+ILhLEmVrA6Wg==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
@@ -760,14 +760,14 @@ packages:
       zod: 3.22.4
     dev: false
 
-  /@consolelabs/mochi-ui@10.0.35(@consolelabs/mochi-rest@5.1.5)(ioredis@5.3.2):
-    resolution: {integrity: sha512-GN0kczBSzN4xHlS14Hc3pSX5HEB7JdRqbnvlIuqP5UDMjwVNAHsPsaq6qPzz53FcpHQbuMRTh0LrfdMiG+WsHw==}
+  /@consolelabs/mochi-ui@16.0.6(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2):
+    resolution: {integrity: sha512-by+6D0aAYSCOZdrXtCBFB0pnduOJhT4ol4ISAUbplQ2W92inESGvwgvbbBrsnCqAVzF14kwBCTQMaGpSjqCnsw==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^3.0.16
+      '@consolelabs/mochi-rest': ^5.1.6
       ioredis: ^5.x.x
     dependencies:
       '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.87.6)
-      '@consolelabs/mochi-rest': 5.1.5
+      '@consolelabs/mochi-rest': 5.1.6
       '@solana/web3.js': 1.87.6
       change-case: 4.1.2
       ethers: 6.8.1
@@ -2327,7 +2327,7 @@ packages:
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 20.9.4
     dev: false
 
   /@types/cron@2.0.0:
@@ -2520,7 +2520,7 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 20.9.4
     dev: false
 
   /@types/ws@8.5.10:
