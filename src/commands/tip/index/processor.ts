@@ -394,7 +394,7 @@ export async function handleFollowTip(i: ButtonInteraction) {
         payload.token
       } ${amountApprox}
       \`Receiver.  \` <@${payload.recipients[0]}>
-      \`Message.   \` Send money
+      \`Message.   \` Send money.
     `,
     color: "#89fa8e",
   })
