@@ -58,6 +58,13 @@ import {
   getProfileIdByDiscord,
   getDiscordRenderableByProfileId,
 } from "utils/profile"
+import NodeCache from "node-cache"
+
+const contentCache = new NodeCache({
+  stdTTL: 3600,
+  checkperiod: 3600,
+  useClones: false,
+})
 
 export async function tip(
   msgOrInteraction: Message | CommandInteraction,
@@ -253,10 +260,18 @@ async function transfer(
   // respond with successful message
   payload.message = rawMessage // need assign back to show @user in discord response
   const hashtagTemplate = await handleMessageHashtag(payload.message)
-  return showSuccesfulResponse(payload, data, senderStr, hashtagTemplate)
+  const interactionId = msgOrInteraction.id
+  return showSuccesfulResponse(
+    interactionId,
+    payload,
+    data,
+    senderStr,
+    hashtagTemplate,
+  )
 }
 
 function showSuccesfulResponse(
+  interactionId: string,
   payload: any,
   res: any,
   senderStr?: string,
@@ -341,9 +356,16 @@ function showSuccesfulResponse(
     }
   }
 
+  const key = `follow-tip_${interactionId}`
+  contentCache.set(key, {
+    payload: payload,
+    res: res,
+    amountApprox: amountApprox,
+  })
+
   const followTipButton = new MessageActionRow().addComponents(
     new MessageButton({
-      customId: `follow-tip`,
+      customId: key,
       label: "Join the tip",
       style: "SECONDARY",
     }),
@@ -354,28 +376,15 @@ function showSuccesfulResponse(
       content: `${content}${contentMsg}`,
       components: [followTipButton],
     },
-    buttonCollector: {
-      handler: handleFollowTipHandler(payload, res, amountApprox),
-    },
   }
 }
 
-export function handleFollowTipHandler(
-  payload: any,
-  res: any,
-  amountApprox: string,
-) {
-  return async (i: ButtonInteraction) =>
-    await handleFollowTip(i, payload, res, amountApprox)
-}
-
-export async function handleFollowTip(
-  i: ButtonInteraction,
-  payload: any,
-  res: any,
-  amountApprox: string,
-) {
-  await i.deferReply({ ephemeral: true })
+export async function handleFollowTip(i: ButtonInteraction) {
+  await i.deferUpdate()
+  const followTipCache = contentCache.get<any>(i.customId)
+  const payload = followTipCache.payload
+  const res = followTipCache.res
+  const amountApprox = followTipCache.amountApprox
 
   const recipient = await i.guild?.members.fetch(payload.recipients[0])
   const embed = composeEmbedMessage(null, {
@@ -403,10 +412,13 @@ export async function handleFollowTip(
     }),
   )
 
-  await i.editReply({
-    embeds: [embed],
-    components: [composeFollowTipButton],
-  })
+  await i
+    .followUp({
+      embeds: [embed],
+      components: [composeFollowTipButton],
+      ephemeral: true,
+    })
+    .catch(() => null)
   return
 }
 

@@ -5,6 +5,7 @@ import { handleInteraction } from "commands/balances/index/processor"
 import {
   handleConfirmFollowTip,
   handleCustomFollowTip,
+  handleFollowTip,
 } from "commands/tip/index/processor"
 import { sendVerifyURL } from "commands/config/verify/processor"
 import { feedbackDispatcher } from "commands/feedback/index/processor"
@@ -487,6 +488,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("custom-follow-tip"):
       await handleCustomFollowTip(i)
+      return
+    case i.customId.startsWith("follow-tip_"):
+      await handleFollowTip(i)
       return
     default: {
       return
