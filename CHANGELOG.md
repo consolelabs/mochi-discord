@@ -1,3 +1,10 @@
+## [6.40.5-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.2...v6.40.5-rc.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* bump version ([#1548](https://github.com/consolelabs/mochi-discord/issues/1548)) ([2bc7a35](https://github.com/consolelabs/mochi-discord/commit/2bc7a35a37551c64477812461a5dd6f20d76fd1b))
+
 ## [6.40.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.1...v6.40.5-rc.2) (2023-12-08)
 
 
