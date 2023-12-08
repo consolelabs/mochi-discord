@@ -379,6 +379,7 @@ function showSuccesfulResponse(
   }
 }
 
+//
 export async function handleFollowTip(i: ButtonInteraction) {
   await i.deferUpdate()
   const followTipCache = contentCache.get<any>(i.customId)
