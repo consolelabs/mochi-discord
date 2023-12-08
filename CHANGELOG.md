@@ -1,3 +1,10 @@
+## [6.40.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.4...v6.40.5-rc.1) (2023-12-08)
+
+
+### Bug Fixes
+
+* allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
+
 ## [6.40.4](https://github.com/consolelabs/mochi-discord/compare/v6.40.3...v6.40.4) (2023-12-08)
 
 
