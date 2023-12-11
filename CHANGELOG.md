@@ -1,10 +1,21 @@
+## [6.40.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.5...v6.40.6-rc.1) (2023-12-11)
+
+
+### Bug Fixes
+
+* wlv pagination doesn't work ([e112120](https://github.com/consolelabs/mochi-discord/commit/e11212079ee31c759ff1107bf465cf2e5cfffb64))
+
+## [6.40.5-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.2...v6.40.5-rc.3) (2023-12-08)
 ## [6.40.5](https://github.com/consolelabs/mochi-discord/compare/v6.40.4...v6.40.5) (2023-12-08)
 
 
 ### Bug Fixes
 
+<<<<<<< HEAD
+=======
 * allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
 * bump ver ([#1547](https://github.com/consolelabs/mochi-discord/issues/1547)) ([e5820c1](https://github.com/consolelabs/mochi-discord/commit/e5820c1251f8b7e1d1a7dde5ff2fe26935cbd2b7))
+>>>>>>> master
 * bump version ([#1548](https://github.com/consolelabs/mochi-discord/issues/1548)) ([2bc7a35](https://github.com/consolelabs/mochi-discord/commit/2bc7a35a37551c64477812461a5dd6f20d76fd1b))
 
 ## [6.40.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.1...v6.40.5-rc.2) (2023-12-08)
