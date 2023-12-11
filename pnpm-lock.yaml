@@ -15,8 +15,8 @@ dependencies:
     specifier: ^5.1.6
     version: 5.1.6
   '@consolelabs/mochi-ui':
-    specifier: ^16.0.6
-    version: 16.0.6(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2)
+    specifier: ^17.0.1
+    version: 17.0.1(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2)
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -760,8 +760,8 @@ packages:
       zod: 3.22.4
     dev: false
 
-  /@consolelabs/mochi-ui@16.0.6(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2):
-    resolution: {integrity: sha512-by+6D0aAYSCOZdrXtCBFB0pnduOJhT4ol4ISAUbplQ2W92inESGvwgvbbBrsnCqAVzF14kwBCTQMaGpSjqCnsw==}
+  /@consolelabs/mochi-ui@17.0.1(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2):
+    resolution: {integrity: sha512-4Z+4hd18bXqT8fbJ79Ox0P6Hveyo2SET/k2Ozs8F+/ycU0XJ5Q8RmUVtdbqjMe6y5BxRZpvoZSa+ftzjsUDkaw==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^5.1.6
       ioredis: ^5.x.x
