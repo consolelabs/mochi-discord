@@ -165,6 +165,7 @@ export async function composeWatchlist(
       }
       break
   }
+
   return {
     context: {
       page,
@@ -175,7 +176,7 @@ export async function composeWatchlist(
         buildSwitchViewActionRow(view),
         ...paginationButtons(
           page,
-          Math.ceil(res.metadata?.total || 0 / PAGE_SIZE),
+          Math.ceil((res.metadata?.total || 0) / PAGE_SIZE),
         ),
       ],
       files,
