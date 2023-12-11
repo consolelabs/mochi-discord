@@ -1,3 +1,10 @@
+## [6.40.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.6...v6.40.7-rc.1) (2023-12-11)
+
+
+### Bug Fixes
+
+* update new rule for rendering percent values ([833adb0](https://github.com/consolelabs/mochi-discord/commit/833adb03fdee57e59fb0ab690fe1514c89db2d2c))
+
 ## [6.40.6](https://github.com/consolelabs/mochi-discord/compare/v6.40.5...v6.40.6) (2023-12-11)
 
 
