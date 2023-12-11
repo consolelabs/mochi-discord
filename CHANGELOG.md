@@ -1,3 +1,10 @@
+## [6.40.6](https://github.com/consolelabs/mochi-discord/compare/v6.40.5...v6.40.6) (2023-12-11)
+
+
+### Bug Fixes
+
+* wlv pagination doesn't work ([e112120](https://github.com/consolelabs/mochi-discord/commit/e11212079ee31c759ff1107bf465cf2e5cfffb64))
+
 ## [6.40.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.5...v6.40.6-rc.1) (2023-12-11)
 
 
