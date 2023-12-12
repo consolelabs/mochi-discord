@@ -41,6 +41,7 @@ export interface ModelChain {
   id?: number
   name?: string
   short_name?: string
+  type?: string
 }
 
 export interface ModelCoingeckoSupportedTokens {
@@ -53,6 +54,16 @@ export interface ModelCoingeckoSupportedTokens {
   most_popular?: boolean
   name?: string
   symbol?: string
+}
+
+export interface ModelCommandPermission {
+  code?: string
+  created_at?: string
+  description?: string
+  discord_permission_flag?: string
+  id?: number
+  need_dm?: boolean
+  updated_at?: string
 }
 
 export interface ModelConfigXpLevel {
@@ -338,14 +349,20 @@ export interface ModelNewListedNFTCollection {
 }
 
 export interface ModelOffchainTipBotToken {
+  address?: string
+  chain?: ModelChain
+  chain_id?: string
   coin_gecko_id?: string
   created_at?: string
+  decimal?: number
   icon?: string
   id?: string
+  is_native?: boolean
   service_fee?: number
   status?: number
   token_id?: string
   token_name?: string
+  token_price?: number
   token_symbol?: string
   updated_at?: string
 }
@@ -463,16 +480,6 @@ export interface ModelToken {
   is_native?: boolean
   name?: string
   symbol?: string
-}
-
-export interface ModelTonoCommandPermission {
-  code?: string
-  created_at?: string
-  description?: string
-  discord_permission_flag?: string
-  id?: number
-  need_dm?: boolean
-  updated_at?: string
 }
 
 export interface ModelUser {
@@ -797,8 +804,6 @@ export interface RequestOffchainTransferRequest {
   platform?: string
   recipients?: string[]
   sender?: string
-
-  /** AmountString string   `json:"amount_string"` */
   token?: string
   transfer_type?: string
 }
@@ -856,8 +861,9 @@ export interface RequestTrackWalletRequest {
 
 export interface RequestTransferV2Request {
   all?: boolean
-  amount?: number
-  chain_id?: string
+  amount: number
+  chain_id: string
+  channel_avatar?: string
   channel_id?: string
   channel_name?: string
   channel_url?: string
@@ -868,11 +874,12 @@ export interface RequestTransferV2Request {
   moniker?: string
   original_amount?: number
   original_tx_id?: string
-  platform?: string
-  recipients?: string[]
-  sender?: string
-  token?: string
-  transfer_type?: "transfer" | "airdrop"
+  platform: "discord" | "telegram" | "web"
+  recipients: string[]
+  sender: string
+  theme_id?: number
+  token: string
+  transfer_type: "transfer" | "airdrop"
 }
 
 export interface RequestUnlinkBinance {
@@ -1120,6 +1127,10 @@ export interface ResponseCollectionSuggestions {
   chain_id?: number
   name?: string
   symbol?: string
+}
+
+export interface ResponseCommandPermissions {
+  data?: ModelCommandPermission[]
 }
 
 export interface ResponseCompareTokenReponseData {
@@ -2295,10 +2306,6 @@ export interface ResponseTokenPriceAlertResponseData {
   symbol?: string
   user_discord_id?: string
   value?: number
-}
-
-export interface ResponseTonoCommandPermissions {
-  data?: ModelTonoCommandPermission[]
 }
 
 export interface ResponseTopUser {
