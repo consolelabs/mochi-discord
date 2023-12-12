@@ -1,3 +1,11 @@
+# [6.41.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.7-rc.1...v6.41.0-rc.1) (2023-12-12)
+
+
+### Features
+
+* update CI to rebuild image ([#1550](https://github.com/consolelabs/mochi-discord/issues/1550)) ([4003231](https://github.com/consolelabs/mochi-discord/commit/400323121ad73bf7c4ffd89eb98af811e3a28318))
+* update package.json to use mochijs latest version ([#1549](https://github.com/consolelabs/mochi-discord/issues/1549)) ([c077267](https://github.com/consolelabs/mochi-discord/commit/c077267c4016f818502972c5e1ed65138c1c54c6))
+
 ## [6.40.7](https://github.com/consolelabs/mochi-discord/compare/v6.40.6...v6.40.7) (2023-12-11)
 
 
