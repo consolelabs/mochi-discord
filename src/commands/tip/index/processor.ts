@@ -383,6 +383,15 @@ function showSuccesfulResponse(
 export async function handleFollowTip(i: ButtonInteraction) {
   await i.deferUpdate()
   const followTipCache = contentCache.get<any>(i.customId)
+  if (!followTipCache) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Unexpected error occur!",
+      descriptions: [
+        "The follow tip failed. Please try again later. If the problem persists, please contact us on Discord.",
+      ],
+    })
+  }
   const payload = followTipCache.payload
   const res = followTipCache.res
   const amountApprox = followTipCache.amountApprox
