@@ -1,3 +1,10 @@
+# [6.41.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.41.0-rc.1...v6.41.0-rc.2) (2023-12-14)
+
+
+### Bug Fixes
+
+* airdrop confirm/cancel button not working ([#1551](https://github.com/consolelabs/mochi-discord/issues/1551)) ([23d9478](https://github.com/consolelabs/mochi-discord/commit/23d9478744a3b47be0a2fa2fee679c4a09fa0621))
+
 # [6.41.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.7-rc.1...v6.41.0-rc.1) (2023-12-12)
 
 
