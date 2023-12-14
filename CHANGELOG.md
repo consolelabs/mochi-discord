@@ -1,3 +1,10 @@
+## [6.41.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.1...v6.41.2-rc.1) (2023-12-14)
+
+
+### Bug Fixes
+
+* replace mochi ui to mochi formatter ([#1553](https://github.com/consolelabs/mochi-discord/issues/1553)) ([0d33582](https://github.com/consolelabs/mochi-discord/commit/0d33582cf9675fe59dbe0aedaaf7a3764074cbe5))
+
 ## [6.41.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.0...v6.41.1) (2023-12-14)
 
 
