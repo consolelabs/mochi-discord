@@ -1,16 +1,17 @@
 name: Build and Deploy to GKE Preview
 
 on:
+  workflow_dispatch:
   release:
     types: [prereleased]
 
 # Environment variables available to all jobs and steps in this workflow
 env:
-  GITHUB_SHA: ${{ github.sha }}
   REGISTRY_HOSTNAME: gcr.io
   GKE_PROJECT: console-labs-prod
   IMAGE: consolelabs/mochi-discord
   K8S_ENVIRONMENT: preview
+  SHA: ${{ github.sha }}
 
 jobs:
   setup-build-publish-deploy:
@@ -33,11 +34,16 @@ jobs:
         run: |
           gcloud auth configure-docker gcr.io
 
+      # Overwrite GITHUB_SHA
+      - name: Set SHA
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "SHA=${GITHUB_SHA}-$(date +%Y%m%d%H%M%S)" >> "$GITHUB_ENV"
       # Build & Push the Docker image
       - name: Build & Push
         run: |
-          docker build --build-arg NODE_ENV=$K8S_ENVIRONMENT --build-arg SWAGGER_URL=${{ secrets.SWAGGER_URL_DEV }} -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA} .   
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+          docker build --build-arg NODE_ENV=$K8S_ENVIRONMENT --build-arg SWAGGER_URL=${{ secrets.SWAGGER_URL_DEV }} -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA} .   
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
 
       # Setup kustomize
       - name: Setup kustomize
@@ -57,8 +63,8 @@ jobs:
           cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
           git config user.name jphuc96
           git config user.email jphuc96@gmail.com
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
           cd ../v2-preview
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
           git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
           git push origin main

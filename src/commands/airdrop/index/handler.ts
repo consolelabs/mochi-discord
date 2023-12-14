@@ -207,14 +207,8 @@ async function checkExpiredAirdrop(
   const amount = +amount_string
   const usdAmount = amount * token_price
 
-  const msg = i.message as Message
-  let ref: Message | CommandInteraction = await msg.fetchReference()
-  if (ref?.interaction?.type === "APPLICATION_COMMAND") {
-    ref = ref.interaction as CommandInteraction
-  }
-
   airdropCache.on("expired", (key, participants: string[]) => {
-    wrapError(ref, async () => {
+    wrapError(i.message as Message, async () => {
       if (key !== cacheKey) {
         return
       }
