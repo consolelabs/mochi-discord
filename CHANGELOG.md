@@ -1,3 +1,10 @@
+## [6.41.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.0...v6.41.1) (2023-12-14)
+
+
+### Bug Fixes
+
+* **follow-tip:** show correct error and fixing type error ([#1552](https://github.com/consolelabs/mochi-discord/issues/1552)) ([db388e5](https://github.com/consolelabs/mochi-discord/commit/db388e5e609127921426c982d028fe22a7351f32))
+
 ## [6.41.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.0...v6.41.1-rc.1) (2023-12-14)
 
 
