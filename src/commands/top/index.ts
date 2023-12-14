@@ -4,7 +4,7 @@ import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { MachineConfig, route } from "utils/router"
 import api from "api"
-import UI, { Platform } from "@consolelabs/mochi-ui"
+import UI, { Platform } from "@consolelabs/mochi-formatter"
 import { thumbnails } from "utils/common"
 import {
   CommandInteraction,

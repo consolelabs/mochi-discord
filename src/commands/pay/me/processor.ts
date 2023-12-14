@@ -29,7 +29,7 @@ import { reply } from "utils/discord"
 import { sendNotificationMsg } from "utils/kafka"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
 
-import { utils } from "@consolelabs/mochi-ui"
+import { utils } from "@consolelabs/mochi-formatter"
 
 import { parseDiscordToken } from "../../../utils/commands"
 import { dmUser } from "../../../utils/dm"
