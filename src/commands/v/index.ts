@@ -18,7 +18,7 @@ const slashCmd: SlashCommand = {
         path.resolve(
           process.cwd(),
           "node_modules",
-          "@consolelabs/mochi-ui",
+          "@consolelabs/mochi-formatter",
           "package.json",
         ),
         { encoding: "utf8" },
@@ -42,7 +42,7 @@ const slashCmd: SlashCommand = {
       messageOptions: {
         content: [
           `v${version} ⎯  ${process.env.NODE_ENV}`,
-          `\`mochi-ui@${uiVersion}\``,
+          `\`mochi-formatter@${uiVersion}\``,
           `\`mochi-rest@${restVersion}\``,
         ].join("\n"),
       },

@@ -1,4 +1,4 @@
-import { utils as mochiUtils } from "@consolelabs/mochi-ui"
+import { utils as mochiUtils } from "@consolelabs/mochi-formatter"
 import dayjs from "dayjs"
 import duration from "dayjs/plugin/duration"
 import relativeTime from "dayjs/plugin/relativeTime"

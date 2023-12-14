@@ -1,4 +1,4 @@
-import { utils as mochiUtils } from "@consolelabs/mochi-ui"
+import { utils as mochiUtils } from "@consolelabs/mochi-formatter"
 import { userMention } from "@discordjs/builders"
 import {
   CommandInteraction,

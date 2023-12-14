@@ -35,7 +35,7 @@ import {
 import Redis from "ioredis"
 import { nanoid } from "nanoid"
 import { Sentry } from "sentry"
-import UI from "@consolelabs/mochi-ui"
+import UI from "@consolelabs/mochi-formatter"
 import api from "api"
 import { PRODUCT_NAME } from "utils/constants"
 
