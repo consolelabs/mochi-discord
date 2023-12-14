@@ -506,7 +506,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     sender: await getProfileIdByDiscord(payload.sender),
   })
   if (!okTransfer) {
-    if (statusTransfer === 400) {
+    if (errorTransfer.includes("Not enough balance")) {
       await i.reply({
         embeds: [
           composeInsufficientBalanceEmbed({
@@ -517,15 +517,15 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
           }),
         ],
       })
-    } else {
-      throw new APIError({
-        msgOrInteraction: i,
-        description: logTransfer,
-        curl: curlTransfer,
-        error: errorTransfer,
-        status: statusTransfer,
-      })
+      return
     }
+    throw new APIError({
+      msgOrInteraction: i,
+      description: logTransfer,
+      curl: curlTransfer,
+      error: errorTransfer,
+      status: statusTransfer,
+    })
   }
 
   const recipientDiscord = await getDiscordRenderableByProfileId(
@@ -537,7 +537,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
       payload.token,
     )} ${payload.amount} ${payload.token}(≈ ${mochiUtils.formatUsdDigit(
       +dataTransfer?.amount_each * followTx.token.price,
-    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
+    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}`,
     components: [],
     embeds: [],
   })
