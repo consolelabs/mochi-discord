@@ -1416,6 +1416,12 @@ export interface ResponseGetFiatHistoricalExchangeRatesResponse {
   to?: string
 }
 
+export interface ResponseGetGlobalProfileInfoResponse {
+  level?: number
+  rank?: number
+  roles?: string[]
+}
+
 export interface ResponseGetGmConfigResponse {
   data?: ModelGuildConfigGmGn
   message?: string
