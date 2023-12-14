@@ -5,7 +5,7 @@ import { ButtonInteraction, CommandInteraction } from "discord.js"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { paginationButtons } from "utils/router"
-import UI, { Platform, PageSize } from "@consolelabs/mochi-ui"
+import UI, { Platform, PageSize } from "@consolelabs/mochi-formatter"
 
 export async function render(
   i: CommandInteraction | ButtonInteraction,

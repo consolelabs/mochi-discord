@@ -3,7 +3,7 @@ import api from "api"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
-import UI, { Platform } from "@consolelabs/mochi-ui"
+import UI, { Platform } from "@consolelabs/mochi-formatter"
 import Discord from "discord.js"
 
 const slashCmd: SlashCommand = {

@@ -1,6 +1,6 @@
 import { getAuthor } from "utils/common"
 import { CommandInteraction } from "discord.js"
-import UI, { PageSize, Platform } from "@consolelabs/mochi-ui"
+import UI, { PageSize, Platform } from "@consolelabs/mochi-formatter"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { APIError } from "errors"

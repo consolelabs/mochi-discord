@@ -18,7 +18,7 @@ import {
   getEmojiURL,
   getEmojiToken,
 } from "utils/common"
-import { utils } from "@consolelabs/mochi-ui"
+import { utils } from "@consolelabs/mochi-formatter"
 import { UnsupportedTokenError } from "errors/unsupported-token"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
 import { MOCHI_ACTION_PAY_LINK, MOCHI_PLATFORM_DISCORD } from "utils/constants"

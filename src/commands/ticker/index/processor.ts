@@ -28,7 +28,7 @@ import {
   renderHistoricalMarketChart,
 } from "./chart"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import { utils } from "@consolelabs/mochi-ui"
+import { utils } from "@consolelabs/mochi-formatter"
 import { Util } from "discord.js"
 
 const CURRENCY = "usd"
