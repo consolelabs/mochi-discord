@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^17.0.1
-    version: 17.0.1(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2)
+    specifier: ^18.0.1
+    version: 18.0.1(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
     specifier: ^5.1.6
     version: 5.1.6
@@ -758,13 +758,6 @@ packages:
       regenerator-runtime: 0.14.0
     dev: false
 
-  /@babel/runtime@7.23.6:
-    resolution: {integrity: sha512-zHd0eUrf5GZoOWVCXp6koAKQTfZV07eit6bGPmJgnZdnSAvvZee6zniW2XMF7Cmc4ISOOnPy3QaSiIJGJkVEDQ==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      regenerator-runtime: 0.14.0
-    dev: false
-
   /@babel/template@7.22.15:
     resolution: {integrity: sha512-QPErUVm4uyJa60rkI73qneDacvdvzxshT3kksGqlGWYdOTIUOwJ7RDUL8sGqslY1uXWSL6xMFKEXDS3ox2uF0w==}
     engines: {node: '>=6.9.0'}
@@ -885,8 +878,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@17.0.1(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2):
-    resolution: {integrity: sha512-ld83p7Mp+6rqiO28Vba6JhncEo66eyg7qp5kxqzIUgsfX3s6i99tk6eRk5fb/MDOjnpbK9Q6AzWdOYD2mZjK3Q==}
+  /@consolelabs/mochi-formatter@18.0.1(@consolelabs/mochi-rest@5.1.6)(ioredis@5.3.2):
+    resolution: {integrity: sha512-xrXXC9Ri8/WdSaw1WjVAvgnvfMUi7pr3jnJKDWEF1V0CSmGDXX35+UNzUuvT7FVTYRmfm1mq6+n12kRuob79Gg==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^5.1.6
       ioredis: ^5.x.x
@@ -916,8 +909,8 @@ packages:
       lodash.snakecase: 4.1.1
       nanoid: 5.0.4
       path-parser: 6.1.0
-      pino: 8.17.0
-      pino-pretty: 10.2.3
+      pino: 8.17.1
+      pino-pretty: 10.3.0
       snakecase-keys: 5.5.0
       wretch: 2.7.1
       zod: 3.22.4
@@ -2387,7 +2380,7 @@ packages:
   /@solana/web3.js@1.87.6:
     resolution: {integrity: sha512-LkqsEBgTZztFiccZZXnawWa8qNCATEqE97/d0vIwjTclmVlc8pBpD1DmjfVHtZ1HS5fZorFlVhXfpwnCNDZfyg==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.23.4
       '@noble/curves': 1.3.0
       '@noble/hashes': 1.3.2
       '@solana/buffer-layout': 4.0.1
@@ -3251,7 +3244,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001570
-      electron-to-chromium: 1.4.612
+      electron-to-chromium: 1.4.613
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -4087,8 +4080,8 @@ packages:
     resolution: {integrity: sha512-D3NOkROIlF+d5ixnz7pAf3Lu/AuWpd6AYgI9O67GQXMXTcCP1gJQRotOq35eQy5Sb4hez33XH1YdTtILA7Udww==}
     dev: true
 
-  /electron-to-chromium@1.4.612:
-    resolution: {integrity: sha512-dM8BMtXtlH237ecSMnYdYuCkib2QHq0kpWfUnavjdYsyr/6OsAwg5ZGUfnQ9KD1Ga4QgB2sqXlB2NT8zy2GnVg==}
+  /electron-to-chromium@1.4.613:
+    resolution: {integrity: sha512-r4x5+FowKG6q+/Wj0W9nidx7QO31BJwmR2uEo+Qh3YLGQ8SbBAFuDFpTxzly/I2gsbrFwBuIjrMp423L3O5U3w==}
     dev: true
 
   /elegant-spinner@1.0.1:
@@ -4961,6 +4954,10 @@ packages:
     dependencies:
       glob: 8.1.0
       readable-stream: 3.6.2
+    dev: false
+
+  /help-me@5.0.0:
+    resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
     dev: false
 
   /hmac-drbg@1.0.1:
@@ -7713,15 +7710,15 @@ packages:
       strip-json-comments: 3.1.1
     dev: false
 
-  /pino-pretty@10.2.3:
-    resolution: {integrity: sha512-4jfIUc8TC1GPUfDyMSlW1STeORqkoxec71yhxIpLDQapUu8WOuoz2TTCoidrIssyz78LZC69whBMPIKCMbi3cw==}
+  /pino-pretty@10.3.0:
+    resolution: {integrity: sha512-JthvQW289q3454mhM3/38wFYGWPiBMR28T3CpDNABzoTQOje9UKS7XCJQSnjWF9LQGQkGd8D7h0oq+qwiM3jFA==}
     hasBin: true
     dependencies:
       colorette: 2.0.20
       dateformat: 4.6.3
       fast-copy: 3.0.1
       fast-safe-stringify: 2.1.1
-      help-me: 4.2.0
+      help-me: 5.0.0
       joycon: 3.1.1
       minimist: 1.2.8
       on-exit-leak-free: 2.1.2
@@ -7753,8 +7750,8 @@ packages:
       thread-stream: 2.4.1
     dev: false
 
-  /pino@8.17.0:
-    resolution: {integrity: sha512-ey+Mku+PVPhvxglLXMg1l1zQMwSHuNrKC3MD40EDZbkckJmmuY7DYZLIOwwjZ8ix/Nvhe9dZt5H99cgkot9bAw==}
+  /pino@8.17.1:
+    resolution: {integrity: sha512-YoN7/NJgnsJ+fkADZqjhRt96iepWBndQHeClmSBH0sQWCb8zGD74t00SK4eOtKFi/f8TUmQnfmgglEhd2kI1RQ==}
     hasBin: true
     dependencies:
       atomic-sleep: 1.0.0
