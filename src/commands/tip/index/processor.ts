@@ -59,6 +59,7 @@ import {
   getDiscordRenderableByProfileId,
 } from "utils/profile"
 import NodeCache from "node-cache"
+import { convertString } from "utils/convert"
 
 const contentCache = new NodeCache({
   stdTTL: 3600,
@@ -507,10 +508,13 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
   })
   if (!okTransfer) {
     if (errorTransfer.includes("Not enough balance")) {
+      const tokenBalance = balances[0] ?? { amount: "0" }
+      const { amount: balanceAmount = "0" } = tokenBalance
+      const balance = convertString(balanceAmount, tokenBalance?.token?.decimal)
       await i.reply({
         embeds: [
           composeInsufficientBalanceEmbed({
-            current: 0,
+            current: balance,
             required: followTx.metadata.original_amount,
             symbol: followTx.token.symbol,
             author,
