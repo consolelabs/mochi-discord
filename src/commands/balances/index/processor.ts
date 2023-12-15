@@ -54,7 +54,7 @@ import {
 import { getProfileIdByDiscord } from "utils/profile"
 import { paginationButtons } from "utils/router"
 import api from "api"
-import UI, { Platform } from "@consolelabs/mochi-ui"
+import UI, { Platform } from "@consolelabs/mochi-formatter"
 
 export enum BalanceType {
   Offchain = 1,

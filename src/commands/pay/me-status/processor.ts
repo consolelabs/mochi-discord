@@ -1,7 +1,7 @@
 import { getAuthor } from "utils/common"
 import { paginationButtons } from "utils/router"
 import { CommandInteraction } from "discord.js"
-import UI, { PageSize, Platform } from "@consolelabs/mochi-ui"
+import UI, { PageSize, Platform } from "@consolelabs/mochi-formatter"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { APIError } from "errors"

@@ -1,3 +1,18 @@
+## [6.41.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.41.2-rc.1...v6.41.2-rc.2) (2023-12-15)
+
+
+### Bug Fixes
+
+* **follow-tip:** update correct balance when follow tip ([#1555](https://github.com/consolelabs/mochi-discord/issues/1555)) ([e3899e5](https://github.com/consolelabs/mochi-discord/commit/e3899e506b45b3af72a7b7e4f691892494ec69b6))
+* update transaction time format ([#1554](https://github.com/consolelabs/mochi-discord/issues/1554)) ([98f9b38](https://github.com/consolelabs/mochi-discord/commit/98f9b386c7f91f059acd45d9c3999642ab7b3300))
+
+## [6.41.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.1...v6.41.2-rc.1) (2023-12-14)
+
+
+### Bug Fixes
+
+* replace mochi ui to mochi formatter ([#1553](https://github.com/consolelabs/mochi-discord/issues/1553)) ([0d33582](https://github.com/consolelabs/mochi-discord/commit/0d33582cf9675fe59dbe0aedaaf7a3764074cbe5))
+
 ## [6.41.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.0...v6.41.1) (2023-12-14)
 
 
