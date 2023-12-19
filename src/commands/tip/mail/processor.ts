@@ -190,7 +190,6 @@ export async function tipMail(
     amount: Array(recipients.length).fill(`${eachAmount}`),
     originalAmount: amount,
     token: symbol,
-    // token_id: token,
     all,
     note: message,
   }
@@ -302,7 +301,6 @@ async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
-  console.log(JSON.stringify(balance))
   payload.token_id = balance.token_id
   payload.amount_string = formatDigit({
     value: payload.amount.toString(),
