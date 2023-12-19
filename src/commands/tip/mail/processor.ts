@@ -221,7 +221,7 @@ async function selectToken(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chain_id === b.token?.chain?.chain_id,
     )
-    return validateAndTransfer(msgOrInteraction, payload, balance)
+    return await validateAndTransfer(msgOrInteraction, payload, balance)
   }
 
   // show token selection
