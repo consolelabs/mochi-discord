@@ -88,14 +88,17 @@ export async function execute(
       payload.originalAmount.toLocaleString().replaceAll(",", ""),
       payload.decimal,
     ).toString(),
+    token_id: payload.token_id,
     token: payload.token,
     type: "paylink",
     note: payload.note,
     recipient_id: payload.tos[0].profile_global_id, // currently tip across platform have 1 recipient. If expand to tip many, need update api to receive list of recipients
   })
 
+  console.log("Handle tip by email")
   if (!res.ok) {
     const { log: description, curl, status = 500, error } = res
+    console.log("request fail, ", error)
     throw new APIError({ msgOrInteraction, description, curl, status, error })
   }
 
@@ -187,7 +190,7 @@ export async function tipMail(
     amount: Array(recipients.length).fill(`${eachAmount}`),
     originalAmount: amount,
     token: symbol,
-    // token_id: token.id,
+    // token_id: token,
     all,
     note: message,
   }
@@ -299,13 +302,15 @@ async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
+  console.log(JSON.stringify(balance))
+  payload.token_id = balance.token_id
   payload.amount_string = formatDigit({
     value: payload.amount.toString(),
     fractionDigits: decimal,
   })
   payload.token_price = balance.token?.price
   payload.decimal = decimal
-  return execute(msgOrInteraction, payload)
+  return await execute(msgOrInteraction, payload)
 }
 
 async function parseTipArgs(
