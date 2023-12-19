@@ -95,10 +95,8 @@ export async function execute(
     recipient_id: payload.tos[0].profile_global_id, // currently tip across platform have 1 recipient. If expand to tip many, need update api to receive list of recipients
   })
 
-  console.log("Handle tip by email")
   if (!res.ok) {
     const { log: description, curl, status = 500, error } = res
-    console.log("request fail, ", error)
     throw new APIError({ msgOrInteraction, description, curl, status, error })
   }
 
