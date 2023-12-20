@@ -88,6 +88,7 @@ export async function execute(
       payload.originalAmount.toLocaleString().replaceAll(",", ""),
       payload.decimal,
     ).toString(),
+    token_id: payload.token_id,
     token: payload.token,
     type: "paylink",
     note: payload.note,
@@ -187,7 +188,6 @@ export async function tipMail(
     amount: Array(recipients.length).fill(`${eachAmount}`),
     originalAmount: amount,
     token: symbol,
-    // token_id: token.id,
     all,
     note: message,
   }
@@ -221,7 +221,7 @@ async function selectToken(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chain_id === b.token?.chain?.chain_id,
     )
-    return validateAndTransfer(msgOrInteraction, payload, balance)
+    return await validateAndTransfer(msgOrInteraction, payload, balance)
   }
 
   // show token selection
@@ -299,13 +299,14 @@ async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
+  payload.token_id = balance.token_id
   payload.amount_string = formatDigit({
     value: payload.amount.toString(),
     fractionDigits: decimal,
   })
   payload.token_price = balance.token?.price
   payload.decimal = decimal
-  return execute(msgOrInteraction, payload)
+  return await execute(msgOrInteraction, payload)
 }
 
 async function parseTipArgs(
