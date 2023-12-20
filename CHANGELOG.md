@@ -1,3 +1,10 @@
+## [6.41.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.2...v6.41.3-rc.1) (2023-12-20)
+
+
+### Bug Fixes
+
+* **payme:** update pay me notify ([#1556](https://github.com/consolelabs/mochi-discord/issues/1556)) ([93ab029](https://github.com/consolelabs/mochi-discord/commit/93ab029967970379c4089df71dc0aa7b97e10665))
+
 ## [6.41.2](https://github.com/consolelabs/mochi-discord/compare/v6.41.1...v6.41.2) (2023-12-15)
 
 
