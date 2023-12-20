@@ -1,3 +1,15 @@
+# [6.42.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.3...v6.42.0-rc.1) (2023-12-20)
+
+
+### Bug Fixes
+
+* add missing token_id field when send tip through email ([#1557](https://github.com/consolelabs/mochi-discord/issues/1557)) ([9267b37](https://github.com/consolelabs/mochi-discord/commit/9267b37d82434fdf7c0d54fa497af450887a7863))
+
+
+### Features
+
+* migrate tip email with new method ([#1558](https://github.com/consolelabs/mochi-discord/issues/1558)) ([c0f55d5](https://github.com/consolelabs/mochi-discord/commit/c0f55d57d3fd35f1f3b5bb4b8efbefe05c1d2289))
+
 ## [6.41.3](https://github.com/consolelabs/mochi-discord/compare/v6.41.2...v6.41.3) (2023-12-20)
 
 
