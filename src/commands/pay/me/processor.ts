@@ -7,10 +7,8 @@ import { parseUnits } from "ethers/lib/utils"
 import { embedsColors } from "types/common"
 import { composeButtonLink } from "ui/discord/button"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { isEvm } from "utils/chain"
 import {
   emojis,
-  equalIgnoreCase,
   getAuthor,
   getEmoji,
   getEmojiToken,
@@ -18,15 +16,12 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import {
-  MOCHI_ACTION_PAY_ME,
-  MOCHI_PLATFORM_DISCORD,
   PREFIX_DISCORD_HANDLER,
   PREFIX_EMAIL_HANDLER,
   PREFIX_TELEGRAM_HANDLER,
   SPACES_REGEX,
 } from "utils/constants"
 import { reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
 import { isTokenSupported, parseMoniker } from "utils/tip-bot"
 
 import { utils } from "@consolelabs/mochi-formatter"
@@ -68,42 +63,6 @@ export async function run({
 
   const t = await getToken(token)
 
-  let { data: inAppWallets, ok: mochiWalletResOk } =
-    await mochiPay.getMochiWalletsByProfileId(p.id)
-  if (!mochiWalletResOk) throw new Error()
-  inAppWallets ||= []
-  inAppWallets = inAppWallets.filter((w: any) => {
-    if (t?.chain?.type && isEvm(t?.chain?.type)) {
-      return equalIgnoreCase(w.chain.symbol, "evm")
-    }
-    return equalIgnoreCase(w.chain.symbol, t?.chain?.symbol ?? "")
-  })
-
-  const associatedAccs =
-    p.associated_accounts
-      ?.filter((aa: any) => aa.platform.includes("chain"))
-      .map((aa: any) => {
-        let symbol = "EVM"
-        if (equalIgnoreCase(aa.platform, "ronin-chain")) {
-          symbol = "RON"
-        } else if (equalIgnoreCase(aa.platform, "sui-chain")) {
-          symbol = "SUI"
-        } else if (equalIgnoreCase(aa.platform, "solana-chain")) {
-          symbol = "SOL"
-        }
-        return {
-          wallet_address: aa.platform_identifier,
-          chain: {
-            symbol,
-          },
-        }
-      })
-      .filter((w: any) => {
-        if (t?.chain?.type && isEvm(t?.chain?.type)) {
-          return equalIgnoreCase(w.chain.symbol, "evm")
-        }
-        return equalIgnoreCase(w.chain.symbol, t?.chain?.symbol ?? "")
-      }) ?? []
   const isDm = msgOrInteraction.channel?.type === "DM"
   let dm: any
   if (targets?.length) {
@@ -172,34 +131,6 @@ export async function run({
         null,
         null,
       )
-      await sendNotificationMsg({
-        type: typePayRequest,
-        pay_request_metadata: {
-          target_profile_id: target.id,
-          user_profile_id: p.id,
-          amount: utils.formatTokenDigit(amount),
-          token,
-          pay_link: link,
-          request_id: res.data.code,
-          action: MOCHI_ACTION_PAY_ME,
-          note: note,
-          from_platform: MOCHI_PLATFORM_DISCORD,
-          target_platform: target.platform,
-          moniker,
-          original_amount: utils.formatTokenDigit(original_amount),
-          usd_amount: utils.formatUsdDigit(res.data.usd_amount),
-          wallets: [
-            ...inAppWallets?.map((w: any) => ({
-              chain: w.chain.symbol,
-              platform_identifier: w.wallet_address,
-            })),
-            ...associatedAccs.map((w: any) => ({
-              chain: w.chain.symbol,
-              platform_identifier: w.wallet_address,
-            })),
-          ],
-        },
-      })
     }
     if (!isDm) {
       await reply(msgOrInteraction, {
