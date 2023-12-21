@@ -1,3 +1,10 @@
+# [6.42.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.1...v6.42.0-rc.2) (2023-12-21)
+
+
+### Bug Fixes
+
+* sp tip email without prefixes ([#1559](https://github.com/consolelabs/mochi-discord/issues/1559)) ([8733b11](https://github.com/consolelabs/mochi-discord/commit/8733b11d74d37ce2ac66593c189b6c3212fb8c45))
+
 # [6.42.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.3...v6.42.0-rc.1) (2023-12-20)
 
 
