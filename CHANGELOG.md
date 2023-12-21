@@ -1,3 +1,10 @@
+# [6.42.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.2...v6.42.0-rc.3) (2023-12-21)
+
+
+### Bug Fixes
+
+* validate tip email argument ([#1560](https://github.com/consolelabs/mochi-discord/issues/1560)) ([2573e94](https://github.com/consolelabs/mochi-discord/commit/2573e94b88bef9d3a96d391cad0696f4ada8e7fd))
+
 # [6.42.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.1...v6.42.0-rc.2) (2023-12-21)
 
 
