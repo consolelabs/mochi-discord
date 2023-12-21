@@ -1,5 +1,5 @@
 ## this is stage two , where the app actually runs
-FROM node:18-alpine
+FROM node:18-alpine3.18
 
 ARG SWAGGER_URL=https://api.mochi.console.so/swagger/doc.json
 ENV SWAGGER_URL=$SWAGGER_URL 
