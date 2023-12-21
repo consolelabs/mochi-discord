@@ -72,8 +72,6 @@ export async function execute(
   msgOrInteraction: Message | CommandInteraction,
   payload: any,
 ) {
-  console.log("check payload", payload)
-
   // send transfer request
   const {
     data,
