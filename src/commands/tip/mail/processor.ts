@@ -296,10 +296,10 @@ async function parseTipArgs(
   all: boolean
   originalAmount: number
 }> {
-  // get array of recipients' profile ID
-  const recipients = await getRecipients(msgOrInteraction, [args[1]])
-
   const targets = args[1].split(",")
+  // get array of recipients' profile ID
+  const recipients = await getRecipients(msgOrInteraction, targets)
+
   // amount: comes after targets
   const amountIdx = 2
   const {

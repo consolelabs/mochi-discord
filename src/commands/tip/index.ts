@@ -104,8 +104,10 @@ const textCmd: Command = {
       return
     }
 
-    const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
-    if (expression.test(target)) {
+    // tip mail
+    const validateEmails = validateEmailArg(target)
+    if (validateEmails != "") {
+      args[1] = validateEmails
       await tipMail(msg, args)
       return
     }
@@ -195,8 +197,9 @@ const slashCmd: SlashCommand = {
     }
 
     // tip mail
-    const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
-    if (expression.test(target)) {
+    const validateEmails = validateEmailArg(target)
+    if (validateEmails != "") {
+      args[1] = validateEmails
       await tipMailSlash(i, args)
       return
     }
@@ -216,6 +219,23 @@ const slashCmd: SlashCommand = {
   },
   help: () => getHelpMessage(true),
   colorType: "Defi",
+}
+
+function validateEmailArg(target: string)  {
+  if (target.includes("@")) {
+    const emailStr = target.split(",")
+    const emails = emailStr.map((e) => e.trim())
+    const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+    const validEmails = emails.filter((e) => expression.test(e))
+
+    if (validEmails.length > 0) {
+      return validEmails.join(",")
+    }
+
+    return ""
+  }
+
+  return ""
 }
 
 export default { textCmd, slashCmd }
