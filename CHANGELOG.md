@@ -1,3 +1,10 @@
+# [6.42.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.3...v6.42.0-rc.4) (2023-12-21)
+
+
+### Bug Fixes
+
+* lock node alpine version in docker file ([a5d92d2](https://github.com/consolelabs/mochi-discord/commit/a5d92d2f29870b2ccde3f5e387351a17205a5dd6))
+
 # [6.42.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.2...v6.42.0-rc.3) (2023-12-21)
 
 
