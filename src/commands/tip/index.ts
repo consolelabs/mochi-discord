@@ -104,11 +104,8 @@ const textCmd: Command = {
       return
     }
 
-    const mailPrefixes = ["email:", "gmail:", "mail:"]
-    const mailPrefix = mailPrefixes.find((p) => target.startsWith(p))
-    // tip mail
-    if (mailPrefix) {
-      args[1] = target.replace(mailPrefix, "") // remove email prefix
+    const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+    if (expression.test(target)) {
       await tipMail(msg, args)
       return
     }
@@ -197,11 +194,9 @@ const slashCmd: SlashCommand = {
       return
     }
 
-    const mailPrefixes = ["email:", "gmail:", "mail:"]
-    const mailPrefix = mailPrefixes.find((p) => target.startsWith(p))
     // tip mail
-    if (mailPrefix) {
-      args[1] = target.replace(mailPrefix, "") // remove email prefix
+    const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+    if (expression.test(target)) {
       await tipMailSlash(i, args)
       return
     }
