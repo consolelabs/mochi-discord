@@ -634,6 +634,7 @@ export async function run(
       ;({ data, status } = await CacheManager.get({
         pool: "ticker",
         key: `ticker-getcoin-${coin.id}`,
+        ttl: 30,
         call: () => defi.getCoin(coin.id, isDominanceChart),
       }))
 
