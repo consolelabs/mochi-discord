@@ -1,3 +1,10 @@
+# [6.42.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.4...v6.42.0-rc.5) (2023-12-22)
+
+
+### Bug Fixes
+
+* update cache ttl watchlist view ([#1561](https://github.com/consolelabs/mochi-discord/issues/1561)) ([b14eaef](https://github.com/consolelabs/mochi-discord/commit/b14eaef89b31c883436b9f4b08005d1dd5c73143))
+
 # [6.42.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.3...v6.42.0-rc.4) (2023-12-21)
 
 
