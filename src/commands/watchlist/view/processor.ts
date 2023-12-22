@@ -70,6 +70,7 @@ export async function composeWatchlist(
   const { data: res, ok } = await CacheManager.get({
     pool: "watchlist",
     key: `watchlist-${author.id}-${user.id}-${page}-${view}`,
+    ttl: 30,
     call: () =>
       view === WatchListViewType.Token
         ? defi.getUserWatchlist({ profileId, page, size: PAGE_SIZE })

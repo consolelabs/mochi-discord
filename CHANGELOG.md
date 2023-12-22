@@ -1,3 +1,43 @@
+# [6.42.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.4...v6.42.0-rc.5) (2023-12-22)
+
+
+### Bug Fixes
+
+* update cache ttl watchlist view ([#1561](https://github.com/consolelabs/mochi-discord/issues/1561)) ([b14eaef](https://github.com/consolelabs/mochi-discord/commit/b14eaef89b31c883436b9f4b08005d1dd5c73143))
+
+# [6.42.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.3...v6.42.0-rc.4) (2023-12-21)
+
+
+### Bug Fixes
+
+* lock node alpine version in docker file ([a5d92d2](https://github.com/consolelabs/mochi-discord/commit/a5d92d2f29870b2ccde3f5e387351a17205a5dd6))
+
+# [6.42.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.2...v6.42.0-rc.3) (2023-12-21)
+
+
+### Bug Fixes
+
+* validate tip email argument ([#1560](https://github.com/consolelabs/mochi-discord/issues/1560)) ([2573e94](https://github.com/consolelabs/mochi-discord/commit/2573e94b88bef9d3a96d391cad0696f4ada8e7fd))
+
+# [6.42.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.1...v6.42.0-rc.2) (2023-12-21)
+
+
+### Bug Fixes
+
+* sp tip email without prefixes ([#1559](https://github.com/consolelabs/mochi-discord/issues/1559)) ([8733b11](https://github.com/consolelabs/mochi-discord/commit/8733b11d74d37ce2ac66593c189b6c3212fb8c45))
+
+# [6.42.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.3...v6.42.0-rc.1) (2023-12-20)
+
+
+### Bug Fixes
+
+* add missing token_id field when send tip through email ([#1557](https://github.com/consolelabs/mochi-discord/issues/1557)) ([9267b37](https://github.com/consolelabs/mochi-discord/commit/9267b37d82434fdf7c0d54fa497af450887a7863))
+
+
+### Features
+
+* migrate tip email with new method ([#1558](https://github.com/consolelabs/mochi-discord/issues/1558)) ([c0f55d5](https://github.com/consolelabs/mochi-discord/commit/c0f55d57d3fd35f1f3b5bb4b8efbefe05c1d2289))
+
 ## [6.41.3](https://github.com/consolelabs/mochi-discord/compare/v6.41.2...v6.41.3) (2023-12-20)
 
 

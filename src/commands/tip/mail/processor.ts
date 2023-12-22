@@ -1,5 +1,5 @@
 import { userMention } from "@discordjs/builders"
-import mochiPay from "adapters/mochi-pay"
+import { utils as mochiUtils } from "@consolelabs/mochi-formatter"
 import {
   CommandInteraction,
   Message,
@@ -8,20 +8,19 @@ import {
   User,
 } from "discord.js"
 import { APIError, GuildIdNotFoundError, InternalError } from "errors"
-import { KafkaNotificationMessage, RunResult } from "types/common"
+import { RunResult } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import {
   TokenEmojiKey,
   emojis,
   equalIgnoreCase,
   getAuthor,
-  getEmoji,
+  getEmojiToken,
   getEmojiURL,
 } from "utils/common"
-import { MOCHI_ACTION_TIP } from "utils/constants"
-import { convertToUsdValue } from "utils/convert"
-import { isMessage, reply } from "utils/discord"
-import { sendNotificationMsg } from "utils/kafka"
+import { getChannelUrl, isMessage, reply } from "utils/discord"
+import config from "adapters/config"
+import defi from "adapters/defi"
 import {
   getBalances,
   isInTipRange,
@@ -37,19 +36,14 @@ import { UnsupportedTokenError } from "../../../errors/unsupported-token"
 import { composeDiscordSelectionRow } from "../../../ui/discord/select-menu"
 import { formatDigit, isValidTipAmount } from "../../../utils/defi"
 import { getProfileIdByDiscord } from "../../../utils/profile"
-import { parseUnits } from "ethers/lib/utils"
-
-type MailUser = {
-  email: string
-  profile_id: string
-}
+import { APPROX } from "utils/constants"
 
 async function getRecipients(
   msgOrInteraction: Message | CommandInteraction,
   targets: string[],
-): Promise<MailUser[]> {
+) {
   // check if recipient is valid or not
-  const recipients: MailUser[] = []
+  const recipients: string[] = []
   for (const target of targets) {
     const recipientPf = await profile.getByEmail(target)
     if (recipientPf.status_code === 404) {
@@ -69,10 +63,7 @@ async function getRecipients(
       })
     }
 
-    recipients.push({
-      email: target,
-      profile_id: recipientPf.id,
-    })
+    recipients.push(recipientPf.id)
   }
   return recipients
 }
@@ -80,65 +71,37 @@ async function getRecipients(
 export async function execute(
   msgOrInteraction: Message | CommandInteraction,
   payload: any,
-): Promise<RunResult<MessageOptions>> {
-  // create pay link
-  const res: any = await mochiPay.generatePaymentCode({
-    profileId: payload.from.profile_global_id,
-    amount: parseUnits(
-      payload.originalAmount.toLocaleString().replaceAll(",", ""),
-      payload.decimal,
-    ).toString(),
-    token: payload.token,
-    type: "paylink",
-    note: payload.note,
-    recipient_id: payload.tos[0].profile_global_id, // currently tip across platform have 1 recipient. If expand to tip many, need update api to receive list of recipients
+) {
+  // send transfer request
+  const {
+    data,
+    ok,
+    curl,
+    log,
+    status = 500,
+    error,
+  } = await defi.transferV2({
+    ...payload,
+    sender: await getProfileIdByDiscord(payload.sender),
+    recipients: payload.recipients,
   })
-
-  if (!res.ok) {
-    const { log: description, curl, status = 500, error } = res
-    throw new APIError({ msgOrInteraction, description, curl, status, error })
+  if (!ok) {
+    throw new APIError({
+      msgOrInteraction,
+      curl,
+      description: log,
+      status,
+      error,
+    })
   }
 
-  // send msg to mochi-notification
-  for (const recipient of payload.recipients) {
-    const price = await convertToUsdValue(
-      payload.originalAmount.toString(),
-      payload.token,
-    )
-    const kafkaMsg: KafkaNotificationMessage = {
-      id: payload.sender,
-      platform: payload.from.platform,
-      action: MOCHI_ACTION_TIP,
-      note: payload.note,
-      metadata: {
-        amount: payload.originalAmount.toString(),
-        token: payload.token,
-        price: price,
-        pay_link: `https://mochi.gg/pay/${res.data.code}`,
-      },
-      recipient_info: {
-        mail: recipient.email,
-      },
-    }
-
-    sendNotificationMsg(kafkaMsg)
-  }
-
-  const embed = composeEmbedMessage(null, {
-    author: ["You've given a tip", getEmojiURL(emojis.CASH)],
-    description: `Congrats! ${userMention(
-      payload.sender,
-    )} has given a tip of ${getEmoji(payload.token)} ${
-      payload.originalAmount
-    } ${payload.token}`,
-  })
-
-  return {
-    messageOptions: {
-      embeds: [embed],
-      components: [],
-    },
-  }
+  const member = await msgOrInteraction.guild?.members.fetch(payload.sender)
+  const senderStr =
+    member?.nickname || member?.displayName || member?.user.username
+  // respond with successful message
+  const hashtagTemplate = await handleMessageHashtag(payload.message)
+  const interactionId = msgOrInteraction.id
+  return showSuccesfulResponse(interactionId, payload, data, hashtagTemplate)
 }
 
 export async function tipMail(
@@ -153,10 +116,17 @@ export async function tipMail(
   const onchain = equalIgnoreCase(args.at(-1), "--onchain")
   args = args.slice(0, onchain ? -1 : undefined) // remove --onchain if any
 
-  const { recipients, amount, symbol, each, all, message } = await parseTipArgs(
-    msgOrInteraction,
-    args,
-  )
+  const {
+    targets,
+    recipients,
+    amount,
+    symbol,
+    each,
+    all,
+    message,
+    image,
+    originalAmount,
+  } = await parseTipArgs(msgOrInteraction, args)
 
   // get sender balances
   const balances = await getBalances({ msgOrInteraction, token: symbol })
@@ -169,27 +139,30 @@ export async function tipMail(
     })
   }
 
-  const senderPfId = await getProfileIdByDiscord(author.id)
-
-  const eachAmount = amount / (each ? 1 : recipients.length)
+  const guildName = msgOrInteraction.guild?.name ?? ""
+  const guildAvatar = msgOrInteraction.guild?.iconURL()
+  const channel_url = await getChannelUrl(msgOrInteraction)
 
   const payload = {
     sender: author.id,
+    targets,
     recipients,
-    from: {
-      profile_global_id: `${senderPfId}`,
-      platform: "discord",
-    },
-    tos: recipients.map((r) => ({
-      profile_global_id: `${r.profile_id}`,
-      platform: "email",
-    })),
-    amount: Array(recipients.length).fill(`${eachAmount}`),
-    originalAmount: amount,
+    guild_id: msgOrInteraction.guildId ?? "",
+    channel_id: msgOrInteraction.channelId,
+    channel_name: `${guildName}`,
+    channel_url,
+    amount: amount,
     token: symbol,
-    // token_id: token.id,
+    each,
     all,
-    note: message,
+    transfer_type: "transfer",
+    message,
+    image,
+    chain_id: "",
+    moniker: "",
+    platform: "discord",
+    original_amount: originalAmount,
+    channel_avatar: guildAvatar,
   }
 
   // only one matching token -> proceed to send tip
@@ -221,7 +194,7 @@ async function selectToken(
         equalIgnoreCase(b.token?.symbol, payload.token) &&
         payload.chain_id === b.token?.chain?.chain_id,
     )
-    return validateAndTransfer(msgOrInteraction, payload, balance)
+    return await validateAndTransfer(msgOrInteraction, payload, balance)
   }
 
   // show token selection
@@ -299,29 +272,33 @@ async function validateAndTransfer(
 
   // proceed to transfer
   payload.chain_id = balance.token?.chain?.chain_id
+  payload.token_id = balance.token_id
   payload.amount_string = formatDigit({
     value: payload.amount.toString(),
     fractionDigits: decimal,
   })
   payload.token_price = balance.token?.price
   payload.decimal = decimal
-  return execute(msgOrInteraction, payload)
+  return await execute(msgOrInteraction, payload)
 }
 
 async function parseTipArgs(
   msgOrInteraction: Message | CommandInteraction,
   args: string[],
 ): Promise<{
-  recipients: MailUser[]
+  targets: string[]
+  recipients: string[]
   amount: number
   symbol: string
   message: string
   image: string
   each: boolean
   all: boolean
+  originalAmount: number
 }> {
+  const targets = args[1].split(",")
   // get array of recipients' profile ID
-  const recipients = await getRecipients(msgOrInteraction, [args[1]])
+  const recipients = await getRecipients(msgOrInteraction, targets)
 
   // amount: comes after targets
   const amountIdx = 2
@@ -368,5 +345,98 @@ async function parseTipArgs(
   const { message: msg } = isMessage(msgOrInteraction)
   const image = msg ? msg.attachments.first()?.url ?? "" : ""
 
-  return { recipients, amount, symbol, each, message, all, image }
+  return {
+    targets,
+    recipients,
+    amount,
+    symbol,
+    each,
+    message,
+    all,
+    image,
+    originalAmount: parsedAmount,
+  }
+}
+
+async function handleMessageHashtag(msg: string) {
+  const re = /#(\w+)/g
+  let hashtagTemplate = null
+  for (const match of msg.matchAll(re)) {
+    const { data, ok } = await config.getHashtagTemplate(match[1])
+    if (!ok || !data) {
+      continue
+    }
+    hashtagTemplate = data
+    break
+  }
+  return hashtagTemplate
+}
+
+function showSuccesfulResponse(
+  interactionId: string,
+  payload: any,
+  res: any,
+  hashtagTemplate?: any,
+): RunResult<MessageOptions> {
+  const recipientDescription = payload.targets.join(", ")
+
+  const unitCurrency = payload.moniker ? payload.moniker : payload.token
+  const amountToken = `${getEmojiToken(
+    payload.token,
+  )} ${mochiUtils.formatTokenDigit(res.amount_each.toString())} ${
+    payload.token
+  }`
+  const amountApproxMoniker = payload.moniker ? `${amountToken} ` : ""
+  const amount = payload.moniker
+    ? payload.original_amount
+    : `${mochiUtils.formatTokenDigit(res.amount_each.toString())}`
+  const emojiAmountWithCurrency = payload.moniker
+    ? ""
+    : getEmojiToken(payload.token)
+  let amountWithCurrency = `${emojiAmountWithCurrency} ${amount} ${unitCurrency}`
+  amountWithCurrency = amountWithCurrency.trim()
+
+  const amountUsd = mochiUtils.formatUsdDigit(
+    res.amount_each * payload.token_price,
+  )
+
+  const amountApprox = `(${amountApproxMoniker}${
+    amountUsd.startsWith("<") ? "" : APPROX
+  } ${amountUsd})`
+
+  let contentMsg = ``
+
+  if (payload.message) {
+    contentMsg += `\nwith a message: ${payload.message}`
+  }
+
+  const content = `${userMention(
+    payload.sender,
+  )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
+    payload.recipients.length > 1 ? " each" : ""
+  }! .${mochiUtils.string.receiptLink(res.external_id)}`
+
+  if (hashtagTemplate) {
+    return {
+      messageOptions: {
+        embeds: [
+          composeEmbedMessage(null, {
+            title: hashtagTemplate.product_hashtag.title,
+            description: `${hashtagTemplate.product_hashtag.description.replace(
+              "{.content}",
+              content,
+            )}${contentMsg}`,
+            image: hashtagTemplate.product_hashtag.image,
+            color: hashtagTemplate.product_hashtag.color,
+          }),
+        ],
+      },
+    }
+  }
+
+  return {
+    messageOptions: {
+      content: `${content}${contentMsg}`,
+    },
+  }
 }
