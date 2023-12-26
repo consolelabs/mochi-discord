@@ -1,3 +1,10 @@
+# [6.42.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.5...v6.42.0-rc.6) (2023-12-26)
+
+
+### Bug Fixes
+
+* remove cache in watchlist ([add8781](https://github.com/consolelabs/mochi-discord/commit/add8781138f0849f89b783491d9884e52aab67a0))
+
 # [6.42.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.4...v6.42.0-rc.5) (2023-12-22)
 
 

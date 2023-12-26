@@ -2,7 +2,6 @@ import { MessageActionRow, MessageButton, User } from "discord.js"
 import { getEmoji, getEmojiToken, TokenEmojiKey } from "utils/common"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import defi from "adapters/defi"
-import CacheManager from "cache/node-cache"
 import community from "adapters/community"
 import { getSlashCommand } from "utils/commands"
 import { ResponseGetWatchlistResponse } from "types/api"
@@ -67,26 +66,30 @@ export async function composeWatchlist(
   user: User = author,
 ) {
   const profileId = await getProfileIdByDiscord(user.id)
-  const { data: res, ok } = await CacheManager.get({
-    pool: "watchlist",
-    key: `watchlist-${author.id}-${user.id}-${page}-${view}`,
-    ttl: 30,
-    call: () =>
-      view === WatchListViewType.Token
-        ? defi.getUserWatchlist({ profileId, page, size: PAGE_SIZE })
-        : defi.getUserNFTWatchlist({ profileId, size: PAGE_SIZE }),
-    callIfCached: async () => {
-      if (author.id) {
-        await community.updateQuestProgress({
-          userId: author.id,
-          action: "watchlist",
-        })
-      }
-    },
-  })
   let data = []
+  let promise
+  if (view === WatchListViewType.Token) {
+    promise = defi.getUserWatchlist({
+      profileId,
+      page,
+      size: PAGE_SIZE,
+    })
+  } else {
+    promise = defi.getUserNFTWatchlist({
+      profileId,
+      page,
+      size: PAGE_SIZE,
+    })
+  }
+  const { data: res, ok } = await promise
   if (ok) {
     data = res.data
+  }
+  if (author.id) {
+    await community.updateQuestProgress({
+      userId: author.id,
+      action: "watchlist",
+    })
   }
   const embed = composeEmbedMessage(null, {
     author: [
