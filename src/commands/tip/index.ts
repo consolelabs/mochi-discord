@@ -221,7 +221,7 @@ const slashCmd: SlashCommand = {
   colorType: "Defi",
 }
 
-function validateEmailArg(target: string)  {
+function validateEmailArg(target: string) {
   if (target.includes("@")) {
     const emailStr = target.split(",")
     const emails = emailStr.map((e) => e.trim())
