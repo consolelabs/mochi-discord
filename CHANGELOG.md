@@ -1,3 +1,10 @@
+## [6.42.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4-rc.1) (2023-12-28)
+
+
+### Bug Fixes
+
+* update wlv sort pagination logic ([#1562](https://github.com/consolelabs/mochi-discord/issues/1562)) ([f6968f3](https://github.com/consolelabs/mochi-discord/commit/f6968f3f5677368acaf1b628f438ce6a0d3125d0))
+
 ## [6.42.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.2...v6.42.3) (2023-12-28)
 
 
