@@ -1,3 +1,10 @@
+## [6.42.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.4-rc.1...v6.42.4-rc.2) (2023-12-28)
+
+
+### Bug Fixes
+
+* **ticker:** parse type error ([#1563](https://github.com/consolelabs/mochi-discord/issues/1563)) ([ee46283](https://github.com/consolelabs/mochi-discord/commit/ee46283b0072d7dfee65636e74679b18eb3972b5))
+
 ## [6.42.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4-rc.1) (2023-12-28)
 
 
