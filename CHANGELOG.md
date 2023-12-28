@@ -1,3 +1,10 @@
+## [6.42.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.2...v6.42.3) (2023-12-28)
+
+
+### Bug Fixes
+
+* font missing unicode characters ([e3a5855](https://github.com/consolelabs/mochi-discord/commit/e3a5855f552c409b556b452134396942b1855519))
+
 ## [6.42.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.2...v6.42.3-rc.1) (2023-12-28)
 
 
