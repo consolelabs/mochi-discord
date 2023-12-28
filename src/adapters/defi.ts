@@ -98,18 +98,14 @@ class Defi extends Fetcher {
   async getUserWatchlist({
     profileId,
     coinGeckoId,
-    page = 0,
-    size = 5,
   }: {
     profileId: string
     coinGeckoId?: string
-    page?: number
-    size?: number
   }) {
     return await this.jsonFetch<ResponseGetWatchlistResponse>(
       `${API_BASE_URL}/users/${profileId}/watchlists/tokens`,
       {
-        query: { page, size, coinGeckoId },
+        query: { coinGeckoId },
       },
     )
   }
