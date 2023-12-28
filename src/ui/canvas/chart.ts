@@ -1,6 +1,6 @@
 import { CanvasGradient } from "canvas"
 import { ChartJSNodeCanvas } from "chartjs-node-canvas"
-import { formatDigit } from "utils/defi"
+import { utils } from "@consolelabs/mochi-formatter"
 import "../chartjs/date-adapter"
 import { getGradientColor } from "./color"
 
@@ -51,14 +51,7 @@ export async function renderChartImage({
         size: 16,
       },
       color: colorConfig.borderColor,
-      callback: (value: string | number) => {
-        const rounded = Number(value).toPrecision(2)
-        return rounded.includes("e") && Number(value) < 1
-          ? rounded
-          : Number(rounded) < 0.01 || Number(rounded) > 1000000
-          ? Number(rounded).toExponential()
-          : formatDigit({ value: String(value) })
-      },
+      callback: (value: string | number) => utils.formatDigit({ value }),
     },
     grid: {
       borderColor: colorConfig.borderColor,
