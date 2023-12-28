@@ -12,9 +12,11 @@ RUN apk add --no-cache python3 py3-pip make build-base g++ cairo-dev jpeg-dev pa
 # Copy the package.json and package-lock.json files to the working directory
 COPY package.json ./
 COPY pnpm-lock.yaml ./
+
 # Install the dependencies
 RUN npm install -g pnpm && \
-    pnpm install -P
+    pnpm install -P && \
+    pnpm up '@consolelabs/*' --latest
 
 COPY . .
 
