@@ -1,3 +1,11 @@
+## [6.42.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.1...v6.42.2) (2023-12-28)
+
+
+### Bug Fixes
+
+* fix dockerfile to use mochijs latest ([fc4da8e](https://github.com/consolelabs/mochi-discord/commit/fc4da8e146592dbbe2105493e796ac02a220d9cb))
+* show new subscript num in ticker cmd ([f4a8dc4](https://github.com/consolelabs/mochi-discord/commit/f4a8dc43c3594e74330c08dbb39b06e30912f563))
+
 ## [6.42.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.1...v6.42.2-rc.1) (2023-12-28)
 
 
