@@ -8,6 +8,7 @@ ENV NODE_ENV=$NODE_ENV
 
 WORKDIR /usr/src/app
 RUN apk add --no-cache python3 py3-pip make build-base g++ cairo-dev jpeg-dev pango-dev giflib-dev imagemagick
+RUN apk add font-terminus font-inconsolata font-dejavu font-noto font-noto-cjk font-awesome font-noto-extra
 
 # Copy the package.json and package-lock.json files to the working directory
 COPY package.json ./
