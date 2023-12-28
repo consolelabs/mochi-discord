@@ -405,9 +405,7 @@ async function isTickerAddedToWl(coinId: string, discordId: string) {
     coinGeckoId: coinId,
   })
   return (
-    wlRes.ok &&
-    wlRes.data.metadata.total === 1 &&
-    !wlRes.data.data[0].is_default
+    wlRes.ok && wlRes.data.data.length === 1 && !wlRes.data.data[0].is_default
   )
 }
 
