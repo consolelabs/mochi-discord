@@ -1,3 +1,11 @@
+## [6.42.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4) (2023-12-28)
+
+
+### Bug Fixes
+
+* **ticker:** parse type error ([#1563](https://github.com/consolelabs/mochi-discord/issues/1563)) ([ee46283](https://github.com/consolelabs/mochi-discord/commit/ee46283b0072d7dfee65636e74679b18eb3972b5))
+* update wlv sort pagination logic ([#1562](https://github.com/consolelabs/mochi-discord/issues/1562)) ([f6968f3](https://github.com/consolelabs/mochi-discord/commit/f6968f3f5677368acaf1b628f438ce6a0d3125d0))
+
 ## [6.42.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4-rc.1) (2023-12-28)
 
 
