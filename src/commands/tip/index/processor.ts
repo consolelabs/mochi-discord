@@ -476,13 +476,13 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
   const guildAvatar = i.guild?.iconURL()
   const recipients = [followTx.other_profile_id]
   const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
-  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
+  const guildName = i.guild?.name ?? ""
   const payload = {
     sender: i.user.id,
     recipients: recipients,
     guild_id: guildID,
     channel_id: i.channel?.id,
-    channel_name: channelName,
+    channel_name: guildName,
     channel_url: channel_url,
     amount: followTx.metadata.original_amount,
     token: followTx.token.symbol,
@@ -536,12 +536,18 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     payload.recipients[0],
   )
 
+  const amountUsd = mochiUtils.formatUsdDigit(
+    +dataTransfer?.amount_each * followTx.token.price,
+  )
+
   await i.reply({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
       payload.token,
-    )} ${payload.amount} ${payload.token}(≈ ${mochiUtils.formatUsdDigit(
-      +dataTransfer?.amount_each * followTx.token.price,
-    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}`,
+    )} ${payload.amount} **${payload.token}** (${
+      amountUsd.startsWith("<") ? "" : APPROX
+    } ${amountUsd})! .${mochiUtils.string.receiptLink(
+      dataTransfer?.external_id ?? "",
+    )}`,
     components: [],
     embeds: [],
   })
@@ -638,13 +644,13 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   const guildAvatar = i.guild?.iconURL()
   const recipients = [followTx.other_profile_id]
   const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
-  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
+  const guildName = i.guild?.name ?? ""
   const payload = {
     sender: i.user.id,
     recipients: recipients,
     guild_id: guildID,
     channel_id: i.channel?.id,
-    channel_name: channelName,
+    channel_name: guildName,
     channel_url: channel_url,
     amount: +amount,
     token: token,
@@ -694,14 +700,18 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     followTx.other_profile_id,
   )
 
+  const amountUsd = mochiUtils.formatUsdDigit(
+    +dataTransfer?.amount_each * choosenToken.price,
+  )
+
   await i.followUp({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
       payload.token as TokenEmojiKey,
-    )} ${
-      payload.amount
-    } ${payload.token.toUpperCase()} (≈ ${mochiUtils.formatUsdDigit(
-      +dataTransfer?.amount_each * choosenToken.price,
-    )}})! .${mochiUtils.string.receiptLink(dataTransfer?.external_id)}`,
+    )} ${payload.amount} **${payload.token.toUpperCase()}** (${
+      amountUsd.startsWith("<") ? "" : APPROX
+    } ${amountUsd})! .${mochiUtils.string.receiptLink(
+      dataTransfer?.external_id,
+    )}`,
     components: [],
     embeds: [],
   })
