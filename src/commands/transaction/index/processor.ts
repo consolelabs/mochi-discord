@@ -81,6 +81,7 @@ export async function render(
     groupDate: true,
     page,
     total,
+    profileId: dataProfile.id,
   })
 
   const embed = composeEmbedMessage(null, {
