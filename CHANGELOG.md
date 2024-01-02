@@ -1,3 +1,10 @@
+## [6.42.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.6-rc.1...v6.42.6-rc.2) (2024-01-02)
+
+
+### Bug Fixes
+
+* **transactions:** show correct actor of transactions for bal and transaction command ([#1565](https://github.com/consolelabs/mochi-discord/issues/1565)) ([a3d0c4f](https://github.com/consolelabs/mochi-discord/commit/a3d0c4f94b4d1b8b72a8cc6032a1c66827604b2d))
+
 ## [6.42.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.5...v6.42.6-rc.1) (2024-01-02)
 
 
