@@ -1,3 +1,19 @@
+## [6.42.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.5-rc.1...v6.42.5-rc.2) (2024-01-02)
+
+
+### Bug Fixes
+
+* bump version of formatter ([62751e7](https://github.com/consolelabs/mochi-discord/commit/62751e74530b6c90b98a9d24dd61bb25dd20f56c))
+
+## [6.42.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.4...v6.42.5-rc.1) (2024-01-02)
+
+
+### Bug Fixes
+
+* release ([6736a6a](https://github.com/consolelabs/mochi-discord/commit/6736a6a444680f5b7d1dc6d419e1b1ff15d594ca))
+* **tip:** update channel name metadata ([#1564](https://github.com/consolelabs/mochi-discord/issues/1564)) ([23373c6](https://github.com/consolelabs/mochi-discord/commit/23373c65fc161fd4aa76e0bfa6ee1c283a009a25))
+
+## [6.42.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.4-rc.1...v6.42.4-rc.2) (2023-12-28)
 ## [6.42.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4) (2023-12-28)
 
 
