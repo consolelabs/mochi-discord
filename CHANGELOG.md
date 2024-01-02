@@ -1,3 +1,10 @@
+## [6.42.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.5-rc.1...v6.42.5-rc.2) (2024-01-02)
+
+
+### Bug Fixes
+
+* bump version of formatter ([62751e7](https://github.com/consolelabs/mochi-discord/commit/62751e74530b6c90b98a9d24dd61bb25dd20f56c))
+
 ## [6.42.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.4...v6.42.5-rc.1) (2024-01-02)
 
 
