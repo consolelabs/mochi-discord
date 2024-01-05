@@ -1,3 +1,10 @@
+## [6.42.7-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.2...v6.42.7-rc.3) (2024-01-05)
+
+
+### Bug Fixes
+
+* **changelog:** handle bold case ([#1570](https://github.com/consolelabs/mochi-discord/issues/1570)) ([31fc4d6](https://github.com/consolelabs/mochi-discord/commit/31fc4d61846cf601dc88b0781b593be03ff3c9f2))
+
 ## [6.42.7-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.1...v6.42.7-rc.2) (2024-01-05)
 
 
