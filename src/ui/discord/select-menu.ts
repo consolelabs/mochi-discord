@@ -176,7 +176,7 @@ export function composeOtherTickerSelectMenu(
   remainingCoins: any[],
 ) {
   const opt = (coin: any): MessageSelectOptionData => ({
-    label: coin.id + " - " + coin.current_price,
+    label: coin.id.toUpperCase() + " | $" + coin.current_price,
     value: coin.id,
   })
   const selectRow = composeDiscordSelectionRow({
