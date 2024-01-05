@@ -5,10 +5,13 @@ import {
   renderPair,
   renderSingle,
   renderFiatPair,
+  renderOtherTicker,
 } from "./processor"
 import { MachineConfig, route } from "utils/router"
 import { machineConfig as swapMachineConfig } from "commands/swap"
 import { addToWatchlistFromTicker } from "../../watchlist/add/processor"
+import defi from "adapters/defi"
+import CacheManager from "cache/node-cache"
 
 export const machineConfig: (
   swapTo: string,
@@ -21,7 +24,26 @@ export const machineConfig: (
     initial,
     context: {
       select: {
-        ticker: (interaction, _ev, ctx) => {
+        ticker: async (interaction, _ev, ctx) => {
+          if (ctx.isOtherTicker) {
+            const baseCoinRaw = ctx.listCoins.find(
+              (c: any) => c.id === interaction.values.at(0),
+            )
+            let data
+            ;({ data } = await CacheManager.get({
+              pool: "ticker",
+              key: `ticker-getcoin-${baseCoinRaw.id}`,
+              ttl: 30,
+              call: () => defi.getCoin(baseCoinRaw.id, false),
+            }))
+
+            return renderSingle(interaction, {
+              baseCoin: data,
+              type: ctx.type,
+              days: ctx.days,
+              listCoins: ctx.listCoins,
+            })
+          }
           // this is show all token, in this case coins =[...] baseCoin == undefined
           // coins = list defi.getCoin() of all token, baseCoin = defi.GetCoin() of 1 token
           if (ctx.coins && !ctx.baseCoin) {
@@ -79,6 +101,14 @@ export const machineConfig: (
             ctx.baseCoin.id,
           )
         },
+        showOtherTicker: (interaction, _ev, ctx) => {
+          return renderOtherTicker(interaction, {
+            baseCoin: ctx.baseCoin,
+            type: ctx.type,
+            days: ctx.days,
+            listCoins: ctx.listCoins,
+          })
+        },
       },
       ...tickerCtx,
     },
@@ -89,6 +119,7 @@ export const machineConfig: (
           CHANGE_TIME_OPTION: "ticker",
           VIEW_INFO: "tickerInfo",
           ADD_TO_WATCHLIST: "addWatchList",
+          SHOW_OTHER_TICKER: "showOtherTicker",
         },
       },
       tickerPair: {
@@ -116,6 +147,12 @@ export const machineConfig: (
       addWatchList: {
         on: {
           VIEW_CHART: "ticker",
+        },
+      },
+      showOtherTicker: {
+        on: {
+          VIEW_CHART: "showOtherTicker",
+          CHANGE_TICKER_OPTION: "ticker",
         },
       },
     },

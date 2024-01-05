@@ -170,3 +170,19 @@ export function composeDaysSelectMenu(
   })
   return selectRow
 }
+
+export function composeOtherTickerSelectMenu(
+  customId: string,
+  remainingCoins: any[],
+) {
+  const opt = (coin: any): MessageSelectOptionData => ({
+    label: coin.id + " - " + coin.current_price,
+    value: coin.id,
+  })
+  const selectRow = composeDiscordSelectionRow({
+    customId,
+    placeholder: "Make a selection",
+    options: remainingCoins.map((c) => opt(c)),
+  })
+  return selectRow
+}
