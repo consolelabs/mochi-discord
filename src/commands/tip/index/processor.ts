@@ -543,7 +543,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
   await i.reply({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
       payload.token,
-    )} ${payload.amount} **${payload.token}** (${
+    )} **${payload.amount}** **${payload.token}** (${
       amountUsd.startsWith("<") ? "" : APPROX
     } ${amountUsd})! .${mochiUtils.string.receiptLink(
       dataTransfer?.external_id ?? "",
@@ -707,7 +707,7 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   await i.followUp({
     content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
       payload.token as TokenEmojiKey,
-    )} ${payload.amount} **${payload.token.toUpperCase()}** (${
+    )} **${payload.amount}** **${payload.token.toUpperCase()}** (${
       amountUsd.startsWith("<") ? "" : APPROX
     } ${amountUsd})! .${mochiUtils.string.receiptLink(
       dataTransfer?.external_id,

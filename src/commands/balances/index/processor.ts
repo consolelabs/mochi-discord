@@ -738,6 +738,7 @@ async function switchView(
     txns,
     on: Platform.Discord,
     top: 5,
+    profileId,
   })
   embed.addFields([
     {

@@ -4,7 +4,6 @@ import { SlashCommand } from "types/common"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import { thumbnails } from "utils/common"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
-import Discord from "discord.js"
 
 const slashCmd: SlashCommand = {
   name: "changelog",
@@ -24,27 +23,19 @@ const slashCmd: SlashCommand = {
         },
       }
     }
-    const { text, images } = await UI.components.changelog({
+    const { text } = await UI.components.changelog({
       title: changelog.title,
       content: changelog.content,
       on: Platform.Discord,
     })
 
-    await i.editReply({
-      embeds: [
-        composeEmbedMessage2(i, {
-          author: ["\u200b", thumbnails.MOCHI],
-          description: text,
-        }),
-      ],
-    })
-
-    if (images.length) {
-      return {
-        messageOptions: {
-          files: images.map((i) => new Discord.MessageAttachment(i, i)),
-        },
+    const sections = text.split("<br>")
+    for (let j = 0; j < sections.length; j++) {
+      if (j === 0) {
+        await i.editReply(sections[j])
+        continue
       }
+      await i.channel?.send(`${sections[j]}`)
     }
 
     return null
