@@ -1,3 +1,10 @@
+## [6.42.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.6...v6.42.7-rc.1) (2024-01-05)
+
+
+### Bug Fixes
+
+* **ticker:** allow query other ticker option ([#1568](https://github.com/consolelabs/mochi-discord/issues/1568)) ([13ea483](https://github.com/consolelabs/mochi-discord/commit/13ea4830a21736434374742a2c6db99cb5e36f1b))
+
 ## [6.42.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.5...v6.42.6) (2024-01-05)
 
 
