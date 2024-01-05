@@ -1,3 +1,13 @@
+## [6.42.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.5...v6.42.6) (2024-01-05)
+
+
+### Bug Fixes
+
+* bump version formatter ([7ea1fce](https://github.com/consolelabs/mochi-discord/commit/7ea1fcea9be2fb8a6aca80abbe1ca5f16b58b63e))
+* **tip:** update formatter render join tip ([#1566](https://github.com/consolelabs/mochi-discord/issues/1566)) ([cbb92fb](https://github.com/consolelabs/mochi-discord/commit/cbb92fb7e26aa6273dbb96de80fd74d74b85be5f))
+* **transactions:** show correct actor of transactions for bal and transaction command ([#1565](https://github.com/consolelabs/mochi-discord/issues/1565)) ([a3d0c4f](https://github.com/consolelabs/mochi-discord/commit/a3d0c4f94b4d1b8b72a8cc6032a1c66827604b2d))
+* update changelog component ([#1567](https://github.com/consolelabs/mochi-discord/issues/1567)) ([a162e16](https://github.com/consolelabs/mochi-discord/commit/a162e1614d36c97661a08080138b7d3611bcbcd5))
+
 ## [6.42.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.6-rc.2...v6.42.6-rc.3) (2024-01-05)
 
 
