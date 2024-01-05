@@ -1,3 +1,11 @@
+## [6.42.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.6-rc.2...v6.42.6-rc.3) (2024-01-05)
+
+
+### Bug Fixes
+
+* **tip:** update formatter render join tip ([#1566](https://github.com/consolelabs/mochi-discord/issues/1566)) ([cbb92fb](https://github.com/consolelabs/mochi-discord/commit/cbb92fb7e26aa6273dbb96de80fd74d74b85be5f))
+* update changelog component ([#1567](https://github.com/consolelabs/mochi-discord/issues/1567)) ([a162e16](https://github.com/consolelabs/mochi-discord/commit/a162e1614d36c97661a08080138b7d3611bcbcd5))
+
 ## [6.42.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.6-rc.1...v6.42.6-rc.2) (2024-01-02)
 
 
