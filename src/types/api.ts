@@ -1794,7 +1794,6 @@ export interface ResponseGetVote {
 
 export interface ResponseGetWatchlistResponse {
   data?: ResponseCoinMarketItemData[]
-  metadata?: ResponsePaginationResponse
 }
 
 export interface ResponseGetWelcomeChannelConfigResponse {
