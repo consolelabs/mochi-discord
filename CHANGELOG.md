@@ -1,3 +1,10 @@
+## [6.42.7-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.1...v6.42.7-rc.2) (2024-01-05)
+
+
+### Bug Fixes
+
+* **ticker:** change label select other ticker ([#1569](https://github.com/consolelabs/mochi-discord/issues/1569)) ([ba5179f](https://github.com/consolelabs/mochi-discord/commit/ba5179f8d85bc0fab2f0531934536d6722081be0))
+
 ## [6.42.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.6...v6.42.7-rc.1) (2024-01-05)
 
 
