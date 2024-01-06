@@ -154,7 +154,10 @@ export async function renderSingle(
       ? utils.formatPercentDigit(
           String((market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY]),
         )
-      : utils.formatUsdPriceDigit(String(current_price[CURRENCY]))
+      : utils.formatUsdPriceDigit({
+          value: current_price[CURRENCY],
+          subscript: true,
+        })
   const marketCap = +market_cap[CURRENCY]
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
