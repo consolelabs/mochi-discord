@@ -152,7 +152,7 @@ async function composeTokenWatchlist(
         return {
           symbol: (t.symbol ?? "").toUpperCase(),
           priceChange: utils.formatPercentDigit(priceChange),
-          usd: utils.formatUsdPriceDigit(price),
+          usd: utils.formatUsdPriceDigit({ value: price, subscript: true }),
         }
       }),
       {
