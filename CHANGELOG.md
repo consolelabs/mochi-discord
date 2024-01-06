@@ -1,3 +1,10 @@
+## [6.42.7-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.3...v6.42.7-rc.4) (2024-01-06)
+
+
+### Bug Fixes
+
+* restore using subscript in wlv and ticker ([d8a87b6](https://github.com/consolelabs/mochi-discord/commit/d8a87b61e854de03ec0acd1808fe7f359bb089bf))
+
 ## [6.42.7-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.2...v6.42.7-rc.3) (2024-01-05)
 
 
