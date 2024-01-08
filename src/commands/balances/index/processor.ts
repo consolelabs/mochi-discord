@@ -567,6 +567,7 @@ async function switchView(
   const trackingType = wallet?.data?.type
   const { mochiWallets, wallets, cexes } = await profile.getUserWallets(
     discordId,
+    false,
   )
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase()),
@@ -709,11 +710,10 @@ async function switchView(
       embed.addFields(lendingField)
     }
 
-    const { field: simpleField } = buildEarnField("Simple", balances.simple)
-
-    if (simpleField) {
-      embed.addFields(simpleField)
-    }
+    totalWorth += balances.simple.reduce(
+      (acc, cur) => acc + cur.amount * cur.price,
+      0,
+    )
   }
 
   embed.addFields([

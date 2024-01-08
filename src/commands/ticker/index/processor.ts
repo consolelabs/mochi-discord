@@ -13,7 +13,10 @@ import { InternalError } from "errors"
 import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
 import { composeEmbedMessage } from "ui/discord/embed"
-import { composeDaysSelectMenu } from "ui/discord/select-menu"
+import {
+  composeDaysSelectMenu,
+  composeOtherTickerSelectMenu,
+} from "ui/discord/select-menu"
 import {
   emojis,
   EmojiKey,
@@ -70,6 +73,7 @@ type Context = {
   type: ChartType
   baseCoin: Coin
   targetCoin?: Coin
+  listCoins?: Coin[]
 }
 
 export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
@@ -111,9 +115,30 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
   ]
 }
 
+export async function renderOtherTicker(
+  interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
+  { baseCoin: coin, listCoins }: Context,
+) {
+  const remainingCoins = listCoins?.filter((c) => c.id !== coin.id)
+
+  const selectOtherTickerRow = composeOtherTickerSelectMenu(
+    "change_ticker_option",
+    remainingCoins as any[],
+  )
+
+  return {
+    context: {
+      isOtherTicker: true,
+    },
+    msgOpts: {
+      components: [selectOtherTickerRow],
+    },
+  }
+}
+
 export async function renderSingle(
   interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
-  { days, baseCoin: coin, type }: Context,
+  { days, baseCoin: coin, type, listCoins }: Context,
 ) {
   days = days ?? (type === ChartType.Dominance ? 365 : 30)
   const {
@@ -129,7 +154,10 @@ export async function renderSingle(
       ? utils.formatPercentDigit(
           String((market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY]),
         )
-      : utils.formatUsdPriceDigit(String(current_price[CURRENCY]))
+      : utils.formatUsdPriceDigit({
+          value: current_price[CURRENCY],
+          subscript: true,
+        })
   const marketCap = +market_cap[CURRENCY]
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
@@ -203,6 +231,17 @@ export async function renderSingle(
 
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("ticker", wlAdded)
+  const basicComponents = [selectRow, buttonRow]
+  const showOtherTickerRow = new MessageActionRow().addComponents(
+    new MessageButton({
+      label: "Not the token you're looking for?",
+      customId: "show_other_ticker",
+      style: "SECONDARY",
+    }),
+  )
+  const finalComponents = listCoins
+    ? [...basicComponents, showOtherTickerRow]
+    : basicComponents
 
   return {
     initial: "ticker",
@@ -211,11 +250,12 @@ export async function renderSingle(
       type,
       days,
       toId: coin.id,
+      listCoins,
     },
     msgOpts: {
       ...(chart && { files: [chart] }),
       embeds: [embed],
-      components: [selectRow, buttonRow],
+      components: finalComponents,
     },
   }
 }
@@ -599,7 +639,7 @@ export async function run(
       days: ChartViewTimeOption.M1,
     })
 
-  const [baseCoin, targetCoin] = await Promise.all(
+  const [baseCoinRaw, targetCoin] = await Promise.all(
     [baseQ, targetQ].filter(Boolean).map(async (symbol) => {
       const { ticker, isDominanceChart } = parseQuery(symbol)
       const { data: coins } = await CacheManager.get({
@@ -627,6 +667,8 @@ export async function run(
       if (!coin) {
         coin = coins.at(0)
       }
+
+      const listCoins = coins
 
       let data, status
       ;({ data, status } = await CacheManager.get({
@@ -672,9 +714,12 @@ export async function run(
         }
       }
 
-      return data
+      return [data, listCoins]
     }),
   )
+
+  const baseCoin = baseCoinRaw[0]
+  const listCoins = baseCoinRaw[1]
 
   const type = parseQuery(baseQ).isDominanceChart
     ? ChartType.Dominance
@@ -707,5 +752,6 @@ export async function run(
     baseCoin,
     type,
     days,
+    listCoins,
   })
 }
