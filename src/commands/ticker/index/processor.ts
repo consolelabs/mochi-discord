@@ -32,7 +32,7 @@ import {
 } from "./chart"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { utils } from "@consolelabs/mochi-formatter"
-import { Util } from "discord.js"
+// import { Util } from "discord.js"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -116,7 +116,7 @@ export function renderTokenComparisonFields(baseCoin: Coin, targetCoin: Coin) {
 }
 
 export async function renderOtherTicker(
-  interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
+  // interaction: CommandInteraction | ButtonInteraction | SelectMenuInteraction,
   { baseCoin: coin, listCoins }: Context,
 ) {
   const remainingCoins = listCoins?.filter((c) => c.id !== coin.id)
@@ -232,16 +232,14 @@ export async function renderSingle(
   const wlAdded = await isTickerAddedToWl(coin.id, interaction.user.id)
   const buttonRow = buildSwitchViewActionRow("ticker", wlAdded)
   const basicComponents = [selectRow, buttonRow]
-  const showOtherTickerRow = new MessageActionRow().addComponents(
-    new MessageButton({
-      label: "Not the token you're looking for?",
-      customId: "show_other_ticker",
-      style: "SECONDARY",
-    }),
-  )
-  const finalComponents = listCoins
-    ? [...basicComponents, showOtherTickerRow]
-    : basicComponents
+  // const showOtherTickerRow = new MessageActionRow().addComponents(
+  //   new MessageButton({
+  //     label: "Not the token you're looking for?",
+  //     customId: "show_other_ticker",
+  //     style: "SECONDARY",
+  //   }),
+  // )
+  const finalComponents = listCoins ? [...basicComponents] : basicComponents
 
   return {
     initial: "ticker",

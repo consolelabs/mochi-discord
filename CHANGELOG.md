@@ -1,3 +1,10 @@
+## [6.42.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.7...v6.42.8-rc.1) (2024-01-08)
+
+
+### Bug Fixes
+
+* hide multiple tokens button ([8493c49](https://github.com/consolelabs/mochi-discord/commit/8493c493a19918ad192830f617fc5eaa2cedf97a))
+
 ## [6.42.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.6...v6.42.7) (2024-01-08)
 
 
