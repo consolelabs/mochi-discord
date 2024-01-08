@@ -1,3 +1,15 @@
+## [6.42.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.6...v6.42.7) (2024-01-08)
+
+
+### Bug Fixes
+
+* **changelog:** handle bold case ([#1570](https://github.com/consolelabs/mochi-discord/issues/1570)) ([31fc4d6](https://github.com/consolelabs/mochi-discord/commit/31fc4d61846cf601dc88b0781b593be03ff3c9f2))
+* **profile:** remove simple binance balance ([#1572](https://github.com/consolelabs/mochi-discord/issues/1572)) ([5332a6a](https://github.com/consolelabs/mochi-discord/commit/5332a6ad74eb032ef64fc764ee9131364481c9a0))
+* **profile:** wrong calculated total binance balance ([#1571](https://github.com/consolelabs/mochi-discord/issues/1571)) ([1df2e2b](https://github.com/consolelabs/mochi-discord/commit/1df2e2b2a6a404832c852b1861309c76461a8c4f))
+* restore using subscript in wlv and ticker ([d8a87b6](https://github.com/consolelabs/mochi-discord/commit/d8a87b61e854de03ec0acd1808fe7f359bb089bf))
+* **ticker:** allow query other ticker option ([#1568](https://github.com/consolelabs/mochi-discord/issues/1568)) ([13ea483](https://github.com/consolelabs/mochi-discord/commit/13ea4830a21736434374742a2c6db99cb5e36f1b))
+* **ticker:** change label select other ticker ([#1569](https://github.com/consolelabs/mochi-discord/issues/1569)) ([ba5179f](https://github.com/consolelabs/mochi-discord/commit/ba5179f8d85bc0fab2f0531934536d6722081be0))
+
 ## [6.42.7-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.4...v6.42.7-rc.5) (2024-01-08)
 
 
