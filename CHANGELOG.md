@@ -1,3 +1,11 @@
+## [6.42.7-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.4...v6.42.7-rc.5) (2024-01-08)
+
+
+### Bug Fixes
+
+* **profile:** remove simple binance balance ([#1572](https://github.com/consolelabs/mochi-discord/issues/1572)) ([5332a6a](https://github.com/consolelabs/mochi-discord/commit/5332a6ad74eb032ef64fc764ee9131364481c9a0))
+* **profile:** wrong calculated total binance balance ([#1571](https://github.com/consolelabs/mochi-discord/issues/1571)) ([1df2e2b](https://github.com/consolelabs/mochi-discord/commit/1df2e2b2a6a404832c852b1861309c76461a8c4f))
+
 ## [6.42.7-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.3...v6.42.7-rc.4) (2024-01-06)
 
 
