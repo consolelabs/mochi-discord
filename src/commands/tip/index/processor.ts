@@ -474,7 +474,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
 
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
-  const recipients = [followTx.other_profile_id]
+  const recipients = followTx.other_profiles?.map((p: { id: string }) => p.id)
   const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
   const guildName = i.guild?.name ?? ""
   const payload = {
@@ -484,7 +484,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     channel_id: i.channel?.id,
     channel_name: guildName,
     channel_url: channel_url,
-    amount: followTx.metadata.original_amount,
+    amount: followTx.metadata.original_amount / followTx.other_profiles?.length,
     token: followTx.token.symbol,
     transfer_type: followTx.action,
     message: "Send money",
@@ -493,6 +493,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     original_amount: followTx.metadata.original_amount,
     channel_avatar: guildAvatar,
     original_tx_id: followTxId,
+    each: followTx.other_profiles?.length > 1,
   }
 
   const {
@@ -532,22 +533,26 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     })
   }
 
-  const recipientDiscord = await getDiscordRenderableByProfileId(
-    payload.recipients[0],
+  const discordRecipients = await Promise.all(
+    payload.recipients.map((r: string) => getDiscordRenderableByProfileId(r)),
   )
+
+  const recipientsString = discordRecipients.join(", ")
 
   const amountUsd = mochiUtils.formatUsdDigit(
     +dataTransfer?.amount_each * followTx.token.price,
   )
 
+  const content = `<@${i.user.id}> sent ${recipientsString} ${getEmojiToken(
+    payload.token,
+  )} **${payload.amount}** **${payload.token}** (${
+    amountUsd.startsWith("<") ? "" : APPROX
+  } ${amountUsd})${
+    payload.recipients.length > 1 ? " each" : ""
+  }! .${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}`
+
   await i.reply({
-    content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
-      payload.token,
-    )} **${payload.amount}** **${payload.token}** (${
-      amountUsd.startsWith("<") ? "" : APPROX
-    } ${amountUsd})! .${mochiUtils.string.receiptLink(
-      dataTransfer?.external_id ?? "",
-    )}`,
+    content,
     components: [],
     embeds: [],
   })
