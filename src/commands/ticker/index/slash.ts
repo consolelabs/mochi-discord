@@ -101,8 +101,8 @@ export const machineConfig: (
             ctx.baseCoin.id,
           )
         },
-        showOtherTicker: (interaction, _ev, ctx) => {
-          return renderOtherTicker(interaction, {
+        showOtherTicker: (_interaction, _ev, ctx) => {
+          return renderOtherTicker({
             baseCoin: ctx.baseCoin,
             type: ctx.type,
             days: ctx.days,
