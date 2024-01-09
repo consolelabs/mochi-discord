@@ -1,3 +1,10 @@
+## [6.42.10-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.2...v6.42.10-rc.3) (2024-01-09)
+
+
+### Bug Fixes
+
+* transfer request - adopt new endpoints ([#1576](https://github.com/consolelabs/mochi-discord/issues/1576)) ([e2b6517](https://github.com/consolelabs/mochi-discord/commit/e2b65172fdf8c8f5f7fbab2fe337b34e3bdf5636))
+
 ## [6.42.10-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.1...v6.42.10-rc.2) (2024-01-09)
 
 
