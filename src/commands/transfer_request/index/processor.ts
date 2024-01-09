@@ -5,6 +5,7 @@ import * as ed25519 from "@noble/ed25519"
 import { sha512 } from "@noble/hashes/sha512"
 import { MOCHI_APP_PRIVATE_KEY } from "env"
 import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
+import { getProfileIdByDiscord } from "utils/profile"
 ed25519.etc.sha512Async = (...m) =>
   Promise.resolve(sha512(ed25519.etc.concatBytes(...m)))
 
@@ -29,9 +30,11 @@ export async function approveTransferReq(i: ButtonInteraction) {
     return
   }
 
+  const profileId = await getProfileIdByDiscord(i.user.id)
   const appHeaders = await getMochiApplicationHeaders()
   const { ok, status } = await mochiPay.approveTransferRequest({
     headers: appHeaders,
+    profileId,
     appId,
     requestCode,
   })
@@ -56,9 +59,11 @@ export async function rejectTransferReq(i: ButtonInteraction) {
     return
   }
 
+  const profileId = await getProfileIdByDiscord(i.user.id)
   const appHeaders = await getMochiApplicationHeaders()
   const { ok, status } = await mochiPay.rejectTransferRequest({
     headers: appHeaders,
+    profileId,
     appId,
     requestCode,
   })
