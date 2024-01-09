@@ -1,3 +1,10 @@
+## [6.42.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.8...v6.42.9) (2024-01-09)
+
+
+### Bug Fixes
+
+* adjust upper limit duration of guess cmd ([08c4e95](https://github.com/consolelabs/mochi-discord/commit/08c4e955937654c23cd1508485a4f54f3a5c0f99))
+
 ## [6.42.9-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.8...v6.42.9-rc.1) (2024-01-09)
 
 
