@@ -137,7 +137,7 @@ const slashCmd: SlashCommand = {
           .setDescription(
             "duration to run the game in minutes (default 30 minutes)",
           )
-          .setMaxValue(60)
+          .setMaxValue(4320)
           .setMinValue(1)
           .setRequired(false),
       )
