@@ -1,3 +1,11 @@
+## [6.42.10-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10-rc.1) (2024-01-09)
+
+
+### Bug Fixes
+
+* **feed:** remove amount sign in feed transaction ([#1574](https://github.com/consolelabs/mochi-discord/issues/1574)) ([1ae40ac](https://github.com/consolelabs/mochi-discord/commit/1ae40ac6ae36387c3f4619a943dfd4774f5c1cf9))
+* **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
+
 ## [6.42.9-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.9-rc.1...v6.42.9-rc.2) (2024-01-09)
 
 
