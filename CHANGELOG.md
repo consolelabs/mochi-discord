@@ -1,3 +1,10 @@
+## [6.42.10-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.1...v6.42.10-rc.2) (2024-01-09)
+
+
+### Bug Fixes
+
+* **follow-tips:** fix follow tips with case multiple recipients ([#1575](https://github.com/consolelabs/mochi-discord/issues/1575)) ([b42dac2](https://github.com/consolelabs/mochi-discord/commit/b42dac2c01dcb250887e9ba98499e51b9bc0cc1d))
+
 ## [6.42.10-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10-rc.1) (2024-01-09)
 
 
