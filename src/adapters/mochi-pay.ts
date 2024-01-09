@@ -257,15 +257,17 @@ class MochiPay extends Fetcher {
 
   async approveTransferRequest({
     headers,
+    profileId,
     requestCode,
     appId = "1",
   }: {
     headers: Record<string, string>
+    profileId: string
     requestCode: string
     appId?: string
   }) {
     return await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/approved`,
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/${appId}/requests/${requestCode}/approved`,
       {
         method: "POST",
         headers,
@@ -275,15 +277,17 @@ class MochiPay extends Fetcher {
 
   async rejectTransferRequest({
     headers,
+    profileId,
     requestCode,
     appId = "1",
   }: {
     headers: Record<string, string>
+    profileId: string
     requestCode: string
     appId?: string
   }) {
     return await this.jsonFetch(
-      `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}/rejected`,
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/${appId}/requests/${requestCode}/rejected`,
       {
         method: "POST",
         headers,
