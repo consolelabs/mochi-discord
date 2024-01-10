@@ -60,6 +60,7 @@ import {
 } from "utils/profile"
 import NodeCache from "node-cache"
 import { convertString } from "utils/convert"
+import { ethers } from "ethers"
 
 const contentCache = new NodeCache({
   stdTTL: 3600,
@@ -397,14 +398,18 @@ export async function handleFollowTip(i: ButtonInteraction) {
   const res = followTipCache.res
   const amountApprox = followTipCache.amountApprox
 
-  const recipient = await i.guild?.members.fetch(payload.recipients[0])
+  const discordRecipients = await Promise.all(
+    payload.recipients.map((r: string) => getDiscordRenderableByProfileId(r)),
+  )
+
+  const recipientsString = discordRecipients.join(", ")
   const embed = composeEmbedMessage(null, {
-    title: `New tip to ${recipient?.displayName}`,
+    title: `New tip to ${recipientsString}`,
     description: `
       \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
         payload.token
       } ${amountApprox}
-      \`Receiver.  \` <@${payload.recipients[0]}>
+      \`Receiver.  \` ${recipientsString}
       \`Message.   \` Send money.
     `,
     color: "#89fa8e",
@@ -474,9 +479,13 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
 
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
-  const recipients = [followTx.other_profile_id]
+  const recipients = followTx.other_profiles?.map((p: { id: string }) => p.id)
   const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
   const guildName = i.guild?.name ?? ""
+  const amountBN = ethers.BigNumber.from(followTx.amount)
+  const decimalBN = ethers.BigNumber.from(followTx.token?.decimal)
+  const amountStr = ethers.utils.formatUnits(amountBN, decimalBN)
+
   const payload = {
     sender: i.user.id,
     recipients: recipients,
@@ -484,7 +493,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     channel_id: i.channel?.id,
     channel_name: guildName,
     channel_url: channel_url,
-    amount: followTx.metadata.original_amount,
+    amount: parseFloat(amountStr),
     token: followTx.token.symbol,
     transfer_type: followTx.action,
     message: "Send money",
@@ -493,6 +502,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     original_amount: followTx.metadata.original_amount,
     channel_avatar: guildAvatar,
     original_tx_id: followTxId,
+    each: followTx.other_profiles?.length > 1,
   }
 
   const {
@@ -532,22 +542,26 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     })
   }
 
-  const recipientDiscord = await getDiscordRenderableByProfileId(
-    payload.recipients[0],
+  const discordRecipients = await Promise.all(
+    payload.recipients.map((r: string) => getDiscordRenderableByProfileId(r)),
   )
+
+  const recipientsString = discordRecipients.join(", ")
 
   const amountUsd = mochiUtils.formatUsdDigit(
     +dataTransfer?.amount_each * followTx.token.price,
   )
 
+  const content = `<@${i.user.id}> sent ${recipientsString} ${getEmojiToken(
+    payload.token,
+  )} **${payload.amount}** **${payload.token}** (${
+    amountUsd.startsWith("<") ? "" : APPROX
+  } ${amountUsd})${
+    payload.recipients.length > 1 ? " each" : ""
+  }! .${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}`
+
   await i.reply({
-    content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
-      payload.token,
-    )} **${payload.amount}** **${payload.token}** (${
-      amountUsd.startsWith("<") ? "" : APPROX
-    } ${amountUsd})! .${mochiUtils.string.receiptLink(
-      dataTransfer?.external_id ?? "",
-    )}`,
+    content,
     components: [],
     embeds: [],
   })

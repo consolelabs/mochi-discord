@@ -1,3 +1,32 @@
+## [6.42.10-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.2...v6.42.10-rc.3) (2024-01-09)
+
+
+### Bug Fixes
+
+* transfer request - adopt new endpoints ([#1576](https://github.com/consolelabs/mochi-discord/issues/1576)) ([e2b6517](https://github.com/consolelabs/mochi-discord/commit/e2b65172fdf8c8f5f7fbab2fe337b34e3bdf5636))
+
+## [6.42.10-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.1...v6.42.10-rc.2) (2024-01-09)
+
+
+### Bug Fixes
+
+* **follow-tips:** fix follow tips with case multiple recipients ([#1575](https://github.com/consolelabs/mochi-discord/issues/1575)) ([b42dac2](https://github.com/consolelabs/mochi-discord/commit/b42dac2c01dcb250887e9ba98499e51b9bc0cc1d))
+
+## [6.42.10-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10-rc.1) (2024-01-09)
+
+
+### Bug Fixes
+
+* **feed:** remove amount sign in feed transaction ([#1574](https://github.com/consolelabs/mochi-discord/issues/1574)) ([1ae40ac](https://github.com/consolelabs/mochi-discord/commit/1ae40ac6ae36387c3f4619a943dfd4774f5c1cf9))
+* **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
+
+## [6.42.9-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.9-rc.1...v6.42.9-rc.2) (2024-01-09)
+
+
+### Bug Fixes
+
+* **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
+
 ## [6.42.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.8...v6.42.9) (2024-01-09)
 
 
@@ -368,11 +397,8 @@
 
 ### Bug Fixes
 
-<<<<<<< HEAD
-=======
 * allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
 * bump ver ([#1547](https://github.com/consolelabs/mochi-discord/issues/1547)) ([e5820c1](https://github.com/consolelabs/mochi-discord/commit/e5820c1251f8b7e1d1a7dde5ff2fe26935cbd2b7))
->>>>>>> master
 * bump version ([#1548](https://github.com/consolelabs/mochi-discord/issues/1548)) ([2bc7a35](https://github.com/consolelabs/mochi-discord/commit/2bc7a35a37551c64477812461a5dd6f20d76fd1b))
 
 ## [6.40.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.1...v6.40.5-rc.2) (2023-12-08)
