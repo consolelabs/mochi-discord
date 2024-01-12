@@ -1,3 +1,10 @@
+## [6.42.11-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.10...v6.42.11-rc.1) (2024-01-12)
+
+
+### Bug Fixes
+
+* **airdrop:** update transfer data for airdrop command ([#1577](https://github.com/consolelabs/mochi-discord/issues/1577)) ([7eb2e81](https://github.com/consolelabs/mochi-discord/commit/7eb2e8139666ec8572c19aa05cd3354867c2b6cd))
+
 ## [6.42.10](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10) (2024-01-10)
 
 
