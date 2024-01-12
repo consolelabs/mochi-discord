@@ -1,3 +1,10 @@
+## [6.42.11-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.5...v6.42.11-rc.6) (2024-01-12)
+
+
+### Bug Fixes
+
+* update format feed transaction ([#1583](https://github.com/consolelabs/mochi-discord/issues/1583)) ([d19d2c7](https://github.com/consolelabs/mochi-discord/commit/d19d2c7ffc55477a740824221d24ebd01cdf91a6))
+
 ## [6.42.11-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.4...v6.42.11-rc.5) (2024-01-12)
 
 
