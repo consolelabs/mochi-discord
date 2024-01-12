@@ -72,7 +72,7 @@ process.on("unhandledRejection", (reason, promise) => {
 ;(async () => {
   try {
     if (DEV) {
-      await registerCommand()
+      // await registerCommand()
     } else {
       await initUnleash()
       unleash.on("changed", (stream: any) => {
