@@ -1,3 +1,10 @@
+## [6.42.11-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.7...v6.42.11-rc.8) (2024-01-12)
+
+
+### Bug Fixes
+
+* tip - parse amount starts with dot ([#1585](https://github.com/consolelabs/mochi-discord/issues/1585)) ([54064b8](https://github.com/consolelabs/mochi-discord/commit/54064b81f7ebee8e68413671de8eaf4e6ece9514))
+
 ## [6.42.11-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.6...v6.42.11-rc.7) (2024-01-12)
 
 
