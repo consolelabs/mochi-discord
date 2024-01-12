@@ -1,3 +1,11 @@
+## [6.42.11-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.4...v6.42.11-rc.5) (2024-01-12)
+
+
+### Bug Fixes
+
+* **airdrop:** update guild avatar data ([#1581](https://github.com/consolelabs/mochi-discord/issues/1581)) ([1514404](https://github.com/consolelabs/mochi-discord/commit/15144045e96cfe4cdc4d3d5805ecf6619e39d7e5))
+* **tip:** handle case type error ([#1582](https://github.com/consolelabs/mochi-discord/issues/1582)) ([936e985](https://github.com/consolelabs/mochi-discord/commit/936e985851f564fe6419bf08c1f562d6b0d13195))
+
 ## [6.42.11-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.3...v6.42.11-rc.4) (2024-01-12)
 
 
