@@ -66,7 +66,7 @@ export async function airdrop(i: CommandInteraction) {
   }
 
   const guildName = i.guild?.name ?? ""
-  const guildAvatar = i.guild?.iconURL()
+  const guildAvatar = i.guild?.iconURL() ?? ""
   const channel_url = await getChannelUrl(i)
 
   const payload: TransferPayload = {
