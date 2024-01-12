@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^18.2.5
-    version: 18.2.5(@consolelabs/mochi-rest@5.1.9)(ioredis@5.3.2)
+    specifier: ^18.2.6
+    version: 18.2.6(@consolelabs/mochi-rest@5.1.9)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
     specifier: ^5.1.9
     version: 5.1.9
@@ -374,7 +374,7 @@ packages:
     dependencies:
       '@babel/types': 7.23.6
       '@jridgewell/gen-mapping': 0.3.3
-      '@jridgewell/trace-mapping': 0.3.20
+      '@jridgewell/trace-mapping': 0.3.21
       jsesc: 2.5.2
     dev: true
 
@@ -855,16 +855,16 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bonfida/spl-name-service@1.0.11(@solana/web3.js@1.88.0):
+  /@bonfida/spl-name-service@1.0.11(@solana/web3.js@1.89.0):
     resolution: {integrity: sha512-uZA19yMkiv/bZt/QRH3gDWfL3ed15zFj3+ojhyQWhea+Esw5QEXuvHNS8CuWPHieqz8P00DzBI/EJyxWCs/OIg==}
     peerDependencies:
       '@solana/web3.js': ^1.75.0
     dependencies:
       '@ethersproject/sha2': 5.7.0
-      '@pythnetwork/client': 2.19.0(@solana/web3.js@1.88.0)
+      '@pythnetwork/client': 2.19.0(@solana/web3.js@1.89.0)
       '@solana/buffer-layout': 4.0.1
-      '@solana/spl-token': 0.3.7(@solana/web3.js@1.88.0)
-      '@solana/web3.js': 1.88.0
+      '@solana/spl-token': 0.3.7(@solana/web3.js@1.89.0)
+      '@solana/web3.js': 1.89.0
       bech32-buffer: 0.2.1
       bn.js: 5.2.1
       borsh: 0.7.0
@@ -885,15 +885,15 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@18.2.5(@consolelabs/mochi-rest@5.1.9)(ioredis@5.3.2):
-    resolution: {integrity: sha512-rJiNcCBffn8DvXeoOZM6iY9GGAn7vS4fDI9UJcsv30bBukBKJUk60kMrLnD3ttgfDimczaUyJ8FjB+lrbi3zsw==}
+  /@consolelabs/mochi-formatter@18.2.6(@consolelabs/mochi-rest@5.1.9)(ioredis@5.3.2):
+    resolution: {integrity: sha512-Cpzc5Ne1RykcamHma1HEaKhkXBD1tE7/Bny7pr2oK5O9K4UtsVY74BEvlk01kGODI+HQmKJu1VltNYsWjIdfsg==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^5.1.9
       ioredis: ^5.x.x
     dependencies:
-      '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.88.0)
+      '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.89.0)
       '@consolelabs/mochi-rest': 5.1.9
-      '@solana/web3.js': 1.88.0
+      '@solana/web3.js': 1.89.0
       change-case: 4.1.2
       ethers: 6.9.2
       ioredis: 5.3.2
@@ -957,13 +957,13 @@ packages:
       buffer-layout: 1.2.2
     dev: false
 
-  /@coral-xyz/borsh@0.28.0(@solana/web3.js@1.88.0):
+  /@coral-xyz/borsh@0.28.0(@solana/web3.js@1.89.0):
     resolution: {integrity: sha512-/u1VTzw7XooK7rqeD7JLUSwOyRSesPUk0U37BV9zK0axJc1q0nRbKFGFLYCQ16OtdOJTTwGfGp11Lx9B45bRCQ==}
     engines: {node: '>=10'}
     peerDependencies:
       '@solana/web3.js': ^1.68.0
     dependencies:
-      '@solana/web3.js': 1.88.0
+      '@solana/web3.js': 1.89.0
       bn.js: 5.2.1
       buffer-layout: 1.2.2
     dev: false
@@ -1832,6 +1832,13 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
+  /@jridgewell/trace-mapping@0.3.21:
+    resolution: {integrity: sha512-SRfKmRe1KvYnxjEMtxEr+J4HIeMX5YBg/qhRHpxEIGjhX1rshcHlnFUE9K0GazhVKWM7B+nARSkV8LuvJdJ5/g==}
+    dependencies:
+      '@jridgewell/resolve-uri': 3.1.1
+      '@jridgewell/sourcemap-codec': 1.4.15
+    dev: true
+
   /@mapbox/node-pre-gyp@1.0.11:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
@@ -2061,14 +2068,14 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@pythnetwork/client@2.19.0(@solana/web3.js@1.88.0):
+  /@pythnetwork/client@2.19.0(@solana/web3.js@1.89.0):
     resolution: {integrity: sha512-0VSQ0NqBOa5EtloXbOVYZ6Wpu8CLP3oaOKVTaUMSX/HXbB00S6G+xdwF7stxo6emgrAMopotx3icEVug5Lpomg==}
     peerDependencies:
       '@solana/web3.js': ^1.30.2
     dependencies:
       '@coral-xyz/anchor': 0.28.1-beta.2
-      '@coral-xyz/borsh': 0.28.0(@solana/web3.js@1.88.0)
-      '@solana/web3.js': 1.88.0
+      '@coral-xyz/borsh': 0.28.0(@solana/web3.js@1.89.0)
+      '@solana/web3.js': 1.89.0
       buffer: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -2342,7 +2349,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/spl-token@0.3.7(@solana/web3.js@1.88.0):
+  /@solana/spl-token@0.3.7(@solana/web3.js@1.89.0):
     resolution: {integrity: sha512-bKGxWTtIw6VDdCBngjtsGlKGLSmiu/8ghSt/IOYJV24BsymRbgq7r12GToeetpxmPaZYLddKwAz7+EwprLfkfg==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -2350,7 +2357,7 @@ packages:
     dependencies:
       '@solana/buffer-layout': 4.0.1
       '@solana/buffer-layout-utils': 0.2.0
-      '@solana/web3.js': 1.88.0
+      '@solana/web3.js': 1.89.0
       buffer: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -2382,8 +2389,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/web3.js@1.88.0:
-    resolution: {integrity: sha512-E4BdfB0HZpb66OPFhIzPApNE2tG75Mc6XKIoeymUkx/IV+USSYuxDX29sjgE/KGNYxggrOf4YuYnRMI6UiPL8w==}
+  /@solana/web3.js@1.89.0:
+    resolution: {integrity: sha512-b6PJxNL/DX+J2zccj3kzxZ6HyUF92tc8L9CjMlnTYKCdotAk163ygQ/jbHDT0yYs7pGeXAszyLuaqUXJ8bxwpA==}
     dependencies:
       '@babel/runtime': 7.23.8
       '@noble/curves': 1.3.0
@@ -3249,7 +3256,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001576
-      electron-to-chromium: 1.4.625
+      electron-to-chromium: 1.4.629
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -4085,8 +4092,8 @@ packages:
     resolution: {integrity: sha512-D3NOkROIlF+d5ixnz7pAf3Lu/AuWpd6AYgI9O67GQXMXTcCP1gJQRotOq35eQy5Sb4hez33XH1YdTtILA7Udww==}
     dev: true
 
-  /electron-to-chromium@1.4.625:
-    resolution: {integrity: sha512-DENMhh3MFgaPDoXWrVIqSPInQoLImywfCwrSmVl3cf9QHzoZSiutHwGaB/Ql3VkqcQV30rzgdM+BjKqBAJxo5Q==}
+  /electron-to-chromium@1.4.629:
+    resolution: {integrity: sha512-5UUkr3k3CZ/k+9Sw7vaaIMyOzMC0XbPyprKI3n0tbKDqkzTDOjK4izm7DxlkueRMim6ZZQ1ja9F7hoFVplHihA==}
     dev: true
 
   /elegant-spinner@1.0.1:
