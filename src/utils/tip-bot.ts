@@ -416,6 +416,10 @@ export function parseTipAmount(
   msgOrInteraction: Message | CommandInteraction,
   amountArg: string,
 ): { all: boolean; amount: number; unit?: string } {
+  if (amountArg.startsWith(".")) {
+    amountArg = `0${amountArg}`
+  }
+
   const author = getAuthor(msgOrInteraction)
   const result: { all: boolean; amount: number; unit?: string } = {
     all: false,
