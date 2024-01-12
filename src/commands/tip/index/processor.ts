@@ -399,11 +399,11 @@ export async function handleFollowTip(i: ButtonInteraction) {
   const amountApprox = followTipCache.amountApprox
 
   const displayNames = (await i.guild?.members.fetch())
-    .filter((member: any) => payload.recipients.includes(member?.user?.id))
-    .map((r: any) => r.displayName)
+    ?.filter((member: any) => payload.recipients.includes(member?.user?.id))
+    ?.map((r: any) => r.displayName)
 
   const embed = composeEmbedMessage(null, {
-    title: `New tip to ${displayNames.join(", ")}`,
+    title: `New tip to ${displayNames?.join(", ")}`,
     description: `
       \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
         payload.token
