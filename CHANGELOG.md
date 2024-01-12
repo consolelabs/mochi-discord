@@ -1,3 +1,10 @@
+## [6.42.11-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.6...v6.42.11-rc.7) (2024-01-12)
+
+
+### Bug Fixes
+
+* **transaction:** remove groupdate ([#1584](https://github.com/consolelabs/mochi-discord/issues/1584)) ([cdef8e9](https://github.com/consolelabs/mochi-discord/commit/cdef8e958cd7818cbca0b0753e1d234d92a4fcf7))
+
 ## [6.42.11-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.5...v6.42.11-rc.6) (2024-01-12)
 
 
