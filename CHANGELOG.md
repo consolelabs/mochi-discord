@@ -1,3 +1,10 @@
+## [6.42.11-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.2...v6.42.11-rc.3) (2024-01-12)
+
+
+### Bug Fixes
+
+* **tip:** render correct user displayname in follow tip ([#1579](https://github.com/consolelabs/mochi-discord/issues/1579)) ([45b6f84](https://github.com/consolelabs/mochi-discord/commit/45b6f84cc74ef8c2fe809b021c31b14d91e798c2))
+
 ## [6.42.11-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.1...v6.42.11-rc.2) (2024-01-12)
 
 
