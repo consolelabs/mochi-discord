@@ -403,7 +403,7 @@ export async function handleFollowTip(i: ButtonInteraction) {
     .map((r: any) => r.displayName)
 
   const embed = composeEmbedMessage(null, {
-    title: `New tip to ${displayNames}`,
+    title: `New tip to ${displayNames.join(", ")}`,
     description: `
       \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
         payload.token
