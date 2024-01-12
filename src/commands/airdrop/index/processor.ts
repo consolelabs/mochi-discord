@@ -64,6 +64,7 @@ export async function airdrop(i: CommandInteraction) {
       params: { current: 0, required: amount, symbol: token as TokenEmojiKey },
     })
   }
+
   const guildName = i.guild?.name ?? ""
   const guildAvatar = i.guild?.iconURL()
   const channel_url = await getChannelUrl(i)
