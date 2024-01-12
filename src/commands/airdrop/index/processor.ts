@@ -64,8 +64,9 @@ export async function airdrop(i: CommandInteraction) {
       params: { current: 0, required: amount, symbol: token as TokenEmojiKey },
     })
   }
+
   const guildName = i.guild?.name ?? ""
-  const channelName = i.channel instanceof TextChannel ? i.channel.name : ""
+  const guildAvatar = i.guild?.iconURL() ?? ""
   const channel_url = await getChannelUrl(i)
 
   const payload: TransferPayload = {
@@ -79,8 +80,9 @@ export async function airdrop(i: CommandInteraction) {
     all,
     transfer_type: "airdrop",
     chain_id: "",
-    channel_name: `${guildName}:${channelName}`,
+    channel_name: guildName,
     channel_url,
+    channel_avatar: guildAvatar,
   }
 
   // only one matching token -> proceed to send tip

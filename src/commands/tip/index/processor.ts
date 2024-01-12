@@ -398,18 +398,17 @@ export async function handleFollowTip(i: ButtonInteraction) {
   const res = followTipCache.res
   const amountApprox = followTipCache.amountApprox
 
-  const discordRecipients = await Promise.all(
-    payload.recipients.map((r: string) => getDiscordRenderableByProfileId(r)),
-  )
+  const displayNames = (await i.guild?.members.fetch())
+    ?.filter((member: any) => payload.recipients.includes(member?.user?.id))
+    ?.map((r: any) => r.displayName)
 
-  const recipientsString = discordRecipients.join(", ")
   const embed = composeEmbedMessage(null, {
-    title: `New tip to ${recipientsString}`,
+    title: `New tip to ${displayNames?.join(", ")}`,
     description: `
       \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
         payload.token
       } ${amountApprox}
-      \`Receiver.  \` ${recipientsString}
+      \`Receiver.  \` ${payload.targets.join(", ")}
       \`Message.   \` Send money.
     `,
     color: "#89fa8e",

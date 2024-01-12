@@ -78,7 +78,7 @@ export async function render(
   const { text: description } = await UI.components.txns({
     txns: txns as any,
     on: Platform.Discord,
-    groupDate: true,
+    groupDate: false,
     page,
     total,
     profileId: dataProfile.id,

@@ -1,3 +1,60 @@
+## [6.42.11-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.7...v6.42.11-rc.8) (2024-01-12)
+
+
+### Bug Fixes
+
+* tip - parse amount starts with dot ([#1585](https://github.com/consolelabs/mochi-discord/issues/1585)) ([54064b8](https://github.com/consolelabs/mochi-discord/commit/54064b81f7ebee8e68413671de8eaf4e6ece9514))
+
+## [6.42.11-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.6...v6.42.11-rc.7) (2024-01-12)
+
+
+### Bug Fixes
+
+* **transaction:** remove groupdate ([#1584](https://github.com/consolelabs/mochi-discord/issues/1584)) ([cdef8e9](https://github.com/consolelabs/mochi-discord/commit/cdef8e958cd7818cbca0b0753e1d234d92a4fcf7))
+
+## [6.42.11-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.5...v6.42.11-rc.6) (2024-01-12)
+
+
+### Bug Fixes
+
+* update format feed transaction ([#1583](https://github.com/consolelabs/mochi-discord/issues/1583)) ([d19d2c7](https://github.com/consolelabs/mochi-discord/commit/d19d2c7ffc55477a740824221d24ebd01cdf91a6))
+
+## [6.42.11-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.4...v6.42.11-rc.5) (2024-01-12)
+
+
+### Bug Fixes
+
+* **airdrop:** update guild avatar data ([#1581](https://github.com/consolelabs/mochi-discord/issues/1581)) ([1514404](https://github.com/consolelabs/mochi-discord/commit/15144045e96cfe4cdc4d3d5805ecf6619e39d7e5))
+* **tip:** handle case type error ([#1582](https://github.com/consolelabs/mochi-discord/issues/1582)) ([936e985](https://github.com/consolelabs/mochi-discord/commit/936e985851f564fe6419bf08c1f562d6b0d13195))
+
+## [6.42.11-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.3...v6.42.11-rc.4) (2024-01-12)
+
+
+### Bug Fixes
+
+* **tip:** render correct user displayname in follow tip ([#1580](https://github.com/consolelabs/mochi-discord/issues/1580)) ([54cb04c](https://github.com/consolelabs/mochi-discord/commit/54cb04cce1ac9339040178cda1434c984362de17))
+
+## [6.42.11-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.2...v6.42.11-rc.3) (2024-01-12)
+
+
+### Bug Fixes
+
+* **tip:** render correct user displayname in follow tip ([#1579](https://github.com/consolelabs/mochi-discord/issues/1579)) ([45b6f84](https://github.com/consolelabs/mochi-discord/commit/45b6f84cc74ef8c2fe809b021c31b14d91e798c2))
+
+## [6.42.11-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.1...v6.42.11-rc.2) (2024-01-12)
+
+
+### Bug Fixes
+
+* bump version formatter ([#1578](https://github.com/consolelabs/mochi-discord/issues/1578)) ([dc7b873](https://github.com/consolelabs/mochi-discord/commit/dc7b8733fa8f8aa9d691a3ff15968bd8143ba55e))
+
+## [6.42.11-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.10...v6.42.11-rc.1) (2024-01-12)
+
+
+### Bug Fixes
+
+* **airdrop:** update transfer data for airdrop command ([#1577](https://github.com/consolelabs/mochi-discord/issues/1577)) ([7eb2e81](https://github.com/consolelabs/mochi-discord/commit/7eb2e8139666ec8572c19aa05cd3354867c2b6cd))
+
 ## [6.42.10](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10) (2024-01-10)
 
 
