@@ -16,7 +16,7 @@ const slashCmd: SlashCommand = {
   run: async function (i) {
     const { ok, data } = await api.pay.transactions.getAll({
       page: 0,
-      size: 10,
+      size: 15,
       action: ["transfer", "vault_transfer"],
     })
     if (!ok) {
@@ -27,7 +27,7 @@ const slashCmd: SlashCommand = {
       txns: data,
       withTitle: false,
       on: Platform.Discord,
-      groupDate: true,
+      groupDate: false,
       global: true,
     })
 

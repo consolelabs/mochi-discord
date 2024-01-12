@@ -35,12 +35,6 @@ export interface ModelAirdropStatusCount {
   status?: string
 }
 
-export interface ModelBasePrivacySetting {
-  custom_settings?: ModelPrivacyCustomSetting[]
-  general_platform_group?: string
-  general_target_group?: string
-}
-
 export interface ModelChain {
   coin_gecko_id?: string
   currency?: string
@@ -301,6 +295,7 @@ export interface ModelGuildUserXP {
 
 export interface ModelJSONNullString {
   string?: string
+
   /** Valid is true if String is not NULL */
   valid?: boolean
 }
@@ -400,11 +395,6 @@ export interface ModelPayToken {
   native?: boolean
   price?: number
   symbol?: string
-}
-
-export interface ModelPrivacyCustomSetting {
-  platform?: string
-  target_group?: string
 }
 
 export interface ModelProductBotCommand {
@@ -573,9 +563,8 @@ export interface ModelUserPaymentSetting {
 
 export interface ModelUserPrivacySetting {
   profile_id?: string
-  social_accounts?: ModelBasePrivacySetting
-  tx?: ModelBasePrivacySetting
-  wallets?: ModelBasePrivacySetting
+  show_destination_wallet?: boolean
+  tx_target_group?: string
 }
 
 export interface ModelUserTokenSupportRequest {
@@ -672,12 +661,6 @@ export interface RequestAddTokenPriceAlertRequest {
 export interface RequestAssignVerifiedRoleRequest {
   guild_id: string
   user_discord_id: string
-}
-
-export interface RequestBasePrivacySetting {
-  custom_settings?: RequestPrivacyCustomSetting[]
-  general_platform_group?: string
-  general_target_group?: string
 }
 
 export interface RequestClaimQuestsRewardsRequest {
@@ -914,15 +897,9 @@ export interface RequestPaymentSetting {
   tx_limit_settings: RequestTxLimitSetting[]
 }
 
-export interface RequestPrivacyCustomSetting {
-  platform?: string
-  target_group?: string
-}
-
 export interface RequestPrivacySetting {
-  social_accounts?: RequestBasePrivacySetting
-  tx?: RequestBasePrivacySetting
-  wallets?: RequestBasePrivacySetting
+  show_destination_wallet: boolean
+  tx_target_group: string
 }
 
 export interface RequestRoleReactionRequest {
@@ -1161,6 +1138,24 @@ export interface ResponseAssetPlatformResponseData {
   shortname?: string
 }
 
+export interface ResponseAssetToken {
+  address?: string
+  chain?: ResponseAssetTokenChain
+  decimal?: number
+  icon?: string
+  id?: string
+  name?: string
+  native?: boolean
+  price?: number
+  symbol?: string
+}
+
+export interface ResponseAssetTokenChain {
+  name?: string
+  short_name?: string
+  type?: string
+}
+
 export interface ResponseBinanceFutureAccountPositionResponse {
   data?: ResponseBinanceFuturePositionInformation[]
 }
@@ -1186,6 +1181,36 @@ export interface ResponseBinanceFuturePositionInfo {
 export interface ResponseBinanceFuturePositionInformation {
   apiKey?: string
   positions?: ResponseBinanceFuturePositionInfo[]
+}
+
+export interface ResponseBinancePositionAmountVos {
+  amount?: string
+  amountInBTC?: string
+  amountInUSDT?: string
+  asset?: string
+}
+
+export interface ResponseBinanceStakingProductPosition {
+  accrualDays?: number
+  amount?: string
+  apy?: string
+  asset?: string
+  canReStake?: boolean
+  canRedeemEarly?: boolean
+  deliveryDate?: number
+  duration?: number
+  interestEndDate?: number
+  nexInterestPay?: string
+  nextInterestPayDate?: number
+  payInterestPeriod?: number
+  positionId?: number
+  projectId?: string
+  purchaseTime?: number
+  redeemPeriod?: number
+  rewardAmt?: string
+  rewardAsset?: string
+  status?: string
+  type?: string
 }
 
 export interface ResponseChainGasTrackerResponseData {
@@ -1233,9 +1258,7 @@ export interface ResponseCoinMarketItemData {
   price_change_percentage_24h?: number
   price_change_percentage_24h_in_currency?: number
   price_change_percentage_7d_in_currency?: number
-  sparkline_in_7d?: {
-    price?: number[]
-  }
+  sparkline_in_7d?: { price?: number[] }
   symbol?: string
 }
 
@@ -1323,8 +1346,10 @@ export interface ResponseCreateUserTokenSupportRequest {
 
 export interface ResponseDataFilterConfigByReaction {
   data?: ResponseRoleReactionResponse
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1332,8 +1357,10 @@ export interface ResponseDataFilterConfigByReaction {
 
 export interface ResponseDataListRoleReactionResponse {
   data?: ResponseListRoleReactionResponse
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1392,6 +1419,7 @@ export interface ResponseDiscordGuildResponse {
   id?: string
   name?: string
   owner?: boolean
+
   /** @example 0 */
   permissions?: string
 }
@@ -1624,8 +1652,10 @@ export interface ResponseGetInvestListResponse {
 
 export interface ResponseGetLevelRoleConfigsResponse {
   data?: ModelGuildConfigLevelRole[]
+
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -1743,6 +1773,7 @@ export interface ResponseGetTrackingWalletsResponse {
 
 export interface ResponseGetTrendingSearch {
   coins?: ResponseGetTrendingSearchCoin[]
+
   /** this field coingecko return empty */
   exchanges?: any
 }
@@ -2260,6 +2291,7 @@ export interface ResponseOnchainInvestDataResponse {
 export interface ResponsePaginationResponse {
   /** page index */
   page?: number
+
   /** page size */
   size?: number
   total?: number
@@ -2506,6 +2538,27 @@ export interface ResponseUser {
   username?: string
 }
 
+export interface ResponseUserBalanceCex {
+  binance?: ResponseWalletAssetData[]
+}
+
+export interface ResponseUserBalanceOnchain {
+  evm?: ResponseWalletAssetData[]
+  ron?: ResponseWalletAssetData[]
+  sol?: ResponseWalletAssetData[]
+  sui?: ResponseWalletAssetData[]
+}
+
+export interface ResponseUserBalanceResponse {
+  cex?: ResponseUserBalanceCex
+  lastest_snapshot_bals?: string
+  offchain?: ResponseWalletAssetData[]
+  onchain?: ResponseUserBalanceOnchain
+  pnl?: string
+  summarize?: ResponseWalletAssetData[]
+  totalUsdAmount?: number
+}
+
 export interface ResponseUserFeedbackResponse {
   data?: ModelUserFeedback[]
   page?: number
@@ -2521,6 +2574,18 @@ export interface ResponseUserNotificationSettingResponse {
   data?: ModelUserNotificationSetting
 }
 
+export interface ResponseWalletAssetData {
+  amount?: string
+  asset_balance?: number
+  chain_id?: number
+  contract_name?: string
+  contract_symbol?: string
+  detail_lending?: ResponseBinancePositionAmountVos
+  detail_staking?: ResponseBinanceStakingProductPosition
+  token?: ResponseAssetToken
+  usd_balance?: number
+}
+
 export interface UtilPagination {
   page?: number
   size?: number
@@ -2529,6 +2594,7 @@ export interface UtilPagination {
 
 export interface UuidNullUUID {
   uuid?: string
+
   /** Valid is true if UUID is not NULL */
   valid?: boolean
 }
