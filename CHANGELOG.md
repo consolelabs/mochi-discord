@@ -1,3 +1,10 @@
+## [6.42.11-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.8...v6.42.11-rc.9) (2024-01-16)
+
+
+### Bug Fixes
+
+* handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
+
 ## [6.42.11](https://github.com/consolelabs/mochi-discord/compare/v6.42.10...v6.42.11) (2024-01-12)
 
 
