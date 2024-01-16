@@ -716,18 +716,31 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   const amountUsd = mochiUtils.formatUsdDigit(
     +dataTransfer?.amount_each * choosenToken.price,
   )
-
-  await i.followUp({
-    content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
-      payload.token as TokenEmojiKey,
-    )} **${payload.amount}** **${payload.token.toUpperCase()}** (${
-      amountUsd.startsWith("<") ? "" : APPROX
-    } ${amountUsd})! .${mochiUtils.string.receiptLink(
-      dataTransfer?.external_id,
-    )}`,
-    components: [],
-    embeds: [],
-  })
+  if (amountUsd) {
+    await i.followUp({
+      content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
+        payload.token as TokenEmojiKey,
+      )} **${payload.amount}** **${payload.token.toUpperCase()}** (${
+        amountUsd.startsWith("<") ? "" : APPROX
+      } ${amountUsd})! .${mochiUtils.string.receiptLink(
+        dataTransfer?.external_id,
+      )}`,
+      components: [],
+      embeds: [],
+    })
+  } else {
+    await i.followUp({
+      content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
+        payload.token as TokenEmojiKey,
+      )} **${
+        payload.amount
+      }** **${payload.token.toUpperCase()}**! .${mochiUtils.string.receiptLink(
+        dataTransfer?.external_id,
+      )}`,
+      components: [],
+      embeds: [],
+    })
+  }
 }
 
 function identifyToken(bals: any) {
