@@ -22,7 +22,9 @@ import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import {
   composeEmbedMessage,
+  composeEmbedMessage2,
   composeInsufficientBalanceEmbed,
+  getErrorEmbed,
 } from "ui/discord/embed"
 import { parseDiscordToken } from "utils/commands"
 import {
@@ -395,6 +397,32 @@ export async function handleFollowTip(i: ButtonInteraction) {
     })
   }
   const payload = followTipCache.payload
+  const amountEach = payload.amount / payload.recipients.length
+
+  // exclude the tip's follower from recipients
+  payload.targets = payload.targets.filter(
+    (t: string) => t !== i.user.toString(),
+  )
+  payload.recipients = payload.recipients.filter((r: string) => r !== i.user.id)
+
+  // if no valid recipients -> show error
+  if (!payload.recipients.length) {
+    const errEmbed = getErrorEmbed({
+      title: "Failed to join the tip",
+      description: "No valid recipients found!",
+    })
+    await i
+      .followUp({
+        embeds: [errEmbed],
+        ephemeral: true,
+      })
+      .catch(() => null)
+    return
+  }
+
+  // re-calculate amount with filtered recipients
+  const newAmount = amountEach * payload.recipients.length
+
   const res = followTipCache.res
   const amountApprox = followTipCache.amountApprox
 
@@ -405,7 +433,7 @@ export async function handleFollowTip(i: ButtonInteraction) {
   const embed = composeEmbedMessage(null, {
     title: `New tip to ${displayNames?.join(", ")}`,
     description: `
-      \`Amount.    \` ${getEmojiToken(payload.token)} ${payload.amount} ${
+      \`Amount.    \` ${getEmojiToken(payload.token)} ${newAmount} ${
         payload.token
       } ${amountApprox}
       \`Receiver.  \` ${payload.targets.join(", ")}
@@ -478,7 +506,10 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
 
   const channel_url = await getChannelUrl(i as any)
   const guildAvatar = i.guild?.iconURL()
-  const recipients = followTx.other_profiles?.map((p: { id: string }) => p.id)
+  const senderPid = await getProfileIdByDiscord(i.user.id)
+  const recipients = followTx.other_profiles
+    ?.map((p: { id: string }) => p.id)
+    .filter((id: string) => id != senderPid)
   const guildID = i.channel instanceof TextChannel ? i.channel.guildId : ""
   const guildName = i.guild?.name ?? ""
   const amountBN = ethers.BigNumber.from(followTx.amount)
@@ -486,8 +517,8 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
   const amountStr = ethers.utils.formatUnits(amountBN, decimalBN)
 
   const payload = {
-    sender: i.user.id,
-    recipients: recipients,
+    sender: senderPid,
+    recipients,
     guild_id: guildID,
     channel_id: i.channel?.id,
     channel_name: guildName,
@@ -511,10 +542,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     log: logTransfer,
     status: statusTransfer = 500,
     error: errorTransfer,
-  } = await defi.transferV2({
-    ...payload,
-    sender: await getProfileIdByDiscord(payload.sender),
-  })
+  } = await defi.transferV2({ ...payload })
   if (!okTransfer) {
     if (errorTransfer.includes("Not enough balance")) {
       const tokenBalance = balances[0] ?? { amount: "0" }
@@ -716,18 +744,31 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
   const amountUsd = mochiUtils.formatUsdDigit(
     +dataTransfer?.amount_each * choosenToken.price,
   )
-
-  await i.followUp({
-    content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
-      payload.token as TokenEmojiKey,
-    )} **${payload.amount}** **${payload.token.toUpperCase()}** (${
-      amountUsd.startsWith("<") ? "" : APPROX
-    } ${amountUsd})! .${mochiUtils.string.receiptLink(
-      dataTransfer?.external_id,
-    )}`,
-    components: [],
-    embeds: [],
-  })
+  if (amountUsd) {
+    await i.followUp({
+      content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
+        payload.token as TokenEmojiKey,
+      )} **${payload.amount}** **${payload.token.toUpperCase()}** (${
+        amountUsd.startsWith("<") ? "" : APPROX
+      } ${amountUsd})! .${mochiUtils.string.receiptLink(
+        dataTransfer?.external_id,
+      )}`,
+      components: [],
+      embeds: [],
+    })
+  } else {
+    await i.followUp({
+      content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
+        payload.token as TokenEmojiKey,
+      )} **${
+        payload.amount
+      }** **${payload.token.toUpperCase()}**! .${mochiUtils.string.receiptLink(
+        dataTransfer?.external_id,
+      )}`,
+      components: [],
+      embeds: [],
+    })
+  }
 }
 
 function identifyToken(bals: any) {
