@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^18.2.6
-    version: 18.2.6(@consolelabs/mochi-rest@5.1.9)(ioredis@5.3.2)
+    specifier: ^18.2.9
+    version: 18.2.9(@consolelabs/mochi-rest@5.1.10)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
-    specifier: ^5.1.9
-    version: 5.1.9
+    specifier: ^5.1.10
+    version: 5.1.10
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -855,16 +855,16 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bonfida/spl-name-service@1.0.11(@solana/web3.js@1.89.0):
+  /@bonfida/spl-name-service@1.0.11(@solana/web3.js@1.89.1):
     resolution: {integrity: sha512-uZA19yMkiv/bZt/QRH3gDWfL3ed15zFj3+ojhyQWhea+Esw5QEXuvHNS8CuWPHieqz8P00DzBI/EJyxWCs/OIg==}
     peerDependencies:
       '@solana/web3.js': ^1.75.0
     dependencies:
       '@ethersproject/sha2': 5.7.0
-      '@pythnetwork/client': 2.19.0(@solana/web3.js@1.89.0)
+      '@pythnetwork/client': 2.19.0(@solana/web3.js@1.89.1)
       '@solana/buffer-layout': 4.0.1
-      '@solana/spl-token': 0.3.7(@solana/web3.js@1.89.0)
-      '@solana/web3.js': 1.89.0
+      '@solana/spl-token': 0.3.7(@solana/web3.js@1.89.1)
+      '@solana/web3.js': 1.89.1
       bech32-buffer: 0.2.1
       bn.js: 5.2.1
       borsh: 0.7.0
@@ -885,17 +885,17 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@18.2.6(@consolelabs/mochi-rest@5.1.9)(ioredis@5.3.2):
-    resolution: {integrity: sha512-Cpzc5Ne1RykcamHma1HEaKhkXBD1tE7/Bny7pr2oK5O9K4UtsVY74BEvlk01kGODI+HQmKJu1VltNYsWjIdfsg==}
+  /@consolelabs/mochi-formatter@18.2.9(@consolelabs/mochi-rest@5.1.10)(ioredis@5.3.2):
+    resolution: {integrity: sha512-KM6PG0LJgs4msHzDJ8gypER5cCOIdO6ffYLyRaSaFRpAOt/Hp/z4ECMW1KOxf35HBH5gpCCY4S6b/s4pmm1KaA==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^5.1.9
+      '@consolelabs/mochi-rest': ^5.1.10
       ioredis: ^5.x.x
     dependencies:
-      '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.89.0)
-      '@consolelabs/mochi-rest': 5.1.9
-      '@solana/web3.js': 1.89.0
+      '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.89.1)
+      '@consolelabs/mochi-rest': 5.1.10
+      '@solana/web3.js': 1.89.1
       change-case: 4.1.2
-      ethers: 6.9.2
+      ethers: 6.10.0
       ioredis: 5.3.2
       lodash.chunk: 4.2.0
       lodash.merge: 4.6.2
@@ -909,8 +909,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@consolelabs/mochi-rest@5.1.9:
-    resolution: {integrity: sha512-xABU9dFZ+rgzJaRdcP9193zYCtj52lvgpsyKYOEo1m0YCI+LFnX98n+mggjJbMhL7czyIQoUZw7iIDNlG2TR8Q==}
+  /@consolelabs/mochi-rest@5.1.10:
+    resolution: {integrity: sha512-FmP1Sj5H3gF/88iPP4FmawWiuiMPRyEH0xlK0xDAodK2TX6lHUgBDz1CaByz/NrMbiThLII/RsNTo/2WORDNSQ==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
@@ -957,13 +957,13 @@ packages:
       buffer-layout: 1.2.2
     dev: false
 
-  /@coral-xyz/borsh@0.28.0(@solana/web3.js@1.89.0):
+  /@coral-xyz/borsh@0.28.0(@solana/web3.js@1.89.1):
     resolution: {integrity: sha512-/u1VTzw7XooK7rqeD7JLUSwOyRSesPUk0U37BV9zK0axJc1q0nRbKFGFLYCQ16OtdOJTTwGfGp11Lx9B45bRCQ==}
     engines: {node: '>=10'}
     peerDependencies:
       '@solana/web3.js': ^1.68.0
     dependencies:
-      '@solana/web3.js': 1.89.0
+      '@solana/web3.js': 1.89.1
       bn.js: 5.2.1
       buffer-layout: 1.2.2
     dev: false
@@ -2068,14 +2068,14 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@pythnetwork/client@2.19.0(@solana/web3.js@1.89.0):
+  /@pythnetwork/client@2.19.0(@solana/web3.js@1.89.1):
     resolution: {integrity: sha512-0VSQ0NqBOa5EtloXbOVYZ6Wpu8CLP3oaOKVTaUMSX/HXbB00S6G+xdwF7stxo6emgrAMopotx3icEVug5Lpomg==}
     peerDependencies:
       '@solana/web3.js': ^1.30.2
     dependencies:
       '@coral-xyz/anchor': 0.28.1-beta.2
-      '@coral-xyz/borsh': 0.28.0(@solana/web3.js@1.89.0)
-      '@solana/web3.js': 1.89.0
+      '@coral-xyz/borsh': 0.28.0(@solana/web3.js@1.89.1)
+      '@solana/web3.js': 1.89.1
       buffer: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -2349,7 +2349,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/spl-token@0.3.7(@solana/web3.js@1.89.0):
+  /@solana/spl-token@0.3.7(@solana/web3.js@1.89.1):
     resolution: {integrity: sha512-bKGxWTtIw6VDdCBngjtsGlKGLSmiu/8ghSt/IOYJV24BsymRbgq7r12GToeetpxmPaZYLddKwAz7+EwprLfkfg==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -2357,7 +2357,7 @@ packages:
     dependencies:
       '@solana/buffer-layout': 4.0.1
       '@solana/buffer-layout-utils': 0.2.0
-      '@solana/web3.js': 1.89.0
+      '@solana/web3.js': 1.89.1
       buffer: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -2389,8 +2389,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/web3.js@1.89.0:
-    resolution: {integrity: sha512-b6PJxNL/DX+J2zccj3kzxZ6HyUF92tc8L9CjMlnTYKCdotAk163ygQ/jbHDT0yYs7pGeXAszyLuaqUXJ8bxwpA==}
+  /@solana/web3.js@1.89.1:
+    resolution: {integrity: sha512-t9TTLtPQxtQB3SAf/5E8xPXfVDsC6WGOsgKY02l2cbe0HLymT7ynE8Hu48Lk5qynHCquj6nhISfEHcjMkYpu/A==}
     dependencies:
       '@babel/runtime': 7.23.8
       '@noble/curves': 1.3.0
@@ -3255,8 +3255,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001576
-      electron-to-chromium: 1.4.629
+      caniuse-lite: 1.0.30001577
+      electron-to-chromium: 1.4.633
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -3385,8 +3385,8 @@ packages:
     resolution: {integrity: sha512-DqAOf+rhof+6GVx1y+xzbFPeOumfQnhYzVnZD6LAXijR77yPtm9mfOcqOnT3mpnJiZVT+kwLAFnRlZcIz+c6bg==}
     dev: true
 
-  /caniuse-lite@1.0.30001576:
-    resolution: {integrity: sha512-ff5BdakGe2P3SQsMsiqmt1Lc8221NR1VzHj5jXN5vBny9A6fpze94HiVV/n7XRosOlsShJcvMv5mdnpjOGCEgg==}
+  /caniuse-lite@1.0.30001577:
+    resolution: {integrity: sha512-rs2ZygrG1PNXMfmncM0B5H1hndY5ZCC9b5TkFaVNfZ+AUlyqcMyVIQtc3fsezi0NUCk5XZfDf9WS6WxMxnfdrg==}
     dev: true
 
   /canvas@2.9.0:
@@ -4092,8 +4092,8 @@ packages:
     resolution: {integrity: sha512-D3NOkROIlF+d5ixnz7pAf3Lu/AuWpd6AYgI9O67GQXMXTcCP1gJQRotOq35eQy5Sb4hez33XH1YdTtILA7Udww==}
     dev: true
 
-  /electron-to-chromium@1.4.629:
-    resolution: {integrity: sha512-5UUkr3k3CZ/k+9Sw7vaaIMyOzMC0XbPyprKI3n0tbKDqkzTDOjK4izm7DxlkueRMim6ZZQ1ja9F7hoFVplHihA==}
+  /electron-to-chromium@1.4.633:
+    resolution: {integrity: sha512-7BvxzXrHFliyQ1oZc6NRMjyEaKOO1Ma1NY98sFZofogWlm+klLWSgrDw7EhatiMgi4R4NV+iWxDdxuIKXtPbOw==}
     dev: true
 
   /elegant-spinner@1.0.1:
@@ -4423,8 +4423,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /ethers@6.9.2:
-    resolution: {integrity: sha512-YpkrtILnMQz5jSEsJQRTpduaGT/CXuLnUIuOYzHA0v/7c8IX91m2J48wSKjzGL5L9J/Us3tLoUdb+OwE3U+FFQ==}
+  /ethers@6.10.0:
+    resolution: {integrity: sha512-nMNwYHzs6V1FR3Y4cdfxSQmNgZsRj1RiTU25JwvnJLmyzw9z3SKxNc2XKDuiXXo/v9ds5Mp9m6HBabgYQQ26tA==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@adraffy/ens-normalize': 1.10.0
