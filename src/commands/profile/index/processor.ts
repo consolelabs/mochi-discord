@@ -46,6 +46,8 @@ import { getSlashCommand } from "utils/commands"
 import { chunk } from "lodash"
 import mochiPay from "adapters/mochi-pay"
 import { composeInvestPortfolio } from "commands/invest/portfolio/processor"
+import api from "../../../api"
+import mochiApi from "../../../adapters/mochi-api"
 
 async function renderListWallet(
   emoji: string,
@@ -179,6 +181,17 @@ async function compose(
 
   const { pagination } = paginationRes
 
+  let isReadNewChangelog = true
+  const changelog = api.getLatestChangelog()
+  if (changelog) {
+    const userChangelogView = (
+      await mochiApi.getChangelogViews(dataProfile.id, changelog.title)
+    ).data
+    if (userChangelogView.length == 0) {
+      isReadNewChangelog = false
+    }
+  }
+
   const embed = composeEmbedMessage(null, {
     author: [target.name, target.avatar],
     color: msgColors.BLUE,
@@ -260,6 +273,14 @@ async function compose(
               `<:_:1028964391690965012> You have \`${pagination.total}\` unread message` +
               (pagination.total > 1 ? "s" : ""),
             value: `Use ${await getSlashCommand("inbox")}.`,
+          },
+        ]
+      : []),
+    ...(!isReadNewChangelog
+      ? [
+          {
+            name: `<:mail:1058304339237666866> Mochi just has a product update`,
+            value: `Use ${await getSlashCommand("changelog")}.`,
           },
         ]
       : []),
