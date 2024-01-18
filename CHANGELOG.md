@@ -1,3 +1,12 @@
+## [6.42.12](https://github.com/consolelabs/mochi-discord/compare/v6.42.11...v6.42.12) (2024-01-17)
+
+
+### Bug Fixes
+
+* handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
+* join tip bug ([#1588](https://github.com/consolelabs/mochi-discord/issues/1588)) ([23dfee0](https://github.com/consolelabs/mochi-discord/commit/23dfee09d73ef4206dec76692f7979c97cceee22))
+* **transaction:** render sibling transactions ([#1587](https://github.com/consolelabs/mochi-discord/issues/1587)) ([4959388](https://github.com/consolelabs/mochi-discord/commit/4959388f23705db416ed1d82bcf58925d4481e30))
+
 ## [6.42.12-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.12-rc.1...v6.42.12-rc.2) (2024-01-17)
 
 
