@@ -1,3 +1,10 @@
+## [6.42.13-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.13-rc.2...v6.42.13-rc.3) (2024-01-19)
+
+
+### Bug Fixes
+
+* **tip:** update ui join tip ([#1591](https://github.com/consolelabs/mochi-discord/issues/1591)) ([e879123](https://github.com/consolelabs/mochi-discord/commit/e8791239806eaadc263a52f91c06d15456acec6d))
+
 ## [6.42.13-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.13-rc.1...v6.42.13-rc.2) (2024-01-19)
 
 
