@@ -433,9 +433,11 @@ export async function handleFollowTip(i: ButtonInteraction) {
   const embed = composeEmbedMessage(null, {
     title: `New tip to ${displayNames?.join(", ")}`,
     description: `
-      \`Amount.    \` ${getEmojiToken(payload.token)} ${newAmount} ${
-        payload.token
-      } ${amountApprox}
+      \`Amount.    \` ${getEmojiToken(
+        payload.token,
+      )} ${mochiUtils.formatTokenDigit(
+        newAmount,
+      )} **${payload.token.toUpperCase()}** ${amountApprox}
       \`Receiver.  \` ${payload.targets.join(", ")}
       \`Message.   \` Send money.
     `,
@@ -581,7 +583,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
 
   const content = `<@${i.user.id}> sent ${recipientsString} ${getEmojiToken(
     payload.token,
-  )} **${payload.amount}** **${payload.token}** (${
+  )} **${mochiUtils.formatTokenDigit(payload.amount)}** **${payload.token}** (${
     amountUsd.startsWith("<") ? "" : APPROX
   } ${amountUsd})${
     payload.recipients.length > 1 ? " each" : ""
@@ -748,7 +750,9 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     await i.followUp({
       content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
         payload.token as TokenEmojiKey,
-      )} **${payload.amount}** **${payload.token.toUpperCase()}** (${
+      )} **${mochiUtils.formatTokenDigit(
+        payload.amount,
+      )}** **${payload.token.toUpperCase()}** (${
         amountUsd.startsWith("<") ? "" : APPROX
       } ${amountUsd})! .${mochiUtils.string.receiptLink(
         dataTransfer?.external_id,
