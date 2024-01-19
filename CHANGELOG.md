@@ -1,3 +1,10 @@
+## [6.42.13-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.13-rc.1...v6.42.13-rc.2) (2024-01-19)
+
+
+### Bug Fixes
+
+* **changelog:** handle parse list item ([#1590](https://github.com/consolelabs/mochi-discord/issues/1590)) ([5beaa68](https://github.com/consolelabs/mochi-discord/commit/5beaa68a1e9f858ebc135ba73e3fe942e846b893))
+
 ## [6.42.13-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.12...v6.42.13-rc.1) (2024-01-18)
 
 
