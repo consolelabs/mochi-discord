@@ -1,9 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders"
 import api from "api"
 import { SlashCommand } from "types/common"
-import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
-import { thumbnails } from "utils/common"
+import { composeEmbedMessage } from "ui/discord/embed"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
+import mochiAPI from "../../adapters/mochi-api"
+import profile from "../../adapters/profile"
 
 const slashCmd: SlashCommand = {
   name: "changelog",
@@ -23,12 +24,25 @@ const slashCmd: SlashCommand = {
         },
       }
     }
+
+    const dataProfile = await profile.getByDiscord(i?.member?.user.id ?? "")
+    if (dataProfile.error) {
+      return
+    }
+
+    const views = await mochiAPI.createChangelogViews(
+      dataProfile.id,
+      changelog.title,
+    )
+    if (!views.ok) {
+      return
+    }
+
     const { text } = await UI.components.changelog({
       title: changelog.title,
       content: changelog.content,
       on: Platform.Discord,
     })
-
     const sections = text.split("<br>")
     for (let j = 0; j < sections.length; j++) {
       if (j === 0) {
