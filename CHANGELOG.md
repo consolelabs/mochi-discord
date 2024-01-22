@@ -1,3 +1,10 @@
+## [6.42.14-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.1...v6.42.14-rc.2) (2024-01-22)
+
+
+### Bug Fixes
+
+* **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
+
 ## [6.42.14-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.13...v6.42.14-rc.1) (2024-01-22)
 
 
