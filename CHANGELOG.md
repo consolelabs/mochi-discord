@@ -1,3 +1,10 @@
+## [6.42.14-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.13...v6.42.14-rc.1) (2024-01-22)
+
+
+### Bug Fixes
+
+* **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
+
 ## [6.42.13](https://github.com/consolelabs/mochi-discord/compare/v6.42.12...v6.42.13) (2024-01-19)
 
 
