@@ -51,8 +51,9 @@ const slashCmd: SlashCommand = {
       const regexp = /\[\.\]\((.*?)\)/g
       const matches = section.matchAll(regexp)
       for (const match of matches) {
-        console.log(match[1])
-        embed.image = { url: match[1] }
+        if (match.length >= 1) {
+          embed.image = { url: match[1] }
+        }
       }
       embed.description = section
       embeds.push(embed)
