@@ -44,20 +44,32 @@ const slashCmd: SlashCommand = {
       content: changelog.content,
       on: Platform.Discord,
     })
-    let sections = text.split("<br>")
+    let sections: string[] = text.split("<br>")
     let embeds: MessageEmbed[] = []
-    for (const section of sections) {
-      const embed = new MessageEmbed()
-      const regexp = /\[\.\]\((.*?)\)/g
-      const matches = section.matchAll(regexp)
+    sections.forEach((section, i) => {
+      const regexp = /([\s\S.]*)\[\.\]\((.*)\)/g
+      const matches = [...section.matchAll(regexp)]
+      if (matches.length === 0) {
+        const embed = composeEmbedMessage(null, {
+          description: section,
+          noFooter: i !== sections.length - 1,
+        })
+        embeds.push(embed)
+        return
+      }
+
       for (const match of matches) {
-        if (match.length >= 1) {
-          embed.image = { url: match[1] }
+        if (match.length > 2) {
+          const embed = composeEmbedMessage(null, {
+            description: match[1],
+            image: match[2],
+            noFooter: i !== sections.length - 1,
+          })
+          embeds.push(embed)
         }
       }
-      embed.description = section
-      embeds.push(embed)
-    }
+    })
+
     await i.editReply({ embeds })
 
     return null
