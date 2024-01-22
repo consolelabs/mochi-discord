@@ -5,6 +5,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
 import mochiAPI from "../../adapters/mochi-api"
 import profile from "../../adapters/profile"
+import { MessageEmbed } from "discord.js"
 
 const slashCmd: SlashCommand = {
   name: "changelog",
@@ -43,14 +44,21 @@ const slashCmd: SlashCommand = {
       content: changelog.content,
       on: Platform.Discord,
     })
-    const sections = text.split("<br>")
-    for (let j = 0; j < sections.length; j++) {
-      if (j === 0) {
-        await i.editReply(sections[j])
-        continue
+    let sections = text.split("<br>")
+    let embeds: MessageEmbed[] = []
+    for (const section of sections) {
+      const embed = new MessageEmbed()
+      const regexp = /\[\.\]\((.*?)\)/g
+      const matches = section.matchAll(regexp)
+      for (const match of matches) {
+        if (match.length >= 1) {
+          embed.image = { url: match[1] }
+        }
       }
-      await i.channel?.send(`${sections[j]}`)
+      embed.description = section
+      embeds.push(embed)
     }
+    await i.editReply({ embeds })
 
     return null
   },
