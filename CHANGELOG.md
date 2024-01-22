@@ -1,3 +1,12 @@
+## [6.42.13](https://github.com/consolelabs/mochi-discord/compare/v6.42.12...v6.42.13) (2024-01-19)
+
+
+### Bug Fixes
+
+* **changelog:** handle parse list item ([#1590](https://github.com/consolelabs/mochi-discord/issues/1590)) ([5beaa68](https://github.com/consolelabs/mochi-discord/commit/5beaa68a1e9f858ebc135ba73e3fe942e846b893))
+* **profile:** add new unread changelog ([#1589](https://github.com/consolelabs/mochi-discord/issues/1589)) ([2f5af47](https://github.com/consolelabs/mochi-discord/commit/2f5af47b4044b5fdc21c1da3d384820d0fe00790))
+* **tip:** update ui join tip ([#1591](https://github.com/consolelabs/mochi-discord/issues/1591)) ([e879123](https://github.com/consolelabs/mochi-discord/commit/e8791239806eaadc263a52f91c06d15456acec6d))
+
 ## [6.42.13-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.13-rc.2...v6.42.13-rc.3) (2024-01-19)
 
 
