@@ -1,11 +1,10 @@
-import { Embed, SlashCommandBuilder } from "@discordjs/builders"
+import { SlashCommandBuilder } from "@discordjs/builders"
 import api from "api"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
 import mochiAPI from "../../adapters/mochi-api"
 import profile from "../../adapters/profile"
-import { chunk } from "lodash"
 import { MessageEmbed } from "discord.js"
 
 const slashCmd: SlashCommand = {
