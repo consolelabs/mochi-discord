@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^19.0.2
-    version: 19.0.2(@consolelabs/mochi-rest@5.2.1)(ioredis@5.3.2)
+    specifier: ^19.0.3
+    version: 19.0.3(@consolelabs/mochi-rest@5.2.1)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
     specifier: ^5.2.1
     version: 5.2.1
@@ -885,8 +885,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@19.0.2(@consolelabs/mochi-rest@5.2.1)(ioredis@5.3.2):
-    resolution: {integrity: sha512-5WEhnPk/YjBOplWrDue00/fpHLBpgINxkww39XVeBVfh+P1yPA+5GmAXuqMdBZpzQ11ZACRb6xhVbOBDy3hUig==}
+  /@consolelabs/mochi-formatter@19.0.3(@consolelabs/mochi-rest@5.2.1)(ioredis@5.3.2):
+    resolution: {integrity: sha512-yzasPjFUPJyV0EUrz4LJx869Hscm6HH015eh2WQvVQ50m6ZHy5LTwt6V9iahdGfCkkygobic0y9paegojtbmkg==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^5.2.1
       ioredis: ^5.x.x
@@ -3256,7 +3256,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001579
-      electron-to-chromium: 1.4.640
+      electron-to-chromium: 1.4.643
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -4092,8 +4092,8 @@ packages:
     resolution: {integrity: sha512-D3NOkROIlF+d5ixnz7pAf3Lu/AuWpd6AYgI9O67GQXMXTcCP1gJQRotOq35eQy5Sb4hez33XH1YdTtILA7Udww==}
     dev: true
 
-  /electron-to-chromium@1.4.640:
-    resolution: {integrity: sha512-z/6oZ/Muqk4BaE7P69bXhUhpJbUM9ZJeka43ZwxsDshKtePns4mhBlh8bU5+yrnOnz3fhG82XLzGUXazOmsWnA==}
+  /electron-to-chromium@1.4.643:
+    resolution: {integrity: sha512-QHscvvS7gt155PtoRC0dR2ilhL8E9LHhfTQEq1uD5AL0524rBLAwpAREFH06f87/e45B9XkR6Ki5dbhbCsVEIg==}
     dev: true
 
   /elegant-spinner@1.0.1:
