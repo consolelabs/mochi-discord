@@ -5,7 +5,7 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
 import mochiAPI from "../../adapters/mochi-api"
 import profile from "../../adapters/profile"
-import { MessageEmbed } from "discord.js"
+import { HOMEPAGE_URL } from "utils/constants"
 
 const slashCmd: SlashCommand = {
   name: "changelog",
@@ -39,38 +39,20 @@ const slashCmd: SlashCommand = {
       return
     }
 
-    const { text } = await UI.components.changelog({
+    const { text, images } = await UI.components.changelog({
       title: changelog.title,
       content: changelog.content,
       on: Platform.Discord,
     })
-    let sections: string[] = text.split("<br>")
-    let embeds: MessageEmbed[] = []
-    sections.forEach((section, i) => {
-      const regexp = /([\s\S.]*)\[\.\]\((.*)\)/g
-      const matches = [...section.matchAll(regexp)]
-      if (matches.length === 0) {
-        const embed = composeEmbedMessage(null, {
-          description: section,
-          noFooter: i !== sections.length - 1,
-        })
-        embeds.push(embed)
-        return
-      }
-
-      for (const match of matches) {
-        if (match.length > 2) {
-          const embed = composeEmbedMessage(null, {
-            description: match[1],
-            image: match[2],
-            noFooter: i !== sections.length - 1,
-          })
-          embeds.push(embed)
-        }
-      }
+    const footer = `\⎯⎯⎯⎯⎯\nView all changelogs on [Mochi web](${HOMEPAGE_URL}/changelog)`
+    let embed = composeEmbedMessage(null, {
+      description: `${text}\n\n${footer}`,
     })
+    if (images.length > 0) {
+      embed.setImage(images[0])
+    }
 
-    await i.editReply({ embeds })
+    await i.editReply({ embeds: [embed] })
 
     return null
   },

@@ -429,6 +429,7 @@ export interface ModelProductChangelogs {
   thumbnail_url?: string
   title?: string
   updated_at?: string
+  version?: string
 }
 
 export interface ModelProductMetadataEmojis {
@@ -1148,6 +1149,7 @@ export interface ResponseAssetToken {
   id?: string
   name?: string
   native?: boolean
+  pnl?: string
   price?: number
   symbol?: string
 }
@@ -2305,6 +2307,7 @@ export interface ResponseProductBotCommand {
 
 export interface ResponseProductChangelogs {
   data?: ModelProductChangelogs[]
+  pagination?: ResponsePaginationResponse
 }
 
 export interface ResponseProfileAirdropCampaignResponse {
