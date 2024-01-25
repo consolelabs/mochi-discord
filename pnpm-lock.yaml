@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^19.0.4
-    version: 19.0.4(@consolelabs/mochi-rest@5.2.2)(ioredis@5.3.2)
+    specifier: ^19.0.5
+    version: 19.0.5(@consolelabs/mochi-rest@5.2.2)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
     specifier: ^5.2.2
     version: 5.2.2
@@ -885,8 +885,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@19.0.4(@consolelabs/mochi-rest@5.2.2)(ioredis@5.3.2):
-    resolution: {integrity: sha512-X8ub+7sYc0gYq0AeFWJikXDIUsUg3SlSkLngvYFZBv3+JvQPi33VhbBehaIhfv/3wAie1rjLS8ispeLarE/Oyw==}
+  /@consolelabs/mochi-formatter@19.0.5(@consolelabs/mochi-rest@5.2.2)(ioredis@5.3.2):
+    resolution: {integrity: sha512-p8P4qwAeWHOHhfEKUTpjCdJynNvqAW3c+peISNXccZfedLUXZFh5AsEZLz0jYzZxSYQXS6tROzBwPeFulRSX9w==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^5.2.2
       ioredis: ^5.x.x
