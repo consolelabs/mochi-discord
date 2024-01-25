@@ -424,7 +424,10 @@ export interface ModelProductChangelogs {
   created_at?: string
   file_name?: string
   github_url?: string
+  id?: number
   is_expired?: boolean
+  next_version?: string
+  previous_version?: string
   product?: string
   thumbnail_url?: string
   title?: string

@@ -12,11 +12,11 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^19.0.3
-    version: 19.0.3(@consolelabs/mochi-rest@5.2.1)(ioredis@5.3.2)
+    specifier: ^19.0.4
+    version: 19.0.4(@consolelabs/mochi-rest@5.2.2)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
-    specifier: ^5.2.1
-    version: 5.2.1
+    specifier: ^5.2.2
+    version: 5.2.2
   '@discordjs/builders':
     specifier: ^0.12.0
     version: 0.12.0
@@ -885,14 +885,14 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@19.0.3(@consolelabs/mochi-rest@5.2.1)(ioredis@5.3.2):
-    resolution: {integrity: sha512-yzasPjFUPJyV0EUrz4LJx869Hscm6HH015eh2WQvVQ50m6ZHy5LTwt6V9iahdGfCkkygobic0y9paegojtbmkg==}
+  /@consolelabs/mochi-formatter@19.0.4(@consolelabs/mochi-rest@5.2.2)(ioredis@5.3.2):
+    resolution: {integrity: sha512-X8ub+7sYc0gYq0AeFWJikXDIUsUg3SlSkLngvYFZBv3+JvQPi33VhbBehaIhfv/3wAie1rjLS8ispeLarE/Oyw==}
     peerDependencies:
-      '@consolelabs/mochi-rest': ^5.2.1
+      '@consolelabs/mochi-rest': ^5.2.2
       ioredis: ^5.x.x
     dependencies:
       '@bonfida/spl-name-service': 1.0.11(@solana/web3.js@1.89.1)
-      '@consolelabs/mochi-rest': 5.2.1
+      '@consolelabs/mochi-rest': 5.2.2
       '@solana/web3.js': 1.89.1
       change-case: 4.1.2
       ethers: 6.10.0
@@ -909,8 +909,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@consolelabs/mochi-rest@5.2.1:
-    resolution: {integrity: sha512-NLsjjoN1w2LQ/BXdZu4czhoCx20qV1S5srrlMI+50TF7JF6+47wYydk2IFrATYPq66SKGjcofOch3Le0gEa+GQ==}
+  /@consolelabs/mochi-rest@5.2.2:
+    resolution: {integrity: sha512-kBa4yeR7pm530ewOf0Qsb8EFcITY/oVvOetmh+4852IJg3sTEdvisGY66uUVpWk4jMe1/d5hh6t3pniHoTbEtg==}
     dependencies:
       deepmerge: 4.3.1
       lodash.snakecase: 4.1.1
@@ -3255,8 +3255,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001579
-      electron-to-chromium: 1.4.643
+      caniuse-lite: 1.0.30001580
+      electron-to-chromium: 1.4.645
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -3385,8 +3385,8 @@ packages:
     resolution: {integrity: sha512-DqAOf+rhof+6GVx1y+xzbFPeOumfQnhYzVnZD6LAXijR77yPtm9mfOcqOnT3mpnJiZVT+kwLAFnRlZcIz+c6bg==}
     dev: true
 
-  /caniuse-lite@1.0.30001579:
-    resolution: {integrity: sha512-u5AUVkixruKHJjw/pj9wISlcMpgFWzSrczLZbrqBSxukQixmg0SJ5sZTpvaFvxU0HoQKd4yoyAogyrAz9pzJnA==}
+  /caniuse-lite@1.0.30001580:
+    resolution: {integrity: sha512-mtj5ur2FFPZcCEpXFy8ADXbDACuNFXg6mxVDqp7tqooX6l3zwm+d8EPoeOSIFRDvHs8qu7/SLFOGniULkcH2iA==}
     dev: true
 
   /canvas@2.9.0:
@@ -4092,8 +4092,8 @@ packages:
     resolution: {integrity: sha512-D3NOkROIlF+d5ixnz7pAf3Lu/AuWpd6AYgI9O67GQXMXTcCP1gJQRotOq35eQy5Sb4hez33XH1YdTtILA7Udww==}
     dev: true
 
-  /electron-to-chromium@1.4.643:
-    resolution: {integrity: sha512-QHscvvS7gt155PtoRC0dR2ilhL8E9LHhfTQEq1uD5AL0524rBLAwpAREFH06f87/e45B9XkR6Ki5dbhbCsVEIg==}
+  /electron-to-chromium@1.4.645:
+    resolution: {integrity: sha512-EeS1oQDCmnYsRDRy2zTeC336a/4LZ6WKqvSaM1jLocEk5ZuyszkQtCpsqvuvaIXGOUjwtvF6LTcS8WueibXvSw==}
     dev: true
 
   /elegant-spinner@1.0.1:
