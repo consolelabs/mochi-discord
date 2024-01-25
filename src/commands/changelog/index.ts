@@ -77,6 +77,8 @@ export async function handleConfirmPublicChangelog(i: ButtonInteraction) {
     return
   }
 
+  await i.deferReply({ ephemeral: true })
+
   const data = await mochiAPI.publicChangelog(changelogName, true)
   if (!data.ok) {
     throw new APIError({
@@ -88,38 +90,18 @@ export async function handleConfirmPublicChangelog(i: ButtonInteraction) {
     })
   }
 
-  const { message } = <{ message: Message }>i
-
-  await i.update({
+  await i.editReply({
     embeds: [
-      composeEmbedMessage(message, {
+      composeEmbedMessage(null, {
         author: ["Publish Changelog successfully", getEmojiURL(emojis.APPROVE)],
         description: `You published the new changelog`,
       }),
     ],
-    components: [],
   })
-
-  return
-}
-
-export async function handleCancelPublicChangelog(i: ButtonInteraction) {
-  const author = getAuthor(i)
-  if (author.id != NEKO_SAN_ID) {
-    return
-  }
 
   const { message } = <{ message: Message }>i
 
-  await i.update({
-    embeds: [
-      composeEmbedMessage(message, {
-        author: ["Unpublished Changelog", getEmojiURL(emojis.REVOKE)],
-        description: `You haven't published the new changelog`,
-      }),
-    ],
-    components: [],
-  })
+  await message.edit({ embeds: i.message.embeds, components: [] })
 
   return
 }
