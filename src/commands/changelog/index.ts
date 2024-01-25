@@ -74,14 +74,7 @@ export async function handleConfirmPublicChangelog(i: ButtonInteraction) {
 
   const author = getAuthor(i)
   if (author.id != NEKO_SAN_ID) {
-    await i.reply({
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Invalid Owner", getEmojiURL(emojis.REVOKE)],
-          description: `Only <@${NEKO_SAN_ID}> can publish the new changelog`,
-        }),
-      ],
-    })
+    return
   }
 
   const data = await mochiAPI.publicChangelog(changelogName, true)
@@ -113,14 +106,7 @@ export async function handleConfirmPublicChangelog(i: ButtonInteraction) {
 export async function handleCancelPublicChangelog(i: ButtonInteraction) {
   const author = getAuthor(i)
   if (author.id != NEKO_SAN_ID) {
-    await i.reply({
-      embeds: [
-        composeEmbedMessage(null, {
-          author: ["Invalid Owner", getEmojiURL(emojis.REVOKE)],
-          description: `Only <@${NEKO_SAN_ID}> can cancel to public the new changelog`,
-        }),
-      ],
-    })
+    return
   }
 
   const { message } = <{ message: Message }>i
@@ -129,7 +115,7 @@ export async function handleCancelPublicChangelog(i: ButtonInteraction) {
     embeds: [
       composeEmbedMessage(message, {
         author: ["Unpublished Changelog", getEmojiURL(emojis.REVOKE)],
-        description: `You have canceled to public the new changelog`,
+        description: `You haven't published the new changelog`,
       }),
     ],
     components: [],
