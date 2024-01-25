@@ -48,9 +48,9 @@ const slashCmd: SlashCommand = {
       content: changelog.content,
       on: Platform.Discord,
     })
-    const footer = `\⎯⎯⎯⎯⎯\nView all changelogs on [Mochi web](${HOMEPAGE_URL}/changelog)`
+    const footer = `\⎯⎯⎯⎯⎯\nView all changelogs on [Mochi web](${HOMEPAGE_URL}/changelog/${changelog.version})`
     let embed = composeEmbedMessage(null, {
-      description: `${text}\n\n${footer}`,
+      description: `${text}\n${footer}`,
     })
     if (images.length > 0) {
       embed.setImage(images[0])
