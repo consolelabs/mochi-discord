@@ -3,9 +3,13 @@ import api from "api"
 import { SlashCommand } from "types/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
-import mochiAPI from "../../adapters/mochi-api"
-import profile from "../../adapters/profile"
+import mochiAPI from "adapters/mochi-api"
+import profile from "adapters/profile"
 import { HOMEPAGE_URL } from "utils/constants"
+import { ButtonInteraction, Message } from "discord.js"
+import { getAuthor, getEmojiURL, emojis } from "utils/common"
+import { NEKO_SAN_ID } from "env"
+import { APIError } from "../../errors"
 
 const slashCmd: SlashCommand = {
   name: "changelog",
@@ -63,3 +67,73 @@ const slashCmd: SlashCommand = {
 }
 
 export default { slashCmd }
+
+export async function handleConfirmPublicChangelog(i: ButtonInteraction) {
+  const args = i.customId.split("_")
+  const changelogName = args[3]
+
+  const author = getAuthor(i)
+  if (author.id != NEKO_SAN_ID) {
+    await i.reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invalid Owner", getEmojiURL(emojis.REVOKE)],
+          description: `Only <@${NEKO_SAN_ID}> can publish the new changelog`,
+        }),
+      ],
+    })
+  }
+
+  const data = await mochiAPI.publicChangelog(changelogName, true)
+  if (!data.ok) {
+    throw new APIError({
+      msgOrInteraction: i,
+      description: "Cannot publish changelog",
+      curl: data.curl,
+      error: data.error ?? "",
+      status: data.status ?? 500,
+    })
+  }
+
+  const { message } = <{ message: Message }>i
+
+  await i.update({
+    embeds: [
+      composeEmbedMessage(message, {
+        author: ["Publish Changelog successfully", getEmojiURL(emojis.APPROVE)],
+        description: `You published the new changelog`,
+      }),
+    ],
+    components: [],
+  })
+
+  return
+}
+
+export async function handleCancelPublicChangelog(i: ButtonInteraction) {
+  const author = getAuthor(i)
+  if (author.id != NEKO_SAN_ID) {
+    await i.reply({
+      embeds: [
+        composeEmbedMessage(null, {
+          author: ["Invalid Owner", getEmojiURL(emojis.REVOKE)],
+          description: `Only <@${NEKO_SAN_ID}> can cancel to public the new changelog`,
+        }),
+      ],
+    })
+  }
+
+  const { message } = <{ message: Message }>i
+
+  await i.update({
+    embeds: [
+      composeEmbedMessage(message, {
+        author: ["Unpublished Changelog", getEmojiURL(emojis.REVOKE)],
+        description: `You have canceled to public the new changelog`,
+      }),
+    ],
+    components: [],
+  })
+
+  return
+}

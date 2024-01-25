@@ -46,6 +46,8 @@ export const USAGE_TRACKING_CHANNEL_ID =
 export const CONSOLE_LAB_GUILD_ID =
   process.env.CONSOLE_LAB_GUILD_ID || "891310117658705931"
 
+export const NEKO_SAN_ID = process.env.NEKO_SAN_ID || "151497832853929986"
+
 export const MARKETPLACE_BASE_URL =
   process.env.MARKETPLACE_BASE_URL || "https://rarepepe.gg"
 
