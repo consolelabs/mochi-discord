@@ -1,3 +1,10 @@
+## [6.42.14-rc.10](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.9...v6.42.14-rc.10) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
+
 ## [6.42.14-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.8...v6.42.14-rc.9) (2024-01-25)
 
 
