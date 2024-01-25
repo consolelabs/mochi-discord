@@ -1,3 +1,10 @@
+## [6.42.14-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.8...v6.42.14-rc.9) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
+
 ## [6.42.14-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.7...v6.42.14-rc.8) (2024-01-25)
 
 
