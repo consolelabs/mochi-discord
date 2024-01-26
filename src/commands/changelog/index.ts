@@ -21,7 +21,15 @@ const slashCmd: SlashCommand = {
     return data
   },
   run: async function (i) {
-    const changelog = api.getLatestChangelog()
+    const { data } = await api.base.metadata.getChangelogs()
+    const changelogs =
+      data?.sort((a, b) => {
+        const timeA = new Date(a.created_at).getTime()
+        const timeB = new Date(b.created_at).getTime()
+        return timeB - timeA
+      }) ?? []
+
+    const changelog = changelogs.find((c) => !c.is_expired) ?? null
     if (!changelog) {
       return {
         messageOptions: {
