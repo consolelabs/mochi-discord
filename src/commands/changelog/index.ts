@@ -8,7 +8,7 @@ import profile from "adapters/profile"
 import { HOMEPAGE_URL } from "utils/constants"
 import { ButtonInteraction, Message } from "discord.js"
 import { getAuthor, getEmojiURL, emojis } from "utils/common"
-import { NEKO_SAN_ID } from "env"
+import { WHITE_LIST_PUBLIC_CHANGELOG } from "env"
 import { APIError } from "../../errors"
 
 const slashCmd: SlashCommand = {
@@ -74,7 +74,7 @@ export async function handleConfirmPublicChangelog(i: ButtonInteraction) {
   const changelogName = args[3]
 
   const author = getAuthor(i)
-  if (author.id != NEKO_SAN_ID) {
+  if (!WHITE_LIST_PUBLIC_CHANGELOG.includes(author.id)) {
     return
   }
 
