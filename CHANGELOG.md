@@ -1,3 +1,21 @@
+## [6.42.14](https://github.com/consolelabs/mochi-discord/compare/v6.42.13...v6.42.14) (2024-01-26)
+
+
+### Bug Fixes
+
+* **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
+* **changelog:** get changelog real time ([#1603](https://github.com/consolelabs/mochi-discord/issues/1603)) ([168b402](https://github.com/consolelabs/mochi-discord/commit/168b40232440cdb34ec7f4cf82cc965fedc569e6))
+* **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
+* **changelog:** handle reply for public changelog event ([#1597](https://github.com/consolelabs/mochi-discord/issues/1597)) ([bdc210c](https://github.com/consolelabs/mochi-discord/commit/bdc210c3b88be1681698b993a2111d37fb4ca537))
+* **changelog:** prettify changelog ([#1594](https://github.com/consolelabs/mochi-discord/issues/1594)) ([020a49d](https://github.com/consolelabs/mochi-discord/commit/020a49d584d213541142c8cbaf2eda36f921a04a))
+* **changelog:** prettify changelog ([#1595](https://github.com/consolelabs/mochi-discord/issues/1595)) ([0e40bc3](https://github.com/consolelabs/mochi-discord/commit/0e40bc3f42a62a9b51a30a2d7e476a46dc848996))
+* **changelog:** update changelog format ([#1598](https://github.com/consolelabs/mochi-discord/issues/1598)) ([90a0a21](https://github.com/consolelabs/mochi-discord/commit/90a0a2169eec9d807ab4fda896c219c69787ab23))
+* **changelog:** update changelog format ([#1599](https://github.com/consolelabs/mochi-discord/issues/1599)) ([3f21a17](https://github.com/consolelabs/mochi-discord/commit/3f21a172bcb042279d05b9bf465956a56174756c))
+* **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
+* **changelog:** update whitelist id for publishing changelog ([#1602](https://github.com/consolelabs/mochi-discord/issues/1602)) ([a4d0e48](https://github.com/consolelabs/mochi-discord/commit/a4d0e48e5387b049a99621b5639115184bcf78f0))
+* **tip:** handle confirm public changelog ([#1596](https://github.com/consolelabs/mochi-discord/issues/1596)) ([c0e66e6](https://github.com/consolelabs/mochi-discord/commit/c0e66e6d05ecb32f614404caa3184110fa4b16e5))
+* **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
+
 ## [6.42.14-rc.12](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.11...v6.42.14-rc.12) (2024-01-26)
 
 
