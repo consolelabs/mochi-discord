@@ -1,3 +1,87 @@
+## [6.42.14-rc.12](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.11...v6.42.14-rc.12) (2024-01-26)
+
+
+### Bug Fixes
+
+* **changelog:** get changelog real time ([#1603](https://github.com/consolelabs/mochi-discord/issues/1603)) ([168b402](https://github.com/consolelabs/mochi-discord/commit/168b40232440cdb34ec7f4cf82cc965fedc569e6))
+
+## [6.42.14-rc.11](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.10...v6.42.14-rc.11) (2024-01-26)
+
+
+### Bug Fixes
+
+* **changelog:** update whitelist id for publishing changelog ([#1602](https://github.com/consolelabs/mochi-discord/issues/1602)) ([a4d0e48](https://github.com/consolelabs/mochi-discord/commit/a4d0e48e5387b049a99621b5639115184bcf78f0))
+
+## [6.42.14-rc.10](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.9...v6.42.14-rc.10) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
+
+## [6.42.14-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.8...v6.42.14-rc.9) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
+
+## [6.42.14-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.7...v6.42.14-rc.8) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** update changelog format ([#1599](https://github.com/consolelabs/mochi-discord/issues/1599)) ([3f21a17](https://github.com/consolelabs/mochi-discord/commit/3f21a172bcb042279d05b9bf465956a56174756c))
+
+## [6.42.14-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.6...v6.42.14-rc.7) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** update changelog format ([#1598](https://github.com/consolelabs/mochi-discord/issues/1598)) ([90a0a21](https://github.com/consolelabs/mochi-discord/commit/90a0a2169eec9d807ab4fda896c219c69787ab23))
+
+## [6.42.14-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.5...v6.42.14-rc.6) (2024-01-25)
+
+
+### Bug Fixes
+
+* **changelog:** handle reply for public changelog event ([#1597](https://github.com/consolelabs/mochi-discord/issues/1597)) ([bdc210c](https://github.com/consolelabs/mochi-discord/commit/bdc210c3b88be1681698b993a2111d37fb4ca537))
+
+## [6.42.14-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.4...v6.42.14-rc.5) (2024-01-25)
+
+
+### Bug Fixes
+
+* **tip:** handle confirm public changelog ([#1596](https://github.com/consolelabs/mochi-discord/issues/1596)) ([c0e66e6](https://github.com/consolelabs/mochi-discord/commit/c0e66e6d05ecb32f614404caa3184110fa4b16e5))
+
+## [6.42.14-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.3...v6.42.14-rc.4) (2024-01-24)
+
+
+### Bug Fixes
+
+* **changelog:** prettify changelog ([#1595](https://github.com/consolelabs/mochi-discord/issues/1595)) ([0e40bc3](https://github.com/consolelabs/mochi-discord/commit/0e40bc3f42a62a9b51a30a2d7e476a46dc848996))
+
+## [6.42.14-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.2...v6.42.14-rc.3) (2024-01-22)
+
+
+### Bug Fixes
+
+* **changelog:** prettify changelog ([#1594](https://github.com/consolelabs/mochi-discord/issues/1594)) ([020a49d](https://github.com/consolelabs/mochi-discord/commit/020a49d584d213541142c8cbaf2eda36f921a04a))
+
+## [6.42.14-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.1...v6.42.14-rc.2) (2024-01-22)
+
+
+### Bug Fixes
+
+* **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
+
+## [6.42.14-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.13...v6.42.14-rc.1) (2024-01-22)
+
+
+### Bug Fixes
+
+* **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
+
 ## [6.42.13](https://github.com/consolelabs/mochi-discord/compare/v6.42.12...v6.42.13) (2024-01-19)
 
 

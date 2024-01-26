@@ -70,6 +70,7 @@ import {
   approveTransferReq,
   rejectTransferReq,
 } from "../../commands/transfer_request/index/processor"
+import { handleConfirmPublicChangelog } from "../../commands/changelog"
 
 // import { handleBeginVerify } from "commands/config/verify/captcha/processor"
 
@@ -485,6 +486,9 @@ async function handleButtonInteraction(interaction: Interaction) {
       return
     case i.customId.startsWith("confirm-follow-tip"):
       await handleConfirmFollowTip(i)
+      return
+    case i.customId.startsWith("mochi_changelog_confirm"):
+      await handleConfirmPublicChangelog(i)
       return
     case i.customId.startsWith("custom-follow-tip"):
       await handleCustomFollowTip(i)

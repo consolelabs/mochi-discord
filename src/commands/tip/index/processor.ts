@@ -764,9 +764,9 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
     await i.followUp({
       content: `<@${i.user.id}> sent ${recipientDiscord} ${getEmojiToken(
         payload.token as TokenEmojiKey,
-      )} **${
-        payload.amount
-      }** **${payload.token.toUpperCase()}**! .${mochiUtils.string.receiptLink(
+      )} **${mochiUtils.formatTokenDigit(
+        payload.amount,
+      )}** **${payload.token.toUpperCase()}**! .${mochiUtils.string.receiptLink(
         dataTransfer?.external_id,
       )}`,
       components: [],
