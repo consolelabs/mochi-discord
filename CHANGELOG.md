@@ -1,3 +1,10 @@
+## [6.42.16-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.15...v6.42.16-rc.1) (2024-01-27)
+
+
+### Bug Fixes
+
+* **bal:** check empty transaction ([#1607](https://github.com/consolelabs/mochi-discord/issues/1607)) ([fa0fdf0](https://github.com/consolelabs/mochi-discord/commit/fa0fdf05a940cfdbd96cc48fc115234ba37e3010))
+
 ## [6.42.15](https://github.com/consolelabs/mochi-discord/compare/v6.42.14...v6.42.15) (2024-01-26)
 
 
