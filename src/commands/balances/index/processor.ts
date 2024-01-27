@@ -735,7 +735,7 @@ async function switchView(
   ])
 
   const { text: txnRow } = await UI.components.txns({
-    txns,
+    txns: txns ?? [],
     on: Platform.Discord,
     top: 5,
     profileId,
