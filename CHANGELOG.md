@@ -1,3 +1,10 @@
+## [6.42.16-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.16-rc.1...v6.42.16-rc.2) (2024-01-27)
+
+
+### Bug Fixes
+
+* **bal:** handle case empty tx ([#1608](https://github.com/consolelabs/mochi-discord/issues/1608)) ([6661613](https://github.com/consolelabs/mochi-discord/commit/666161303e599df46aa649b7927359d6d23fc7c4))
+
 ## [6.42.16-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.15...v6.42.16-rc.1) (2024-01-27)
 
 
