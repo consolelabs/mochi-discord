@@ -1812,6 +1812,10 @@ export interface ResponseGetUserResponse {
   data?: ResponseUser
 }
 
+export interface ResponseGetUserTipMessageResponse {
+  data?: ResponseUserTipMessageData
+}
+
 export interface ResponseGetVaultResponse {
   data?: ModelVault
 }
@@ -2309,6 +2313,10 @@ export interface ResponseProductBotCommand {
   data?: ModelProductBotCommand[]
 }
 
+export interface ResponseProductChangelogLatest {
+  data?: ModelProductChangelogs
+}
+
 export interface ResponseProductChangelogs {
   data?: ModelProductChangelogs[]
   pagination?: ResponsePaginationResponse
@@ -2581,6 +2589,10 @@ export interface ResponseUserGeneralSettingResponse {
 
 export interface ResponseUserNotificationSettingResponse {
   data?: ModelUserNotificationSetting
+}
+
+export interface ResponseUserTipMessageData {
+  message?: string
 }
 
 export interface ResponseWalletAssetData {
