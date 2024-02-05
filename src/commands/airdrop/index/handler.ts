@@ -316,7 +316,7 @@ function sendAuthorDm(
     getEmoji("SHARE"),
     getEmoji("WEB"),
   ]
-  const txId = data.tx_id ?? ""
+  const txId = data.external_id ?? ""
   const totalAmount = `${getEmoji(
     token as TokenEmojiKey,
   )} **${mochiUtils.formatTokenDigit(
