@@ -1,3 +1,10 @@
+# [6.43.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.0-rc.1...v6.43.0-rc.2) (2024-02-06)
+
+
+### Bug Fixes
+
+* use the same total amount of cex accounts in list view and detail view ([bec13a2](https://github.com/consolelabs/mochi-discord/commit/bec13a26082fca0b987af1a4c50725b7a216a380))
+
 # [6.43.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.17-rc.1...v6.43.0-rc.1) (2024-02-06)
 
 
