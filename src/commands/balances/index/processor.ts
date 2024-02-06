@@ -223,6 +223,7 @@ export async function getBalances(
     lending: any,
     simple: any,
     nfts: any,
+    future: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
     data = res.data.filter((i: any) => Boolean(i))
@@ -276,6 +277,14 @@ export async function getBalances(
         },
       ]
     }
+
+    if (
+      res.data.future &&
+      Array.isArray(res.data.future) &&
+      res.data.future.length > 0
+    ) {
+      future = res.data.future.filter((acc: any) => Number(acc.balance) !== 0)
+    }
   }
 
   return {
@@ -286,6 +295,7 @@ export async function getBalances(
     lending,
     simple,
     nfts,
+    future,
   }
 }
 
@@ -553,6 +563,7 @@ async function switchView(
     staking: any[]
     lending: any[]
     simple: any[]
+    future: any[]
     pnl: number
   },
   txns: any,
@@ -565,10 +576,8 @@ async function switchView(
 ) {
   const wallet = await defi.findWallet(profileId, props.address)
   const trackingType = wallet?.data?.type
-  const { mochiWallets, wallets, cexes } = await profile.getUserWallets(
-    discordId,
-    false,
-  )
+  const { mochiWallets, wallets, cexes, cexTotal } =
+    await profile.getUserWallets(discordId, false)
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase()),
   )
@@ -706,14 +715,17 @@ async function switchView(
       showFullEarn,
     )
 
+    const { field: futureField } = buildFutureField("Future", balances.future)
+
+    if (futureField) {
+      embed.addFields(futureField)
+    }
+
     if (lendingField) {
       embed.addFields(lendingField)
     }
 
-    totalWorth += balances.simple.reduce(
-      (acc, cur) => acc + cur.amount * cur.price,
-      0,
-    )
+    totalWorth = cexTotal
   }
 
   embed.addFields([
@@ -936,6 +948,40 @@ function buildEarnField(title: string, earning: any[], showFull = false) {
       field: null,
       total,
     }
+
+  return {
+    total,
+    field: {
+      name: `\n${title}`,
+      value,
+      inline: false,
+    },
+  }
+}
+
+function buildFutureField(title: string, future: any[]) {
+  let total = 0
+  if (!future || !future.length)
+    return {
+      total,
+      field: null,
+    }
+
+  const data = future.map((acc) => {
+    total += acc.usd_balance
+
+    return {
+      emoji: getEmoji(acc.asset),
+      asset: `${formatTokenDigit(acc.balance)} ${acc.asset}`,
+      usd: `$${formatUsdDigit(acc.usd_balance)}`,
+    }
+  })
+
+  const value = formatDataTable(data, {
+    cols: ["asset", "usd"],
+    rowAfterFormatter: (f, i) => `${data[i].emoji}${f}`,
+    separator: [` ${APPROX} `],
+  }).joined
 
   return {
     total,

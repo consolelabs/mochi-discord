@@ -53,7 +53,7 @@ const command: SlashCommand = {
         .map(async (w) => {
           let value = w.value
           if (value.startsWith("ronin:")) {
-            value = value.slice(6)
+            value = `0x${value.slice(6)}`
           } else if (value.endsWith(".near")) {
             value = value.slice(0, -5)
           }
