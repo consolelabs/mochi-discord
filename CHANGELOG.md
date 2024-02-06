@@ -1,3 +1,10 @@
+# [6.43.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.17-rc.1...v6.43.0-rc.1) (2024-02-06)
+
+
+### Features
+
+* show binance future wallet asset ([e821582](https://github.com/consolelabs/mochi-discord/commit/e82158238619f3733dadc134ec041ac9202fdda6))
+
 ## [6.42.17-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.16...v6.42.17-rc.1) (2024-02-06)
 
 
