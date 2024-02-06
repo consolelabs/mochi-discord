@@ -1164,6 +1164,18 @@ export interface ResponseAssetTokenChain {
   type?: string
 }
 
+export interface ResponseBinanceFutureAccountBalance {
+  accountAlias?: string
+  asset?: string
+  availableBalance?: string
+  balance?: string
+  crossUnPnl?: string
+  crossWalletBalance?: string
+  marginAvailable?: boolean
+  maxWithdrawAmount?: string
+  updateTime?: number
+}
+
 export interface ResponseBinanceFutureAccountPositionResponse {
   data?: ResponseBinanceFuturePositionInformation[]
 }
@@ -1504,6 +1516,13 @@ export interface ResponseGetAllDaoProposalVotes {
 
 export interface ResponseGetAllDaoProposals {
   data?: ModelDaoProposal[]
+}
+
+export interface ResponseGetBinanceAsset {
+  asset?: ResponseWalletAssetData[]
+  earn?: ResponseWalletAssetData[]
+  future?: ResponseBinanceFutureAccountBalance[]
+  simple_earn?: ResponseWalletBinanceAssetSimpleEarnResponse
 }
 
 export interface ResponseGetCoinResponse {
@@ -2556,7 +2575,7 @@ export interface ResponseUser {
 }
 
 export interface ResponseUserBalanceCex {
-  binance?: ResponseWalletAssetData[]
+  binance?: ResponseGetBinanceAsset
 }
 
 export interface ResponseUserBalanceOnchain {
@@ -2605,6 +2624,16 @@ export interface ResponseWalletAssetData {
   detail_staking?: ResponseBinanceStakingProductPosition
   token?: ResponseAssetToken
   usd_balance?: number
+}
+
+export interface ResponseWalletBinanceAssetSimpleEarnResponse {
+  btc_price?: string
+  total_amount_in_btc?: string
+  total_amount_in_usdt?: string
+  total_flexible_amount_in_btc?: string
+  total_flexible_amount_in_usdt?: string
+  total_locked_in_btc?: string
+  total_locked_in_usdt?: string
 }
 
 export interface UtilPagination {
