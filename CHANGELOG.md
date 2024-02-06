@@ -1,3 +1,12 @@
+## [6.42.17-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.16...v6.42.17-rc.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* add 3 dots after tx id ([405c6d1](https://github.com/consolelabs/mochi-discord/commit/405c6d18bd62fb1ee3a68ae6a511a364e58553a4))
+* **airdrop:** update transaction id ([#1609](https://github.com/consolelabs/mochi-discord/issues/1609)) ([4f5cab5](https://github.com/consolelabs/mochi-discord/commit/4f5cab54c06b90e0fb1781948afbd718c0b4fbcf))
+* **general:** update ron address format ([#1610](https://github.com/consolelabs/mochi-discord/issues/1610)) ([1cf275f](https://github.com/consolelabs/mochi-discord/commit/1cf275f63bdb16073e623bdf1c1eccccd99df440))
+
 ## [6.42.16-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.16-rc.1...v6.42.16-rc.2) (2024-01-27)
 
 
