@@ -64,7 +64,7 @@ async function renderListWallet(
       if (!address) return ""
 
       if (address.startsWith("ronin:")) {
-        address = address.slice(6)
+        address = `0x${address.slice(6)}`
       } else if (address.endsWith(".near")) {
         address = address.slice(0, -5)
       }
@@ -358,7 +358,7 @@ async function compose(
                 let label = ""
                 if (w.type === "wallet") {
                   if (address.startsWith("ronin:")) {
-                    address = address.slice(6)
+                    address = `0x${address.slice(6)}`
                   } else if (address.endsWith(".near")) {
                     address = address.slice(0, -5)
                   }
