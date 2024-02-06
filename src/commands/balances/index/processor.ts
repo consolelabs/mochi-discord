@@ -576,10 +576,8 @@ async function switchView(
 ) {
   const wallet = await defi.findWallet(profileId, props.address)
   const trackingType = wallet?.data?.type
-  const { mochiWallets, wallets, cexes } = await profile.getUserWallets(
-    discordId,
-    false,
-  )
+  const { mochiWallets, wallets, cexes, cexTotal } =
+    await profile.getUserWallets(discordId, false)
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase()),
   )
@@ -717,24 +715,17 @@ async function switchView(
       showFullEarn,
     )
 
-    const { field: futureField, total } = buildFutureField(
-      "Future",
-      balances.future,
-    )
+    const { field: futureField } = buildFutureField("Future", balances.future)
 
     if (futureField) {
       embed.addFields(futureField)
-      totalWorth += total
     }
 
     if (lendingField) {
       embed.addFields(lendingField)
     }
 
-    totalWorth += balances.simple.reduce(
-      (acc, cur) => acc + cur.amount * cur.price,
-      0,
-    )
+    totalWorth = cexTotal
   }
 
   embed.addFields([
