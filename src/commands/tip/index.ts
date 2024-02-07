@@ -129,7 +129,7 @@ const textCmd: Command = {
   canRunWithoutAction: true,
   colorType: "Defi",
   minArguments: 3,
-  aliases: ["send"],
+  aliases: ["send", "shoutout", "kudos", "kudo"],
 }
 
 const slashCmd: SlashCommand = {
