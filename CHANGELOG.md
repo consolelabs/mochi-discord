@@ -1,3 +1,10 @@
+## [6.43.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.1...v6.43.2) (2024-02-07)
+
+
+### Bug Fixes
+
+* remove 3 dots in tx id ([1ee613c](https://github.com/consolelabs/mochi-discord/commit/1ee613ce83d00f26c101fb2bf5212b70aa8bb9d5))
+
 ## [6.43.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.1...v6.43.2-rc.1) (2024-02-07)
 
 
