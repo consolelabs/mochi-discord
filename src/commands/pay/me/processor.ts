@@ -262,7 +262,10 @@ function isValidEmail(target?: string): boolean {
   return expression.test(target)
 }
 
-export async function resolveTarget(receivers: string[]) {
+export async function resolveTarget(
+  interaction: CommandInteraction,
+  receivers: string[],
+) {
   if (!receivers) return
   const telegramUsernames: any[] = []
   const targetIds: { id: string; platform: string }[] = []
@@ -272,7 +275,10 @@ export async function resolveTarget(receivers: string[]) {
       const { value: targetId } = parseDiscordToken(target)
       const pfRes = await profile.getByDiscord(targetId)
       if (pfRes.error) {
-        throw new Error("Couldn't get target user info")
+        throw new InternalError({
+          msgOrInteraction: interaction,
+          description: "Couldn't get target user info",
+        })
       }
       targetIds.push({ id: pfRes.id, platform: "discord" })
     }
@@ -283,13 +289,19 @@ export async function resolveTarget(receivers: string[]) {
     ) {
       const validMail = isValidEmail(target.replace(/^(mail:|email:)/, ""))
       if (!validMail) {
-        throw new Error(`Target email is in invalid format`)
+        throw new InternalError({
+          msgOrInteraction: interaction,
+          description: "Target email is in invalid format",
+        })
       }
       const pfRes = await profile.getByEmail(
         target.replace(/(mail:|email:)/, ""),
       )
       if (pfRes.error) {
-        throw new Error("Couldn't get target user info")
+        throw new InternalError({
+          msgOrInteraction: interaction,
+          description: "Coulnd't get target user info",
+        })
       }
       targetIds.push({ id: pfRes.id, platform: "email" })
     }
@@ -320,7 +332,10 @@ export async function resolveTarget(receivers: string[]) {
         targetIds.push({ id, platform: "telegram" })
       })
     } catch (e: any) {
-      throw new Error(e.message || "Couldn't get user data")
+      throw new InternalError({
+        msgOrInteraction: interaction,
+        description: "Couldn't get user data",
+      })
     }
   }
 
@@ -342,7 +357,7 @@ export async function parsePaymeArgs(interaction: CommandInteraction): Promise<{
   const note = interaction.options.getString("note") ?? ""
   let parsedAmount = amount
 
-  const targets = await resolveTarget(receivers)
+  const targets = await resolveTarget(interaction, receivers)
   if (receivers?.length && targets?.length === 0) {
     throw new InternalError({
       title: "Incorrect recipients",
