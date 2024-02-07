@@ -1,3 +1,12 @@
+## [6.43.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.0...v6.43.1-rc.1) (2024-02-07)
+
+
+### Bug Fixes
+
+* add more aliases to tip cmd ([66b3667](https://github.com/consolelabs/mochi-discord/commit/66b36678e29027d4f81bf21be1c6f08dc1d0eb90))
+* handle parallel airdrops ([#1612](https://github.com/consolelabs/mochi-discord/issues/1612)) ([9670eda](https://github.com/consolelabs/mochi-discord/commit/9670edaf87af9bc07d0aebff6c6ac14941bdaac9))
+* show prettier payme error ([#1611](https://github.com/consolelabs/mochi-discord/issues/1611)) ([193c35e](https://github.com/consolelabs/mochi-discord/commit/193c35e4a578fa556887df7329699c82cc1e635d))
+
 # [6.43.0](https://github.com/consolelabs/mochi-discord/compare/v6.42.16...v6.43.0) (2024-02-06)
 
 
