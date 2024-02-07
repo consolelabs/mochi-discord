@@ -208,6 +208,10 @@ async function checkExpiredAirdrop(
   const usdAmount = amount * token_price
 
   airdropCache.on("expired", (key, participants: string[]) => {
+    airdropCache.emit(`${cacheKey}-expired`, cacheKey, participants)
+  })
+
+  airdropCache.once(`${cacheKey}-expired`, (key, participants: string[]) => {
     wrapError(i.message as Message, async () => {
       if (key !== cacheKey) {
         return
@@ -427,8 +431,8 @@ async function enterAirdrop(
       embeds: [replyEmbed],
     }),
   ])
-  if (opts.entries && participants.length === opts.entries) {
-    airdropCache.emit("expired", cacheKey, participants)
+  if (opts.entries && participants.length >= opts.entries) {
+    airdropCache.emit(`${cacheKey}-expired`, cacheKey, participants)
   }
 }
 
