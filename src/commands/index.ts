@@ -117,6 +117,9 @@ export const slashCommands: Record<string, SlashCommand> = {
   //
   tip: tip.slashCmd,
   send: tip.slashCmd,
+  shoutout: tip.slashCmd,
+  kudos: tip.slashCmd,
+  kudo: tip.slashCmd,
   //
   balances: balances.slashCmd,
   balance: balances.slashCmd,
