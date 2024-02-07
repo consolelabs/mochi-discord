@@ -340,7 +340,7 @@ function showSuccesfulResponse(
     payload.sender,
   )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
     payload.recipients.length > 1 ? " each" : ""
-  }! ${mochiUtils.string.receiptLink(res.external_id)}...`
+  }! ${mochiUtils.string.receiptLink(res.external_id)}`
 
   if (hashtagTemplate) {
     return {
@@ -587,7 +587,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     amountUsd.startsWith("<") ? "" : APPROX
   } ${amountUsd})${
     payload.recipients.length > 1 ? " each" : ""
-  }! ${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}...`
+  }! ${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}`
 
   await i.reply({
     content,
@@ -756,7 +756,7 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
         amountUsd.startsWith("<") ? "" : APPROX
       } ${amountUsd})! ${mochiUtils.string.receiptLink(
         dataTransfer?.external_id,
-      )}...`,
+      )}`,
       components: [],
       embeds: [],
     })
@@ -768,7 +768,7 @@ export async function handleCustomFollowTip(i: ButtonInteraction) {
         payload.amount,
       )}** **${payload.token.toUpperCase()}**! ${mochiUtils.string.receiptLink(
         dataTransfer?.external_id,
-      )}...`,
+      )}`,
       components: [],
       embeds: [],
     })

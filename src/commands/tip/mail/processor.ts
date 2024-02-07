@@ -414,7 +414,7 @@ function showSuccesfulResponse(
     payload.sender,
   )} sent ${recipientDescription} **${amountWithCurrency}** ${amountApprox}${
     payload.recipients.length > 1 ? " each" : ""
-  }! ${mochiUtils.string.receiptLink(res.external_id)}...`
+  }! ${mochiUtils.string.receiptLink(res.external_id)}`
 
   if (hashtagTemplate) {
     return {
