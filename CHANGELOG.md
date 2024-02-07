@@ -1,3 +1,18 @@
+# [6.43.0](https://github.com/consolelabs/mochi-discord/compare/v6.42.16...v6.43.0) (2024-02-06)
+
+
+### Bug Fixes
+
+* add 3 dots after tx id ([405c6d1](https://github.com/consolelabs/mochi-discord/commit/405c6d18bd62fb1ee3a68ae6a511a364e58553a4))
+* **airdrop:** update transaction id ([#1609](https://github.com/consolelabs/mochi-discord/issues/1609)) ([4f5cab5](https://github.com/consolelabs/mochi-discord/commit/4f5cab54c06b90e0fb1781948afbd718c0b4fbcf))
+* **general:** update ron address format ([#1610](https://github.com/consolelabs/mochi-discord/issues/1610)) ([1cf275f](https://github.com/consolelabs/mochi-discord/commit/1cf275f63bdb16073e623bdf1c1eccccd99df440))
+* use the same total amount of cex accounts in list view and detail view ([bec13a2](https://github.com/consolelabs/mochi-discord/commit/bec13a26082fca0b987af1a4c50725b7a216a380))
+
+
+### Features
+
+* show binance future wallet asset ([e821582](https://github.com/consolelabs/mochi-discord/commit/e82158238619f3733dadc134ec041ac9202fdda6))
+
 # [6.43.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.0-rc.1...v6.43.0-rc.2) (2024-02-06)
 
 
