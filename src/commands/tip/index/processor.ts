@@ -903,12 +903,15 @@ export async function validateAndTransfer(
   payload.decimal = decimal
 
   // validate balance
-  if (current < payload.amount && !payload.all) {
+  console.log({ payload })
+  const totalAmount =
+    payload.amount * (payload.each ? payload.recipients.length : 1)
+  if (current < totalAmount && !payload.all) {
     throw new InsufficientBalanceError({
       msgOrInteraction,
       params: {
         current,
-        required: payload.amount,
+        required: totalAmount,
         symbol: payload.token as TokenEmojiKey,
       },
     })

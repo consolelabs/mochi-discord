@@ -1,3 +1,24 @@
+# [6.44.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.2...v6.44.0-rc.3) (2024-02-20)
+
+
+### Bug Fixes
+
+* tip - valid 'same' amount ([#1616](https://github.com/consolelabs/mochi-discord/issues/1616)) ([ed37f35](https://github.com/consolelabs/mochi-discord/commit/ed37f35d7777c1f69a51aee8330f4525e8c32d97))
+
+# [6.44.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.1...v6.44.0-rc.2) (2024-02-20)
+
+
+### Bug Fixes
+
+* temp disable config verify captcha ([#1615](https://github.com/consolelabs/mochi-discord/issues/1615)) ([9834b8a](https://github.com/consolelabs/mochi-discord/commit/9834b8ac12f2b19db4779306a95a406790732f6d))
+
+# [6.44.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.2...v6.44.0-rc.1) (2024-02-20)
+
+
+### Features
+
+* add permission checking ([#1613](https://github.com/consolelabs/mochi-discord/issues/1613)) ([fcc04b4](https://github.com/consolelabs/mochi-discord/commit/fcc04b45196ec85f69fd37a734fa7336319be208))
+
 ## [6.43.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.1...v6.43.2) (2024-02-07)
 
 

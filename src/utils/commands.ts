@@ -2,6 +2,7 @@ import { ApplicationCommandOptionType, Routes } from "discord-api-types/v9"
 import { CommandInteraction, Message } from "discord.js"
 import getEmojiRegex from "emoji-regex"
 import { APPLICATION_ID, DISCORD_TOKEN, TEST } from "env"
+import config from "../adapters/config"
 
 import { utils } from "ethers"
 import { Command, SlashCommand, embedsColors } from "types/common"
@@ -21,6 +22,8 @@ import {
 import { REST } from "@discordjs/rest"
 
 const NATIVE_EMOJI_REGEX = getEmojiRegex()
+
+export let commandPermissions = new Map<string, string>()
 
 const rest = new REST({ version: "9" }).setToken(DISCORD_TOKEN)
 let cacheSlash = new Map<string, string>()
@@ -307,4 +310,17 @@ export function isAcceptableCmdToHelp(
     lstCmd = lstCmd.concat(lstCmd.map((v) => v + " " + action))
   }
   return lstCmd.includes(msg.split(/ +/g).join(" "))
+}
+
+export async function fetchCommandPermissions() {
+  try {
+    const { data } = await config.getCommandPermissions()
+    if (data) {
+      commandPermissions = new Map(
+        data
+          .filter((d) => d.code && d.discord_permission_flag)
+          .map((d) => [d.code ?? "", d.discord_permission_flag ?? ""]),
+      )
+    }
+  } catch (e) {}
 }

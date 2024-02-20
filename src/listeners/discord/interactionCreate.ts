@@ -40,6 +40,7 @@ import {
   Interaction,
   Message,
   SelectMenuInteraction,
+  Permissions,
 } from "discord.js"
 import { EXPERIMENTAL_CATEGORY_CHANNEL_IDS } from "env"
 import { CommandNotAllowedToRunError } from "errors"
@@ -71,6 +72,8 @@ import {
   rejectTransferReq,
 } from "../../commands/transfer_request/index/processor"
 import { handleConfirmPublicChangelog } from "../../commands/changelog"
+import { MissingAccessError } from "errors/missing-access"
+import { commandPermissions } from "utils/commands"
 
 // import { handleBeginVerify } from "commands/config/verify/captcha/processor"
 
@@ -141,6 +144,37 @@ function handleAutocompleteInteraction(interaction: AutocompleteInteraction) {
   return Promise.resolve()
 }
 
+function checkPermissionMissing(i: CommandInteraction) {
+  let command = i.commandName
+  let subcommandGroup = i.options.getSubcommandGroup(false)
+  let subcommand = i.options.getSubcommand(false)
+  let codes = [command]
+  if (subcommandGroup) {
+    codes.push(subcommandGroup)
+  }
+  if (subcommand) {
+    codes.push(subcommand)
+  }
+  const code = codes.join("_").toUpperCase()
+  const commandPermission = commandPermissions.get(code)
+  if (!commandPermission) {
+    return
+  }
+
+  const requiredPermission = new Permissions(BigInt(commandPermission))
+  const botPermission = i.guild?.members.me?.permissions
+  const missingPermissions = botPermission?.missing(requiredPermission)
+  if (!missingPermissions?.length) {
+    return
+  }
+
+  throw new MissingAccessError({
+    message: i,
+    command: i.commandName,
+    missingPermissions,
+  })
+}
+
 function handleCommandInteraction(interaction: CommandInteraction) {
   profilingAsyncStore.run(performance.now(), () => {
     wrapError(interaction, async () => {
@@ -162,6 +196,9 @@ function handleCommandInteraction(interaction: CommandInteraction) {
       const gMember = interaction?.guild?.members.cache.get(
         interaction?.user.id,
       )
+
+      checkPermissionMissing(i)
+
       // if this command is experimental -> only allow it to run inside certain channels
       if (command.experimental) {
         const isTextChannel = interaction.channel?.type === "GUILD_TEXT"

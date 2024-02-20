@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders"
 import api from "api"
 import { SlashCommand } from "types/common"
 import { fetchEmojis } from "../.."
+import { fetchCommandPermissions } from "utils/commands"
 
 const slashCmd: SlashCommand = {
   name: "sync",
@@ -14,6 +15,7 @@ const slashCmd: SlashCommand = {
   run: async function () {
     api.init()
     fetchEmojis()
+    fetchCommandPermissions()
     return {
       messageOptions: {
         content: "synced",
