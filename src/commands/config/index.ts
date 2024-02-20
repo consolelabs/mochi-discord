@@ -54,7 +54,7 @@ const subCommandGroups: Record<string, Record<string, SlashCommand>> = {
     info: verifyInfoSlash,
     set: verifySetSlash,
     remove: verifyRemoveSlash,
-    captcha: verifyCaptchaSlash,
+    // captcha: verifyCaptchaSlash,
   },
   currency: {
     info: currencyInfoSlash,
@@ -127,18 +127,23 @@ const slashCmd: SlashCommand = {
     )
 
     // verify
-    data.addSubcommandGroup((subcommandGroup) =>
-      subcommandGroup
-        .setName("verify")
-        .setDescription("Verify wallet")
-        .addSubcommand(<SlashCommandSubcommandBuilder>verifyInfoSlash.prepare())
-        .addSubcommand(
-          <SlashCommandSubcommandBuilder>verifyCaptchaSlash.prepare(),
-        )
-        .addSubcommand(<SlashCommandSubcommandBuilder>verifySetSlash.prepare())
-        .addSubcommand(
-          <SlashCommandSubcommandBuilder>verifyRemoveSlash.prepare(),
-        ),
+    data.addSubcommandGroup(
+      (subcommandGroup) =>
+        subcommandGroup
+          .setName("verify")
+          .setDescription("Verify wallet")
+          .addSubcommand(
+            <SlashCommandSubcommandBuilder>verifyInfoSlash.prepare(),
+          )
+          .addSubcommand(
+            <SlashCommandSubcommandBuilder>verifySetSlash.prepare(),
+          )
+          .addSubcommand(
+            <SlashCommandSubcommandBuilder>verifyRemoveSlash.prepare(),
+          ),
+      // .addSubcommand(
+      //   <SlashCommandSubcommandBuilder>verifyCaptchaSlash.prepare(),
+      // ),
     )
 
     // currency
