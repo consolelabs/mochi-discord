@@ -439,7 +439,7 @@ export async function handleFollowTip(i: ButtonInteraction) {
         newAmount,
       )} **${payload.token.toUpperCase()}** ${amountApprox}
       \`Receiver.  \` ${payload.targets.join(", ")}
-      \`Message.   \` Send money.
+      \`Message.   \` ${payload.message || "Send money"}
     `,
     color: "#89fa8e",
   })
@@ -528,7 +528,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     amount: parseFloat(amountStr),
     token: followTx.token.symbol,
     transfer_type: followTx.action,
-    message: "Send money",
+    message: followTx.message || "Send money",
     chain_id: followTx.token.chain_id,
     platform: "discord",
     original_amount: followTx.metadata.original_amount,
