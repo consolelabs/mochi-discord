@@ -1,3 +1,10 @@
+# [6.44.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.3...v6.44.0-rc.4) (2024-02-20)
+
+
+### Bug Fixes
+
+* support diff format tip and keep the follow up msg ([#1614](https://github.com/consolelabs/mochi-discord/issues/1614)) ([b6ec480](https://github.com/consolelabs/mochi-discord/commit/b6ec480e6a4f7775d7c751c6b58f481ae8bf7557))
+
 # [6.44.0](https://github.com/consolelabs/mochi-discord/compare/v6.43.2...v6.44.0) (2024-02-20)
 
 
