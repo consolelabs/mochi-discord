@@ -16,6 +16,7 @@ import { isEqual } from "lodash"
 import { PRODUCT_NAME } from "utils/constants"
 import { Sentry } from "sentry"
 import { version } from "../package.json"
+import { fetchCommandPermissions } from "utils/commands"
 
 export { slashCommands }
 
@@ -139,6 +140,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
     runHttpServer()
     fetchEmojis()
+    fetchCommandPermissions()
   } catch (error) {
     logger.error(`Failed to refresh application (/) commands. ${error}`)
   }
