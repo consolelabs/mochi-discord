@@ -1,3 +1,10 @@
+# [6.44.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.2...v6.44.0-rc.1) (2024-02-20)
+
+
+### Features
+
+* add permission checking ([#1613](https://github.com/consolelabs/mochi-discord/issues/1613)) ([fcc04b4](https://github.com/consolelabs/mochi-discord/commit/fcc04b45196ec85f69fd37a734fa7336319be208))
+
 ## [6.43.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.1...v6.43.2) (2024-02-07)
 
 
