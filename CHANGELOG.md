@@ -1,3 +1,10 @@
+# [6.44.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.2...v6.44.0-rc.3) (2024-02-20)
+
+
+### Bug Fixes
+
+* tip - valid 'same' amount ([#1616](https://github.com/consolelabs/mochi-discord/issues/1616)) ([ed37f35](https://github.com/consolelabs/mochi-discord/commit/ed37f35d7777c1f69a51aee8330f4525e8c32d97))
+
 # [6.44.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.1...v6.44.0-rc.2) (2024-02-20)
 
 
