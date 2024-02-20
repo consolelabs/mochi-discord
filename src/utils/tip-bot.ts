@@ -306,6 +306,18 @@ export function getTargets(args: string[]): {
     lastIdx: -1,
     valid: false,
   }
+  let amountUnit: string[] = []
+  const amountUnitNoSpaceRegEx = /^((?:\d+(?:[.,]\d+)*)|\d*[.,]\d+)(\D+)$/i
+  if (
+    /^\d+(,\d+)?(\.\d+)?$/.test(args[1]) ||
+    equalIgnoreCase(args[1], "all") ||
+    equalIgnoreCase(args[1], "a") ||
+    equalIgnoreCase(args[1], "an")
+  ) {
+    amountUnit = args.splice(1, 2)
+  } else if (amountUnitNoSpaceRegEx.test(args[1])) {
+    amountUnit = args.splice(1, 1)
+  }
 
   const content = args.join(SPACE)
   for (const [idx, a] of args.entries()) {
@@ -339,6 +351,10 @@ export function getTargets(args: string[]): {
 
   // if first target is not placed in 2nd position -> incorrect syntax
   if (result.firstIdx !== 1) result.valid = false
+
+  if (amountUnit) {
+    args.splice(result.lastIdx + 1, 0, ...amountUnit)
+  }
   return result
 }
 
@@ -416,6 +432,9 @@ export function parseTipAmount(
   msgOrInteraction: Message | CommandInteraction,
   amountArg: string,
 ): { all: boolean; amount: number; unit?: string } {
+  // replace "," to "." in amount
+  amountArg = amountArg.replace(",", ".")
+
   if (amountArg.startsWith(".")) {
     amountArg = `0${amountArg}`
   }
