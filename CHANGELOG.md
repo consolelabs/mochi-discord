@@ -1,3 +1,10 @@
+# [6.44.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.1...v6.44.0-rc.2) (2024-02-20)
+
+
+### Bug Fixes
+
+* temp disable config verify captcha ([#1615](https://github.com/consolelabs/mochi-discord/issues/1615)) ([9834b8a](https://github.com/consolelabs/mochi-discord/commit/9834b8ac12f2b19db4779306a95a406790732f6d))
+
 # [6.44.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.2...v6.44.0-rc.1) (2024-02-20)
 
 
