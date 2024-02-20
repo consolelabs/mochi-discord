@@ -25,6 +25,7 @@ import {
   RequestUpsertMonikerConfigRequest,
   ResponseListGuildTokenRoles,
   ResponseGetVaultsResponse,
+  ResponseCommandPermissions,
 } from "types/api"
 import { TEST } from "env"
 import { formatUsdDigit } from "utils/defi"
@@ -1212,6 +1213,17 @@ class Config extends Fetcher {
   public async getHashtagTemplate(alias: string) {
     return await this.jsonFetch(
       `${API_BASE_URL}/product-metadata/hashtags?alias=${alias}`,
+    )
+  }
+
+  public async getCommandPermissions(command?: string) {
+    return await this.jsonFetch<ResponseCommandPermissions>(
+      `${API_BASE_URL}/config/command-permissions`,
+      {
+        query: {
+          code: command,
+        },
+      },
     )
   }
 }

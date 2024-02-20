@@ -938,13 +938,6 @@ export interface RequestSwapRequest {
   userDiscordId: string
 }
 
-export interface RequestTrackFriendTechKeyRequest {
-  decrease_alert_at?: number
-  increase_alert_at?: number
-  key_address: string
-  profile_id: string
-}
-
 export interface RequestTrackWalletRequest {
   address: string
   alias?: string
@@ -991,11 +984,6 @@ export interface RequestUnlinkBinance {
 export interface RequestUpdateDaoVoteRequest {
   choice: string
   user_id: string
-}
-
-export interface RequestUpdateFriendTechKeyTrackRequest {
-  decrease_alert_at?: number
-  increase_alert_at?: number
 }
 
 export interface RequestUpdateGeneralSettingsPayloadRequest {
@@ -1461,35 +1449,6 @@ export interface ResponseDiscordGuildRole {
 
 export interface ResponseFindTokenByContractAddressResponse {
   data?: ResponseToken
-}
-
-export interface ResponseFriendTechKey {
-  address?: string
-  createdAt?: string
-  holders?: number
-  id?: number
-  price?: number
-  priceChangePercentage?: number
-  profileChecked?: boolean
-  supply?: number
-  twitterPfpUrl?: string
-  twitterUsername?: string
-  updatedAt?: string
-}
-
-export interface ResponseFriendTechKeyWatchlistItemResponse {
-  created_at?: string
-  decrease_alert_at?: number
-  id?: number
-  increase_alert_at?: number
-  key_address?: string
-  metadata?: ResponseTrackedFriendTechKey
-  profile_id?: string
-  updated_at?: string
-}
-
-export interface ResponseFriendTechKeysResponse {
-  data?: ResponseFriendTechKey[]
 }
 
 export interface ResponseGasTrackerResponse {
@@ -2514,24 +2473,6 @@ export interface ResponseTopUser {
   author?: ModelGuildUserXP
   leaderboard?: ModelGuildUserXP[]
   metadata?: ResponsePaginationResponse
-}
-
-export interface ResponseTrackFriendTechKeyResponse {
-  data?: ResponseFriendTechKeyWatchlistItemResponse
-}
-
-export interface ResponseTrackedFriendTechKey {
-  address?: string
-  created_at?: string
-  holders?: number
-  id?: number
-  price?: number
-  price_change_percentage?: number
-  profile_checked?: boolean
-  supply?: number
-  twitter_pfp_url?: string
-  twitter_username?: string
-  updated_at?: string
 }
 
 export interface ResponseTransferTokenV2Data {
