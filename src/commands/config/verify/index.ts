@@ -15,7 +15,7 @@ const slashActions: Record<string, SlashCommand> = {
   set: setSlash,
   info: infoSlash,
   remove: removeSlash,
-  captcha: captchaSlash,
+  // captcha: captchaSlash,
 }
 
 const slashCmd: SlashCommand = {
@@ -30,7 +30,7 @@ const slashCmd: SlashCommand = {
     data.addSubcommand(<SlashCommandSubcommandBuilder>infoSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare())
     data.addSubcommand(<SlashCommandSubcommandBuilder>setSlash.prepare())
-    data.addSubcommand(<SlashCommandSubcommandBuilder>captchaSlash.prepare())
+    // data.addSubcommand(<SlashCommandSubcommandBuilder>captchaSlash.prepare())
     return data
   },
   run: async function (interaction: CommandInteraction) {
