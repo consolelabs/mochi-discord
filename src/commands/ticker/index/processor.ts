@@ -152,13 +152,15 @@ export async function renderSingle(
   const current =
     type === ChartType.Dominance
       ? utils.formatPercentDigit(
-          String((market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY]),
+          String(
+            (market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY] ?? 0,
+          ),
         )
       : utils.formatUsdPriceDigit({
-          value: current_price[CURRENCY],
+          value: current_price[CURRENCY] ?? 0,
           subscript: true,
         })
-  const marketCap = +market_cap[CURRENCY]
+  const marketCap = market_cap[CURRENCY] ?? 0
   const embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
