@@ -1,3 +1,10 @@
+## [6.44.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.2-rc.1...v6.44.2-rc.2) (2024-02-26)
+
+
+### Bug Fixes
+
+* ticker - handle insufficient market data ([#1618](https://github.com/consolelabs/mochi-discord/issues/1618)) ([f44f50f](https://github.com/consolelabs/mochi-discord/commit/f44f50fecb4c8b275c3f25b9deaabd6f56b9105c))
+
 ## [6.44.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.1...v6.44.2-rc.1) (2024-02-26)
 
 
