@@ -528,7 +528,7 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     amount: parseFloat(amountStr),
     token: followTx.token.symbol,
     transfer_type: followTx.action,
-    message: followTx.message || "Send money",
+    message: followTx.metadata?.message || "Send money",
     chain_id: followTx.token.chain_id,
     platform: "discord",
     original_amount: followTx.metadata.original_amount,
@@ -581,14 +581,16 @@ export async function handleConfirmFollowTip(i: ButtonInteraction) {
     +dataTransfer?.amount_each * followTx.token.price,
   )
 
-  const content = `<@${i.user.id}> sent ${recipientsString} ${getEmojiToken(
+  let content = `<@${i.user.id}> sent ${recipientsString} ${getEmojiToken(
     payload.token,
   )} **${mochiUtils.formatTokenDigit(payload.amount)}** **${payload.token}** (${
     amountUsd.startsWith("<") ? "" : APPROX
   } ${amountUsd})${
     payload.recipients.length > 1 ? " each" : ""
   }! ${mochiUtils.string.receiptLink(dataTransfer?.external_id ?? "")}`
-
+  if (payload.message) {
+    content += `\nwith a message: ${payload.message}`
+  }
   await i.reply({
     content,
     components: [],
