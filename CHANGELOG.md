@@ -1,3 +1,10 @@
+## [6.44.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.1...v6.44.2-rc.1) (2024-02-26)
+
+
+### Bug Fixes
+
+* **follow_tip:** fix msg follow tip ([#1617](https://github.com/consolelabs/mochi-discord/issues/1617)) ([c88c936](https://github.com/consolelabs/mochi-discord/commit/c88c936ba4d8c223fbf38d475a881e4689438091))
+
 ## [6.44.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.0...v6.44.1) (2024-02-21)
 
 
