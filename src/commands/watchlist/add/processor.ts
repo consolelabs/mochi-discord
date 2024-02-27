@@ -61,16 +61,14 @@ export async function addToWatchlist(i: ButtonInteraction) {
 export async function addToWatchlistFromTicker(
   i: ButtonInteraction,
   userId: string,
-  symbol: string,
-  coingeckoId: string,
+  { to, baseCoin, ...rest }: Record<string, any>,
 ) {
-  if (!i.deferred) await i.deferUpdate().catch(() => null)
   const msg = i.message as Message
   const data = await addUserWatchlist(
     msg,
     userId,
-    symbol.toLowerCase(),
-    coingeckoId,
+    to.toLowerCase(),
+    baseCoin.id,
   )
   if (!data) return null
 
@@ -82,24 +80,32 @@ export async function addToWatchlistFromTicker(
       .join(" ")
   }
 
-  await msg.edit({
-    attachments: [],
-    embeds: [
-      getSuccessEmbed({
-        title: `${symbolString([symbol])} has been added to the watchlist`,
-        description: `${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true,
-        )} View watchlist with ${await getSlashCommand(
-          "wlv",
-        )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
-          "ANIMATED_POINTING_RIGHT",
-          true,
-        )} To remove, use ${await getSlashCommand("watchlist remove")}`,
-      }),
-    ],
-    components: [],
-  })
+  return {
+    initial: "addWatchList",
+    context: {
+      to,
+      baseCoin,
+      ...rest,
+    },
+    msgOpts: {
+      files: [],
+      embeds: [
+        getSuccessEmbed({
+          title: `${symbolString([to])} has been added to the watchlist`,
+          description: `${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true,
+          )} View watchlist with ${await getSlashCommand(
+            "wlv",
+          )} (alias for ${await getSlashCommand("watchlist view")})\n${getEmoji(
+            "ANIMATED_POINTING_RIGHT",
+            true,
+          )} To remove, use ${await getSlashCommand("watchlist remove")}`,
+        }),
+      ],
+      components: [],
+    },
+  }
 }
 
 export async function addUserWatchlist(
