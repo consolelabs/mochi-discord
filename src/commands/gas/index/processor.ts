@@ -48,7 +48,7 @@ export async function render() {
       value: `${getEmoji("SLOW")} Slow - ${ConvertSecondToMinute(
         token.est_safe_time,
       )} \`${token.safe_gas_price} Gwei\`\n${getEmoji(
-        "NORMAL",
+        "CONVERSION",
       )} Normal - ${ConvertSecondToMinute(token.est_propose_time)} \`${
         token.propose_gas_price
       } Gwei\`\n${getEmoji("FAST")} Fast - ${ConvertSecondToMinute(
@@ -116,7 +116,7 @@ export async function renderOne(chain: string) {
       value: `${getEmoji("SLOW")} Slow - ${ConvertSecondToMinute(
         data.est_safe_time,
       )} \`${data.safe_gas_price} Gwei\`\n${getEmoji(
-        "NORMAL",
+        "CONVERSION",
       )} Normal - ${ConvertSecondToMinute(data.est_propose_time)} \`${
         data.propose_gas_price
       } Gwei\`\n${getEmoji("FAST")} Fast - ${ConvertSecondToMinute(
