@@ -97,8 +97,7 @@ export const machineConfig: (
           return await addToWatchlistFromTicker(
             interaction,
             interaction.user.id,
-            ctx.to,
-            ctx.baseCoin.id,
+            ctx,
           )
         },
         showOtherTicker: (_interaction, _ev, ctx) => {
