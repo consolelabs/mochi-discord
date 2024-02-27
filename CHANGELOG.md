@@ -1,3 +1,10 @@
+## [6.44.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.2...v6.44.3-rc.1) (2024-02-27)
+
+
+### Bug Fixes
+
+* gas normal emoji ([6f9e294](https://github.com/consolelabs/mochi-discord/commit/6f9e29438fa8674239228cbe0295bd42cc2307d8))
+
 ## [6.44.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.1...v6.44.2) (2024-02-27)
 
 
