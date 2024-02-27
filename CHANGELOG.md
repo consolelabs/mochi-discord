@@ -1,3 +1,10 @@
+## [6.44.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.2-rc.2...v6.44.2-rc.3) (2024-02-27)
+
+
+### Bug Fixes
+
+* add to watchlist from ticker flow ([b61bb4e](https://github.com/consolelabs/mochi-discord/commit/b61bb4e98d77adea5c05e2b8b29607df55b0bb5f))
+
 ## [6.44.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.2-rc.1...v6.44.2-rc.2) (2024-02-26)
 
 
