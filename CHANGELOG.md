@@ -1,3 +1,10 @@
+## [6.44.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.1...v6.44.3-rc.2) (2024-02-28)
+
+
+### Bug Fixes
+
+* vault transfer emoji ([4f69e70](https://github.com/consolelabs/mochi-discord/commit/4f69e70e2d32006d24f168b5abcc14857189ecc9))
+
 ## [6.44.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.2...v6.44.3-rc.1) (2024-02-27)
 
 
