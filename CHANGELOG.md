@@ -1,3 +1,10 @@
+## [6.44.3-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.2...v6.44.3-rc.3) (2024-02-29)
+
+
+### Bug Fixes
+
+* transfer-v2 with token_id ([#1619](https://github.com/consolelabs/mochi-discord/issues/1619)) ([2d2518d](https://github.com/consolelabs/mochi-discord/commit/2d2518d520ea79f204f0186301835e8b3a3f7a7c))
+
 ## [6.44.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.1...v6.44.3-rc.2) (2024-02-28)
 
 
