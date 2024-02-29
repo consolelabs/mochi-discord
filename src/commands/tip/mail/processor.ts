@@ -17,6 +17,7 @@ import {
   getAuthor,
   getEmojiToken,
   getEmojiURL,
+  shortenHashOrAddress,
 } from "utils/common"
 import { getChannelUrl, isMessage, reply } from "utils/discord"
 import config from "adapters/config"
@@ -153,6 +154,7 @@ export async function tipMail(
     channel_url,
     amount: amount,
     token: symbol,
+    token_id: balances[0].token_id,
     each,
     all,
     transfer_type: "transfer",
@@ -188,12 +190,10 @@ async function selectToken(
   // token selection handler
   const suggestionHandler = async (i: SelectMenuInteraction) => {
     await i.deferUpdate()
-    payload.chain_id = i.values[0]
-    const balance = balances.find(
-      (b: any) =>
-        equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chain_id === b.token?.chain?.chain_id,
-    )
+    const selectedTokenId = i.values[0]
+    const balance = balances.find((b: any) => selectedTokenId === b.token_id)
+    payload.chain_id = balance?.token?.chain?.chain_id
+    payload.token_id = selectedTokenId
     return await validateAndTransfer(msgOrInteraction, payload, balance)
   }
 
@@ -208,12 +208,12 @@ function composeTokenSelectionResponse(
   author: User,
   balances: any,
 ): RunResult<MessageOptions> {
-  const options = balances.map((b: any) => {
-    return {
-      label: `${b.token.name} (${b.token?.chain?.name ?? b.token?.chain_id})`,
-      value: b.token.chain.chain_id,
-    }
-  })
+  const options = balances.map((b: any) => ({
+    label: `${b.token?.chain?.name ?? b.token?.chain_id} | ${b.token.name}${
+      b.token.address ? ` | ${shortenHashOrAddress(b.token.address)}` : ""
+    }`,
+    value: b.token_id,
+  }))
   // select menu
   const selectRow = composeDiscordSelectionRow({
     customId: `tip-select-token`,
@@ -222,16 +222,10 @@ function composeTokenSelectionResponse(
   })
 
   // embed
-  const chains = balances
-    .map((b: any) => {
-      return `\`${b.token?.chain?.name}\``
-    })
-    .filter((s: any) => Boolean(s))
-    .join(", ")
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: author,
     author: ["Multiple results found", getEmojiURL(emojis.MAG)],
-    description: `You have \`${balances[0].token?.symbol}\` balance on multiple chains: ${chains}.\nPlease select one of the following`,
+    description: `You have multiple \`${balances[0].token?.symbol}\` balances.\nPlease select one of the following`,
   })
 
   return { messageOptions: { embeds: [embed], components: [selectRow] } }
@@ -430,6 +424,7 @@ function showSuccesfulResponse(
             color: hashtagTemplate.product_hashtag.color,
           }),
         ],
+        components: [],
       },
     }
   }
@@ -437,6 +432,8 @@ function showSuccesfulResponse(
   return {
     messageOptions: {
       content: `${content}${contentMsg}`,
+      components: [],
+      embeds: [],
     },
   }
 }

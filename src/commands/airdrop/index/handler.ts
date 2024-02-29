@@ -453,12 +453,10 @@ export function tokenSelectionHandler(
 ) {
   return async (i: SelectMenuInteraction) => {
     await i.deferUpdate()
-    payload.chain_id = i.values[0]
-    const balance = balances.find(
-      (b: any) =>
-        equalIgnoreCase(b.token?.symbol, payload.token) &&
-        payload.chain_id === b.token?.chain?.chain_id,
-    )
+    const selectedTokenId = i.values[0]
+    const balance = balances.find((b: any) => selectedTokenId === b.token_id)
+    payload.chain_id = balance?.token?.chain?.chain_id
+    payload.token_id = selectedTokenId
     return validateAndShowConfirmation(ci, payload, balance, opts)
   }
 }

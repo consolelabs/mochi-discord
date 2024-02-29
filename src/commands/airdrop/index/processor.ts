@@ -19,6 +19,7 @@ import {
   getEmojiURL,
   msgColors,
   roundFloatNumber,
+  shortenHashOrAddress,
 } from "utils/common"
 import { APPROX } from "utils/constants"
 import {
@@ -88,6 +89,7 @@ export async function airdrop(i: CommandInteraction) {
   // only one matching token -> proceed to send tip
   if (balances.length === 1) {
     const balance = balances[0]
+    payload.token_id = balance.token_id
     const output = await validateAndShowConfirmation(i, payload, balance, {
       duration,
       entries,
@@ -142,6 +144,7 @@ export async function validateAndShowConfirmation(
   await isInTipRange(ci, usdAmount)
 
   // proceed to transfer
+  payload.token_id = balance.token_id
   payload.chain_id = balance.token?.chain?.chain_id
   payload.amount_string = formatDigit({
     value: payload.amount.toString(),
@@ -175,12 +178,12 @@ async function selectToken(
   balances: any,
   opts: AirdropOptions,
 ) {
-  const options = balances.map((b: any) => {
-    return {
-      label: `${b.token.name} (${b.token?.chain?.name ?? b.token?.chain_id})`,
-      value: b.token.chain.chain_id,
-    }
-  })
+  const options = balances.map((b: any) => ({
+    label: `${b.token?.chain?.name ?? b.token?.chain_id} | ${b.token.name}${
+      b.token.address ? ` | ${shortenHashOrAddress(b.token.address)}` : ""
+    }`,
+    value: b.token_id,
+  }))
   // select menu
   const selectRow = composeDiscordSelectionRow({
     customId: `airdrop-select-token`,
@@ -188,17 +191,11 @@ async function selectToken(
     options,
   })
 
-  const chains = balances
-    .map((b: any) => {
-      return `\`${b.token?.chain?.name}\``
-    })
-    .filter((s: any) => Boolean(s))
-    .join(", ")
   // embed
   const embed = composeEmbedMessage(null, {
     originalMsgAuthor: ci.user,
     author: ["Multiple results found", getEmojiURL(emojis.MAG)],
-    description: `You have \`${payload.token}\` balance on multiple chains: ${chains}.\nPlease select one of the following`,
+    description: `You have multiple \`${balances[0].token?.symbol}\` balances.\nPlease select one of the following`,
   })
 
   // reply
