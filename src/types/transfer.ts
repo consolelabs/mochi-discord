@@ -9,6 +9,7 @@ export type TransferPayload = {
   channel_id: string
   amount: number
   token: string
+  token_id?: string
   each?: boolean
   all?: boolean
   transfer_type: TransferType
