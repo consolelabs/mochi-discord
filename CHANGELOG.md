@@ -1,3 +1,24 @@
+## [6.44.3-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.2...v6.44.3-rc.3) (2024-02-29)
+
+
+### Bug Fixes
+
+* transfer-v2 with token_id ([#1619](https://github.com/consolelabs/mochi-discord/issues/1619)) ([2d2518d](https://github.com/consolelabs/mochi-discord/commit/2d2518d520ea79f204f0186301835e8b3a3f7a7c))
+
+## [6.44.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.1...v6.44.3-rc.2) (2024-02-28)
+
+
+### Bug Fixes
+
+* vault transfer emoji ([4f69e70](https://github.com/consolelabs/mochi-discord/commit/4f69e70e2d32006d24f168b5abcc14857189ecc9))
+
+## [6.44.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.2...v6.44.3-rc.1) (2024-02-27)
+
+
+### Bug Fixes
+
+* gas normal emoji ([6f9e294](https://github.com/consolelabs/mochi-discord/commit/6f9e29438fa8674239228cbe0295bd42cc2307d8))
+
 ## [6.44.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.1...v6.44.2) (2024-02-27)
 
 

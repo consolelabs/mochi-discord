@@ -99,7 +99,7 @@ export async function runTransferTreasurer({
       `${getEmoji("NFT2")}\`Amount.        \` ${getEmojiToken(
         token.toUpperCase() as TokenEmojiKey,
       )} **${amount} ${token.toUpperCase()}**`,
-      `${getEmoji("PRAY")}\`Recipient.     \` ${transferTarget}`,
+      `${getEmoji("SHARE")}\`Recipient.     \` ${transferTarget}`,
       ...(isDm
         ? [
             `${getEmoji(
