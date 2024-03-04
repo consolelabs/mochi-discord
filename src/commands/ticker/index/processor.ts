@@ -24,6 +24,7 @@ import {
   getEmojiToken,
   TokenEmojiKey,
   getEmojiURL,
+  shortenHashOrAddress,
 } from "utils/common"
 import {
   renderCompareTokenChart,
@@ -141,6 +142,9 @@ export async function renderSingle(
   { days, baseCoin: coin, type, listCoins }: Context,
 ) {
   days = days ?? (type === ChartType.Dominance ? 365 : 30)
+  const hasPlatforms = Object.keys(coin.platforms ?? {}).filter((p) =>
+    Boolean(p),
+  ).length
   const {
     market_cap,
     total_market_cap,
@@ -213,6 +217,15 @@ export async function renderSingle(
       ),
       inline: true,
     },
+    ...(hasPlatforms && coin.asset_platform_id
+      ? [
+          {
+            name: "Address",
+            value: `\`${coin.platforms?.[coin.asset_platform_id]}\``,
+            inline: false,
+          },
+        ]
+      : []),
   ])
 
   const chart = await renderHistoricalMarketChart({
