@@ -1,3 +1,10 @@
+# [6.45.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0-rc.1) (2024-03-04)
+
+
+### Features
+
+* ticker - add address ([#1620](https://github.com/consolelabs/mochi-discord/issues/1620)) ([d91a673](https://github.com/consolelabs/mochi-discord/commit/d91a673fbf3d03909a9169548e48f04d1244774d))
+
 ## [6.44.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.2...v6.44.3) (2024-03-01)
 
 
