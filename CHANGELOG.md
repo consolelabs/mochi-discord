@@ -1,3 +1,10 @@
+## [6.45.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.0...v6.45.1-rc.1) (2024-03-08)
+
+
+### Bug Fixes
+
+* /feed command ([3290176](https://github.com/consolelabs/mochi-discord/commit/329017609496d2e7c7cc3de164148644462b1b2d))
+
 # [6.45.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0-rc.1) (2024-03-04)
 
 # [6.45.0](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0) (2024-03-04)
