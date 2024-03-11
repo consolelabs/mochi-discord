@@ -662,7 +662,7 @@ export async function run(
       })
       if (!coins || !coins.length) {
         throw new InternalError({
-          title: "Unsupported token/fiat",
+          title: `Unsupported token/fiat ${ticker}`,
           msgOrInteraction: interaction,
           descriptions: [
             "Please choose a token that is listed on [CoinGecko](https://www.coingecko.com)",
