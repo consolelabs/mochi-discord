@@ -15,6 +15,7 @@ import {
   getEmoji,
   getEmojiToken,
   getEmojiURL,
+  shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
 import {
@@ -240,6 +241,8 @@ export async function addWatchlistToken({
           target_suggestions.map((t: Coin) => ({
             name: `${b.name}/${t.name}`,
             symbol: `${b.symbol.toUpperCase()}/${t.symbol.toUpperCase()}`,
+            chain: `${b.asset_platform.shortname}`,
+            address: `${shortenHashOrAddress(b.contract_address)}`,
           })),
         )
         .flat()
@@ -260,7 +263,7 @@ export async function addWatchlistToken({
             ],
             description: `We're not sure which \`${symbol.toUpperCase()}\`, select one:\n${
               formatDataTable(tokens, {
-                cols: ["name", "symbol"],
+                cols: ["name", "symbol", "chain", "address"],
                 rowAfterFormatter: (f, i) =>
                   `${getEmoji(`NUM_${i + 1}` as EmojiKey)}${f}`,
               }).joined
