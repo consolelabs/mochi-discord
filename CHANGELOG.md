@@ -1,1003 +1,890 @@
-# [6.45.0](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0) (2024-03-04)
+## [6.45.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.1-rc.1...v6.45.1-rc.2) (2024-03-12)
 
+
+### Bug Fixes
+
+* rendering app's transfer ([f593cf8](https://github.com/consolelabs/mochi-discord/commit/f593cf8ee1a9221a211b1b9dd7c0484bede7a9e6))
+* **ticker:** update ticker not support response ([#1621](https://github.com/consolelabs/mochi-discord/issues/1621)) ([93acb1e](https://github.com/consolelabs/mochi-discord/commit/93acb1ee3edc4034c49002347d4193e97338e307))
+* **watchlist:** show token chain and address in suggestion ([#1622](https://github.com/consolelabs/mochi-discord/issues/1622)) ([6ef58fe](https://github.com/consolelabs/mochi-discord/commit/6ef58fea5bbc166cc721029614e3eecd4320cc69))
+
+## [6.45.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.0...v6.45.1-rc.1) (2024-03-08)
+
+
+### Bug Fixes
+
+* /feed command ([3290176](https://github.com/consolelabs/mochi-discord/commit/329017609496d2e7c7cc3de164148644462b1b2d))
+
+# [6.45.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0-rc.1) (2024-03-04)
+
+# [6.45.0](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0) (2024-03-04)
 
 ### Features
 
-* ticker - add address ([#1620](https://github.com/consolelabs/mochi-discord/issues/1620)) ([d91a673](https://github.com/consolelabs/mochi-discord/commit/d91a673fbf3d03909a9169548e48f04d1244774d))
+- ticker - add address ([#1620](https://github.com/consolelabs/mochi-discord/issues/1620)) ([d91a673](https://github.com/consolelabs/mochi-discord/commit/d91a673fbf3d03909a9169548e48f04d1244774d))
 
 ## [6.44.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.2...v6.44.3) (2024-03-01)
 
-
 ### Bug Fixes
 
-* gas normal emoji ([6f9e294](https://github.com/consolelabs/mochi-discord/commit/6f9e29438fa8674239228cbe0295bd42cc2307d8))
-* transfer-v2 with token_id ([#1619](https://github.com/consolelabs/mochi-discord/issues/1619)) ([2d2518d](https://github.com/consolelabs/mochi-discord/commit/2d2518d520ea79f204f0186301835e8b3a3f7a7c))
-* vault transfer emoji ([4f69e70](https://github.com/consolelabs/mochi-discord/commit/4f69e70e2d32006d24f168b5abcc14857189ecc9))
+- gas normal emoji ([6f9e294](https://github.com/consolelabs/mochi-discord/commit/6f9e29438fa8674239228cbe0295bd42cc2307d8))
+- transfer-v2 with token_id ([#1619](https://github.com/consolelabs/mochi-discord/issues/1619)) ([2d2518d](https://github.com/consolelabs/mochi-discord/commit/2d2518d520ea79f204f0186301835e8b3a3f7a7c))
+- vault transfer emoji ([4f69e70](https://github.com/consolelabs/mochi-discord/commit/4f69e70e2d32006d24f168b5abcc14857189ecc9))
 
 ## [6.44.3-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.2...v6.44.3-rc.3) (2024-02-29)
 
-
 ### Bug Fixes
 
-* transfer-v2 with token_id ([#1619](https://github.com/consolelabs/mochi-discord/issues/1619)) ([2d2518d](https://github.com/consolelabs/mochi-discord/commit/2d2518d520ea79f204f0186301835e8b3a3f7a7c))
+- transfer-v2 with token_id ([#1619](https://github.com/consolelabs/mochi-discord/issues/1619)) ([2d2518d](https://github.com/consolelabs/mochi-discord/commit/2d2518d520ea79f204f0186301835e8b3a3f7a7c))
 
 ## [6.44.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.3-rc.1...v6.44.3-rc.2) (2024-02-28)
 
-
 ### Bug Fixes
 
-* vault transfer emoji ([4f69e70](https://github.com/consolelabs/mochi-discord/commit/4f69e70e2d32006d24f168b5abcc14857189ecc9))
+- vault transfer emoji ([4f69e70](https://github.com/consolelabs/mochi-discord/commit/4f69e70e2d32006d24f168b5abcc14857189ecc9))
 
 ## [6.44.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.2...v6.44.3-rc.1) (2024-02-27)
 
-
 ### Bug Fixes
 
-* gas normal emoji ([6f9e294](https://github.com/consolelabs/mochi-discord/commit/6f9e29438fa8674239228cbe0295bd42cc2307d8))
+- gas normal emoji ([6f9e294](https://github.com/consolelabs/mochi-discord/commit/6f9e29438fa8674239228cbe0295bd42cc2307d8))
 
 ## [6.44.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.1...v6.44.2) (2024-02-27)
 
-
 ### Bug Fixes
 
-* add to watchlist from ticker flow ([b61bb4e](https://github.com/consolelabs/mochi-discord/commit/b61bb4e98d77adea5c05e2b8b29607df55b0bb5f))
-* **follow_tip:** fix msg follow tip ([#1617](https://github.com/consolelabs/mochi-discord/issues/1617)) ([c88c936](https://github.com/consolelabs/mochi-discord/commit/c88c936ba4d8c223fbf38d475a881e4689438091))
-* ticker - handle insufficient market data ([#1618](https://github.com/consolelabs/mochi-discord/issues/1618)) ([f44f50f](https://github.com/consolelabs/mochi-discord/commit/f44f50fecb4c8b275c3f25b9deaabd6f56b9105c))
+- add to watchlist from ticker flow ([b61bb4e](https://github.com/consolelabs/mochi-discord/commit/b61bb4e98d77adea5c05e2b8b29607df55b0bb5f))
+- **follow_tip:** fix msg follow tip ([#1617](https://github.com/consolelabs/mochi-discord/issues/1617)) ([c88c936](https://github.com/consolelabs/mochi-discord/commit/c88c936ba4d8c223fbf38d475a881e4689438091))
+- ticker - handle insufficient market data ([#1618](https://github.com/consolelabs/mochi-discord/issues/1618)) ([f44f50f](https://github.com/consolelabs/mochi-discord/commit/f44f50fecb4c8b275c3f25b9deaabd6f56b9105c))
 
 ## [6.44.2-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.2-rc.2...v6.44.2-rc.3) (2024-02-27)
 
-
 ### Bug Fixes
 
-* add to watchlist from ticker flow ([b61bb4e](https://github.com/consolelabs/mochi-discord/commit/b61bb4e98d77adea5c05e2b8b29607df55b0bb5f))
+- add to watchlist from ticker flow ([b61bb4e](https://github.com/consolelabs/mochi-discord/commit/b61bb4e98d77adea5c05e2b8b29607df55b0bb5f))
 
 ## [6.44.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.2-rc.1...v6.44.2-rc.2) (2024-02-26)
 
-
 ### Bug Fixes
 
-* ticker - handle insufficient market data ([#1618](https://github.com/consolelabs/mochi-discord/issues/1618)) ([f44f50f](https://github.com/consolelabs/mochi-discord/commit/f44f50fecb4c8b275c3f25b9deaabd6f56b9105c))
+- ticker - handle insufficient market data ([#1618](https://github.com/consolelabs/mochi-discord/issues/1618)) ([f44f50f](https://github.com/consolelabs/mochi-discord/commit/f44f50fecb4c8b275c3f25b9deaabd6f56b9105c))
 
 ## [6.44.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.1...v6.44.2-rc.1) (2024-02-26)
 
-
 ### Bug Fixes
 
-* **follow_tip:** fix msg follow tip ([#1617](https://github.com/consolelabs/mochi-discord/issues/1617)) ([c88c936](https://github.com/consolelabs/mochi-discord/commit/c88c936ba4d8c223fbf38d475a881e4689438091))
+- **follow_tip:** fix msg follow tip ([#1617](https://github.com/consolelabs/mochi-discord/issues/1617)) ([c88c936](https://github.com/consolelabs/mochi-discord/commit/c88c936ba4d8c223fbf38d475a881e4689438091))
 
 ## [6.44.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.0...v6.44.1) (2024-02-21)
 
-
 ### Bug Fixes
 
-* support diff format tip and keep the follow up msg ([#1614](https://github.com/consolelabs/mochi-discord/issues/1614)) ([b6ec480](https://github.com/consolelabs/mochi-discord/commit/b6ec480e6a4f7775d7c751c6b58f481ae8bf7557))
+- support diff format tip and keep the follow up msg ([#1614](https://github.com/consolelabs/mochi-discord/issues/1614)) ([b6ec480](https://github.com/consolelabs/mochi-discord/commit/b6ec480e6a4f7775d7c751c6b58f481ae8bf7557))
 
 # [6.44.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.3...v6.44.0-rc.4) (2024-02-20)
 
-
 ### Bug Fixes
 
-* support diff format tip and keep the follow up msg ([#1614](https://github.com/consolelabs/mochi-discord/issues/1614)) ([b6ec480](https://github.com/consolelabs/mochi-discord/commit/b6ec480e6a4f7775d7c751c6b58f481ae8bf7557))
+- support diff format tip and keep the follow up msg ([#1614](https://github.com/consolelabs/mochi-discord/issues/1614)) ([b6ec480](https://github.com/consolelabs/mochi-discord/commit/b6ec480e6a4f7775d7c751c6b58f481ae8bf7557))
 
 # [6.44.0](https://github.com/consolelabs/mochi-discord/compare/v6.43.2...v6.44.0) (2024-02-20)
 
-
 ### Bug Fixes
 
-* temp disable config verify captcha ([#1615](https://github.com/consolelabs/mochi-discord/issues/1615)) ([9834b8a](https://github.com/consolelabs/mochi-discord/commit/9834b8ac12f2b19db4779306a95a406790732f6d))
-* tip - valid 'same' amount ([#1616](https://github.com/consolelabs/mochi-discord/issues/1616)) ([ed37f35](https://github.com/consolelabs/mochi-discord/commit/ed37f35d7777c1f69a51aee8330f4525e8c32d97))
-
+- temp disable config verify captcha ([#1615](https://github.com/consolelabs/mochi-discord/issues/1615)) ([9834b8a](https://github.com/consolelabs/mochi-discord/commit/9834b8ac12f2b19db4779306a95a406790732f6d))
+- tip - valid 'same' amount ([#1616](https://github.com/consolelabs/mochi-discord/issues/1616)) ([ed37f35](https://github.com/consolelabs/mochi-discord/commit/ed37f35d7777c1f69a51aee8330f4525e8c32d97))
 
 ### Features
 
-* add permission checking ([#1613](https://github.com/consolelabs/mochi-discord/issues/1613)) ([fcc04b4](https://github.com/consolelabs/mochi-discord/commit/fcc04b45196ec85f69fd37a734fa7336319be208))
+- add permission checking ([#1613](https://github.com/consolelabs/mochi-discord/issues/1613)) ([fcc04b4](https://github.com/consolelabs/mochi-discord/commit/fcc04b45196ec85f69fd37a734fa7336319be208))
 
 # [6.44.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.2...v6.44.0-rc.3) (2024-02-20)
 
-
 ### Bug Fixes
 
-* tip - valid 'same' amount ([#1616](https://github.com/consolelabs/mochi-discord/issues/1616)) ([ed37f35](https://github.com/consolelabs/mochi-discord/commit/ed37f35d7777c1f69a51aee8330f4525e8c32d97))
+- tip - valid 'same' amount ([#1616](https://github.com/consolelabs/mochi-discord/issues/1616)) ([ed37f35](https://github.com/consolelabs/mochi-discord/commit/ed37f35d7777c1f69a51aee8330f4525e8c32d97))
 
 # [6.44.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.44.0-rc.1...v6.44.0-rc.2) (2024-02-20)
 
-
 ### Bug Fixes
 
-* temp disable config verify captcha ([#1615](https://github.com/consolelabs/mochi-discord/issues/1615)) ([9834b8a](https://github.com/consolelabs/mochi-discord/commit/9834b8ac12f2b19db4779306a95a406790732f6d))
+- temp disable config verify captcha ([#1615](https://github.com/consolelabs/mochi-discord/issues/1615)) ([9834b8a](https://github.com/consolelabs/mochi-discord/commit/9834b8ac12f2b19db4779306a95a406790732f6d))
 
 # [6.44.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.2...v6.44.0-rc.1) (2024-02-20)
 
-
 ### Features
 
-* add permission checking ([#1613](https://github.com/consolelabs/mochi-discord/issues/1613)) ([fcc04b4](https://github.com/consolelabs/mochi-discord/commit/fcc04b45196ec85f69fd37a734fa7336319be208))
+- add permission checking ([#1613](https://github.com/consolelabs/mochi-discord/issues/1613)) ([fcc04b4](https://github.com/consolelabs/mochi-discord/commit/fcc04b45196ec85f69fd37a734fa7336319be208))
 
 ## [6.43.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.1...v6.43.2) (2024-02-07)
 
-
 ### Bug Fixes
 
-* remove 3 dots in tx id ([1ee613c](https://github.com/consolelabs/mochi-discord/commit/1ee613ce83d00f26c101fb2bf5212b70aa8bb9d5))
+- remove 3 dots in tx id ([1ee613c](https://github.com/consolelabs/mochi-discord/commit/1ee613ce83d00f26c101fb2bf5212b70aa8bb9d5))
 
 ## [6.43.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.1...v6.43.2-rc.1) (2024-02-07)
 
-
 ### Bug Fixes
 
-* remove 3 dots in tx id ([1ee613c](https://github.com/consolelabs/mochi-discord/commit/1ee613ce83d00f26c101fb2bf5212b70aa8bb9d5))
+- remove 3 dots in tx id ([1ee613c](https://github.com/consolelabs/mochi-discord/commit/1ee613ce83d00f26c101fb2bf5212b70aa8bb9d5))
 
 ## [6.43.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.0...v6.43.1) (2024-02-07)
 
-
 ### Bug Fixes
 
-* add more aliases to tip cmd ([66b3667](https://github.com/consolelabs/mochi-discord/commit/66b36678e29027d4f81bf21be1c6f08dc1d0eb90))
-* handle parallel airdrops ([#1612](https://github.com/consolelabs/mochi-discord/issues/1612)) ([9670eda](https://github.com/consolelabs/mochi-discord/commit/9670edaf87af9bc07d0aebff6c6ac14941bdaac9))
-* show prettier payme error ([#1611](https://github.com/consolelabs/mochi-discord/issues/1611)) ([193c35e](https://github.com/consolelabs/mochi-discord/commit/193c35e4a578fa556887df7329699c82cc1e635d))
+- add more aliases to tip cmd ([66b3667](https://github.com/consolelabs/mochi-discord/commit/66b36678e29027d4f81bf21be1c6f08dc1d0eb90))
+- handle parallel airdrops ([#1612](https://github.com/consolelabs/mochi-discord/issues/1612)) ([9670eda](https://github.com/consolelabs/mochi-discord/commit/9670edaf87af9bc07d0aebff6c6ac14941bdaac9))
+- show prettier payme error ([#1611](https://github.com/consolelabs/mochi-discord/issues/1611)) ([193c35e](https://github.com/consolelabs/mochi-discord/commit/193c35e4a578fa556887df7329699c82cc1e635d))
 
 ## [6.43.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.43.0...v6.43.1-rc.1) (2024-02-07)
 
-
 ### Bug Fixes
 
-* add more aliases to tip cmd ([66b3667](https://github.com/consolelabs/mochi-discord/commit/66b36678e29027d4f81bf21be1c6f08dc1d0eb90))
-* handle parallel airdrops ([#1612](https://github.com/consolelabs/mochi-discord/issues/1612)) ([9670eda](https://github.com/consolelabs/mochi-discord/commit/9670edaf87af9bc07d0aebff6c6ac14941bdaac9))
-* show prettier payme error ([#1611](https://github.com/consolelabs/mochi-discord/issues/1611)) ([193c35e](https://github.com/consolelabs/mochi-discord/commit/193c35e4a578fa556887df7329699c82cc1e635d))
+- add more aliases to tip cmd ([66b3667](https://github.com/consolelabs/mochi-discord/commit/66b36678e29027d4f81bf21be1c6f08dc1d0eb90))
+- handle parallel airdrops ([#1612](https://github.com/consolelabs/mochi-discord/issues/1612)) ([9670eda](https://github.com/consolelabs/mochi-discord/commit/9670edaf87af9bc07d0aebff6c6ac14941bdaac9))
+- show prettier payme error ([#1611](https://github.com/consolelabs/mochi-discord/issues/1611)) ([193c35e](https://github.com/consolelabs/mochi-discord/commit/193c35e4a578fa556887df7329699c82cc1e635d))
 
 # [6.43.0](https://github.com/consolelabs/mochi-discord/compare/v6.42.16...v6.43.0) (2024-02-06)
 
-
 ### Bug Fixes
 
-* add 3 dots after tx id ([405c6d1](https://github.com/consolelabs/mochi-discord/commit/405c6d18bd62fb1ee3a68ae6a511a364e58553a4))
-* **airdrop:** update transaction id ([#1609](https://github.com/consolelabs/mochi-discord/issues/1609)) ([4f5cab5](https://github.com/consolelabs/mochi-discord/commit/4f5cab54c06b90e0fb1781948afbd718c0b4fbcf))
-* **general:** update ron address format ([#1610](https://github.com/consolelabs/mochi-discord/issues/1610)) ([1cf275f](https://github.com/consolelabs/mochi-discord/commit/1cf275f63bdb16073e623bdf1c1eccccd99df440))
-* use the same total amount of cex accounts in list view and detail view ([bec13a2](https://github.com/consolelabs/mochi-discord/commit/bec13a26082fca0b987af1a4c50725b7a216a380))
-
+- add 3 dots after tx id ([405c6d1](https://github.com/consolelabs/mochi-discord/commit/405c6d18bd62fb1ee3a68ae6a511a364e58553a4))
+- **airdrop:** update transaction id ([#1609](https://github.com/consolelabs/mochi-discord/issues/1609)) ([4f5cab5](https://github.com/consolelabs/mochi-discord/commit/4f5cab54c06b90e0fb1781948afbd718c0b4fbcf))
+- **general:** update ron address format ([#1610](https://github.com/consolelabs/mochi-discord/issues/1610)) ([1cf275f](https://github.com/consolelabs/mochi-discord/commit/1cf275f63bdb16073e623bdf1c1eccccd99df440))
+- use the same total amount of cex accounts in list view and detail view ([bec13a2](https://github.com/consolelabs/mochi-discord/commit/bec13a26082fca0b987af1a4c50725b7a216a380))
 
 ### Features
 
-* show binance future wallet asset ([e821582](https://github.com/consolelabs/mochi-discord/commit/e82158238619f3733dadc134ec041ac9202fdda6))
+- show binance future wallet asset ([e821582](https://github.com/consolelabs/mochi-discord/commit/e82158238619f3733dadc134ec041ac9202fdda6))
 
 # [6.43.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.43.0-rc.1...v6.43.0-rc.2) (2024-02-06)
 
-
 ### Bug Fixes
 
-* use the same total amount of cex accounts in list view and detail view ([bec13a2](https://github.com/consolelabs/mochi-discord/commit/bec13a26082fca0b987af1a4c50725b7a216a380))
+- use the same total amount of cex accounts in list view and detail view ([bec13a2](https://github.com/consolelabs/mochi-discord/commit/bec13a26082fca0b987af1a4c50725b7a216a380))
 
 # [6.43.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.17-rc.1...v6.43.0-rc.1) (2024-02-06)
 
-
 ### Features
 
-* show binance future wallet asset ([e821582](https://github.com/consolelabs/mochi-discord/commit/e82158238619f3733dadc134ec041ac9202fdda6))
+- show binance future wallet asset ([e821582](https://github.com/consolelabs/mochi-discord/commit/e82158238619f3733dadc134ec041ac9202fdda6))
 
 ## [6.42.17-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.16...v6.42.17-rc.1) (2024-02-06)
 
-
 ### Bug Fixes
 
-* add 3 dots after tx id ([405c6d1](https://github.com/consolelabs/mochi-discord/commit/405c6d18bd62fb1ee3a68ae6a511a364e58553a4))
-* **airdrop:** update transaction id ([#1609](https://github.com/consolelabs/mochi-discord/issues/1609)) ([4f5cab5](https://github.com/consolelabs/mochi-discord/commit/4f5cab54c06b90e0fb1781948afbd718c0b4fbcf))
-* **general:** update ron address format ([#1610](https://github.com/consolelabs/mochi-discord/issues/1610)) ([1cf275f](https://github.com/consolelabs/mochi-discord/commit/1cf275f63bdb16073e623bdf1c1eccccd99df440))
+- add 3 dots after tx id ([405c6d1](https://github.com/consolelabs/mochi-discord/commit/405c6d18bd62fb1ee3a68ae6a511a364e58553a4))
+- **airdrop:** update transaction id ([#1609](https://github.com/consolelabs/mochi-discord/issues/1609)) ([4f5cab5](https://github.com/consolelabs/mochi-discord/commit/4f5cab54c06b90e0fb1781948afbd718c0b4fbcf))
+- **general:** update ron address format ([#1610](https://github.com/consolelabs/mochi-discord/issues/1610)) ([1cf275f](https://github.com/consolelabs/mochi-discord/commit/1cf275f63bdb16073e623bdf1c1eccccd99df440))
 
 ## [6.42.16-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.16-rc.1...v6.42.16-rc.2) (2024-01-27)
 
-
 ### Bug Fixes
 
-* **bal:** check empty transaction ([#1607](https://github.com/consolelabs/mochi-discord/issues/1607)) ([fa0fdf0](https://github.com/consolelabs/mochi-discord/commit/fa0fdf05a940cfdbd96cc48fc115234ba37e3010))
-* **bal:** handle case empty tx ([#1608](https://github.com/consolelabs/mochi-discord/issues/1608)) ([6661613](https://github.com/consolelabs/mochi-discord/commit/666161303e599df46aa649b7927359d6d23fc7c4))
+- **bal:** check empty transaction ([#1607](https://github.com/consolelabs/mochi-discord/issues/1607)) ([fa0fdf0](https://github.com/consolelabs/mochi-discord/commit/fa0fdf05a940cfdbd96cc48fc115234ba37e3010))
+- **bal:** handle case empty tx ([#1608](https://github.com/consolelabs/mochi-discord/issues/1608)) ([6661613](https://github.com/consolelabs/mochi-discord/commit/666161303e599df46aa649b7927359d6d23fc7c4))
 
 ## [6.42.16-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.15...v6.42.16-rc.1) (2024-01-27)
 
-
 ### Bug Fixes
 
-* **bal:** check empty transaction ([#1607](https://github.com/consolelabs/mochi-discord/issues/1607)) ([fa0fdf0](https://github.com/consolelabs/mochi-discord/commit/fa0fdf05a940cfdbd96cc48fc115234ba37e3010))
+- **bal:** check empty transaction ([#1607](https://github.com/consolelabs/mochi-discord/issues/1607)) ([fa0fdf0](https://github.com/consolelabs/mochi-discord/commit/fa0fdf05a940cfdbd96cc48fc115234ba37e3010))
 
 ## [6.42.15](https://github.com/consolelabs/mochi-discord/compare/v6.42.14...v6.42.15) (2024-01-26)
 
-
 ### Bug Fixes
 
-* **changelog:** update whitelist public changelog ([#1604](https://github.com/consolelabs/mochi-discord/issues/1604)) ([1592528](https://github.com/consolelabs/mochi-discord/commit/1592528253a16c9213eb5c97d2fc3b7ff2a11b78))
+- **changelog:** update whitelist public changelog ([#1604](https://github.com/consolelabs/mochi-discord/issues/1604)) ([1592528](https://github.com/consolelabs/mochi-discord/commit/1592528253a16c9213eb5c97d2fc3b7ff2a11b78))
 
 ## [6.42.15-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.14...v6.42.15-rc.1) (2024-01-26)
 
-
 ### Bug Fixes
 
-* **changelog:** update whitelist public changelog ([#1604](https://github.com/consolelabs/mochi-discord/issues/1604)) ([1592528](https://github.com/consolelabs/mochi-discord/commit/1592528253a16c9213eb5c97d2fc3b7ff2a11b78))
+- **changelog:** update whitelist public changelog ([#1604](https://github.com/consolelabs/mochi-discord/issues/1604)) ([1592528](https://github.com/consolelabs/mochi-discord/commit/1592528253a16c9213eb5c97d2fc3b7ff2a11b78))
 
 ## [6.42.14](https://github.com/consolelabs/mochi-discord/compare/v6.42.13...v6.42.14) (2024-01-26)
 
-
 ### Bug Fixes
 
-* **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
-* **changelog:** get changelog real time ([#1603](https://github.com/consolelabs/mochi-discord/issues/1603)) ([168b402](https://github.com/consolelabs/mochi-discord/commit/168b40232440cdb34ec7f4cf82cc965fedc569e6))
-* **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
-* **changelog:** handle reply for public changelog event ([#1597](https://github.com/consolelabs/mochi-discord/issues/1597)) ([bdc210c](https://github.com/consolelabs/mochi-discord/commit/bdc210c3b88be1681698b993a2111d37fb4ca537))
-* **changelog:** prettify changelog ([#1594](https://github.com/consolelabs/mochi-discord/issues/1594)) ([020a49d](https://github.com/consolelabs/mochi-discord/commit/020a49d584d213541142c8cbaf2eda36f921a04a))
-* **changelog:** prettify changelog ([#1595](https://github.com/consolelabs/mochi-discord/issues/1595)) ([0e40bc3](https://github.com/consolelabs/mochi-discord/commit/0e40bc3f42a62a9b51a30a2d7e476a46dc848996))
-* **changelog:** update changelog format ([#1598](https://github.com/consolelabs/mochi-discord/issues/1598)) ([90a0a21](https://github.com/consolelabs/mochi-discord/commit/90a0a2169eec9d807ab4fda896c219c69787ab23))
-* **changelog:** update changelog format ([#1599](https://github.com/consolelabs/mochi-discord/issues/1599)) ([3f21a17](https://github.com/consolelabs/mochi-discord/commit/3f21a172bcb042279d05b9bf465956a56174756c))
-* **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
-* **changelog:** update whitelist id for publishing changelog ([#1602](https://github.com/consolelabs/mochi-discord/issues/1602)) ([a4d0e48](https://github.com/consolelabs/mochi-discord/commit/a4d0e48e5387b049a99621b5639115184bcf78f0))
-* **tip:** handle confirm public changelog ([#1596](https://github.com/consolelabs/mochi-discord/issues/1596)) ([c0e66e6](https://github.com/consolelabs/mochi-discord/commit/c0e66e6d05ecb32f614404caa3184110fa4b16e5))
-* **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
+- **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
+- **changelog:** get changelog real time ([#1603](https://github.com/consolelabs/mochi-discord/issues/1603)) ([168b402](https://github.com/consolelabs/mochi-discord/commit/168b40232440cdb34ec7f4cf82cc965fedc569e6))
+- **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
+- **changelog:** handle reply for public changelog event ([#1597](https://github.com/consolelabs/mochi-discord/issues/1597)) ([bdc210c](https://github.com/consolelabs/mochi-discord/commit/bdc210c3b88be1681698b993a2111d37fb4ca537))
+- **changelog:** prettify changelog ([#1594](https://github.com/consolelabs/mochi-discord/issues/1594)) ([020a49d](https://github.com/consolelabs/mochi-discord/commit/020a49d584d213541142c8cbaf2eda36f921a04a))
+- **changelog:** prettify changelog ([#1595](https://github.com/consolelabs/mochi-discord/issues/1595)) ([0e40bc3](https://github.com/consolelabs/mochi-discord/commit/0e40bc3f42a62a9b51a30a2d7e476a46dc848996))
+- **changelog:** update changelog format ([#1598](https://github.com/consolelabs/mochi-discord/issues/1598)) ([90a0a21](https://github.com/consolelabs/mochi-discord/commit/90a0a2169eec9d807ab4fda896c219c69787ab23))
+- **changelog:** update changelog format ([#1599](https://github.com/consolelabs/mochi-discord/issues/1599)) ([3f21a17](https://github.com/consolelabs/mochi-discord/commit/3f21a172bcb042279d05b9bf465956a56174756c))
+- **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
+- **changelog:** update whitelist id for publishing changelog ([#1602](https://github.com/consolelabs/mochi-discord/issues/1602)) ([a4d0e48](https://github.com/consolelabs/mochi-discord/commit/a4d0e48e5387b049a99621b5639115184bcf78f0))
+- **tip:** handle confirm public changelog ([#1596](https://github.com/consolelabs/mochi-discord/issues/1596)) ([c0e66e6](https://github.com/consolelabs/mochi-discord/commit/c0e66e6d05ecb32f614404caa3184110fa4b16e5))
+- **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
 
 ## [6.42.14-rc.12](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.11...v6.42.14-rc.12) (2024-01-26)
 
-
 ### Bug Fixes
 
-* **changelog:** get changelog real time ([#1603](https://github.com/consolelabs/mochi-discord/issues/1603)) ([168b402](https://github.com/consolelabs/mochi-discord/commit/168b40232440cdb34ec7f4cf82cc965fedc569e6))
+- **changelog:** get changelog real time ([#1603](https://github.com/consolelabs/mochi-discord/issues/1603)) ([168b402](https://github.com/consolelabs/mochi-discord/commit/168b40232440cdb34ec7f4cf82cc965fedc569e6))
 
 ## [6.42.14-rc.11](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.10...v6.42.14-rc.11) (2024-01-26)
 
-
 ### Bug Fixes
 
-* **changelog:** update whitelist id for publishing changelog ([#1602](https://github.com/consolelabs/mochi-discord/issues/1602)) ([a4d0e48](https://github.com/consolelabs/mochi-discord/commit/a4d0e48e5387b049a99621b5639115184bcf78f0))
+- **changelog:** update whitelist id for publishing changelog ([#1602](https://github.com/consolelabs/mochi-discord/issues/1602)) ([a4d0e48](https://github.com/consolelabs/mochi-discord/commit/a4d0e48e5387b049a99621b5639115184bcf78f0))
 
 ## [6.42.14-rc.10](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.9...v6.42.14-rc.10) (2024-01-25)
 
-
 ### Bug Fixes
 
-* **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
+- **changelog:** handle dismiss button after click ([#1600](https://github.com/consolelabs/mochi-discord/issues/1600)) ([512139d](https://github.com/consolelabs/mochi-discord/commit/512139db9e3b309905379605a3468f4a699d956d))
 
 ## [6.42.14-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.8...v6.42.14-rc.9) (2024-01-25)
 
-
 ### Bug Fixes
 
-* **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
+- **changelog:** update changelog format ([#1601](https://github.com/consolelabs/mochi-discord/issues/1601)) ([f5cf2d3](https://github.com/consolelabs/mochi-discord/commit/f5cf2d337adc6e2bb14ce8003b3ba362384b2441))
 
 ## [6.42.14-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.7...v6.42.14-rc.8) (2024-01-25)
 
-
 ### Bug Fixes
 
-* **changelog:** update changelog format ([#1599](https://github.com/consolelabs/mochi-discord/issues/1599)) ([3f21a17](https://github.com/consolelabs/mochi-discord/commit/3f21a172bcb042279d05b9bf465956a56174756c))
+- **changelog:** update changelog format ([#1599](https://github.com/consolelabs/mochi-discord/issues/1599)) ([3f21a17](https://github.com/consolelabs/mochi-discord/commit/3f21a172bcb042279d05b9bf465956a56174756c))
 
 ## [6.42.14-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.6...v6.42.14-rc.7) (2024-01-25)
 
-
 ### Bug Fixes
 
-* **changelog:** update changelog format ([#1598](https://github.com/consolelabs/mochi-discord/issues/1598)) ([90a0a21](https://github.com/consolelabs/mochi-discord/commit/90a0a2169eec9d807ab4fda896c219c69787ab23))
+- **changelog:** update changelog format ([#1598](https://github.com/consolelabs/mochi-discord/issues/1598)) ([90a0a21](https://github.com/consolelabs/mochi-discord/commit/90a0a2169eec9d807ab4fda896c219c69787ab23))
 
 ## [6.42.14-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.5...v6.42.14-rc.6) (2024-01-25)
 
-
 ### Bug Fixes
 
-* **changelog:** handle reply for public changelog event ([#1597](https://github.com/consolelabs/mochi-discord/issues/1597)) ([bdc210c](https://github.com/consolelabs/mochi-discord/commit/bdc210c3b88be1681698b993a2111d37fb4ca537))
+- **changelog:** handle reply for public changelog event ([#1597](https://github.com/consolelabs/mochi-discord/issues/1597)) ([bdc210c](https://github.com/consolelabs/mochi-discord/commit/bdc210c3b88be1681698b993a2111d37fb4ca537))
 
 ## [6.42.14-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.4...v6.42.14-rc.5) (2024-01-25)
 
-
 ### Bug Fixes
 
-* **tip:** handle confirm public changelog ([#1596](https://github.com/consolelabs/mochi-discord/issues/1596)) ([c0e66e6](https://github.com/consolelabs/mochi-discord/commit/c0e66e6d05ecb32f614404caa3184110fa4b16e5))
+- **tip:** handle confirm public changelog ([#1596](https://github.com/consolelabs/mochi-discord/issues/1596)) ([c0e66e6](https://github.com/consolelabs/mochi-discord/commit/c0e66e6d05ecb32f614404caa3184110fa4b16e5))
 
 ## [6.42.14-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.3...v6.42.14-rc.4) (2024-01-24)
 
-
 ### Bug Fixes
 
-* **changelog:** prettify changelog ([#1595](https://github.com/consolelabs/mochi-discord/issues/1595)) ([0e40bc3](https://github.com/consolelabs/mochi-discord/commit/0e40bc3f42a62a9b51a30a2d7e476a46dc848996))
+- **changelog:** prettify changelog ([#1595](https://github.com/consolelabs/mochi-discord/issues/1595)) ([0e40bc3](https://github.com/consolelabs/mochi-discord/commit/0e40bc3f42a62a9b51a30a2d7e476a46dc848996))
 
 ## [6.42.14-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.2...v6.42.14-rc.3) (2024-01-22)
 
-
 ### Bug Fixes
 
-* **changelog:** prettify changelog ([#1594](https://github.com/consolelabs/mochi-discord/issues/1594)) ([020a49d](https://github.com/consolelabs/mochi-discord/commit/020a49d584d213541142c8cbaf2eda36f921a04a))
+- **changelog:** prettify changelog ([#1594](https://github.com/consolelabs/mochi-discord/issues/1594)) ([020a49d](https://github.com/consolelabs/mochi-discord/commit/020a49d584d213541142c8cbaf2eda36f921a04a))
 
 ## [6.42.14-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.14-rc.1...v6.42.14-rc.2) (2024-01-22)
 
-
 ### Bug Fixes
 
-* **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
+- **tip:** handle tip amount format number ([#1593](https://github.com/consolelabs/mochi-discord/issues/1593)) ([c6d7fd5](https://github.com/consolelabs/mochi-discord/commit/c6d7fd529069e574174560c83f3f324ad57cfe2e))
 
 ## [6.42.14-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.13...v6.42.14-rc.1) (2024-01-22)
 
-
 ### Bug Fixes
 
-* **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
+- **changelog:** content exceed max length ([#1592](https://github.com/consolelabs/mochi-discord/issues/1592)) ([4ad9242](https://github.com/consolelabs/mochi-discord/commit/4ad9242c0550ee0c2cc1ee52c7f73a220e6ce97b))
 
 ## [6.42.13](https://github.com/consolelabs/mochi-discord/compare/v6.42.12...v6.42.13) (2024-01-19)
 
-
 ### Bug Fixes
 
-* **changelog:** handle parse list item ([#1590](https://github.com/consolelabs/mochi-discord/issues/1590)) ([5beaa68](https://github.com/consolelabs/mochi-discord/commit/5beaa68a1e9f858ebc135ba73e3fe942e846b893))
-* **profile:** add new unread changelog ([#1589](https://github.com/consolelabs/mochi-discord/issues/1589)) ([2f5af47](https://github.com/consolelabs/mochi-discord/commit/2f5af47b4044b5fdc21c1da3d384820d0fe00790))
-* **tip:** update ui join tip ([#1591](https://github.com/consolelabs/mochi-discord/issues/1591)) ([e879123](https://github.com/consolelabs/mochi-discord/commit/e8791239806eaadc263a52f91c06d15456acec6d))
+- **changelog:** handle parse list item ([#1590](https://github.com/consolelabs/mochi-discord/issues/1590)) ([5beaa68](https://github.com/consolelabs/mochi-discord/commit/5beaa68a1e9f858ebc135ba73e3fe942e846b893))
+- **profile:** add new unread changelog ([#1589](https://github.com/consolelabs/mochi-discord/issues/1589)) ([2f5af47](https://github.com/consolelabs/mochi-discord/commit/2f5af47b4044b5fdc21c1da3d384820d0fe00790))
+- **tip:** update ui join tip ([#1591](https://github.com/consolelabs/mochi-discord/issues/1591)) ([e879123](https://github.com/consolelabs/mochi-discord/commit/e8791239806eaadc263a52f91c06d15456acec6d))
 
 ## [6.42.13-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.13-rc.2...v6.42.13-rc.3) (2024-01-19)
 
-
 ### Bug Fixes
 
-* **tip:** update ui join tip ([#1591](https://github.com/consolelabs/mochi-discord/issues/1591)) ([e879123](https://github.com/consolelabs/mochi-discord/commit/e8791239806eaadc263a52f91c06d15456acec6d))
+- **tip:** update ui join tip ([#1591](https://github.com/consolelabs/mochi-discord/issues/1591)) ([e879123](https://github.com/consolelabs/mochi-discord/commit/e8791239806eaadc263a52f91c06d15456acec6d))
 
 ## [6.42.13-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.13-rc.1...v6.42.13-rc.2) (2024-01-19)
 
-
 ### Bug Fixes
 
-* **changelog:** handle parse list item ([#1590](https://github.com/consolelabs/mochi-discord/issues/1590)) ([5beaa68](https://github.com/consolelabs/mochi-discord/commit/5beaa68a1e9f858ebc135ba73e3fe942e846b893))
+- **changelog:** handle parse list item ([#1590](https://github.com/consolelabs/mochi-discord/issues/1590)) ([5beaa68](https://github.com/consolelabs/mochi-discord/commit/5beaa68a1e9f858ebc135ba73e3fe942e846b893))
 
 ## [6.42.13-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.12...v6.42.13-rc.1) (2024-01-18)
 
-
 ### Bug Fixes
 
-* **profile:** add new unread changelog ([#1589](https://github.com/consolelabs/mochi-discord/issues/1589)) ([2f5af47](https://github.com/consolelabs/mochi-discord/commit/2f5af47b4044b5fdc21c1da3d384820d0fe00790))
+- **profile:** add new unread changelog ([#1589](https://github.com/consolelabs/mochi-discord/issues/1589)) ([2f5af47](https://github.com/consolelabs/mochi-discord/commit/2f5af47b4044b5fdc21c1da3d384820d0fe00790))
 
 ## [6.42.12](https://github.com/consolelabs/mochi-discord/compare/v6.42.11...v6.42.12) (2024-01-17)
 
-
 ### Bug Fixes
 
-* handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
-* join tip bug ([#1588](https://github.com/consolelabs/mochi-discord/issues/1588)) ([23dfee0](https://github.com/consolelabs/mochi-discord/commit/23dfee09d73ef4206dec76692f7979c97cceee22))
-* **transaction:** render sibling transactions ([#1587](https://github.com/consolelabs/mochi-discord/issues/1587)) ([4959388](https://github.com/consolelabs/mochi-discord/commit/4959388f23705db416ed1d82bcf58925d4481e30))
+- handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
+- join tip bug ([#1588](https://github.com/consolelabs/mochi-discord/issues/1588)) ([23dfee0](https://github.com/consolelabs/mochi-discord/commit/23dfee09d73ef4206dec76692f7979c97cceee22))
+- **transaction:** render sibling transactions ([#1587](https://github.com/consolelabs/mochi-discord/issues/1587)) ([4959388](https://github.com/consolelabs/mochi-discord/commit/4959388f23705db416ed1d82bcf58925d4481e30))
 
 ## [6.42.12-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.12-rc.1...v6.42.12-rc.2) (2024-01-17)
 
-
 ### Bug Fixes
 
-* join tip bug ([#1588](https://github.com/consolelabs/mochi-discord/issues/1588)) ([23dfee0](https://github.com/consolelabs/mochi-discord/commit/23dfee09d73ef4206dec76692f7979c97cceee22))
+- join tip bug ([#1588](https://github.com/consolelabs/mochi-discord/issues/1588)) ([23dfee0](https://github.com/consolelabs/mochi-discord/commit/23dfee09d73ef4206dec76692f7979c97cceee22))
 
 ## [6.42.12-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.11...v6.42.12-rc.1) (2024-01-17)
 
-
 ### Bug Fixes
 
-* handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
-* **transaction:** render sibling transactions ([#1587](https://github.com/consolelabs/mochi-discord/issues/1587)) ([4959388](https://github.com/consolelabs/mochi-discord/commit/4959388f23705db416ed1d82bcf58925d4481e30))
+- handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
+- **transaction:** render sibling transactions ([#1587](https://github.com/consolelabs/mochi-discord/issues/1587)) ([4959388](https://github.com/consolelabs/mochi-discord/commit/4959388f23705db416ed1d82bcf58925d4481e30))
 
 ## [6.42.11-rc.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.8...v6.42.11-rc.9) (2024-01-16)
 
-
 ### Bug Fixes
 
-* handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
+- handle undefine value when tip ([#1586](https://github.com/consolelabs/mochi-discord/issues/1586)) ([bdfe203](https://github.com/consolelabs/mochi-discord/commit/bdfe203eabf0500f3e6a6e7745af22b0cb6fd55d))
 
 ## [6.42.11](https://github.com/consolelabs/mochi-discord/compare/v6.42.10...v6.42.11) (2024-01-12)
 
-
 ### Bug Fixes
 
-* **airdrop:** update guild avatar data ([#1581](https://github.com/consolelabs/mochi-discord/issues/1581)) ([1514404](https://github.com/consolelabs/mochi-discord/commit/15144045e96cfe4cdc4d3d5805ecf6619e39d7e5))
-* **airdrop:** update transfer data for airdrop command ([#1577](https://github.com/consolelabs/mochi-discord/issues/1577)) ([7eb2e81](https://github.com/consolelabs/mochi-discord/commit/7eb2e8139666ec8572c19aa05cd3354867c2b6cd))
-* bump version formatter ([#1578](https://github.com/consolelabs/mochi-discord/issues/1578)) ([dc7b873](https://github.com/consolelabs/mochi-discord/commit/dc7b8733fa8f8aa9d691a3ff15968bd8143ba55e))
-* tip - parse amount starts with dot ([#1585](https://github.com/consolelabs/mochi-discord/issues/1585)) ([54064b8](https://github.com/consolelabs/mochi-discord/commit/54064b81f7ebee8e68413671de8eaf4e6ece9514))
-* **tip:** handle case type error ([#1582](https://github.com/consolelabs/mochi-discord/issues/1582)) ([936e985](https://github.com/consolelabs/mochi-discord/commit/936e985851f564fe6419bf08c1f562d6b0d13195))
-* **tip:** render correct user displayname in follow tip ([#1579](https://github.com/consolelabs/mochi-discord/issues/1579)) ([45b6f84](https://github.com/consolelabs/mochi-discord/commit/45b6f84cc74ef8c2fe809b021c31b14d91e798c2))
-* **tip:** render correct user displayname in follow tip ([#1580](https://github.com/consolelabs/mochi-discord/issues/1580)) ([54cb04c](https://github.com/consolelabs/mochi-discord/commit/54cb04cce1ac9339040178cda1434c984362de17))
-* **transaction:** remove groupdate ([#1584](https://github.com/consolelabs/mochi-discord/issues/1584)) ([cdef8e9](https://github.com/consolelabs/mochi-discord/commit/cdef8e958cd7818cbca0b0753e1d234d92a4fcf7))
-* update format feed transaction ([#1583](https://github.com/consolelabs/mochi-discord/issues/1583)) ([d19d2c7](https://github.com/consolelabs/mochi-discord/commit/d19d2c7ffc55477a740824221d24ebd01cdf91a6))
+- **airdrop:** update guild avatar data ([#1581](https://github.com/consolelabs/mochi-discord/issues/1581)) ([1514404](https://github.com/consolelabs/mochi-discord/commit/15144045e96cfe4cdc4d3d5805ecf6619e39d7e5))
+- **airdrop:** update transfer data for airdrop command ([#1577](https://github.com/consolelabs/mochi-discord/issues/1577)) ([7eb2e81](https://github.com/consolelabs/mochi-discord/commit/7eb2e8139666ec8572c19aa05cd3354867c2b6cd))
+- bump version formatter ([#1578](https://github.com/consolelabs/mochi-discord/issues/1578)) ([dc7b873](https://github.com/consolelabs/mochi-discord/commit/dc7b8733fa8f8aa9d691a3ff15968bd8143ba55e))
+- tip - parse amount starts with dot ([#1585](https://github.com/consolelabs/mochi-discord/issues/1585)) ([54064b8](https://github.com/consolelabs/mochi-discord/commit/54064b81f7ebee8e68413671de8eaf4e6ece9514))
+- **tip:** handle case type error ([#1582](https://github.com/consolelabs/mochi-discord/issues/1582)) ([936e985](https://github.com/consolelabs/mochi-discord/commit/936e985851f564fe6419bf08c1f562d6b0d13195))
+- **tip:** render correct user displayname in follow tip ([#1579](https://github.com/consolelabs/mochi-discord/issues/1579)) ([45b6f84](https://github.com/consolelabs/mochi-discord/commit/45b6f84cc74ef8c2fe809b021c31b14d91e798c2))
+- **tip:** render correct user displayname in follow tip ([#1580](https://github.com/consolelabs/mochi-discord/issues/1580)) ([54cb04c](https://github.com/consolelabs/mochi-discord/commit/54cb04cce1ac9339040178cda1434c984362de17))
+- **transaction:** remove groupdate ([#1584](https://github.com/consolelabs/mochi-discord/issues/1584)) ([cdef8e9](https://github.com/consolelabs/mochi-discord/commit/cdef8e958cd7818cbca0b0753e1d234d92a4fcf7))
+- update format feed transaction ([#1583](https://github.com/consolelabs/mochi-discord/issues/1583)) ([d19d2c7](https://github.com/consolelabs/mochi-discord/commit/d19d2c7ffc55477a740824221d24ebd01cdf91a6))
 
 ## [6.42.11-rc.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.7...v6.42.11-rc.8) (2024-01-12)
 
-
 ### Bug Fixes
 
-* tip - parse amount starts with dot ([#1585](https://github.com/consolelabs/mochi-discord/issues/1585)) ([54064b8](https://github.com/consolelabs/mochi-discord/commit/54064b81f7ebee8e68413671de8eaf4e6ece9514))
+- tip - parse amount starts with dot ([#1585](https://github.com/consolelabs/mochi-discord/issues/1585)) ([54064b8](https://github.com/consolelabs/mochi-discord/commit/54064b81f7ebee8e68413671de8eaf4e6ece9514))
 
 ## [6.42.11-rc.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.6...v6.42.11-rc.7) (2024-01-12)
 
-
 ### Bug Fixes
 
-* **transaction:** remove groupdate ([#1584](https://github.com/consolelabs/mochi-discord/issues/1584)) ([cdef8e9](https://github.com/consolelabs/mochi-discord/commit/cdef8e958cd7818cbca0b0753e1d234d92a4fcf7))
+- **transaction:** remove groupdate ([#1584](https://github.com/consolelabs/mochi-discord/issues/1584)) ([cdef8e9](https://github.com/consolelabs/mochi-discord/commit/cdef8e958cd7818cbca0b0753e1d234d92a4fcf7))
 
 ## [6.42.11-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.5...v6.42.11-rc.6) (2024-01-12)
 
-
 ### Bug Fixes
 
-* update format feed transaction ([#1583](https://github.com/consolelabs/mochi-discord/issues/1583)) ([d19d2c7](https://github.com/consolelabs/mochi-discord/commit/d19d2c7ffc55477a740824221d24ebd01cdf91a6))
+- update format feed transaction ([#1583](https://github.com/consolelabs/mochi-discord/issues/1583)) ([d19d2c7](https://github.com/consolelabs/mochi-discord/commit/d19d2c7ffc55477a740824221d24ebd01cdf91a6))
 
 ## [6.42.11-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.4...v6.42.11-rc.5) (2024-01-12)
 
-
 ### Bug Fixes
 
-* **airdrop:** update guild avatar data ([#1581](https://github.com/consolelabs/mochi-discord/issues/1581)) ([1514404](https://github.com/consolelabs/mochi-discord/commit/15144045e96cfe4cdc4d3d5805ecf6619e39d7e5))
-* **tip:** handle case type error ([#1582](https://github.com/consolelabs/mochi-discord/issues/1582)) ([936e985](https://github.com/consolelabs/mochi-discord/commit/936e985851f564fe6419bf08c1f562d6b0d13195))
+- **airdrop:** update guild avatar data ([#1581](https://github.com/consolelabs/mochi-discord/issues/1581)) ([1514404](https://github.com/consolelabs/mochi-discord/commit/15144045e96cfe4cdc4d3d5805ecf6619e39d7e5))
+- **tip:** handle case type error ([#1582](https://github.com/consolelabs/mochi-discord/issues/1582)) ([936e985](https://github.com/consolelabs/mochi-discord/commit/936e985851f564fe6419bf08c1f562d6b0d13195))
 
 ## [6.42.11-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.3...v6.42.11-rc.4) (2024-01-12)
 
-
 ### Bug Fixes
 
-* **tip:** render correct user displayname in follow tip ([#1580](https://github.com/consolelabs/mochi-discord/issues/1580)) ([54cb04c](https://github.com/consolelabs/mochi-discord/commit/54cb04cce1ac9339040178cda1434c984362de17))
+- **tip:** render correct user displayname in follow tip ([#1580](https://github.com/consolelabs/mochi-discord/issues/1580)) ([54cb04c](https://github.com/consolelabs/mochi-discord/commit/54cb04cce1ac9339040178cda1434c984362de17))
 
 ## [6.42.11-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.2...v6.42.11-rc.3) (2024-01-12)
 
-
 ### Bug Fixes
 
-* **tip:** render correct user displayname in follow tip ([#1579](https://github.com/consolelabs/mochi-discord/issues/1579)) ([45b6f84](https://github.com/consolelabs/mochi-discord/commit/45b6f84cc74ef8c2fe809b021c31b14d91e798c2))
+- **tip:** render correct user displayname in follow tip ([#1579](https://github.com/consolelabs/mochi-discord/issues/1579)) ([45b6f84](https://github.com/consolelabs/mochi-discord/commit/45b6f84cc74ef8c2fe809b021c31b14d91e798c2))
 
 ## [6.42.11-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.11-rc.1...v6.42.11-rc.2) (2024-01-12)
 
-
 ### Bug Fixes
 
-* bump version formatter ([#1578](https://github.com/consolelabs/mochi-discord/issues/1578)) ([dc7b873](https://github.com/consolelabs/mochi-discord/commit/dc7b8733fa8f8aa9d691a3ff15968bd8143ba55e))
+- bump version formatter ([#1578](https://github.com/consolelabs/mochi-discord/issues/1578)) ([dc7b873](https://github.com/consolelabs/mochi-discord/commit/dc7b8733fa8f8aa9d691a3ff15968bd8143ba55e))
 
 ## [6.42.11-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.10...v6.42.11-rc.1) (2024-01-12)
 
-
 ### Bug Fixes
 
-* **airdrop:** update transfer data for airdrop command ([#1577](https://github.com/consolelabs/mochi-discord/issues/1577)) ([7eb2e81](https://github.com/consolelabs/mochi-discord/commit/7eb2e8139666ec8572c19aa05cd3354867c2b6cd))
+- **airdrop:** update transfer data for airdrop command ([#1577](https://github.com/consolelabs/mochi-discord/issues/1577)) ([7eb2e81](https://github.com/consolelabs/mochi-discord/commit/7eb2e8139666ec8572c19aa05cd3354867c2b6cd))
 
 ## [6.42.10](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10) (2024-01-10)
 
-
 ### Bug Fixes
 
-* **feed:** remove amount sign in feed transaction ([#1574](https://github.com/consolelabs/mochi-discord/issues/1574)) ([1ae40ac](https://github.com/consolelabs/mochi-discord/commit/1ae40ac6ae36387c3f4619a943dfd4774f5c1cf9))
-* **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
-* **follow-tips:** fix follow tips with case multiple recipients ([#1575](https://github.com/consolelabs/mochi-discord/issues/1575)) ([b42dac2](https://github.com/consolelabs/mochi-discord/commit/b42dac2c01dcb250887e9ba98499e51b9bc0cc1d))
-* transfer request - adopt new endpoints ([#1576](https://github.com/consolelabs/mochi-discord/issues/1576)) ([e2b6517](https://github.com/consolelabs/mochi-discord/commit/e2b65172fdf8c8f5f7fbab2fe337b34e3bdf5636))
+- **feed:** remove amount sign in feed transaction ([#1574](https://github.com/consolelabs/mochi-discord/issues/1574)) ([1ae40ac](https://github.com/consolelabs/mochi-discord/commit/1ae40ac6ae36387c3f4619a943dfd4774f5c1cf9))
+- **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
+- **follow-tips:** fix follow tips with case multiple recipients ([#1575](https://github.com/consolelabs/mochi-discord/issues/1575)) ([b42dac2](https://github.com/consolelabs/mochi-discord/commit/b42dac2c01dcb250887e9ba98499e51b9bc0cc1d))
+- transfer request - adopt new endpoints ([#1576](https://github.com/consolelabs/mochi-discord/issues/1576)) ([e2b6517](https://github.com/consolelabs/mochi-discord/commit/e2b65172fdf8c8f5f7fbab2fe337b34e3bdf5636))
 
 ## [6.42.10-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.2...v6.42.10-rc.3) (2024-01-09)
 
-
 ### Bug Fixes
 
-* transfer request - adopt new endpoints ([#1576](https://github.com/consolelabs/mochi-discord/issues/1576)) ([e2b6517](https://github.com/consolelabs/mochi-discord/commit/e2b65172fdf8c8f5f7fbab2fe337b34e3bdf5636))
+- transfer request - adopt new endpoints ([#1576](https://github.com/consolelabs/mochi-discord/issues/1576)) ([e2b6517](https://github.com/consolelabs/mochi-discord/commit/e2b65172fdf8c8f5f7fbab2fe337b34e3bdf5636))
 
 ## [6.42.10-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.10-rc.1...v6.42.10-rc.2) (2024-01-09)
 
-
 ### Bug Fixes
 
-* **follow-tips:** fix follow tips with case multiple recipients ([#1575](https://github.com/consolelabs/mochi-discord/issues/1575)) ([b42dac2](https://github.com/consolelabs/mochi-discord/commit/b42dac2c01dcb250887e9ba98499e51b9bc0cc1d))
+- **follow-tips:** fix follow tips with case multiple recipients ([#1575](https://github.com/consolelabs/mochi-discord/issues/1575)) ([b42dac2](https://github.com/consolelabs/mochi-discord/commit/b42dac2c01dcb250887e9ba98499e51b9bc0cc1d))
 
 ## [6.42.10-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.9...v6.42.10-rc.1) (2024-01-09)
 
-
 ### Bug Fixes
 
-* **feed:** remove amount sign in feed transaction ([#1574](https://github.com/consolelabs/mochi-discord/issues/1574)) ([1ae40ac](https://github.com/consolelabs/mochi-discord/commit/1ae40ac6ae36387c3f4619a943dfd4774f5c1cf9))
-* **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
+- **feed:** remove amount sign in feed transaction ([#1574](https://github.com/consolelabs/mochi-discord/issues/1574)) ([1ae40ac](https://github.com/consolelabs/mochi-discord/commit/1ae40ac6ae36387c3f4619a943dfd4774f5c1cf9))
+- **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
 
 ## [6.42.9-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.9-rc.1...v6.42.9-rc.2) (2024-01-09)
 
-
 ### Bug Fixes
 
-* **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
+- **follow-tips:** fix follow tips with case multiple recipients ([#1573](https://github.com/consolelabs/mochi-discord/issues/1573)) ([11f4fd7](https://github.com/consolelabs/mochi-discord/commit/11f4fd7bcdb684ba45ee4894c0698f5fe2127e54))
 
 ## [6.42.9](https://github.com/consolelabs/mochi-discord/compare/v6.42.8...v6.42.9) (2024-01-09)
 
-
 ### Bug Fixes
 
-* adjust upper limit duration of guess cmd ([08c4e95](https://github.com/consolelabs/mochi-discord/commit/08c4e955937654c23cd1508485a4f54f3a5c0f99))
+- adjust upper limit duration of guess cmd ([08c4e95](https://github.com/consolelabs/mochi-discord/commit/08c4e955937654c23cd1508485a4f54f3a5c0f99))
 
 ## [6.42.9-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.8...v6.42.9-rc.1) (2024-01-09)
 
-
 ### Bug Fixes
 
-* adjust upper limit duration of guess cmd ([08c4e95](https://github.com/consolelabs/mochi-discord/commit/08c4e955937654c23cd1508485a4f54f3a5c0f99))
+- adjust upper limit duration of guess cmd ([08c4e95](https://github.com/consolelabs/mochi-discord/commit/08c4e955937654c23cd1508485a4f54f3a5c0f99))
 
 ## [6.42.8](https://github.com/consolelabs/mochi-discord/compare/v6.42.7...v6.42.8) (2024-01-08)
 
-
 ### Bug Fixes
 
-* hide multiple tokens button ([8493c49](https://github.com/consolelabs/mochi-discord/commit/8493c493a19918ad192830f617fc5eaa2cedf97a))
+- hide multiple tokens button ([8493c49](https://github.com/consolelabs/mochi-discord/commit/8493c493a19918ad192830f617fc5eaa2cedf97a))
 
 ## [6.42.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.7...v6.42.8-rc.1) (2024-01-08)
 
-
 ### Bug Fixes
 
-* hide multiple tokens button ([8493c49](https://github.com/consolelabs/mochi-discord/commit/8493c493a19918ad192830f617fc5eaa2cedf97a))
+- hide multiple tokens button ([8493c49](https://github.com/consolelabs/mochi-discord/commit/8493c493a19918ad192830f617fc5eaa2cedf97a))
 
 ## [6.42.7](https://github.com/consolelabs/mochi-discord/compare/v6.42.6...v6.42.7) (2024-01-08)
 
-
 ### Bug Fixes
 
-* **changelog:** handle bold case ([#1570](https://github.com/consolelabs/mochi-discord/issues/1570)) ([31fc4d6](https://github.com/consolelabs/mochi-discord/commit/31fc4d61846cf601dc88b0781b593be03ff3c9f2))
-* **profile:** remove simple binance balance ([#1572](https://github.com/consolelabs/mochi-discord/issues/1572)) ([5332a6a](https://github.com/consolelabs/mochi-discord/commit/5332a6ad74eb032ef64fc764ee9131364481c9a0))
-* **profile:** wrong calculated total binance balance ([#1571](https://github.com/consolelabs/mochi-discord/issues/1571)) ([1df2e2b](https://github.com/consolelabs/mochi-discord/commit/1df2e2b2a6a404832c852b1861309c76461a8c4f))
-* restore using subscript in wlv and ticker ([d8a87b6](https://github.com/consolelabs/mochi-discord/commit/d8a87b61e854de03ec0acd1808fe7f359bb089bf))
-* **ticker:** allow query other ticker option ([#1568](https://github.com/consolelabs/mochi-discord/issues/1568)) ([13ea483](https://github.com/consolelabs/mochi-discord/commit/13ea4830a21736434374742a2c6db99cb5e36f1b))
-* **ticker:** change label select other ticker ([#1569](https://github.com/consolelabs/mochi-discord/issues/1569)) ([ba5179f](https://github.com/consolelabs/mochi-discord/commit/ba5179f8d85bc0fab2f0531934536d6722081be0))
+- **changelog:** handle bold case ([#1570](https://github.com/consolelabs/mochi-discord/issues/1570)) ([31fc4d6](https://github.com/consolelabs/mochi-discord/commit/31fc4d61846cf601dc88b0781b593be03ff3c9f2))
+- **profile:** remove simple binance balance ([#1572](https://github.com/consolelabs/mochi-discord/issues/1572)) ([5332a6a](https://github.com/consolelabs/mochi-discord/commit/5332a6ad74eb032ef64fc764ee9131364481c9a0))
+- **profile:** wrong calculated total binance balance ([#1571](https://github.com/consolelabs/mochi-discord/issues/1571)) ([1df2e2b](https://github.com/consolelabs/mochi-discord/commit/1df2e2b2a6a404832c852b1861309c76461a8c4f))
+- restore using subscript in wlv and ticker ([d8a87b6](https://github.com/consolelabs/mochi-discord/commit/d8a87b61e854de03ec0acd1808fe7f359bb089bf))
+- **ticker:** allow query other ticker option ([#1568](https://github.com/consolelabs/mochi-discord/issues/1568)) ([13ea483](https://github.com/consolelabs/mochi-discord/commit/13ea4830a21736434374742a2c6db99cb5e36f1b))
+- **ticker:** change label select other ticker ([#1569](https://github.com/consolelabs/mochi-discord/issues/1569)) ([ba5179f](https://github.com/consolelabs/mochi-discord/commit/ba5179f8d85bc0fab2f0531934536d6722081be0))
 
 ## [6.42.7-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.4...v6.42.7-rc.5) (2024-01-08)
 
-
 ### Bug Fixes
 
-* **profile:** remove simple binance balance ([#1572](https://github.com/consolelabs/mochi-discord/issues/1572)) ([5332a6a](https://github.com/consolelabs/mochi-discord/commit/5332a6ad74eb032ef64fc764ee9131364481c9a0))
-* **profile:** wrong calculated total binance balance ([#1571](https://github.com/consolelabs/mochi-discord/issues/1571)) ([1df2e2b](https://github.com/consolelabs/mochi-discord/commit/1df2e2b2a6a404832c852b1861309c76461a8c4f))
+- **profile:** remove simple binance balance ([#1572](https://github.com/consolelabs/mochi-discord/issues/1572)) ([5332a6a](https://github.com/consolelabs/mochi-discord/commit/5332a6ad74eb032ef64fc764ee9131364481c9a0))
+- **profile:** wrong calculated total binance balance ([#1571](https://github.com/consolelabs/mochi-discord/issues/1571)) ([1df2e2b](https://github.com/consolelabs/mochi-discord/commit/1df2e2b2a6a404832c852b1861309c76461a8c4f))
 
 ## [6.42.7-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.3...v6.42.7-rc.4) (2024-01-06)
 
-
 ### Bug Fixes
 
-* restore using subscript in wlv and ticker ([d8a87b6](https://github.com/consolelabs/mochi-discord/commit/d8a87b61e854de03ec0acd1808fe7f359bb089bf))
+- restore using subscript in wlv and ticker ([d8a87b6](https://github.com/consolelabs/mochi-discord/commit/d8a87b61e854de03ec0acd1808fe7f359bb089bf))
 
 ## [6.42.7-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.2...v6.42.7-rc.3) (2024-01-05)
 
-
 ### Bug Fixes
 
-* **changelog:** handle bold case ([#1570](https://github.com/consolelabs/mochi-discord/issues/1570)) ([31fc4d6](https://github.com/consolelabs/mochi-discord/commit/31fc4d61846cf601dc88b0781b593be03ff3c9f2))
+- **changelog:** handle bold case ([#1570](https://github.com/consolelabs/mochi-discord/issues/1570)) ([31fc4d6](https://github.com/consolelabs/mochi-discord/commit/31fc4d61846cf601dc88b0781b593be03ff3c9f2))
 
 ## [6.42.7-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.7-rc.1...v6.42.7-rc.2) (2024-01-05)
 
-
 ### Bug Fixes
 
-* **ticker:** change label select other ticker ([#1569](https://github.com/consolelabs/mochi-discord/issues/1569)) ([ba5179f](https://github.com/consolelabs/mochi-discord/commit/ba5179f8d85bc0fab2f0531934536d6722081be0))
+- **ticker:** change label select other ticker ([#1569](https://github.com/consolelabs/mochi-discord/issues/1569)) ([ba5179f](https://github.com/consolelabs/mochi-discord/commit/ba5179f8d85bc0fab2f0531934536d6722081be0))
 
 ## [6.42.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.6...v6.42.7-rc.1) (2024-01-05)
 
-
 ### Bug Fixes
 
-* **ticker:** allow query other ticker option ([#1568](https://github.com/consolelabs/mochi-discord/issues/1568)) ([13ea483](https://github.com/consolelabs/mochi-discord/commit/13ea4830a21736434374742a2c6db99cb5e36f1b))
+- **ticker:** allow query other ticker option ([#1568](https://github.com/consolelabs/mochi-discord/issues/1568)) ([13ea483](https://github.com/consolelabs/mochi-discord/commit/13ea4830a21736434374742a2c6db99cb5e36f1b))
 
 ## [6.42.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.5...v6.42.6) (2024-01-05)
 
-
 ### Bug Fixes
 
-* bump version formatter ([7ea1fce](https://github.com/consolelabs/mochi-discord/commit/7ea1fcea9be2fb8a6aca80abbe1ca5f16b58b63e))
-* **tip:** update formatter render join tip ([#1566](https://github.com/consolelabs/mochi-discord/issues/1566)) ([cbb92fb](https://github.com/consolelabs/mochi-discord/commit/cbb92fb7e26aa6273dbb96de80fd74d74b85be5f))
-* **transactions:** show correct actor of transactions for bal and transaction command ([#1565](https://github.com/consolelabs/mochi-discord/issues/1565)) ([a3d0c4f](https://github.com/consolelabs/mochi-discord/commit/a3d0c4f94b4d1b8b72a8cc6032a1c66827604b2d))
-* update changelog component ([#1567](https://github.com/consolelabs/mochi-discord/issues/1567)) ([a162e16](https://github.com/consolelabs/mochi-discord/commit/a162e1614d36c97661a08080138b7d3611bcbcd5))
+- bump version formatter ([7ea1fce](https://github.com/consolelabs/mochi-discord/commit/7ea1fcea9be2fb8a6aca80abbe1ca5f16b58b63e))
+- **tip:** update formatter render join tip ([#1566](https://github.com/consolelabs/mochi-discord/issues/1566)) ([cbb92fb](https://github.com/consolelabs/mochi-discord/commit/cbb92fb7e26aa6273dbb96de80fd74d74b85be5f))
+- **transactions:** show correct actor of transactions for bal and transaction command ([#1565](https://github.com/consolelabs/mochi-discord/issues/1565)) ([a3d0c4f](https://github.com/consolelabs/mochi-discord/commit/a3d0c4f94b4d1b8b72a8cc6032a1c66827604b2d))
+- update changelog component ([#1567](https://github.com/consolelabs/mochi-discord/issues/1567)) ([a162e16](https://github.com/consolelabs/mochi-discord/commit/a162e1614d36c97661a08080138b7d3611bcbcd5))
 
 ## [6.42.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.6-rc.2...v6.42.6-rc.3) (2024-01-05)
 
-
 ### Bug Fixes
 
-* **tip:** update formatter render join tip ([#1566](https://github.com/consolelabs/mochi-discord/issues/1566)) ([cbb92fb](https://github.com/consolelabs/mochi-discord/commit/cbb92fb7e26aa6273dbb96de80fd74d74b85be5f))
-* update changelog component ([#1567](https://github.com/consolelabs/mochi-discord/issues/1567)) ([a162e16](https://github.com/consolelabs/mochi-discord/commit/a162e1614d36c97661a08080138b7d3611bcbcd5))
+- **tip:** update formatter render join tip ([#1566](https://github.com/consolelabs/mochi-discord/issues/1566)) ([cbb92fb](https://github.com/consolelabs/mochi-discord/commit/cbb92fb7e26aa6273dbb96de80fd74d74b85be5f))
+- update changelog component ([#1567](https://github.com/consolelabs/mochi-discord/issues/1567)) ([a162e16](https://github.com/consolelabs/mochi-discord/commit/a162e1614d36c97661a08080138b7d3611bcbcd5))
 
 ## [6.42.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.6-rc.1...v6.42.6-rc.2) (2024-01-02)
 
-
 ### Bug Fixes
 
-* **transactions:** show correct actor of transactions for bal and transaction command ([#1565](https://github.com/consolelabs/mochi-discord/issues/1565)) ([a3d0c4f](https://github.com/consolelabs/mochi-discord/commit/a3d0c4f94b4d1b8b72a8cc6032a1c66827604b2d))
+- **transactions:** show correct actor of transactions for bal and transaction command ([#1565](https://github.com/consolelabs/mochi-discord/issues/1565)) ([a3d0c4f](https://github.com/consolelabs/mochi-discord/commit/a3d0c4f94b4d1b8b72a8cc6032a1c66827604b2d))
 
 ## [6.42.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.5...v6.42.6-rc.1) (2024-01-02)
 
-
 ### Bug Fixes
 
-* bump version formatter ([7ea1fce](https://github.com/consolelabs/mochi-discord/commit/7ea1fcea9be2fb8a6aca80abbe1ca5f16b58b63e))
+- bump version formatter ([7ea1fce](https://github.com/consolelabs/mochi-discord/commit/7ea1fcea9be2fb8a6aca80abbe1ca5f16b58b63e))
 
 ## [6.42.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.4...v6.42.5) (2024-01-02)
 
-
 ### Bug Fixes
 
-* bump version of formatter ([62751e7](https://github.com/consolelabs/mochi-discord/commit/62751e74530b6c90b98a9d24dd61bb25dd20f56c))
-* release ([6736a6a](https://github.com/consolelabs/mochi-discord/commit/6736a6a444680f5b7d1dc6d419e1b1ff15d594ca))
-* **tip:** update channel name metadata ([#1564](https://github.com/consolelabs/mochi-discord/issues/1564)) ([23373c6](https://github.com/consolelabs/mochi-discord/commit/23373c65fc161fd4aa76e0bfa6ee1c283a009a25))
+- bump version of formatter ([62751e7](https://github.com/consolelabs/mochi-discord/commit/62751e74530b6c90b98a9d24dd61bb25dd20f56c))
+- release ([6736a6a](https://github.com/consolelabs/mochi-discord/commit/6736a6a444680f5b7d1dc6d419e1b1ff15d594ca))
+- **tip:** update channel name metadata ([#1564](https://github.com/consolelabs/mochi-discord/issues/1564)) ([23373c6](https://github.com/consolelabs/mochi-discord/commit/23373c65fc161fd4aa76e0bfa6ee1c283a009a25))
 
 ## [6.42.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.5-rc.1...v6.42.5-rc.2) (2024-01-02)
 
-
 ### Bug Fixes
 
-* bump version of formatter ([62751e7](https://github.com/consolelabs/mochi-discord/commit/62751e74530b6c90b98a9d24dd61bb25dd20f56c))
+- bump version of formatter ([62751e7](https://github.com/consolelabs/mochi-discord/commit/62751e74530b6c90b98a9d24dd61bb25dd20f56c))
 
 ## [6.42.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.4...v6.42.5-rc.1) (2024-01-02)
 
-
 ### Bug Fixes
 
-* release ([6736a6a](https://github.com/consolelabs/mochi-discord/commit/6736a6a444680f5b7d1dc6d419e1b1ff15d594ca))
-* **tip:** update channel name metadata ([#1564](https://github.com/consolelabs/mochi-discord/issues/1564)) ([23373c6](https://github.com/consolelabs/mochi-discord/commit/23373c65fc161fd4aa76e0bfa6ee1c283a009a25))
+- release ([6736a6a](https://github.com/consolelabs/mochi-discord/commit/6736a6a444680f5b7d1dc6d419e1b1ff15d594ca))
+- **tip:** update channel name metadata ([#1564](https://github.com/consolelabs/mochi-discord/issues/1564)) ([23373c6](https://github.com/consolelabs/mochi-discord/commit/23373c65fc161fd4aa76e0bfa6ee1c283a009a25))
 
 ## [6.42.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.4-rc.1...v6.42.4-rc.2) (2023-12-28)
-## [6.42.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4) (2023-12-28)
 
+## [6.42.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4) (2023-12-28)
 
 ### Bug Fixes
 
-* **ticker:** parse type error ([#1563](https://github.com/consolelabs/mochi-discord/issues/1563)) ([ee46283](https://github.com/consolelabs/mochi-discord/commit/ee46283b0072d7dfee65636e74679b18eb3972b5))
-* update wlv sort pagination logic ([#1562](https://github.com/consolelabs/mochi-discord/issues/1562)) ([f6968f3](https://github.com/consolelabs/mochi-discord/commit/f6968f3f5677368acaf1b628f438ce6a0d3125d0))
+- **ticker:** parse type error ([#1563](https://github.com/consolelabs/mochi-discord/issues/1563)) ([ee46283](https://github.com/consolelabs/mochi-discord/commit/ee46283b0072d7dfee65636e74679b18eb3972b5))
+- update wlv sort pagination logic ([#1562](https://github.com/consolelabs/mochi-discord/issues/1562)) ([f6968f3](https://github.com/consolelabs/mochi-discord/commit/f6968f3f5677368acaf1b628f438ce6a0d3125d0))
 
 ## [6.42.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.3...v6.42.4-rc.1) (2023-12-28)
 
-
 ### Bug Fixes
 
-* update wlv sort pagination logic ([#1562](https://github.com/consolelabs/mochi-discord/issues/1562)) ([f6968f3](https://github.com/consolelabs/mochi-discord/commit/f6968f3f5677368acaf1b628f438ce6a0d3125d0))
+- update wlv sort pagination logic ([#1562](https://github.com/consolelabs/mochi-discord/issues/1562)) ([f6968f3](https://github.com/consolelabs/mochi-discord/commit/f6968f3f5677368acaf1b628f438ce6a0d3125d0))
 
 ## [6.42.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.2...v6.42.3) (2023-12-28)
 
-
 ### Bug Fixes
 
-* font missing unicode characters ([e3a5855](https://github.com/consolelabs/mochi-discord/commit/e3a5855f552c409b556b452134396942b1855519))
+- font missing unicode characters ([e3a5855](https://github.com/consolelabs/mochi-discord/commit/e3a5855f552c409b556b452134396942b1855519))
 
 ## [6.42.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.2...v6.42.3-rc.1) (2023-12-28)
 
-
 ### Bug Fixes
 
-* font missing unicode characters ([e3a5855](https://github.com/consolelabs/mochi-discord/commit/e3a5855f552c409b556b452134396942b1855519))
+- font missing unicode characters ([e3a5855](https://github.com/consolelabs/mochi-discord/commit/e3a5855f552c409b556b452134396942b1855519))
 
 ## [6.42.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.1...v6.42.2) (2023-12-28)
 
-
 ### Bug Fixes
 
-* fix dockerfile to use mochijs latest ([fc4da8e](https://github.com/consolelabs/mochi-discord/commit/fc4da8e146592dbbe2105493e796ac02a220d9cb))
-* show new subscript num in ticker cmd ([f4a8dc4](https://github.com/consolelabs/mochi-discord/commit/f4a8dc43c3594e74330c08dbb39b06e30912f563))
+- fix dockerfile to use mochijs latest ([fc4da8e](https://github.com/consolelabs/mochi-discord/commit/fc4da8e146592dbbe2105493e796ac02a220d9cb))
+- show new subscript num in ticker cmd ([f4a8dc4](https://github.com/consolelabs/mochi-discord/commit/f4a8dc43c3594e74330c08dbb39b06e30912f563))
 
 ## [6.42.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.1...v6.42.2-rc.1) (2023-12-28)
 
-
 ### Bug Fixes
 
-* fix dockerfile to use mochijs latest ([fc4da8e](https://github.com/consolelabs/mochi-discord/commit/fc4da8e146592dbbe2105493e796ac02a220d9cb))
-* show new subscript num in ticker cmd ([f4a8dc4](https://github.com/consolelabs/mochi-discord/commit/f4a8dc43c3594e74330c08dbb39b06e30912f563))
+- fix dockerfile to use mochijs latest ([fc4da8e](https://github.com/consolelabs/mochi-discord/commit/fc4da8e146592dbbe2105493e796ac02a220d9cb))
+- show new subscript num in ticker cmd ([f4a8dc4](https://github.com/consolelabs/mochi-discord/commit/f4a8dc43c3594e74330c08dbb39b06e30912f563))
 
 ## [6.42.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.0...v6.42.1) (2023-12-28)
 
-
 ### Bug Fixes
 
-* update mochi formatter ([0507e8a](https://github.com/consolelabs/mochi-discord/commit/0507e8a6c76f39f7870df33998ca526df4b9b708))
+- update mochi formatter ([0507e8a](https://github.com/consolelabs/mochi-discord/commit/0507e8a6c76f39f7870df33998ca526df4b9b708))
 
 ## [6.42.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.42.0...v6.42.1-rc.1) (2023-12-28)
 
-
 ### Bug Fixes
 
-* update mochi formatter ([0507e8a](https://github.com/consolelabs/mochi-discord/commit/0507e8a6c76f39f7870df33998ca526df4b9b708))
+- update mochi formatter ([0507e8a](https://github.com/consolelabs/mochi-discord/commit/0507e8a6c76f39f7870df33998ca526df4b9b708))
 
 # [6.42.0](https://github.com/consolelabs/mochi-discord/compare/v6.41.3...v6.42.0) (2023-12-26)
 
-
 ### Bug Fixes
 
-* add missing token_id field when send tip through email ([#1557](https://github.com/consolelabs/mochi-discord/issues/1557)) ([9267b37](https://github.com/consolelabs/mochi-discord/commit/9267b37d82434fdf7c0d54fa497af450887a7863))
-* lock node alpine version in docker file ([a5d92d2](https://github.com/consolelabs/mochi-discord/commit/a5d92d2f29870b2ccde3f5e387351a17205a5dd6))
-* remove cache in watchlist ([add8781](https://github.com/consolelabs/mochi-discord/commit/add8781138f0849f89b783491d9884e52aab67a0))
-* sp tip email without prefixes ([#1559](https://github.com/consolelabs/mochi-discord/issues/1559)) ([8733b11](https://github.com/consolelabs/mochi-discord/commit/8733b11d74d37ce2ac66593c189b6c3212fb8c45))
-* update cache ttl watchlist view ([#1561](https://github.com/consolelabs/mochi-discord/issues/1561)) ([b14eaef](https://github.com/consolelabs/mochi-discord/commit/b14eaef89b31c883436b9f4b08005d1dd5c73143))
-* validate tip email argument ([#1560](https://github.com/consolelabs/mochi-discord/issues/1560)) ([2573e94](https://github.com/consolelabs/mochi-discord/commit/2573e94b88bef9d3a96d391cad0696f4ada8e7fd))
-
+- add missing token_id field when send tip through email ([#1557](https://github.com/consolelabs/mochi-discord/issues/1557)) ([9267b37](https://github.com/consolelabs/mochi-discord/commit/9267b37d82434fdf7c0d54fa497af450887a7863))
+- lock node alpine version in docker file ([a5d92d2](https://github.com/consolelabs/mochi-discord/commit/a5d92d2f29870b2ccde3f5e387351a17205a5dd6))
+- remove cache in watchlist ([add8781](https://github.com/consolelabs/mochi-discord/commit/add8781138f0849f89b783491d9884e52aab67a0))
+- sp tip email without prefixes ([#1559](https://github.com/consolelabs/mochi-discord/issues/1559)) ([8733b11](https://github.com/consolelabs/mochi-discord/commit/8733b11d74d37ce2ac66593c189b6c3212fb8c45))
+- update cache ttl watchlist view ([#1561](https://github.com/consolelabs/mochi-discord/issues/1561)) ([b14eaef](https://github.com/consolelabs/mochi-discord/commit/b14eaef89b31c883436b9f4b08005d1dd5c73143))
+- validate tip email argument ([#1560](https://github.com/consolelabs/mochi-discord/issues/1560)) ([2573e94](https://github.com/consolelabs/mochi-discord/commit/2573e94b88bef9d3a96d391cad0696f4ada8e7fd))
 
 ### Features
 
-* migrate tip email with new method ([#1558](https://github.com/consolelabs/mochi-discord/issues/1558)) ([c0f55d5](https://github.com/consolelabs/mochi-discord/commit/c0f55d57d3fd35f1f3b5bb4b8efbefe05c1d2289))
+- migrate tip email with new method ([#1558](https://github.com/consolelabs/mochi-discord/issues/1558)) ([c0f55d5](https://github.com/consolelabs/mochi-discord/commit/c0f55d57d3fd35f1f3b5bb4b8efbefe05c1d2289))
 
 # [6.42.0-rc.6](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.5...v6.42.0-rc.6) (2023-12-26)
 
-
 ### Bug Fixes
 
-* remove cache in watchlist ([add8781](https://github.com/consolelabs/mochi-discord/commit/add8781138f0849f89b783491d9884e52aab67a0))
+- remove cache in watchlist ([add8781](https://github.com/consolelabs/mochi-discord/commit/add8781138f0849f89b783491d9884e52aab67a0))
 
 # [6.42.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.4...v6.42.0-rc.5) (2023-12-22)
 
-
 ### Bug Fixes
 
-* update cache ttl watchlist view ([#1561](https://github.com/consolelabs/mochi-discord/issues/1561)) ([b14eaef](https://github.com/consolelabs/mochi-discord/commit/b14eaef89b31c883436b9f4b08005d1dd5c73143))
+- update cache ttl watchlist view ([#1561](https://github.com/consolelabs/mochi-discord/issues/1561)) ([b14eaef](https://github.com/consolelabs/mochi-discord/commit/b14eaef89b31c883436b9f4b08005d1dd5c73143))
 
 # [6.42.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.3...v6.42.0-rc.4) (2023-12-21)
 
-
 ### Bug Fixes
 
-* lock node alpine version in docker file ([a5d92d2](https://github.com/consolelabs/mochi-discord/commit/a5d92d2f29870b2ccde3f5e387351a17205a5dd6))
+- lock node alpine version in docker file ([a5d92d2](https://github.com/consolelabs/mochi-discord/commit/a5d92d2f29870b2ccde3f5e387351a17205a5dd6))
 
 # [6.42.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.2...v6.42.0-rc.3) (2023-12-21)
 
-
 ### Bug Fixes
 
-* validate tip email argument ([#1560](https://github.com/consolelabs/mochi-discord/issues/1560)) ([2573e94](https://github.com/consolelabs/mochi-discord/commit/2573e94b88bef9d3a96d391cad0696f4ada8e7fd))
+- validate tip email argument ([#1560](https://github.com/consolelabs/mochi-discord/issues/1560)) ([2573e94](https://github.com/consolelabs/mochi-discord/commit/2573e94b88bef9d3a96d391cad0696f4ada8e7fd))
 
 # [6.42.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.42.0-rc.1...v6.42.0-rc.2) (2023-12-21)
 
-
 ### Bug Fixes
 
-* sp tip email without prefixes ([#1559](https://github.com/consolelabs/mochi-discord/issues/1559)) ([8733b11](https://github.com/consolelabs/mochi-discord/commit/8733b11d74d37ce2ac66593c189b6c3212fb8c45))
+- sp tip email without prefixes ([#1559](https://github.com/consolelabs/mochi-discord/issues/1559)) ([8733b11](https://github.com/consolelabs/mochi-discord/commit/8733b11d74d37ce2ac66593c189b6c3212fb8c45))
 
 # [6.42.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.3...v6.42.0-rc.1) (2023-12-20)
 
-
 ### Bug Fixes
 
-* add missing token_id field when send tip through email ([#1557](https://github.com/consolelabs/mochi-discord/issues/1557)) ([9267b37](https://github.com/consolelabs/mochi-discord/commit/9267b37d82434fdf7c0d54fa497af450887a7863))
-
+- add missing token_id field when send tip through email ([#1557](https://github.com/consolelabs/mochi-discord/issues/1557)) ([9267b37](https://github.com/consolelabs/mochi-discord/commit/9267b37d82434fdf7c0d54fa497af450887a7863))
 
 ### Features
 
-* migrate tip email with new method ([#1558](https://github.com/consolelabs/mochi-discord/issues/1558)) ([c0f55d5](https://github.com/consolelabs/mochi-discord/commit/c0f55d57d3fd35f1f3b5bb4b8efbefe05c1d2289))
+- migrate tip email with new method ([#1558](https://github.com/consolelabs/mochi-discord/issues/1558)) ([c0f55d5](https://github.com/consolelabs/mochi-discord/commit/c0f55d57d3fd35f1f3b5bb4b8efbefe05c1d2289))
 
 ## [6.41.3](https://github.com/consolelabs/mochi-discord/compare/v6.41.2...v6.41.3) (2023-12-20)
 
-
 ### Bug Fixes
 
-* **payme:** update pay me notify ([#1556](https://github.com/consolelabs/mochi-discord/issues/1556)) ([93ab029](https://github.com/consolelabs/mochi-discord/commit/93ab029967970379c4089df71dc0aa7b97e10665))
+- **payme:** update pay me notify ([#1556](https://github.com/consolelabs/mochi-discord/issues/1556)) ([93ab029](https://github.com/consolelabs/mochi-discord/commit/93ab029967970379c4089df71dc0aa7b97e10665))
 
 ## [6.41.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.2...v6.41.3-rc.1) (2023-12-20)
 
-
 ### Bug Fixes
 
-* **payme:** update pay me notify ([#1556](https://github.com/consolelabs/mochi-discord/issues/1556)) ([93ab029](https://github.com/consolelabs/mochi-discord/commit/93ab029967970379c4089df71dc0aa7b97e10665))
+- **payme:** update pay me notify ([#1556](https://github.com/consolelabs/mochi-discord/issues/1556)) ([93ab029](https://github.com/consolelabs/mochi-discord/commit/93ab029967970379c4089df71dc0aa7b97e10665))
 
 ## [6.41.2](https://github.com/consolelabs/mochi-discord/compare/v6.41.1...v6.41.2) (2023-12-15)
 
-
 ### Bug Fixes
 
-* **follow-tip:** update correct balance when follow tip ([#1555](https://github.com/consolelabs/mochi-discord/issues/1555)) ([e3899e5](https://github.com/consolelabs/mochi-discord/commit/e3899e506b45b3af72a7b7e4f691892494ec69b6))
-* replace mochi ui to mochi formatter ([#1553](https://github.com/consolelabs/mochi-discord/issues/1553)) ([0d33582](https://github.com/consolelabs/mochi-discord/commit/0d33582cf9675fe59dbe0aedaaf7a3764074cbe5))
-* update transaction time format ([#1554](https://github.com/consolelabs/mochi-discord/issues/1554)) ([98f9b38](https://github.com/consolelabs/mochi-discord/commit/98f9b386c7f91f059acd45d9c3999642ab7b3300))
+- **follow-tip:** update correct balance when follow tip ([#1555](https://github.com/consolelabs/mochi-discord/issues/1555)) ([e3899e5](https://github.com/consolelabs/mochi-discord/commit/e3899e506b45b3af72a7b7e4f691892494ec69b6))
+- replace mochi ui to mochi formatter ([#1553](https://github.com/consolelabs/mochi-discord/issues/1553)) ([0d33582](https://github.com/consolelabs/mochi-discord/commit/0d33582cf9675fe59dbe0aedaaf7a3764074cbe5))
+- update transaction time format ([#1554](https://github.com/consolelabs/mochi-discord/issues/1554)) ([98f9b38](https://github.com/consolelabs/mochi-discord/commit/98f9b386c7f91f059acd45d9c3999642ab7b3300))
 
 ## [6.41.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.41.2-rc.1...v6.41.2-rc.2) (2023-12-15)
 
-
 ### Bug Fixes
 
-* **follow-tip:** update correct balance when follow tip ([#1555](https://github.com/consolelabs/mochi-discord/issues/1555)) ([e3899e5](https://github.com/consolelabs/mochi-discord/commit/e3899e506b45b3af72a7b7e4f691892494ec69b6))
-* update transaction time format ([#1554](https://github.com/consolelabs/mochi-discord/issues/1554)) ([98f9b38](https://github.com/consolelabs/mochi-discord/commit/98f9b386c7f91f059acd45d9c3999642ab7b3300))
+- **follow-tip:** update correct balance when follow tip ([#1555](https://github.com/consolelabs/mochi-discord/issues/1555)) ([e3899e5](https://github.com/consolelabs/mochi-discord/commit/e3899e506b45b3af72a7b7e4f691892494ec69b6))
+- update transaction time format ([#1554](https://github.com/consolelabs/mochi-discord/issues/1554)) ([98f9b38](https://github.com/consolelabs/mochi-discord/commit/98f9b386c7f91f059acd45d9c3999642ab7b3300))
 
 ## [6.41.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.1...v6.41.2-rc.1) (2023-12-14)
 
-
 ### Bug Fixes
 
-* replace mochi ui to mochi formatter ([#1553](https://github.com/consolelabs/mochi-discord/issues/1553)) ([0d33582](https://github.com/consolelabs/mochi-discord/commit/0d33582cf9675fe59dbe0aedaaf7a3764074cbe5))
+- replace mochi ui to mochi formatter ([#1553](https://github.com/consolelabs/mochi-discord/issues/1553)) ([0d33582](https://github.com/consolelabs/mochi-discord/commit/0d33582cf9675fe59dbe0aedaaf7a3764074cbe5))
 
 ## [6.41.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.0...v6.41.1) (2023-12-14)
 
-
 ### Bug Fixes
 
-* **follow-tip:** show correct error and fixing type error ([#1552](https://github.com/consolelabs/mochi-discord/issues/1552)) ([db388e5](https://github.com/consolelabs/mochi-discord/commit/db388e5e609127921426c982d028fe22a7351f32))
+- **follow-tip:** show correct error and fixing type error ([#1552](https://github.com/consolelabs/mochi-discord/issues/1552)) ([db388e5](https://github.com/consolelabs/mochi-discord/commit/db388e5e609127921426c982d028fe22a7351f32))
 
 ## [6.41.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.41.0...v6.41.1-rc.1) (2023-12-14)
 
-
 ### Bug Fixes
 
-* **follow-tip:** show correct error and fixing type error ([#1552](https://github.com/consolelabs/mochi-discord/issues/1552)) ([db388e5](https://github.com/consolelabs/mochi-discord/commit/db388e5e609127921426c982d028fe22a7351f32))
+- **follow-tip:** show correct error and fixing type error ([#1552](https://github.com/consolelabs/mochi-discord/issues/1552)) ([db388e5](https://github.com/consolelabs/mochi-discord/commit/db388e5e609127921426c982d028fe22a7351f32))
 
 # [6.41.0](https://github.com/consolelabs/mochi-discord/compare/v6.40.7...v6.41.0) (2023-12-14)
 
-
 ### Bug Fixes
 
-* airdrop confirm/cancel button not working ([#1551](https://github.com/consolelabs/mochi-discord/issues/1551)) ([23d9478](https://github.com/consolelabs/mochi-discord/commit/23d9478744a3b47be0a2fa2fee679c4a09fa0621))
-
+- airdrop confirm/cancel button not working ([#1551](https://github.com/consolelabs/mochi-discord/issues/1551)) ([23d9478](https://github.com/consolelabs/mochi-discord/commit/23d9478744a3b47be0a2fa2fee679c4a09fa0621))
 
 ### Features
 
-* update CI to rebuild image ([#1550](https://github.com/consolelabs/mochi-discord/issues/1550)) ([4003231](https://github.com/consolelabs/mochi-discord/commit/400323121ad73bf7c4ffd89eb98af811e3a28318))
-* update package.json to use mochijs latest version ([#1549](https://github.com/consolelabs/mochi-discord/issues/1549)) ([c077267](https://github.com/consolelabs/mochi-discord/commit/c077267c4016f818502972c5e1ed65138c1c54c6))
+- update CI to rebuild image ([#1550](https://github.com/consolelabs/mochi-discord/issues/1550)) ([4003231](https://github.com/consolelabs/mochi-discord/commit/400323121ad73bf7c4ffd89eb98af811e3a28318))
+- update package.json to use mochijs latest version ([#1549](https://github.com/consolelabs/mochi-discord/issues/1549)) ([c077267](https://github.com/consolelabs/mochi-discord/commit/c077267c4016f818502972c5e1ed65138c1c54c6))
 
 # [6.41.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.41.0-rc.1...v6.41.0-rc.2) (2023-12-14)
 
-
 ### Bug Fixes
 
-* airdrop confirm/cancel button not working ([#1551](https://github.com/consolelabs/mochi-discord/issues/1551)) ([23d9478](https://github.com/consolelabs/mochi-discord/commit/23d9478744a3b47be0a2fa2fee679c4a09fa0621))
+- airdrop confirm/cancel button not working ([#1551](https://github.com/consolelabs/mochi-discord/issues/1551)) ([23d9478](https://github.com/consolelabs/mochi-discord/commit/23d9478744a3b47be0a2fa2fee679c4a09fa0621))
 
 # [6.41.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.7-rc.1...v6.41.0-rc.1) (2023-12-12)
 
-
 ### Features
 
-* update CI to rebuild image ([#1550](https://github.com/consolelabs/mochi-discord/issues/1550)) ([4003231](https://github.com/consolelabs/mochi-discord/commit/400323121ad73bf7c4ffd89eb98af811e3a28318))
-* update package.json to use mochijs latest version ([#1549](https://github.com/consolelabs/mochi-discord/issues/1549)) ([c077267](https://github.com/consolelabs/mochi-discord/commit/c077267c4016f818502972c5e1ed65138c1c54c6))
+- update CI to rebuild image ([#1550](https://github.com/consolelabs/mochi-discord/issues/1550)) ([4003231](https://github.com/consolelabs/mochi-discord/commit/400323121ad73bf7c4ffd89eb98af811e3a28318))
+- update package.json to use mochijs latest version ([#1549](https://github.com/consolelabs/mochi-discord/issues/1549)) ([c077267](https://github.com/consolelabs/mochi-discord/commit/c077267c4016f818502972c5e1ed65138c1c54c6))
 
 ## [6.40.7](https://github.com/consolelabs/mochi-discord/compare/v6.40.6...v6.40.7) (2023-12-11)
 
-
 ### Bug Fixes
 
-* update new rule for rendering percent values ([833adb0](https://github.com/consolelabs/mochi-discord/commit/833adb03fdee57e59fb0ab690fe1514c89db2d2c))
+- update new rule for rendering percent values ([833adb0](https://github.com/consolelabs/mochi-discord/commit/833adb03fdee57e59fb0ab690fe1514c89db2d2c))
 
 ## [6.40.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.6...v6.40.7-rc.1) (2023-12-11)
 
-
 ### Bug Fixes
 
-* update new rule for rendering percent values ([833adb0](https://github.com/consolelabs/mochi-discord/commit/833adb03fdee57e59fb0ab690fe1514c89db2d2c))
+- update new rule for rendering percent values ([833adb0](https://github.com/consolelabs/mochi-discord/commit/833adb03fdee57e59fb0ab690fe1514c89db2d2c))
 
 ## [6.40.6](https://github.com/consolelabs/mochi-discord/compare/v6.40.5...v6.40.6) (2023-12-11)
 
-
 ### Bug Fixes
 
-* wlv pagination doesn't work ([e112120](https://github.com/consolelabs/mochi-discord/commit/e11212079ee31c759ff1107bf465cf2e5cfffb64))
+- wlv pagination doesn't work ([e112120](https://github.com/consolelabs/mochi-discord/commit/e11212079ee31c759ff1107bf465cf2e5cfffb64))
 
 ## [6.40.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.5...v6.40.6-rc.1) (2023-12-11)
 
-
 ### Bug Fixes
 
-* wlv pagination doesn't work ([e112120](https://github.com/consolelabs/mochi-discord/commit/e11212079ee31c759ff1107bf465cf2e5cfffb64))
+- wlv pagination doesn't work ([e112120](https://github.com/consolelabs/mochi-discord/commit/e11212079ee31c759ff1107bf465cf2e5cfffb64))
 
 ## [6.40.5-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.2...v6.40.5-rc.3) (2023-12-08)
-## [6.40.5](https://github.com/consolelabs/mochi-discord/compare/v6.40.4...v6.40.5) (2023-12-08)
 
+## [6.40.5](https://github.com/consolelabs/mochi-discord/compare/v6.40.4...v6.40.5) (2023-12-08)
 
 ### Bug Fixes
 
-* allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
-* bump ver ([#1547](https://github.com/consolelabs/mochi-discord/issues/1547)) ([e5820c1](https://github.com/consolelabs/mochi-discord/commit/e5820c1251f8b7e1d1a7dde5ff2fe26935cbd2b7))
-* bump version ([#1548](https://github.com/consolelabs/mochi-discord/issues/1548)) ([2bc7a35](https://github.com/consolelabs/mochi-discord/commit/2bc7a35a37551c64477812461a5dd6f20d76fd1b))
+- allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
+- bump ver ([#1547](https://github.com/consolelabs/mochi-discord/issues/1547)) ([e5820c1](https://github.com/consolelabs/mochi-discord/commit/e5820c1251f8b7e1d1a7dde5ff2fe26935cbd2b7))
+- bump version ([#1548](https://github.com/consolelabs/mochi-discord/issues/1548)) ([2bc7a35](https://github.com/consolelabs/mochi-discord/commit/2bc7a35a37551c64477812461a5dd6f20d76fd1b))
 
 ## [6.40.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.5-rc.1...v6.40.5-rc.2) (2023-12-08)
 
-
 ### Bug Fixes
 
-* bump ver ([#1547](https://github.com/consolelabs/mochi-discord/issues/1547)) ([e5820c1](https://github.com/consolelabs/mochi-discord/commit/e5820c1251f8b7e1d1a7dde5ff2fe26935cbd2b7))
+- bump ver ([#1547](https://github.com/consolelabs/mochi-discord/issues/1547)) ([e5820c1](https://github.com/consolelabs/mochi-discord/commit/e5820c1251f8b7e1d1a7dde5ff2fe26935cbd2b7))
 
 ## [6.40.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.4...v6.40.5-rc.1) (2023-12-08)
 
-
 ### Bug Fixes
 
-* allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
+- allow multiple follow tip ([#1546](https://github.com/consolelabs/mochi-discord/issues/1546)) ([838335e](https://github.com/consolelabs/mochi-discord/commit/838335ee17cddbf937f6c7caad42e9ef607462ea))
 
 ## [6.40.4](https://github.com/consolelabs/mochi-discord/compare/v6.40.3...v6.40.4) (2023-12-08)
 
-
 ### Bug Fixes
 
-* bump version ([#1545](https://github.com/consolelabs/mochi-discord/issues/1545)) ([bccd4a9](https://github.com/consolelabs/mochi-discord/commit/bccd4a911d3a5fe3cc24dfc3ba9901fa35cb904f))
-* ephemeral tip follow ([#1544](https://github.com/consolelabs/mochi-discord/issues/1544)) ([61ce87b](https://github.com/consolelabs/mochi-discord/commit/61ce87b0aeac91535a3f964f0801367902c293b8))
+- bump version ([#1545](https://github.com/consolelabs/mochi-discord/issues/1545)) ([bccd4a9](https://github.com/consolelabs/mochi-discord/commit/bccd4a911d3a5fe3cc24dfc3ba9901fa35cb904f))
+- ephemeral tip follow ([#1544](https://github.com/consolelabs/mochi-discord/issues/1544)) ([61ce87b](https://github.com/consolelabs/mochi-discord/commit/61ce87b0aeac91535a3f964f0801367902c293b8))
 
 ## [6.40.4-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.4-rc.1...v6.40.4-rc.2) (2023-12-08)
 
-
 ### Bug Fixes
 
-* bump version ([#1545](https://github.com/consolelabs/mochi-discord/issues/1545)) ([bccd4a9](https://github.com/consolelabs/mochi-discord/commit/bccd4a911d3a5fe3cc24dfc3ba9901fa35cb904f))
+- bump version ([#1545](https://github.com/consolelabs/mochi-discord/issues/1545)) ([bccd4a9](https://github.com/consolelabs/mochi-discord/commit/bccd4a911d3a5fe3cc24dfc3ba9901fa35cb904f))
 
 ## [6.40.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.3...v6.40.4-rc.1) (2023-12-07)
 
-
 ### Bug Fixes
 
-* ephemeral tip follow ([#1544](https://github.com/consolelabs/mochi-discord/issues/1544)) ([61ce87b](https://github.com/consolelabs/mochi-discord/commit/61ce87b0aeac91535a3f964f0801367902c293b8))
+- ephemeral tip follow ([#1544](https://github.com/consolelabs/mochi-discord/issues/1544)) ([61ce87b](https://github.com/consolelabs/mochi-discord/commit/61ce87b0aeac91535a3f964f0801367902c293b8))
 
 ## [6.40.3](https://github.com/consolelabs/mochi-discord/compare/v6.40.2...v6.40.3) (2023-12-07)
 
-
 ### Bug Fixes
 
-* **leaderboard:** update schema type for leaderboard ([#1543](https://github.com/consolelabs/mochi-discord/issues/1543)) ([5a9a937](https://github.com/consolelabs/mochi-discord/commit/5a9a9377abc18dfbf1dd5e19ba38797cec5dd141))
+- **leaderboard:** update schema type for leaderboard ([#1543](https://github.com/consolelabs/mochi-discord/issues/1543)) ([5a9a937](https://github.com/consolelabs/mochi-discord/commit/5a9a9377abc18dfbf1dd5e19ba38797cec5dd141))
 
 ## [6.40.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.2...v6.40.3-rc.1) (2023-12-07)
 
-
 ### Bug Fixes
 
-* **leaderboard:** update schema type for leaderboard ([#1543](https://github.com/consolelabs/mochi-discord/issues/1543)) ([5a9a937](https://github.com/consolelabs/mochi-discord/commit/5a9a9377abc18dfbf1dd5e19ba38797cec5dd141))
+- **leaderboard:** update schema type for leaderboard ([#1543](https://github.com/consolelabs/mochi-discord/issues/1543)) ([5a9a937](https://github.com/consolelabs/mochi-discord/commit/5a9a9377abc18dfbf1dd5e19ba38797cec5dd141))
 
 ## [6.40.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.1...v6.40.2) (2023-12-07)
 
-
 ### Bug Fixes
 
-* update typing for transaction ([#1542](https://github.com/consolelabs/mochi-discord/issues/1542)) ([6ddb2dc](https://github.com/consolelabs/mochi-discord/commit/6ddb2dc29dd27a5ce518e1f0bcf4653ea073a7e0))
+- update typing for transaction ([#1542](https://github.com/consolelabs/mochi-discord/issues/1542)) ([6ddb2dc](https://github.com/consolelabs/mochi-discord/commit/6ddb2dc29dd27a5ce518e1f0bcf4653ea073a7e0))
 
 ## [6.40.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.1...v6.40.2-rc.1) (2023-12-07)
 
-
 ### Bug Fixes
 
-* update typing for transaction ([#1542](https://github.com/consolelabs/mochi-discord/issues/1542)) ([6ddb2dc](https://github.com/consolelabs/mochi-discord/commit/6ddb2dc29dd27a5ce518e1f0bcf4653ea073a7e0))
+- update typing for transaction ([#1542](https://github.com/consolelabs/mochi-discord/issues/1542)) ([6ddb2dc](https://github.com/consolelabs/mochi-discord/commit/6ddb2dc29dd27a5ce518e1f0bcf4653ea073a7e0))
 
 ## [6.40.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.0...v6.40.1) (2023-12-06)
 
-
 ### Bug Fixes
 
-* **feed:** tx feed is empty ([#1541](https://github.com/consolelabs/mochi-discord/issues/1541)) ([0e9f45a](https://github.com/consolelabs/mochi-discord/commit/0e9f45a39193e17e3e28b8c8b8ac0a4be01e7f4e))
-* **sentry:** handle read-only error ([#1540](https://github.com/consolelabs/mochi-discord/issues/1540)) ([8640a86](https://github.com/consolelabs/mochi-discord/commit/8640a86c0fdb8d5662806eb5ffd4fa07906c4d31))
+- **feed:** tx feed is empty ([#1541](https://github.com/consolelabs/mochi-discord/issues/1541)) ([0e9f45a](https://github.com/consolelabs/mochi-discord/commit/0e9f45a39193e17e3e28b8c8b8ac0a4be01e7f4e))
+- **sentry:** handle read-only error ([#1540](https://github.com/consolelabs/mochi-discord/issues/1540)) ([8640a86](https://github.com/consolelabs/mochi-discord/commit/8640a86c0fdb8d5662806eb5ffd4fa07906c4d31))
 
 ## [6.40.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.40.0...v6.40.1-rc.1) (2023-12-06)
 
-
 ### Bug Fixes
 
-* **feed:** tx feed is empty ([#1541](https://github.com/consolelabs/mochi-discord/issues/1541)) ([0e9f45a](https://github.com/consolelabs/mochi-discord/commit/0e9f45a39193e17e3e28b8c8b8ac0a4be01e7f4e))
-* **sentry:** handle read-only error ([#1540](https://github.com/consolelabs/mochi-discord/issues/1540)) ([8640a86](https://github.com/consolelabs/mochi-discord/commit/8640a86c0fdb8d5662806eb5ffd4fa07906c4d31))
+- **feed:** tx feed is empty ([#1541](https://github.com/consolelabs/mochi-discord/issues/1541)) ([0e9f45a](https://github.com/consolelabs/mochi-discord/commit/0e9f45a39193e17e3e28b8c8b8ac0a4be01e7f4e))
+- **sentry:** handle read-only error ([#1540](https://github.com/consolelabs/mochi-discord/issues/1540)) ([8640a86](https://github.com/consolelabs/mochi-discord/commit/8640a86c0fdb8d5662806eb5ffd4fa07906c4d31))
 
 # [6.40.0](https://github.com/consolelabs/mochi-discord/compare/v6.39.3...v6.40.0) (2023-12-05)
 
-
 ### Bug Fixes
 
-* **follow-tip:** handle error ([#1539](https://github.com/consolelabs/mochi-discord/issues/1539)) ([3f8d1ad](https://github.com/consolelabs/mochi-discord/commit/3f8d1adc9776d13a707cfc91ac53dd7b056e201b))
-* handle null ([#1538](https://github.com/consolelabs/mochi-discord/issues/1538)) ([e4ceab9](https://github.com/consolelabs/mochi-discord/commit/e4ceab9955ae89bdb9137b7c81a69e38069f272d))
-* handle withdraw all ([#1535](https://github.com/consolelabs/mochi-discord/issues/1535)) ([2bad7a1](https://github.com/consolelabs/mochi-discord/commit/2bad7a1b0696d9e5d5e68a588ef0dddfabe9849f))
-* reply to user if it's a known error ([e74f065](https://github.com/consolelabs/mochi-discord/commit/e74f0659b9f0f24b518540b7255f4d7b38329684))
-
+- **follow-tip:** handle error ([#1539](https://github.com/consolelabs/mochi-discord/issues/1539)) ([3f8d1ad](https://github.com/consolelabs/mochi-discord/commit/3f8d1adc9776d13a707cfc91ac53dd7b056e201b))
+- handle null ([#1538](https://github.com/consolelabs/mochi-discord/issues/1538)) ([e4ceab9](https://github.com/consolelabs/mochi-discord/commit/e4ceab9955ae89bdb9137b7c81a69e38069f272d))
+- handle withdraw all ([#1535](https://github.com/consolelabs/mochi-discord/issues/1535)) ([2bad7a1](https://github.com/consolelabs/mochi-discord/commit/2bad7a1b0696d9e5d5e68a588ef0dddfabe9849f))
+- reply to user if it's a known error ([e74f065](https://github.com/consolelabs/mochi-discord/commit/e74f0659b9f0f24b518540b7255f4d7b38329684))
 
 ### Features
 
-* follow tip ([#1537](https://github.com/consolelabs/mochi-discord/issues/1537)) ([e158994](https://github.com/consolelabs/mochi-discord/commit/e158994799a70d1f2773df1325bbe0b2e3638c65))
+- follow tip ([#1537](https://github.com/consolelabs/mochi-discord/issues/1537)) ([e158994](https://github.com/consolelabs/mochi-discord/commit/e158994799a70d1f2773df1325bbe0b2e3638c65))
 
 # [6.40.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.40.0-rc.1...v6.40.0-rc.2) (2023-12-01)
 
-
 ### Bug Fixes
 
-* **follow-tip:** handle error ([#1539](https://github.com/consolelabs/mochi-discord/issues/1539)) ([3f8d1ad](https://github.com/consolelabs/mochi-discord/commit/3f8d1adc9776d13a707cfc91ac53dd7b056e201b))
-* handle null ([#1538](https://github.com/consolelabs/mochi-discord/issues/1538)) ([e4ceab9](https://github.com/consolelabs/mochi-discord/commit/e4ceab9955ae89bdb9137b7c81a69e38069f272d))
+- **follow-tip:** handle error ([#1539](https://github.com/consolelabs/mochi-discord/issues/1539)) ([3f8d1ad](https://github.com/consolelabs/mochi-discord/commit/3f8d1adc9776d13a707cfc91ac53dd7b056e201b))
+- handle null ([#1538](https://github.com/consolelabs/mochi-discord/issues/1538)) ([e4ceab9](https://github.com/consolelabs/mochi-discord/commit/e4ceab9955ae89bdb9137b7c81a69e38069f272d))
 
 # [6.40.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.3-rc.1...v6.40.0-rc.1) (2023-12-01)
 
-
 ### Features
 
-* follow tip ([#1537](https://github.com/consolelabs/mochi-discord/issues/1537)) ([e158994](https://github.com/consolelabs/mochi-discord/commit/e158994799a70d1f2773df1325bbe0b2e3638c65))
+- follow tip ([#1537](https://github.com/consolelabs/mochi-discord/issues/1537)) ([e158994](https://github.com/consolelabs/mochi-discord/commit/e158994799a70d1f2773df1325bbe0b2e3638c65))
 
 ## [6.39.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.2...v6.39.3-rc.1) (2023-12-01)
 
-
 ### Bug Fixes
 
-* handle withdraw all ([#1535](https://github.com/consolelabs/mochi-discord/issues/1535)) ([2bad7a1](https://github.com/consolelabs/mochi-discord/commit/2bad7a1b0696d9e5d5e68a588ef0dddfabe9849f))
-* reply to user if it's a known error ([e74f065](https://github.com/consolelabs/mochi-discord/commit/e74f0659b9f0f24b518540b7255f4d7b38329684))
+- handle withdraw all ([#1535](https://github.com/consolelabs/mochi-discord/issues/1535)) ([2bad7a1](https://github.com/consolelabs/mochi-discord/commit/2bad7a1b0696d9e5d5e68a588ef0dddfabe9849f))
+- reply to user if it's a known error ([e74f065](https://github.com/consolelabs/mochi-discord/commit/e74f0659b9f0f24b518540b7255f4d7b38329684))
 
 ## [6.39.2](https://github.com/consolelabs/mochi-discord/compare/v6.39.1...v6.39.2) (2023-11-27)
 
-
 ### Bug Fixes
 
-* mochi should handle gm ([#1534](https://github.com/consolelabs/mochi-discord/issues/1534)) ([eb01f6c](https://github.com/consolelabs/mochi-discord/commit/eb01f6c8709d6ae978c250e51f3ca6b48abb8dfb))
+- mochi should handle gm ([#1534](https://github.com/consolelabs/mochi-discord/issues/1534)) ([eb01f6c](https://github.com/consolelabs/mochi-discord/commit/eb01f6c8709d6ae978c250e51f3ca6b48abb8dfb))
 
 ## [6.39.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.1...v6.39.2-rc.1) (2023-11-27)
 
-
 ### Bug Fixes
 
-* mochi should handle gm ([#1534](https://github.com/consolelabs/mochi-discord/issues/1534)) ([eb01f6c](https://github.com/consolelabs/mochi-discord/commit/eb01f6c8709d6ae978c250e51f3ca6b48abb8dfb))
+- mochi should handle gm ([#1534](https://github.com/consolelabs/mochi-discord/issues/1534)) ([eb01f6c](https://github.com/consolelabs/mochi-discord/commit/eb01f6c8709d6ae978c250e51f3ca6b48abb8dfb))
 
 ## [6.39.1](https://github.com/consolelabs/mochi-discord/compare/v6.39.0...v6.39.1) (2023-11-27)
 
-
 ### Bug Fixes
 
-* resolve conflict ([36542a3](https://github.com/consolelabs/mochi-discord/commit/36542a380ad1eb982924ee339874434e6671793a))
+- resolve conflict ([36542a3](https://github.com/consolelabs/mochi-discord/commit/36542a380ad1eb982924ee339874434e6671793a))
 
 # [6.39.0](https://github.com/consolelabs/mochi-discord/compare/v6.38.10...v6.39.0) (2023-11-24)
 
