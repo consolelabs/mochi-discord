@@ -1,3 +1,12 @@
+## [6.45.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.1-rc.1...v6.45.1-rc.2) (2024-03-12)
+
+
+### Bug Fixes
+
+* rendering app's transfer ([f593cf8](https://github.com/consolelabs/mochi-discord/commit/f593cf8ee1a9221a211b1b9dd7c0484bede7a9e6))
+* **ticker:** update ticker not support response ([#1621](https://github.com/consolelabs/mochi-discord/issues/1621)) ([93acb1e](https://github.com/consolelabs/mochi-discord/commit/93acb1ee3edc4034c49002347d4193e97338e307))
+* **watchlist:** show token chain and address in suggestion ([#1622](https://github.com/consolelabs/mochi-discord/issues/1622)) ([6ef58fe](https://github.com/consolelabs/mochi-discord/commit/6ef58fea5bbc166cc721029614e3eecd4320cc69))
+
 ## [6.45.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.0...v6.45.1-rc.1) (2024-03-08)
 
 
