@@ -68,7 +68,7 @@ export async function addToWatchlistFromTicker(
   const data = await addUserWatchlist(
     msg,
     userId,
-    to.toLowerCase(),
+    baseCoin.symbol.toLowerCase(),
     baseCoin.id,
   )
   if (!data) return null
