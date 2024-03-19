@@ -1,3 +1,10 @@
+## [6.45.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.1...v6.45.2) (2024-03-19)
+
+
+### Bug Fixes
+
+* track token - adjust payload ([#1623](https://github.com/consolelabs/mochi-discord/issues/1623)) ([3896760](https://github.com/consolelabs/mochi-discord/commit/3896760eb39659aea37bce2e3d9b1e75728e3bc2))
+
 ## [6.45.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.0...v6.45.1) (2024-03-12)
 
 
