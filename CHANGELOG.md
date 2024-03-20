@@ -1,3 +1,10 @@
+## [6.45.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.3-rc.1...v6.45.3-rc.2) (2024-03-20)
+
+
+### Bug Fixes
+
+* ticker - market data format ([#1625](https://github.com/consolelabs/mochi-discord/issues/1625)) ([ceca016](https://github.com/consolelabs/mochi-discord/commit/ceca0169fcc6ce341b540a85ca02757124841e23))
+
 ## [6.45.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.2...v6.45.3-rc.1) (2024-03-20)
 
 
