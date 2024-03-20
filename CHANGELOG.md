@@ -1,35 +1,31 @@
-## [6.45.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.1...v6.45.2-rc.1) (2024-03-19)
-
+## [6.45.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.1...v6.45.2) (2024-03-19)
 
 ### Bug Fixes
 
-* track token - adjust payload ([#1623](https://github.com/consolelabs/mochi-discord/issues/1623)) ([3896760](https://github.com/consolelabs/mochi-discord/commit/3896760eb39659aea37bce2e3d9b1e75728e3bc2))
+- track token - adjust payload ([#1623](https://github.com/consolelabs/mochi-discord/issues/1623)) ([3896760](https://github.com/consolelabs/mochi-discord/commit/3896760eb39659aea37bce2e3d9b1e75728e3bc2))
 
 ## [6.45.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.0...v6.45.1) (2024-03-12)
 
-
 ### Bug Fixes
 
-* /feed command ([3290176](https://github.com/consolelabs/mochi-discord/commit/329017609496d2e7c7cc3de164148644462b1b2d))
-* rendering app's transfer ([f593cf8](https://github.com/consolelabs/mochi-discord/commit/f593cf8ee1a9221a211b1b9dd7c0484bede7a9e6))
-* **ticker:** update ticker not support response ([#1621](https://github.com/consolelabs/mochi-discord/issues/1621)) ([93acb1e](https://github.com/consolelabs/mochi-discord/commit/93acb1ee3edc4034c49002347d4193e97338e307))
-* **watchlist:** show token chain and address in suggestion ([#1622](https://github.com/consolelabs/mochi-discord/issues/1622)) ([6ef58fe](https://github.com/consolelabs/mochi-discord/commit/6ef58fea5bbc166cc721029614e3eecd4320cc69))
+- /feed command ([3290176](https://github.com/consolelabs/mochi-discord/commit/329017609496d2e7c7cc3de164148644462b1b2d))
+- rendering app's transfer ([f593cf8](https://github.com/consolelabs/mochi-discord/commit/f593cf8ee1a9221a211b1b9dd7c0484bede7a9e6))
+- **ticker:** update ticker not support response ([#1621](https://github.com/consolelabs/mochi-discord/issues/1621)) ([93acb1e](https://github.com/consolelabs/mochi-discord/commit/93acb1ee3edc4034c49002347d4193e97338e307))
+- **watchlist:** show token chain and address in suggestion ([#1622](https://github.com/consolelabs/mochi-discord/issues/1622)) ([6ef58fe](https://github.com/consolelabs/mochi-discord/commit/6ef58fea5bbc166cc721029614e3eecd4320cc69))
 
 ## [6.45.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.1-rc.1...v6.45.1-rc.2) (2024-03-12)
 
-
 ### Bug Fixes
 
-* rendering app's transfer ([f593cf8](https://github.com/consolelabs/mochi-discord/commit/f593cf8ee1a9221a211b1b9dd7c0484bede7a9e6))
-* **ticker:** update ticker not support response ([#1621](https://github.com/consolelabs/mochi-discord/issues/1621)) ([93acb1e](https://github.com/consolelabs/mochi-discord/commit/93acb1ee3edc4034c49002347d4193e97338e307))
-* **watchlist:** show token chain and address in suggestion ([#1622](https://github.com/consolelabs/mochi-discord/issues/1622)) ([6ef58fe](https://github.com/consolelabs/mochi-discord/commit/6ef58fea5bbc166cc721029614e3eecd4320cc69))
+- rendering app's transfer ([f593cf8](https://github.com/consolelabs/mochi-discord/commit/f593cf8ee1a9221a211b1b9dd7c0484bede7a9e6))
+- **ticker:** update ticker not support response ([#1621](https://github.com/consolelabs/mochi-discord/issues/1621)) ([93acb1e](https://github.com/consolelabs/mochi-discord/commit/93acb1ee3edc4034c49002347d4193e97338e307))
+- **watchlist:** show token chain and address in suggestion ([#1622](https://github.com/consolelabs/mochi-discord/issues/1622)) ([6ef58fe](https://github.com/consolelabs/mochi-discord/commit/6ef58fea5bbc166cc721029614e3eecd4320cc69))
 
 ## [6.45.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.0...v6.45.1-rc.1) (2024-03-08)
 
-
 ### Bug Fixes
 
-* /feed command ([3290176](https://github.com/consolelabs/mochi-discord/commit/329017609496d2e7c7cc3de164148644462b1b2d))
+- /feed command ([3290176](https://github.com/consolelabs/mochi-discord/commit/329017609496d2e7c7cc3de164148644462b1b2d))
 
 # [6.45.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.44.3...v6.45.0-rc.1) (2024-03-04)
 
