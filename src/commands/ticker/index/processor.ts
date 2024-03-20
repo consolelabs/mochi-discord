@@ -24,7 +24,6 @@ import {
   getEmojiToken,
   TokenEmojiKey,
   getEmojiURL,
-  shortenHashOrAddress,
 } from "utils/common"
 import {
   renderCompareTokenChart,
@@ -33,7 +32,7 @@ import {
 } from "./chart"
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { utils } from "@consolelabs/mochi-formatter"
-// import { Util } from "discord.js"
+import moment from "moment-timezone"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -152,7 +151,20 @@ export async function renderSingle(
     price_change_percentage_1h_in_currency,
     price_change_percentage_24h_in_currency,
     price_change_percentage_7d_in_currency,
+    ath,
+    total_volume,
+    max_supply,
   } = coin.market_data
+  let icoDate = `${(coin as any)?.ico_data?.ico_start_date}`
+  const diff = moment.duration(
+    icoDate ? moment(moment.now()).diff(moment(icoDate)) : 0,
+  )
+  const age = icoDate
+    ? `${diff.years()}y${
+        diff.months() ? `${moment.duration(diff).months()}m` : ""
+      }`
+    : "N/A"
+
   const current =
     type === ChartType.Dominance
       ? utils.formatPercentDigit(
@@ -197,6 +209,21 @@ export async function renderSingle(
       inline: true,
     },
     {
+      name: `${getEmoji("ANIMATED_FLASH")} ATH`,
+      value: `${utils.formatUsdDigit(ath[CURRENCY])}`,
+      inline: true,
+    },
+    {
+      name: `${getEmoji("ANIMATED_FLASH")} Volume (24h)`,
+      value: `${utils.formatUsdDigit(total_volume[CURRENCY])}`,
+      inline: true,
+    },
+    {
+      name: `${getEmoji("ANIMATED_FLASH")} FDV`,
+      value: `${utils.formatUsdDigit(current_price[CURRENCY] * max_supply)}`,
+      inline: true,
+    },
+    {
       name: "Change (H1)",
       value: getChangePercentage(
         price_change_percentage_1h_in_currency.usd ?? 0,
@@ -215,6 +242,11 @@ export async function renderSingle(
       value: getChangePercentage(
         price_change_percentage_7d_in_currency.usd ?? 0,
       ),
+      inline: true,
+    },
+    {
+      name: `${getEmoji("ANIMATED_FLASH")} Age`,
+      value: age,
       inline: true,
     },
     ...(hasPlatforms && coin.asset_platform_id
