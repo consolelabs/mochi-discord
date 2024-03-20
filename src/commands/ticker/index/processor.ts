@@ -155,7 +155,7 @@ export async function renderSingle(
     total_volume,
     max_supply,
   } = coin.market_data
-  let icoDate = `${(coin as any)?.ico_data?.ico_start_date}`
+  let icoDate = (coin as any)?.ico_data?.ico_start_date
   const diff = moment.duration(
     icoDate ? moment(moment.now()).diff(moment(icoDate)) : 0,
   )
@@ -163,6 +163,9 @@ export async function renderSingle(
     ? `${diff.years()}y${
         diff.months() ? `${moment.duration(diff).months()}m` : ""
       }`
+    : "N/A"
+  const fdv = max_supply
+    ? utils.formatUsdDigit(current_price[CURRENCY] * max_supply)
     : "N/A"
 
   const current =
@@ -210,7 +213,10 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} ATH`,
-      value: `${utils.formatUsdDigit(ath[CURRENCY])}`,
+      value: `${utils.formatUsdPriceDigit({
+        value: ath[CURRENCY] ?? 0,
+        subscript: true,
+      })}`,
       inline: true,
     },
     {
@@ -220,7 +226,7 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} FDV`,
-      value: `${utils.formatUsdDigit(current_price[CURRENCY] * max_supply)}`,
+      value: `${fdv}`,
       inline: true,
     },
     {
