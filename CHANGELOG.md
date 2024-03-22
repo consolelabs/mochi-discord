@@ -1,3 +1,10 @@
+## [6.45.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.3...v6.45.4-rc.1) (2024-03-22)
+
+
+### Bug Fixes
+
+* update mochi.js ([#1626](https://github.com/consolelabs/mochi-discord/issues/1626)) ([505c4e8](https://github.com/consolelabs/mochi-discord/commit/505c4e8ab852f5a18972141df4a4eb516771f734))
+
 ## [6.45.3](https://github.com/consolelabs/mochi-discord/compare/v6.45.2...v6.45.3) (2024-03-20)
 
 
