@@ -45,8 +45,8 @@
   },
   "dependencies": {
     "@bonfida/spl-name-service": "^1.0.11",
-    "@consolelabs/mochi-formatter": "^20.0.6",
-    "@consolelabs/mochi-rest": "^5.3.4",
+    "@consolelabs/mochi-formatter": "^20.0.8",
+    "@consolelabs/mochi-rest": "^5.3.5",
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.5.0",
     "@haileybot/captcha-generator": "^1.7.0",
