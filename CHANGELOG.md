@@ -1,3 +1,10 @@
+## [6.45.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.4...v6.45.5-rc.1) (2024-03-25)
+
+
+### Bug Fixes
+
+* add gh support and fix format for app vault ([b7a7edb](https://github.com/consolelabs/mochi-discord/commit/b7a7edb81858e692bf63ee3413e3f00d2e0c596c))
+
 ## [6.45.4](https://github.com/consolelabs/mochi-discord/compare/v6.45.3...v6.45.4) (2024-03-22)
 
 
