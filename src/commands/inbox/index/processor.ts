@@ -4,7 +4,9 @@ import {
   EmojiKey,
   emojis,
   getEmoji,
+  getEmojiToken,
   getEmojiURL,
+  TokenEmojiKey,
 } from "utils/common"
 import { APIError } from "errors"
 import { composeEmbedMessage } from "ui/discord/embed"
@@ -23,7 +25,7 @@ type Context = {
   page: number
 }
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 10
 
 export async function render(userDiscordId: string, ctx: Context) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -162,9 +164,22 @@ function toDescriptionList(list: any[], offset = 0) {
       const date = new Date(el.created_at)
       const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
 
-      return `${getEmoji(`NUM_${i + 1 + offset}` as EmojiKey)} ${t} ${
-        ActionTypeToEmoji(el.type) ?? getEmoji("ANIMATED_QUESTION_MARK", true)
-      } ${el.content}`
+      let formatContent = el.content.replace("Send", "+")
+      // Define the regex pattern to match the currency and amount
+      let regex = /(\+|\-) (\d+(\.\d+)? [A-Z]+) /g
+
+      // Replace the pattern with the formatted string
+      formatContent = formatContent.replace(regex, "**$&**")
+      if (el.token && el.token !== undefined) {
+        formatContent =
+          getEmojiToken(el.token.symbol as TokenEmojiKey) + formatContent
+      } else {
+        formatContent = getEmoji("ANIMATED_COIN_1", true) + formatContent
+      }
+
+      return `${getEmoji(
+        `NUM_${i + 1 + offset}` as EmojiKey,
+      )} ${t} ${formatContent}`
     })
     .join("\n")
 
