@@ -1,3 +1,10 @@
+# [6.46.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.2...v6.46.0-rc.3) (2024-03-26)
+
+
+### Bug Fixes
+
+* ticker - update age calculation ([#1634](https://github.com/consolelabs/mochi-discord/issues/1634)) ([f905be2](https://github.com/consolelabs/mochi-discord/commit/f905be2b0549d41a50f03c81d8aaa50c81001c99))
+
 # [6.46.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.1...v6.46.0-rc.2) (2024-03-26)
 
 
