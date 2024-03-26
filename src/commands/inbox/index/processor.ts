@@ -25,7 +25,7 @@ type Context = {
   page: number
 }
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 8
 
 export async function render(userDiscordId: string, ctx: Context) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -115,10 +115,7 @@ export async function render(userDiscordId: string, ctx: Context) {
                   .setCustomId("inbox_view-activity")
                   .addOptions(
                     list.map((a, i: number) => ({
-                      emoji:
-                        i === 9
-                          ? getEmoji("CHAT" as EmojiKey)
-                          : getEmoji(`NUM_${i + 1}` as EmojiKey),
+                      emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
                       label: `🟩 ${a.content}`,
                       value: `value-${i}-${a.content}`,
                     })),
