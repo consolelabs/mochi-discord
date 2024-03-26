@@ -115,7 +115,10 @@ export async function render(userDiscordId: string, ctx: Context) {
                   .setCustomId("inbox_view-activity")
                   .addOptions(
                     list.map((a, i: number) => ({
-                      emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
+                      emoji:
+                        i === 9
+                          ? getEmoji("CHAT" as EmojiKey)
+                          : getEmoji(`NUM_${i + 1}` as EmojiKey),
                       label: `🟩 ${a.content}`,
                       value: `value-${i}-${a.content}`,
                     })),
