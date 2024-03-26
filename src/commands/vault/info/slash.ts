@@ -102,6 +102,7 @@ const command: SlashCommand = {
               chainId: 1,
               chainType: chainTypes.SOL,
               isNative: true,
+              explorer: "https://solscan.io",
             },
           ]
           const { context: ctx, msgOpts } = renderListDepositAddress({
