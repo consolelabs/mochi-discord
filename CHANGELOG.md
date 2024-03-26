@@ -1,3 +1,25 @@
+## [6.45.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.6-rc.1...v6.45.6-rc.2) (2024-03-26)
+
+
+### Bug Fixes
+
+* **inbox:** fix msg withdraw inbox data ([#1630](https://github.com/consolelabs/mochi-discord/issues/1630)) ([2a47a8d](https://github.com/consolelabs/mochi-discord/commit/2a47a8de623281cf3360335336368edeaeeba8e2))
+* **inbox:** fix render max length data of embeded msg discord ([#1629](https://github.com/consolelabs/mochi-discord/issues/1629)) ([c5116da](https://github.com/consolelabs/mochi-discord/commit/c5116dae0c6634d48e9190e338c2707c4437700c))
+
+## [6.45.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.5...v6.45.6-rc.1) (2024-03-26)
+
+
+### Bug Fixes
+
+* **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
+
+## [6.45.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.5-rc.1...v6.45.5-rc.2) (2024-03-26)
+
+
+### Bug Fixes
+
+* **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
+
 ## [6.45.5](https://github.com/consolelabs/mochi-discord/compare/v6.45.4...v6.45.5) (2024-03-25)
 
 
