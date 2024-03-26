@@ -25,7 +25,7 @@ type Context = {
   page: number
 }
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 8
 
 export async function render(userDiscordId: string, ctx: Context) {
   const dataProfile = await profile.getByDiscord(userDiscordId)
@@ -115,10 +115,7 @@ export async function render(userDiscordId: string, ctx: Context) {
                   .setCustomId("inbox_view-activity")
                   .addOptions(
                     list.map((a, i: number) => ({
-                      emoji:
-                        i === 9
-                          ? getEmoji("CHAT" as EmojiKey)
-                          : getEmoji(`NUM_${i + 1}` as EmojiKey),
+                      emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
                       label: `🟩 ${a.content}`,
                       value: `value-${i}-${a.content}`,
                     })),
@@ -167,12 +164,12 @@ function toDescriptionList(list: any[], offset = 0) {
       const date = new Date(el.created_at)
       const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
 
-      let formatContent = el.content.replace("Send", "+")
+      let formatContent = el.content.replace("Send", "")
       // Define the regex pattern to match the currency and amount
-      let regex = /(\+|\-) (\d+(\.\d+)? [A-Z]+) /g
+      let regex = /([\+\-]?\d+(\.\d+)? [A-Z]+)/g
 
       // Replace the pattern with the formatted string
-      formatContent = formatContent.replace(regex, "**$&**")
+      formatContent = formatContent.replace(regex, "**- $&**")
       if (el.token && el.token !== undefined) {
         formatContent =
           getEmojiToken(el.token.symbol as TokenEmojiKey) + formatContent
