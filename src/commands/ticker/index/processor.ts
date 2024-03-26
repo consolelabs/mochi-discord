@@ -158,15 +158,15 @@ export async function renderSingle(
   let icoDate = (coin as any)?.ico_data?.ico_start_date
 
   const fdv = max_supply
-    ? utils.formatUsdDigit(current_price?.[CURRENCY] ?? 0 * max_supply)
+    ? utils.formatUsdDigit((current_price?.[CURRENCY] ?? 0) * max_supply)
     : "N/A"
 
   const current =
     type === ChartType.Dominance
       ? utils.formatPercentDigit(
           String(
-            (market_cap?.[CURRENCY] ?? 0 * 100) /
-              total_market_cap?.[CURRENCY] ?? 0,
+            ((market_cap?.[CURRENCY] ?? 0) * 100) /
+              (total_market_cap?.[CURRENCY] ?? 0),
           ),
         )
       : utils.formatUsdPriceDigit({
