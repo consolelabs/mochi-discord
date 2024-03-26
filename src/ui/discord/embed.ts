@@ -531,10 +531,16 @@ export function getInvalidInputEmbed(msg: Message) {
 }
 
 export function justifyEmbedFields(embed: MessageEmbed, cols: number) {
-  if (embed.fields.length % cols === 0) {
+  const nrOfInlineFields = embed.fields.filter((f) => f.inline).length
+  if (nrOfInlineFields % cols === 0) {
     return embed
   }
-  embed.addFields(Array(cols - (embed.fields.length % cols)).fill(EMPTY_FIELD))
+  embed.addFields(Array(cols - (nrOfInlineFields % cols)).fill(EMPTY_FIELD))
+  embed.fields = [
+    ...embed.fields.slice(0, nrOfInlineFields),
+    ...Array(cols - (nrOfInlineFields % cols)).fill(EMPTY_FIELD),
+    ...embed.fields.slice(nrOfInlineFields),
+  ]
   return embed
 }
 

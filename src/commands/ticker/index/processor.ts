@@ -12,7 +12,7 @@ import {
 import { InternalError } from "errors"
 import { Coin } from "types/defi"
 import { getChartColorConfig } from "ui/canvas/color"
-import { composeEmbedMessage } from "ui/discord/embed"
+import { composeEmbedMessage, justifyEmbedFields } from "ui/discord/embed"
 import {
   composeDaysSelectMenu,
   composeOtherTickerSelectMenu,
@@ -156,27 +156,21 @@ export async function renderSingle(
     max_supply,
   } = coin.market_data
   let icoDate = (coin as any)?.ico_data?.ico_start_date
-  const diff = moment.duration(
-    icoDate ? moment(moment.now()).diff(moment(icoDate)) : 0,
-  )
-  const age = icoDate
-    ? `${diff.years()}y${
-        diff.months() ? `${moment.duration(diff).months()}m` : ""
-      }`
-    : "N/A"
+
   const fdv = max_supply
-    ? utils.formatUsdDigit(current_price[CURRENCY] * max_supply)
+    ? utils.formatUsdDigit(current_price?.[CURRENCY] ?? 0 * max_supply)
     : "N/A"
 
   const current =
     type === ChartType.Dominance
       ? utils.formatPercentDigit(
           String(
-            (market_cap[CURRENCY] * 100) / total_market_cap[CURRENCY] ?? 0,
+            (market_cap?.[CURRENCY] ?? 0 * 100) /
+              total_market_cap?.[CURRENCY] ?? 0,
           ),
         )
       : utils.formatUsdPriceDigit({
-          value: current_price[CURRENCY] ?? 0,
+          value: current_price?.[CURRENCY] ?? 0,
           subscript: true,
         })
 
@@ -186,7 +180,18 @@ export async function renderSingle(
     symbol: coin.symbol,
   })
   const pair = dexScreenerData?.pairs?.[0]
-  const marketCap = market_cap[CURRENCY] ?? 0
+
+  // age
+  const diff = moment.duration(
+    moment(moment.now()).diff(moment(icoDate || pair?.created_at)),
+  )
+  const age = diff
+    ? `${diff.years() ? `${diff.years()}y` : ""}${
+        diff.months() ? `${moment.duration(diff).months()}m` : ""
+      }`
+    : "N/A"
+
+  const marketCap = market_cap?.[CURRENCY] ?? 0
   const fields = [
     {
       name: `${getEmoji("CHART")} Market cap`,
@@ -262,6 +267,15 @@ export async function renderSingle(
       value: age,
       inline: true,
     },
+    ...(pair
+      ? [
+          {
+            name: "Dex Screener",
+            value: `[${pair.name}](${pair.url.dexscreener})`,
+            inline: true,
+          },
+        ]
+      : []),
     ...(hasPlatforms && coin.asset_platform_id
       ? [
           {
@@ -271,24 +285,16 @@ export async function renderSingle(
           },
         ]
       : []),
-    ...(pair
-      ? [
-          {
-            name: "Dex Screener",
-            value: `[${pair.name}](${pair.url.dexscreener})`,
-            inline: false,
-          },
-        ]
-      : []),
   ].map((item) => ({
     ...item,
     value: item.value || "N/A",
   }))
-  const embed = composeEmbedMessage(null, {
+  let embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [coin.name, coin.image.small],
     image: "attachment://chart.png",
   }).addFields(fields)
+  embed = justifyEmbedFields(embed, 3)
 
   const chart = await renderHistoricalMarketChart({
     coinId: coin.id,
@@ -416,7 +422,7 @@ export async function renderTokenInfo(
       {
         name: `${getEmoji("CHART")} Market cap`,
         value: `${utils.formatUsdDigit(
-          data.market_data.market_cap[CURRENCY],
+          data.market_data.market_cap?.[CURRENCY] ?? 0,
         )} ${
           data.market_data.market_cap_rank
             ? `(#${data.market_data.market_cap_rank})`
