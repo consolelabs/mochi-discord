@@ -1,3 +1,10 @@
+# [6.46.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.3...v6.46.0-rc.4) (2024-03-26)
+
+
+### Bug Fixes
+
+* ticker fdv ([#1635](https://github.com/consolelabs/mochi-discord/issues/1635)) ([f8eea74](https://github.com/consolelabs/mochi-discord/commit/f8eea740a040065edeaf4a62128d90b5b3224dfc))
+
 # [6.46.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.2...v6.46.0-rc.3) (2024-03-26)
 
 
