@@ -509,6 +509,15 @@ class Defi extends Fetcher {
       },
     })
   }
+
+  async searchDexScreenerPairs(query: {
+    token_address: string
+    symbol: string
+  }) {
+    return await this.jsonFetch(`${API_BASE_URL}/dexes/dex-screener/search`, {
+      query,
+    })
+  }
 }
 
 export default new Defi()
