@@ -179,12 +179,15 @@ export async function renderSingle(
           value: current_price[CURRENCY] ?? 0,
           subscript: true,
         })
+
+  // dexscreener data
+  const { data: dexScreenerData }: any = await defi.searchDexScreenerPairs({
+    token_address: coin.contract_address,
+    symbol: coin.symbol,
+  })
+  const pair = dexScreenerData?.pairs?.[0]
   const marketCap = market_cap[CURRENCY] ?? 0
-  const embed = composeEmbedMessage(null, {
-    color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [coin.name, coin.image.small],
-    image: "attachment://chart.png",
-  }).addFields([
+  const fields = [
     {
       name: `${getEmoji("CHART")} Market cap`,
       value: `${utils.formatUsdDigit(marketCap)} ${
@@ -213,15 +216,19 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} ATH`,
-      value: `${utils.formatUsdPriceDigit({
-        value: ath[CURRENCY] ?? 0,
-        subscript: true,
-      })}`,
+      value: ath
+        ? `${utils.formatUsdPriceDigit({
+            value: ath[CURRENCY] ?? 0,
+            subscript: true,
+          })}`
+        : "N/A",
       inline: true,
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} Volume (24h)`,
-      value: `${utils.formatUsdDigit(total_volume[CURRENCY])}`,
+      value: total_volume
+        ? `${utils.formatUsdDigit(total_volume[CURRENCY])}`
+        : "N/A",
       inline: true,
     },
     {
@@ -264,7 +271,24 @@ export async function renderSingle(
           },
         ]
       : []),
-  ])
+    ...(pair
+      ? [
+          {
+            name: "Dex Screener",
+            value: `[${pair.name}](${pair.url.dexscreener})`,
+            inline: false,
+          },
+        ]
+      : []),
+  ].map((item) => ({
+    ...item,
+    value: item.value || "N/A",
+  }))
+  const embed = composeEmbedMessage(null, {
+    color: getChartColorConfig(coin.id).borderColor as HexColorString,
+    author: [coin.name, coin.image.small],
+    image: "attachment://chart.png",
+  }).addFields(fields)
 
   const chart = await renderHistoricalMarketChart({
     coinId: coin.id,
