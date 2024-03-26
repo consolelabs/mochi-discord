@@ -1,3 +1,10 @@
+# [6.46.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.1...v6.46.0-rc.2) (2024-03-26)
+
+
+### Bug Fixes
+
+* ticker - support dex-screener pair ([#1633](https://github.com/consolelabs/mochi-discord/issues/1633)) ([d734f24](https://github.com/consolelabs/mochi-discord/commit/d734f24b9bdbffb052924831b54234b42c8bd8e3))
+
 # [6.46.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.6...v6.46.0-rc.1) (2024-03-26)
 
 
