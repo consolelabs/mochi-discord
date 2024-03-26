@@ -287,7 +287,14 @@ async function compose(
       : []),
   ])
 
-  const notLinkedPlatforms = ["twitter", "telegram", "binance", "ron", "sui"]
+  const notLinkedPlatforms = [
+    "twitter",
+    "telegram",
+    "binance",
+    "ron",
+    "sui",
+    "github",
+  ]
     .filter((s) =>
       socials.every(
         (connectedSocial: any) => !equalIgnoreCase(connectedSocial.platform, s),
