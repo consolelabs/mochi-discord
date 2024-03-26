@@ -1,3 +1,10 @@
+## [6.45.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.5...v6.45.6-rc.1) (2024-03-26)
+
+
+### Bug Fixes
+
+* **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
+
 ## [6.45.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.5-rc.1...v6.45.5-rc.2) (2024-03-26)
 
 
