@@ -67,6 +67,7 @@ export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
 export const TELEGRAM_USER_URL = `https://t.me`
 export const TWITTER_USER_URL = "https://twitter.com"
+export const GITHUB_USER_URL = "https://github.com"
 
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i
 export const ANIMATED_EMOJI_REGEX = /^<a:(.+|_):(\d+)>$/i
