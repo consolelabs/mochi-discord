@@ -1,3 +1,4 @@
+## [6.46.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1) (2024-03-27)
 ## [6.46.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1-rc.1) (2024-03-27)
 
 
