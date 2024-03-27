@@ -33,6 +33,7 @@ import {
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { utils } from "@consolelabs/mochi-formatter"
 import moment from "moment-timezone"
+import { formatBigNumber } from "utils/convert"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -156,11 +157,12 @@ export async function renderSingle(
     max_supply,
     total_supply,
   } = coin.market_data
+
   let icoDate = (coin as any)?.ico_data?.ico_start_date
 
   const maxSupply = max_supply || total_supply
   const fdv = maxSupply
-    ? utils.formatUsdDigit((current_price?.[CURRENCY] ?? 0) * maxSupply)
+    ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
     : "N/A"
 
   const current =
@@ -183,13 +185,24 @@ export async function renderSingle(
   })
   const pair = dexScreenerData?.pairs?.[0]
 
+  // exchange platforms
+  const tickers = [
+    ...(pair
+      ? [{ market: { name: "Dex Screener" }, trade_url: pair.url.dexscreener }]
+      : []),
+    ...(coin.tickers || []),
+  ]
+  const exchangePlats = tickers.map(
+    (ticker: any) => `[${ticker.market.name}](${ticker.trade_url})`,
+  )
+
   // age
   const diff = moment.duration(
     moment(moment.now()).diff(moment(icoDate || pair?.created_at)),
   )
   const age = diff
     ? `${diff.years() ? `${diff.years()}y` : ""}${
-        diff.months() ? `${moment.duration(diff).months()}m` : ""
+        diff.months() ? `${diff.months()}m` : ""
       }`
     : "N/A"
 
@@ -197,11 +210,13 @@ export async function renderSingle(
   const fields = [
     {
       name: `${getEmoji("CHART")} Market cap`,
-      value: `${utils.formatUsdDigit(marketCap)} ${
-        coin.market_data.market_cap_rank
-          ? `(#${coin.market_data.market_cap_rank})`
-          : ""
-      }`,
+      value: marketCap
+        ? `$${formatBigNumber(marketCap)} ${
+            coin.market_data.market_cap_rank
+              ? `(#${coin.market_data.market_cap_rank})`
+              : ""
+          }`
+        : "< $0.01",
       inline: true,
     },
     {
@@ -232,7 +247,7 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} Max Supply`,
-      value: `${max_supply ? utils.formatDigit({ value: max_supply }) : "∞"}`,
+      value: `${max_supply ? formatBigNumber(max_supply) : "∞"}`,
       inline: true,
     },
     {
@@ -266,20 +281,21 @@ export async function renderSingle(
       value: age,
       inline: true,
     },
-    ...(pair
-      ? [
-          {
-            name: "Dex Screener",
-            value: `[${pair.name}](${pair.url.dexscreener})`,
-            inline: true,
-          },
-        ]
-      : []),
     ...(hasPlatforms && coin.asset_platform_id
       ? [
           {
             name: "Address",
             value: `\`${coin.platforms?.[coin.asset_platform_id]}\``,
+            inline: false,
+          },
+        ]
+      : []),
+    // show maximum 5 exchange platforms
+    ...(exchangePlats?.length
+      ? [
+          {
+            name: "\u200b",
+            value: exchangePlats.slice(0, 5).join(" | "),
             inline: false,
           },
         ]
