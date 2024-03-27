@@ -24,6 +24,7 @@ import {
   getEmojiToken,
   TokenEmojiKey,
   getEmojiURL,
+  shortenHashOrAddress,
 } from "utils/common"
 import {
   renderCompareTokenChart,
@@ -34,6 +35,7 @@ import { getProfileIdByDiscord } from "../../../utils/profile"
 import { utils } from "@consolelabs/mochi-formatter"
 import moment from "moment-timezone"
 import { formatBigNumber } from "utils/convert"
+import { uniqBy } from "lodash"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -158,12 +160,35 @@ export async function renderSingle(
     total_supply,
   } = coin.market_data
 
-  let icoDate = (coin as any)?.ico_data?.ico_start_date
-
   const maxSupply = max_supply || total_supply
   const fdv = maxSupply
     ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
     : "N/A"
+
+  // if price is x thousands (e.g. 3.5k), show without shorten format
+  const isPriceThousands =
+    current_price?.[CURRENCY] >= 1000 && current_price?.[CURRENCY] < 1000000
+  const currentPrice = isPriceThousands
+    ? utils.formatUsdPriceDigit({
+        value: current_price[CURRENCY],
+        shorten: false,
+      })
+    : utils.formatUsdPriceDigit({
+        value: current_price?.[CURRENCY] ?? 0,
+        subscript: true,
+      })
+
+  // ath price
+  const isAthThousands = ath?.[CURRENCY] >= 1000 && ath?.[CURRENCY] < 1000000
+  const athPrice = isAthThousands
+    ? utils.formatUsdPriceDigit({
+        value: ath[CURRENCY],
+        shorten: false,
+      })
+    : utils.formatUsdPriceDigit({
+        value: ath?.[CURRENCY] ?? 0,
+        subscript: true,
+      })
 
   const current =
     type === ChartType.Dominance
@@ -173,10 +198,7 @@ export async function renderSingle(
               (total_market_cap?.[CURRENCY] ?? 0),
           ),
         )
-      : utils.formatUsdPriceDigit({
-          value: current_price?.[CURRENCY] ?? 0,
-          subscript: true,
-        })
+      : currentPrice
 
   // dexscreener data
   const { data: dexScreenerData }: any = await defi.searchDexScreenerPairs({
@@ -187,16 +209,29 @@ export async function renderSingle(
 
   // exchange platforms
   const tickers = [
-    ...(pair
-      ? [{ market: { name: "Dex Screener" }, trade_url: pair.url.dexscreener }]
-      : []),
-    ...(coin.tickers || []),
+    ...(coin.tickers || []).map((ticker: any) => ({
+      ...ticker,
+      volume_usd_24h: ticker?.converted_volume?.[CURRENCY],
+    })),
   ]
-  const exchangePlats = tickers.map(
-    (ticker: any) => `[${ticker.market.name}](${ticker.trade_url})`,
-  )
+  const exchangePlats = uniqBy(
+    [
+      ...(pair
+        ? [
+            {
+              market: { name: "Dex Screener" },
+              trade_url: pair.url.dexscreener,
+              volume_usd_24h: pair.volume_usd_24h,
+            },
+          ]
+        : []),
+      ...tickers.sort((a, b) => b.volume_usd_24h - a.volume_usd_24h),
+    ],
+    (ticker: any) => ticker.market.name,
+  ).map((ticker) => `[${ticker.market.name}](${ticker.trade_url})`)
 
   // age
+  const icoDate = (coin as any)?.ico_data?.ico_start_date
   const diff = moment.duration(
     moment(moment.now()).diff(moment(icoDate || pair?.created_at)),
   )
@@ -230,18 +265,13 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} ATH`,
-      value: ath
-        ? `${utils.formatUsdPriceDigit({
-            value: ath[CURRENCY] ?? 0,
-            subscript: true,
-          })}`
-        : "N/A",
+      value: ath ? athPrice : "N/A",
       inline: true,
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} Volume (24h)`,
       value: total_volume
-        ? `${utils.formatUsdDigit(total_volume[CURRENCY])}`
+        ? `$${formatBigNumber(total_volume[CURRENCY])}`
         : "N/A",
       inline: true,
     },
@@ -285,8 +315,10 @@ export async function renderSingle(
       ? [
           {
             name: "Address",
-            value: `\`${coin.platforms?.[coin.asset_platform_id]}\``,
-            inline: false,
+            value: shortenHashOrAddress(
+              coin.platforms?.[coin.asset_platform_id],
+            ),
+            inline: true,
           },
         ]
       : []),
@@ -308,9 +340,7 @@ export async function renderSingle(
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
     author: [
       `${coin.name} (${
-        // coin.asset_platform
         coin.asset_platform?.name || coin.asset_platform?.shortname || coin.name
-        // : ""
       })`,
       coin.image.small,
     ],
