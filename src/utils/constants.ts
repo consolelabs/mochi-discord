@@ -11,6 +11,7 @@ import {
   MOCHI_GUESS_API_HOST,
   PREVIEW,
   PROD,
+  MOCHI_PROFILE_API_SERVER_HOST_PUBLIC,
 } from "env"
 
 export const DOT = "•"
@@ -41,6 +42,7 @@ export const API_BASE_URL = `${API_SERVER_HOST}/api/v1`
 export const PT_API_BASE_URL = `${PT_API_SERVER_HOST}/api/v1`
 export const INDEXER_API_BASE_URL = `${INDEXER_API_SERVER_HOST}/api/v1`
 export const MOCHI_PROFILE_API_BASE_URL = `${MOCHI_PROFILE_API_SERVER_HOST}/api/v1`
+export const MOCHI_PROFILE_API_BASE_URL_PUBLIC = `${MOCHI_PROFILE_API_SERVER_HOST_PUBLIC}/api/v1`
 export const MOCHI_PAY_API_BASE_URL = `${MOCHI_PAY_API_SERVER_HOST}/api/v1`
 export const MOCHI_PAY_API_BASE_URL_V2 = `${MOCHI_PAY_API_SERVER_HOST}/api/v2`
 export const MOCHI_TELEGRAM_API_BASE_URL = `${MOCHI_TELEGRAM_API_SERVER_HOST}/api/v1`
@@ -67,6 +69,7 @@ export const DISCORD_URL = "https://discord.gg/XQR36DQQGh"
 
 export const TELEGRAM_USER_URL = `https://t.me`
 export const TWITTER_USER_URL = "https://twitter.com"
+export const GITHUB_USER_URL = "https://github.com"
 
 export const EMOJI_REGEX = /^<:(.+|_):(\d+)>$/i
 export const ANIMATED_EMOJI_REGEX = /^<a:(.+|_):(\d+)>$/i

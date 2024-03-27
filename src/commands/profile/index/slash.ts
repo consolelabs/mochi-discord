@@ -25,7 +25,10 @@ import { emojis, getEmojiURL } from "utils/common"
 
 import profile from "adapters/profile"
 import { getProfileIdByDiscord } from "utils/profile"
-import { HOMEPAGE_URL } from "utils/constants"
+import {
+  HOMEPAGE_URL,
+  MOCHI_PROFILE_API_BASE_URL_PUBLIC,
+} from "utils/constants"
 
 const machineConfig: (target: Target) => MachineConfig = (target) => ({
   id: "profile",
@@ -43,6 +46,7 @@ const machineConfig: (target: Target) => MachineConfig = (target) => ({
       CONNECT_BINANCE: true,
       CONNECT_SUI: true,
       CONNECT_RON: true,
+      CONNECT_GITHUB: true,
     },
   },
   states: {
@@ -78,6 +82,12 @@ const machineConfig: (target: Target) => MachineConfig = (target) => ({
           target: "profile",
           actions: {
             type: "showVerifyMessage",
+          },
+        },
+        CONNECT_GITHUB: {
+          target: "profile",
+          actions: {
+            type: "showAssocSocialMessage",
           },
         },
       },
@@ -196,6 +206,51 @@ const run = async (interaction: CommandInteraction) => {
                 .setStyle("LINK")
                 .setURL(
                   `${HOMEPAGE_URL}/verify?code=${data.code}&guild_id=${event.interaction.guildId}`,
+                ),
+            ),
+          ],
+        })
+      },
+      showAssocSocialMessage: async (_, event) => {
+        if (
+          !event.interaction ||
+          !event.interaction.isButton() ||
+          !event.interaction.customId.startsWith("connect")
+        )
+          return
+
+        let emojiURL = getEmojiURL(emojis.WALLET_1)
+        let title = "Connect your"
+        if (event.type === "CONNECT_GITHUB") {
+          emojiURL = getEmojiURL(emojis.GITHUB)
+          title += "Github account"
+        }
+
+        const embed = composeEmbedMessage(null, {
+          author: [title, emojiURL],
+          description:
+            "Please verify your github account by clicking the button below.",
+        })
+        // request profile code
+        const profileId = await getProfileIdByDiscord(event.interaction.user.id)
+        const { data, ok } = await profile.requestProfileCode(profileId)
+
+        if (!ok) {
+          throw new InternalError({
+            reason: "Couldn't get profile id",
+            descriptions: ["Something went wrong"],
+          })
+        }
+
+        await event.interaction.editReply({
+          embeds: [embed],
+          components: [
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setLabel("Verify")
+                .setStyle("LINK")
+                .setURL(
+                  `${MOCHI_PROFILE_API_BASE_URL_PUBLIC}/profiles/me/accounts/connect-github?platform=discord&channel_id=${interaction.channelId}&application=mochi&code=${data.code}&guild_id=${interaction.guildId}&author_id=${interaction.user.id}`,
                 ),
             ),
           ],

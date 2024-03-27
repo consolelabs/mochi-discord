@@ -26,7 +26,9 @@ class Profile extends Fetcher {
     }
 
     const socials = dataProfile.associated_accounts
-      .filter((a: any) => ["twitter", "telegram"].includes(a.platform))
+      .filter((a: any) =>
+        ["twitter", "telegram", "github"].includes(a.platform),
+      )
       .map((a: any) => {
         return {
           ...a,

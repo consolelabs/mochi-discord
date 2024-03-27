@@ -31,6 +31,7 @@ import {
   MOCHI_APP_SERVICE,
   TWITTER_USER_URL,
   TELEGRAM_USER_URL,
+  GITHUB_USER_URL,
 } from "utils/constants"
 import { KafkaQueueActivityDataCommand } from "types/common"
 import { sendActivityMsg, defaultActivityMsg } from "utils/activity"
@@ -286,7 +287,14 @@ async function compose(
       : []),
   ])
 
-  const notLinkedPlatforms = ["twitter", "telegram", "binance", "ron", "sui"]
+  const notLinkedPlatforms = [
+    "twitter",
+    "telegram",
+    "binance",
+    "ron",
+    "sui",
+    "github",
+  ]
     .filter((s) =>
       socials.every(
         (connectedSocial: any) => !equalIgnoreCase(connectedSocial.platform, s),
@@ -422,6 +430,10 @@ async function renderSocials(socials: any[]) {
           return `${getEmoji("TELEGRAM")} **[@${
             s.platform_identifier
           }](${TELEGRAM_USER_URL}/${s.platform_identifier})**`
+        } else if (s.platform === "github") {
+          return `${getEmoji("GITHUB")} **[@${
+            s.platform_identifier
+          }](${GITHUB_USER_URL}/${s.platform_identifier})**`
         }
         // else if (s.platform == "binance") {
         //   return `${getEmoji("BNB")} **${
