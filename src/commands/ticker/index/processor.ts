@@ -33,6 +33,7 @@ import {
 import { getProfileIdByDiscord } from "../../../utils/profile"
 import { utils } from "@consolelabs/mochi-formatter"
 import moment from "moment-timezone"
+import { formatBigNumber } from "utils/convert"
 
 const CURRENCY = "usd"
 const DIVIDER = getEmoji("LINE").repeat(5)
@@ -189,7 +190,7 @@ export async function renderSingle(
   )
   const age = diff
     ? `${diff.years() ? `${diff.years()}y` : ""}${
-        diff.months() ? `${moment.duration(diff).months()}m` : ""
+        diff.months() ? `${diff.months()}m` : ""
       }`
     : "N/A"
 
@@ -232,7 +233,7 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} Max Supply`,
-      value: `${max_supply ? utils.formatDigit({ value: max_supply }) : "∞"}`,
+      value: `${max_supply ? formatBigNumber(max_supply) : "∞"}`,
       inline: true,
     },
     {
