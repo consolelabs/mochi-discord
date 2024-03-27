@@ -1,3 +1,10 @@
+# [6.46.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.4...v6.46.0-rc.5) (2024-03-27)
+
+
+### Bug Fixes
+
+* ticker UI ([#1636](https://github.com/consolelabs/mochi-discord/issues/1636)) ([e583095](https://github.com/consolelabs/mochi-discord/commit/e583095440d46d07a5f5d0c2492f3bec08e0bf58))
+
 # [6.46.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.3...v6.46.0-rc.4) (2024-03-26)
 
 
