@@ -1,3 +1,10 @@
+## [6.46.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.1...v6.46.2-rc.1) (2024-03-27)
+
+
+### Bug Fixes
+
+* ticker - format supply ([#1638](https://github.com/consolelabs/mochi-discord/issues/1638)) ([bf89a61](https://github.com/consolelabs/mochi-discord/commit/bf89a61abb9a53f1a89a34ee382f007ec618e6ea))
+
 ## [6.46.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1) (2024-03-27)
 ## [6.46.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1-rc.1) (2024-03-27)
 
