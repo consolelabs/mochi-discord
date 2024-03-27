@@ -1,3 +1,19 @@
+# [6.46.0](https://github.com/consolelabs/mochi-discord/compare/v6.45.6...v6.46.0) (2024-03-27)
+
+
+### Bug Fixes
+
+* **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
+* ticker - support dex-screener pair ([#1633](https://github.com/consolelabs/mochi-discord/issues/1633)) ([d734f24](https://github.com/consolelabs/mochi-discord/commit/d734f24b9bdbffb052924831b54234b42c8bd8e3))
+* ticker - update age calculation ([#1634](https://github.com/consolelabs/mochi-discord/issues/1634)) ([f905be2](https://github.com/consolelabs/mochi-discord/commit/f905be2b0549d41a50f03c81d8aaa50c81001c99))
+* ticker fdv ([#1635](https://github.com/consolelabs/mochi-discord/issues/1635)) ([f8eea74](https://github.com/consolelabs/mochi-discord/commit/f8eea740a040065edeaf4a62128d90b5b3224dfc))
+* ticker UI ([#1636](https://github.com/consolelabs/mochi-discord/issues/1636)) ([e583095](https://github.com/consolelabs/mochi-discord/commit/e583095440d46d07a5f5d0c2492f3bec08e0bf58))
+
+
+### Features
+
+* **profile:** add button connect github account ([#1632](https://github.com/consolelabs/mochi-discord/issues/1632)) ([3fe6998](https://github.com/consolelabs/mochi-discord/commit/3fe6998577388b5e7b06e7471dae5a99904f7c7f))
+
 # [6.46.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.3...v6.46.0-rc.4) (2024-03-26)
 
 
