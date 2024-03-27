@@ -262,7 +262,7 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: `${getEmoji("ANIMATED_FLASH")} Age`,
+      name: `${getEmoji("CLOCK")} Age`,
       value: age,
       inline: true,
     },
