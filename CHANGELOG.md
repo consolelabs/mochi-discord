@@ -1,3 +1,10 @@
+## [6.46.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1-rc.1) (2024-03-27)
+
+
+### Bug Fixes
+
+* ticker - age emoji ([#1637](https://github.com/consolelabs/mochi-discord/issues/1637)) ([9000001](https://github.com/consolelabs/mochi-discord/commit/90000016326adb081af580ec040f04ea5651b2f6))
+
 # [6.46.0](https://github.com/consolelabs/mochi-discord/compare/v6.45.6...v6.46.0) (2024-03-27)
 
 
