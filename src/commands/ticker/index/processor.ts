@@ -154,11 +154,13 @@ export async function renderSingle(
     ath,
     total_volume,
     max_supply,
+    total_supply,
   } = coin.market_data
   let icoDate = (coin as any)?.ico_data?.ico_start_date
 
-  const fdv = max_supply
-    ? utils.formatUsdDigit((current_price?.[CURRENCY] ?? 0) * max_supply)
+  const maxSupply = max_supply || total_supply
+  const fdv = maxSupply
+    ? utils.formatUsdDigit((current_price?.[CURRENCY] ?? 0) * maxSupply)
     : "N/A"
 
   const current =
@@ -212,14 +214,6 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: `${getEmoji("ANIMATED_FLASH")} Chain`,
-      value:
-        coin.asset_platform?.name ||
-        coin.asset_platform?.shortname ||
-        coin.name,
-      inline: true,
-    },
-    {
       name: `${getEmoji("ANIMATED_FLASH")} ATH`,
       value: ath
         ? `${utils.formatUsdPriceDigit({
@@ -234,6 +228,11 @@ export async function renderSingle(
       value: total_volume
         ? `${utils.formatUsdDigit(total_volume[CURRENCY])}`
         : "N/A",
+      inline: true,
+    },
+    {
+      name: `${getEmoji("ANIMATED_FLASH")} Max Supply`,
+      value: `${max_supply ? utils.formatDigit({ value: max_supply }) : "∞"}`,
       inline: true,
     },
     {
@@ -291,7 +290,14 @@ export async function renderSingle(
   }))
   let embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [coin.name, coin.image.small],
+    author: [
+      `${coin.name} (${
+        // coin.asset_platform
+        coin.asset_platform?.name || coin.asset_platform?.shortname || coin.name
+        // : ""
+      })`,
+      coin.image.small,
+    ],
     image: "attachment://chart.png",
   }).addFields(fields)
   embed = justifyEmbedFields(embed, 3)
