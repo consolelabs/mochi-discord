@@ -1,3 +1,10 @@
+## [6.46.5](https://github.com/consolelabs/mochi-discord/compare/v6.46.4...v6.46.5) (2024-03-28)
+
+
+### Bug Fixes
+
+* ticker - use dexscreener FDV ([#1643](https://github.com/consolelabs/mochi-discord/issues/1643)) ([4b05c82](https://github.com/consolelabs/mochi-discord/commit/4b05c82360adc035f6717ae96b11c25598eeeec9))
+
 ## [6.46.4](https://github.com/consolelabs/mochi-discord/compare/v6.46.3...v6.46.4) (2024-03-28)
 
 
