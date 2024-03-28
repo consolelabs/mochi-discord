@@ -12,6 +12,7 @@ const chains = {
   fantom: "250",
   polygon: "137",
   solana: "999",
+  base: "8453",
 }
 
 const command: SlashCommand = {
