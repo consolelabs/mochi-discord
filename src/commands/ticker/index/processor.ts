@@ -315,10 +315,8 @@ export async function renderSingle(
       ? [
           {
             name: "Address",
-            value: shortenHashOrAddress(
-              coin.platforms?.[coin.asset_platform_id],
-            ),
-            inline: true,
+            value: coin.platforms?.[coin.asset_platform_id],
+            inline: false,
           },
         ]
       : []),
