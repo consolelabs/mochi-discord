@@ -160,11 +160,6 @@ export async function renderSingle(
     total_supply,
   } = coin.market_data
 
-  const maxSupply = max_supply || total_supply
-  const fdv = maxSupply
-    ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
-    : "N/A"
-
   // if price is x thousands (e.g. 3.5k), show without shorten format
   const isPriceThousands =
     current_price?.[CURRENCY] >= 1000 && current_price?.[CURRENCY] < 1000000
@@ -206,6 +201,13 @@ export async function renderSingle(
     symbol: coin.symbol,
   })
   const pair = dexScreenerData?.pairs?.[0]
+
+  //
+  const maxSupply = max_supply || total_supply
+  const calculatedFdv = maxSupply
+    ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
+    : "N/A"
+  const fdv = pair.fdv ? `$${formatBigNumber(pair.fdv)}` : calculatedFdv
 
   // exchange platforms
   const tickers = [
@@ -282,7 +284,7 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} FDV`,
-      value: `${fdv}`,
+      value: fdv,
       inline: true,
     },
     {
