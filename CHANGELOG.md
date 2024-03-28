@@ -1,198 +1,172 @@
-## [6.46.5](https://github.com/consolelabs/mochi-discord/compare/v6.46.4...v6.46.5) (2024-03-28)
-
+## [6.46.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.4...v6.46.5-rc.1) (2024-03-28)
 
 ### Bug Fixes
 
-* ticker - use dexscreener FDV ([#1643](https://github.com/consolelabs/mochi-discord/issues/1643)) ([4b05c82](https://github.com/consolelabs/mochi-discord/commit/4b05c82360adc035f6717ae96b11c25598eeeec9))
+- ticker - use dexscreener FDV ([#1643](https://github.com/consolelabs/mochi-discord/issues/1643)) ([4b05c82](https://github.com/consolelabs/mochi-discord/commit/4b05c82360adc035f6717ae96b11c25598eeeec9))
 
 ## [6.46.4](https://github.com/consolelabs/mochi-discord/compare/v6.46.3...v6.46.4) (2024-03-28)
 
-
 ### Bug Fixes
 
-* ticker update address format ([#1642](https://github.com/consolelabs/mochi-discord/issues/1642)) ([54a9716](https://github.com/consolelabs/mochi-discord/commit/54a97160d39a993b9abc070dd61e5b37f205bf5a))
-* vault transfer support chain base ([#1641](https://github.com/consolelabs/mochi-discord/issues/1641)) ([81209b2](https://github.com/consolelabs/mochi-discord/commit/81209b2aa9f680ed86eaffb4b9ed8d09f5f9c19a))
+- ticker update address format ([#1642](https://github.com/consolelabs/mochi-discord/issues/1642)) ([54a9716](https://github.com/consolelabs/mochi-discord/commit/54a97160d39a993b9abc070dd61e5b37f205bf5a))
+- vault transfer support chain base ([#1641](https://github.com/consolelabs/mochi-discord/issues/1641)) ([81209b2](https://github.com/consolelabs/mochi-discord/commit/81209b2aa9f680ed86eaffb4b9ed8d09f5f9c19a))
 
 ## [6.46.3](https://github.com/consolelabs/mochi-discord/compare/v6.46.2...v6.46.3) (2024-03-27)
 
-
 ### Bug Fixes
 
-* ticker - update format ([#1640](https://github.com/consolelabs/mochi-discord/issues/1640)) ([5f13ebb](https://github.com/consolelabs/mochi-discord/commit/5f13ebbf1d731ca75f56644e5c441e6926364537))
+- ticker - update format ([#1640](https://github.com/consolelabs/mochi-discord/issues/1640)) ([5f13ebb](https://github.com/consolelabs/mochi-discord/commit/5f13ebbf1d731ca75f56644e5c441e6926364537))
 
 ## [6.46.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.2...v6.46.3-rc.1) (2024-03-27)
 
-
 ### Bug Fixes
 
-* ticker - update format ([#1640](https://github.com/consolelabs/mochi-discord/issues/1640)) ([5f13ebb](https://github.com/consolelabs/mochi-discord/commit/5f13ebbf1d731ca75f56644e5c441e6926364537))
+- ticker - update format ([#1640](https://github.com/consolelabs/mochi-discord/issues/1640)) ([5f13ebb](https://github.com/consolelabs/mochi-discord/commit/5f13ebbf1d731ca75f56644e5c441e6926364537))
 
 ## [6.46.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.1...v6.46.2) (2024-03-27)
 
-
 ### Bug Fixes
 
-* ticker - exchange platforms ([#1639](https://github.com/consolelabs/mochi-discord/issues/1639)) ([07b6362](https://github.com/consolelabs/mochi-discord/commit/07b63622d5e5bfc711f160374fb939f371bc61d3))
-* ticker - format supply ([#1638](https://github.com/consolelabs/mochi-discord/issues/1638)) ([bf89a61](https://github.com/consolelabs/mochi-discord/commit/bf89a61abb9a53f1a89a34ee382f007ec618e6ea))
+- ticker - exchange platforms ([#1639](https://github.com/consolelabs/mochi-discord/issues/1639)) ([07b6362](https://github.com/consolelabs/mochi-discord/commit/07b63622d5e5bfc711f160374fb939f371bc61d3))
+- ticker - format supply ([#1638](https://github.com/consolelabs/mochi-discord/issues/1638)) ([bf89a61](https://github.com/consolelabs/mochi-discord/commit/bf89a61abb9a53f1a89a34ee382f007ec618e6ea))
 
 ## [6.46.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.2-rc.1...v6.46.2-rc.2) (2024-03-27)
 
-
 ### Bug Fixes
 
-* ticker - exchange platforms ([#1639](https://github.com/consolelabs/mochi-discord/issues/1639)) ([07b6362](https://github.com/consolelabs/mochi-discord/commit/07b63622d5e5bfc711f160374fb939f371bc61d3))
+- ticker - exchange platforms ([#1639](https://github.com/consolelabs/mochi-discord/issues/1639)) ([07b6362](https://github.com/consolelabs/mochi-discord/commit/07b63622d5e5bfc711f160374fb939f371bc61d3))
 
 ## [6.46.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.1...v6.46.2-rc.1) (2024-03-27)
 
-
 ### Bug Fixes
 
-* ticker - format supply ([#1638](https://github.com/consolelabs/mochi-discord/issues/1638)) ([bf89a61](https://github.com/consolelabs/mochi-discord/commit/bf89a61abb9a53f1a89a34ee382f007ec618e6ea))
+- ticker - format supply ([#1638](https://github.com/consolelabs/mochi-discord/issues/1638)) ([bf89a61](https://github.com/consolelabs/mochi-discord/commit/bf89a61abb9a53f1a89a34ee382f007ec618e6ea))
 
 ## [6.46.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1) (2024-03-27)
-## [6.46.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1-rc.1) (2024-03-27)
 
+## [6.46.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.0...v6.46.1-rc.1) (2024-03-27)
 
 ### Bug Fixes
 
-* ticker - age emoji ([#1637](https://github.com/consolelabs/mochi-discord/issues/1637)) ([9000001](https://github.com/consolelabs/mochi-discord/commit/90000016326adb081af580ec040f04ea5651b2f6))
+- ticker - age emoji ([#1637](https://github.com/consolelabs/mochi-discord/issues/1637)) ([9000001](https://github.com/consolelabs/mochi-discord/commit/90000016326adb081af580ec040f04ea5651b2f6))
 
 # [6.46.0](https://github.com/consolelabs/mochi-discord/compare/v6.45.6...v6.46.0) (2024-03-27)
 
-
 ### Bug Fixes
 
-* **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
-* ticker - support dex-screener pair ([#1633](https://github.com/consolelabs/mochi-discord/issues/1633)) ([d734f24](https://github.com/consolelabs/mochi-discord/commit/d734f24b9bdbffb052924831b54234b42c8bd8e3))
-* ticker - update age calculation ([#1634](https://github.com/consolelabs/mochi-discord/issues/1634)) ([f905be2](https://github.com/consolelabs/mochi-discord/commit/f905be2b0549d41a50f03c81d8aaa50c81001c99))
-* ticker fdv ([#1635](https://github.com/consolelabs/mochi-discord/issues/1635)) ([f8eea74](https://github.com/consolelabs/mochi-discord/commit/f8eea740a040065edeaf4a62128d90b5b3224dfc))
-* ticker UI ([#1636](https://github.com/consolelabs/mochi-discord/issues/1636)) ([e583095](https://github.com/consolelabs/mochi-discord/commit/e583095440d46d07a5f5d0c2492f3bec08e0bf58))
-
+- **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
+- ticker - support dex-screener pair ([#1633](https://github.com/consolelabs/mochi-discord/issues/1633)) ([d734f24](https://github.com/consolelabs/mochi-discord/commit/d734f24b9bdbffb052924831b54234b42c8bd8e3))
+- ticker - update age calculation ([#1634](https://github.com/consolelabs/mochi-discord/issues/1634)) ([f905be2](https://github.com/consolelabs/mochi-discord/commit/f905be2b0549d41a50f03c81d8aaa50c81001c99))
+- ticker fdv ([#1635](https://github.com/consolelabs/mochi-discord/issues/1635)) ([f8eea74](https://github.com/consolelabs/mochi-discord/commit/f8eea740a040065edeaf4a62128d90b5b3224dfc))
+- ticker UI ([#1636](https://github.com/consolelabs/mochi-discord/issues/1636)) ([e583095](https://github.com/consolelabs/mochi-discord/commit/e583095440d46d07a5f5d0c2492f3bec08e0bf58))
 
 ### Features
 
-* **profile:** add button connect github account ([#1632](https://github.com/consolelabs/mochi-discord/issues/1632)) ([3fe6998](https://github.com/consolelabs/mochi-discord/commit/3fe6998577388b5e7b06e7471dae5a99904f7c7f))
+- **profile:** add button connect github account ([#1632](https://github.com/consolelabs/mochi-discord/issues/1632)) ([3fe6998](https://github.com/consolelabs/mochi-discord/commit/3fe6998577388b5e7b06e7471dae5a99904f7c7f))
 
 # [6.46.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.3...v6.46.0-rc.4) (2024-03-26)
 
-
 ### Bug Fixes
 
-* ticker fdv ([#1635](https://github.com/consolelabs/mochi-discord/issues/1635)) ([f8eea74](https://github.com/consolelabs/mochi-discord/commit/f8eea740a040065edeaf4a62128d90b5b3224dfc))
+- ticker fdv ([#1635](https://github.com/consolelabs/mochi-discord/issues/1635)) ([f8eea74](https://github.com/consolelabs/mochi-discord/commit/f8eea740a040065edeaf4a62128d90b5b3224dfc))
 
 # [6.46.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.2...v6.46.0-rc.3) (2024-03-26)
 
-
 ### Bug Fixes
 
-* ticker - update age calculation ([#1634](https://github.com/consolelabs/mochi-discord/issues/1634)) ([f905be2](https://github.com/consolelabs/mochi-discord/commit/f905be2b0549d41a50f03c81d8aaa50c81001c99))
+- ticker - update age calculation ([#1634](https://github.com/consolelabs/mochi-discord/issues/1634)) ([f905be2](https://github.com/consolelabs/mochi-discord/commit/f905be2b0549d41a50f03c81d8aaa50c81001c99))
 
 # [6.46.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.0-rc.1...v6.46.0-rc.2) (2024-03-26)
 
-
 ### Bug Fixes
 
-* ticker - support dex-screener pair ([#1633](https://github.com/consolelabs/mochi-discord/issues/1633)) ([d734f24](https://github.com/consolelabs/mochi-discord/commit/d734f24b9bdbffb052924831b54234b42c8bd8e3))
+- ticker - support dex-screener pair ([#1633](https://github.com/consolelabs/mochi-discord/issues/1633)) ([d734f24](https://github.com/consolelabs/mochi-discord/commit/d734f24b9bdbffb052924831b54234b42c8bd8e3))
 
 # [6.46.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.6...v6.46.0-rc.1) (2024-03-26)
 
-
 ### Bug Fixes
 
-* **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
-
+- **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
 
 ### Features
 
-* **profile:** add button connect github account ([#1632](https://github.com/consolelabs/mochi-discord/issues/1632)) ([3fe6998](https://github.com/consolelabs/mochi-discord/commit/3fe6998577388b5e7b06e7471dae5a99904f7c7f))
+- **profile:** add button connect github account ([#1632](https://github.com/consolelabs/mochi-discord/issues/1632)) ([3fe6998](https://github.com/consolelabs/mochi-discord/commit/3fe6998577388b5e7b06e7471dae5a99904f7c7f))
 
 ## [6.45.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.45.6-rc.2...v6.45.6-rc.3) (2024-03-26)
 
-
 ### Bug Fixes
 
-* **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
+- **profile:** render github social account in profile ([#1631](https://github.com/consolelabs/mochi-discord/issues/1631)) ([423bacb](https://github.com/consolelabs/mochi-discord/commit/423bacb94b5936942e2661d89b521352b336d106))
 
 ## [6.45.6](https://github.com/consolelabs/mochi-discord/compare/v6.45.5...v6.45.6) (2024-03-26)
 
-
 ### Bug Fixes
 
-* **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
-* **inbox:** fix msg withdraw inbox data ([#1630](https://github.com/consolelabs/mochi-discord/issues/1630)) ([2a47a8d](https://github.com/consolelabs/mochi-discord/commit/2a47a8de623281cf3360335336368edeaeeba8e2))
-* **inbox:** fix render max length data of embeded msg discord ([#1629](https://github.com/consolelabs/mochi-discord/issues/1629)) ([c5116da](https://github.com/consolelabs/mochi-discord/commit/c5116dae0c6634d48e9190e338c2707c4437700c))
+- **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
+- **inbox:** fix msg withdraw inbox data ([#1630](https://github.com/consolelabs/mochi-discord/issues/1630)) ([2a47a8d](https://github.com/consolelabs/mochi-discord/commit/2a47a8de623281cf3360335336368edeaeeba8e2))
+- **inbox:** fix render max length data of embeded msg discord ([#1629](https://github.com/consolelabs/mochi-discord/issues/1629)) ([c5116da](https://github.com/consolelabs/mochi-discord/commit/c5116dae0c6634d48e9190e338c2707c4437700c))
 
 ## [6.45.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.6-rc.1...v6.45.6-rc.2) (2024-03-26)
 
-
 ### Bug Fixes
 
-* **inbox:** fix msg withdraw inbox data ([#1630](https://github.com/consolelabs/mochi-discord/issues/1630)) ([2a47a8d](https://github.com/consolelabs/mochi-discord/commit/2a47a8de623281cf3360335336368edeaeeba8e2))
-* **inbox:** fix render max length data of embeded msg discord ([#1629](https://github.com/consolelabs/mochi-discord/issues/1629)) ([c5116da](https://github.com/consolelabs/mochi-discord/commit/c5116dae0c6634d48e9190e338c2707c4437700c))
+- **inbox:** fix msg withdraw inbox data ([#1630](https://github.com/consolelabs/mochi-discord/issues/1630)) ([2a47a8d](https://github.com/consolelabs/mochi-discord/commit/2a47a8de623281cf3360335336368edeaeeba8e2))
+- **inbox:** fix render max length data of embeded msg discord ([#1629](https://github.com/consolelabs/mochi-discord/issues/1629)) ([c5116da](https://github.com/consolelabs/mochi-discord/commit/c5116dae0c6634d48e9190e338c2707c4437700c))
 
 ## [6.45.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.5...v6.45.6-rc.1) (2024-03-26)
 
-
 ### Bug Fixes
 
-* **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
+- **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
 
 ## [6.45.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.5-rc.1...v6.45.5-rc.2) (2024-03-26)
 
-
 ### Bug Fixes
 
-* **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
+- **inbox:** fix format data inbox for txs ([#1627](https://github.com/consolelabs/mochi-discord/issues/1627)) ([dc7c750](https://github.com/consolelabs/mochi-discord/commit/dc7c750e1ba27688887d54f3dd6eb1cb45582738))
 
 ## [6.45.5](https://github.com/consolelabs/mochi-discord/compare/v6.45.4...v6.45.5) (2024-03-25)
 
-
 ### Bug Fixes
 
-* add gh support and fix format for app vault ([b7a7edb](https://github.com/consolelabs/mochi-discord/commit/b7a7edb81858e692bf63ee3413e3f00d2e0c596c))
+- add gh support and fix format for app vault ([b7a7edb](https://github.com/consolelabs/mochi-discord/commit/b7a7edb81858e692bf63ee3413e3f00d2e0c596c))
 
 ## [6.45.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.4...v6.45.5-rc.1) (2024-03-25)
 
-
 ### Bug Fixes
 
-* add gh support and fix format for app vault ([b7a7edb](https://github.com/consolelabs/mochi-discord/commit/b7a7edb81858e692bf63ee3413e3f00d2e0c596c))
+- add gh support and fix format for app vault ([b7a7edb](https://github.com/consolelabs/mochi-discord/commit/b7a7edb81858e692bf63ee3413e3f00d2e0c596c))
 
 ## [6.45.4](https://github.com/consolelabs/mochi-discord/compare/v6.45.3...v6.45.4) (2024-03-22)
 
-
 ### Bug Fixes
 
-* update mochi.js ([#1626](https://github.com/consolelabs/mochi-discord/issues/1626)) ([505c4e8](https://github.com/consolelabs/mochi-discord/commit/505c4e8ab852f5a18972141df4a4eb516771f734))
+- update mochi.js ([#1626](https://github.com/consolelabs/mochi-discord/issues/1626)) ([505c4e8](https://github.com/consolelabs/mochi-discord/commit/505c4e8ab852f5a18972141df4a4eb516771f734))
 
 ## [6.45.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.3...v6.45.4-rc.1) (2024-03-22)
 
-
 ### Bug Fixes
 
-* update mochi.js ([#1626](https://github.com/consolelabs/mochi-discord/issues/1626)) ([505c4e8](https://github.com/consolelabs/mochi-discord/commit/505c4e8ab852f5a18972141df4a4eb516771f734))
+- update mochi.js ([#1626](https://github.com/consolelabs/mochi-discord/issues/1626)) ([505c4e8](https://github.com/consolelabs/mochi-discord/commit/505c4e8ab852f5a18972141df4a4eb516771f734))
 
 ## [6.45.3](https://github.com/consolelabs/mochi-discord/compare/v6.45.2...v6.45.3) (2024-03-20)
 
-
 ### Bug Fixes
 
-* ticker - add more market data ([#1624](https://github.com/consolelabs/mochi-discord/issues/1624)) ([5b60832](https://github.com/consolelabs/mochi-discord/commit/5b60832c7d01aaa6d59cebe568979488316980c4))
-* ticker - market data format ([#1625](https://github.com/consolelabs/mochi-discord/issues/1625)) ([ceca016](https://github.com/consolelabs/mochi-discord/commit/ceca0169fcc6ce341b540a85ca02757124841e23))
+- ticker - add more market data ([#1624](https://github.com/consolelabs/mochi-discord/issues/1624)) ([5b60832](https://github.com/consolelabs/mochi-discord/commit/5b60832c7d01aaa6d59cebe568979488316980c4))
+- ticker - market data format ([#1625](https://github.com/consolelabs/mochi-discord/issues/1625)) ([ceca016](https://github.com/consolelabs/mochi-discord/commit/ceca0169fcc6ce341b540a85ca02757124841e23))
 
 ## [6.45.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.3-rc.1...v6.45.3-rc.2) (2024-03-20)
 
-
 ### Bug Fixes
 
-* ticker - market data format ([#1625](https://github.com/consolelabs/mochi-discord/issues/1625)) ([ceca016](https://github.com/consolelabs/mochi-discord/commit/ceca0169fcc6ce341b540a85ca02757124841e23))
+- ticker - market data format ([#1625](https://github.com/consolelabs/mochi-discord/issues/1625)) ([ceca016](https://github.com/consolelabs/mochi-discord/commit/ceca0169fcc6ce341b540a85ca02757124841e23))
 
 ## [6.45.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.45.2...v6.45.3-rc.1) (2024-03-20)
 
-
 ### Bug Fixes
 
-* ticker - add more market data ([#1624](https://github.com/consolelabs/mochi-discord/issues/1624)) ([5b60832](https://github.com/consolelabs/mochi-discord/commit/5b60832c7d01aaa6d59cebe568979488316980c4))
+- ticker - add more market data ([#1624](https://github.com/consolelabs/mochi-discord/issues/1624)) ([5b60832](https://github.com/consolelabs/mochi-discord/commit/5b60832c7d01aaa6d59cebe568979488316980c4))
 
 ## [6.45.2](https://github.com/consolelabs/mochi-discord/compare/v6.45.1...v6.45.2) (2024-03-19)
 
