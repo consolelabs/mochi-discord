@@ -1,3 +1,11 @@
+## [6.46.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.3...v6.46.4-rc.1) (2024-03-28)
+
+
+### Bug Fixes
+
+* ticker update address format ([#1642](https://github.com/consolelabs/mochi-discord/issues/1642)) ([54a9716](https://github.com/consolelabs/mochi-discord/commit/54a97160d39a993b9abc070dd61e5b37f205bf5a))
+* vault transfer support chain base ([#1641](https://github.com/consolelabs/mochi-discord/issues/1641)) ([81209b2](https://github.com/consolelabs/mochi-discord/commit/81209b2aa9f680ed86eaffb4b9ed8d09f5f9c19a))
+
 ## [6.46.3](https://github.com/consolelabs/mochi-discord/compare/v6.46.2...v6.46.3) (2024-03-27)
 
 
