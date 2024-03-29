@@ -243,6 +243,9 @@ export async function renderSingle(
       }`
     : "N/A"
 
+  const chain =
+    coin.asset_platform?.name || coin.asset_platform?.shortname || "N/A"
+
   const marketCap = market_cap?.[CURRENCY] ?? 0
   const fields = [
     {
@@ -313,6 +316,11 @@ export async function renderSingle(
       value: age,
       inline: true,
     },
+    {
+      name: `${getEmoji("WEB")} Chain`,
+      value: chain,
+      inline: true,
+    },
     ...(hasPlatforms && coin.asset_platform_id
       ? [
           {
@@ -326,7 +334,7 @@ export async function renderSingle(
     ...(exchangePlats?.length
       ? [
           {
-            name: "\u200b",
+            name: `${getEmoji("CHART")} Trading`,
             value: exchangePlats.slice(0, 5).join(" | "),
             inline: false,
           },
@@ -338,12 +346,7 @@ export async function renderSingle(
   }))
   let embed = composeEmbedMessage(null, {
     color: getChartColorConfig(coin.id).borderColor as HexColorString,
-    author: [
-      `${coin.name} (${
-        coin.asset_platform?.name || coin.asset_platform?.shortname || coin.name
-      })`,
-      coin.image.small,
-    ],
+    author: [`${coin.name}`, coin.image.small],
     image: "attachment://chart.png",
   }).addFields(fields)
   embed = justifyEmbedFields(embed, 3)
