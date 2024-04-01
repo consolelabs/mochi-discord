@@ -201,13 +201,14 @@ export async function renderSingle(
     symbol: coin.symbol,
   })
   const pair = dexScreenerData?.pairs?.[0]
-
-  //
   const maxSupply = max_supply || total_supply
   const calculatedFdv = maxSupply
     ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
     : "N/A"
-  const fdv = pair.fdv ? `$${formatBigNumber(pair.fdv)}` : calculatedFdv
+  let fdv = calculatedFdv
+  if (pair?.fdv) {
+    fdv = `$${formatBigNumber(pair.fdv)}`
+  }
 
   // exchange platforms
   const tickers = [
