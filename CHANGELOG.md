@@ -1,3 +1,10 @@
+## [6.46.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.7...v6.46.8-rc.1) (2024-04-01)
+
+
+### Bug Fixes
+
+* **ticker:** fdv type error ([#1646](https://github.com/consolelabs/mochi-discord/issues/1646)) ([9a8286c](https://github.com/consolelabs/mochi-discord/commit/9a8286cdaf7d30dbaaaf89b720f597f60528ea7c))
+
 ## [6.46.7](https://github.com/consolelabs/mochi-discord/compare/v6.46.6...v6.46.7) (2024-04-01)
 
 
