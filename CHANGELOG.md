@@ -1,3 +1,10 @@
+## [6.46.7](https://github.com/consolelabs/mochi-discord/compare/v6.46.6...v6.46.7) (2024-04-01)
+
+
+### Bug Fixes
+
+* register global command ([#1645](https://github.com/consolelabs/mochi-discord/issues/1645)) ([4051c3e](https://github.com/consolelabs/mochi-discord/commit/4051c3e35576e6fdc2492df53f2988e6d2fb98a5))
+
 ## [6.46.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.6...v6.46.7-rc.1) (2024-04-01)
 
 
