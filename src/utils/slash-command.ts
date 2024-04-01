@@ -241,35 +241,29 @@ async function processGlobalCommand(globalCommands: any[]) {
     Routes.applicationCommands(APPLICATION_ID),
   )) as ModelDiscordCMD[]
 
-  const commandsToAdd = globalCommands.filter((c) => {
-    const command = current.find((cmd) => cmd.name === c.name)
-    return !command
-  })
-  if (commandsToAdd.length > 0) {
-    logger.info("Started adding application (/) global commands.")
-    try {
-      const resp = await fetch(
-        `https://discord.com/api/v9/applications/${APPLICATION_ID}/commands`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bot ${DISCORD_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(globalCommands),
+  logger.info("Started adding application (/) global commands.")
+  try {
+    const resp = await fetch(
+      `https://discord.com/api/v9/applications/${APPLICATION_ID}/commands`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bot ${DISCORD_TOKEN}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(globalCommands),
+      },
+    )
+    const json = await resp.json()
+    // check if json is array
+    if (!Array.isArray(json)) {
+      console.log(json)
+      logger.error(
+        `Failed to add application (/) global commands. resp: ${json}`,
       )
-      const json = await resp.json()
-      // check if json is array
-      if (!Array.isArray(json)) {
-        console.log(json)
-        logger.error(
-          `Failed to add application (/) global commands. resp: ${json}`,
-        )
-      }
-    } catch (err) {
-      logger.error(`Failed to add application (/) global commands. err: ${err}`)
     }
+  } catch (err) {
+    logger.error(`Failed to add application (/) global commands. err: ${err}`)
   }
 
   const promises = current
