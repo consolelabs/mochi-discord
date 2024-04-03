@@ -1,3 +1,10 @@
+## [6.46.9-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.8...v6.46.9-rc.1) (2024-04-03)
+
+
+### Bug Fixes
+
+* support add base token ([#1647](https://github.com/consolelabs/mochi-discord/issues/1647)) ([2d13152](https://github.com/consolelabs/mochi-discord/commit/2d1315282301b953e943727d43f817d44bd6db12))
+
 ## [6.46.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.7...v6.46.8-rc.1) (2024-04-01)
 
 
