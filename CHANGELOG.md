@@ -1,4 +1,4 @@
-## [6.46.8](https://github.com/consolelabs/mochi-discord/compare/v6.46.7...v6.46.8) (2024-04-01)
+## [6.46.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.7...v6.46.8-rc.1) (2024-04-01)
 
 
 ### Bug Fixes
