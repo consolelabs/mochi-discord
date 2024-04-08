@@ -169,9 +169,23 @@ async function compose(
   const nextLevelMinXp = userProfile?.next_level?.min_xp
     ? userProfile?.next_level?.min_xp
     : userProfile?.current_level?.min_xp
-  let highestRole = "N/A"
-  if (target.roles?.highest.name && target.roles.highest.name !== "@everyone") {
-    highestRole = target.roles.highest
+
+  let highestRoles: any[] = []
+  const targetRoles = target.roles.cache
+
+  const filteredRoles = targetRoles.filter(
+    (role: { name: string }) => role.name !== "@everyone",
+  )
+
+  const sortedRoles = Array.from(filteredRoles.values()).sort(
+    (a: any, b: any) => b.rawPosition - a.rawPosition,
+  )
+
+  const top3Roles = sortedRoles.slice(0, 3)
+
+  highestRoles = highestRoles.slice(0, 1).concat(top3Roles)
+  if (highestRoles.length === 0) {
+    highestRoles = ["N/A"]
   }
 
   // TODO: use pagination instead of hardcode 1, this is fine for mochi wallets (for now)
@@ -197,7 +211,9 @@ async function compose(
     author: [target.name, target.avatar],
     color: msgColors.BLUE,
     description: [
-      `${getEmoji("LEAF")}\`Role. \`${highestRole}`,
+      `${getEmoji("LEAF")}\`Top Roles.\`${highestRoles
+        .map((role) => `${role}`)
+        .join(" ")}`,
       `${getEmoji("CASH")}\`Balance. $${grandTotalStr}\`${
         pnl === 0
           ? ""
