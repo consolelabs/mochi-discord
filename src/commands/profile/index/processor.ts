@@ -171,19 +171,20 @@ async function compose(
     : userProfile?.current_level?.min_xp
 
   let highestRoles: any[] = []
-  const targetRoles = target.roles.cache
+  const targetRoles = target.roles?.cache
+  if (targetRoles) {
+    const filteredRoles = targetRoles.filter(
+      (role: { name: string }) => role.name !== "@everyone",
+    )
 
-  const filteredRoles = targetRoles.filter(
-    (role: { name: string }) => role.name !== "@everyone",
-  )
+    const sortedRoles = Array.from(filteredRoles.values()).sort(
+      (a: any, b: any) => b.rawPosition - a.rawPosition,
+    )
 
-  const sortedRoles = Array.from(filteredRoles.values()).sort(
-    (a: any, b: any) => b.rawPosition - a.rawPosition,
-  )
+    const top3Roles = sortedRoles.slice(0, 3)
 
-  const top3Roles = sortedRoles.slice(0, 3)
-
-  highestRoles = highestRoles.slice(0, 1).concat(top3Roles)
+    highestRoles = highestRoles.slice(0, 1).concat(top3Roles)
+  }
   if (highestRoles.length === 0) {
     highestRoles = ["N/A"]
   }
