@@ -1,3 +1,10 @@
+## [6.46.10](https://github.com/consolelabs/mochi-discord/compare/v6.46.9...v6.46.10) (2024-04-09)
+
+
+### Bug Fixes
+
+* **profile:** render top 3 roles of user in profile cmd ([#1648](https://github.com/consolelabs/mochi-discord/issues/1648)) ([5cc661e](https://github.com/consolelabs/mochi-discord/commit/5cc661eb1f5ae628e2c7ce206336e25865bb3480))
+
 ## [6.46.9-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.9-rc.1...v6.46.9-rc.2) (2024-04-09)
 
 
