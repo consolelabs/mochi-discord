@@ -15,7 +15,7 @@ export async function renderChartImage({
 }: {
   chartLabel?: string
   labels: string[]
-  data: number[]
+  data: number[] | null[]
   colorConfig?: {
     borderColor: string
     backgroundColor: string | CanvasGradient
@@ -71,6 +71,7 @@ export async function renderChartImage({
           fill: true,
           ...colorConfig,
           tension: 0.2,
+          // spanGaps: true,
         },
       ],
     },

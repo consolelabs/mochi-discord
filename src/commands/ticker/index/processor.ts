@@ -202,13 +202,11 @@ export async function renderSingle(
   })
   const pair = dexScreenerData?.pairs?.[0]
   const maxSupply = max_supply || total_supply
-  const calculatedFdv = maxSupply
+  const fdv = maxSupply
     ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
+    : pair?.fdv
+    ? `$${formatBigNumber(pair.fdv)}`
     : "N/A"
-  let fdv = calculatedFdv
-  if (pair?.fdv) {
-    fdv = `$${formatBigNumber(pair.fdv)}`
-  }
 
   // exchange platforms
   const tickers = [
@@ -235,6 +233,7 @@ export async function renderSingle(
 
   // age
   const icoDate = (coin as any)?.ico_data?.ico_start_date
+  const renounced = (coin as any)?.ownership_renounced ? "Y" : "N"
   const diff = moment.duration(
     moment(moment.now()).diff(moment(icoDate || pair?.created_at)),
   )
@@ -275,10 +274,8 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: `${getEmoji("ANIMATED_FLASH")} Volume (24h)`,
-      value: total_volume
-        ? `$${formatBigNumber(total_volume[CURRENCY])}`
-        : "N/A",
+      name: `${getEmoji("ANIMATED_FLASH")} FDV`,
+      value: fdv,
       inline: true,
     },
     {
@@ -287,8 +284,10 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: `${getEmoji("ANIMATED_FLASH")} FDV`,
-      value: fdv,
+      name: `${getEmoji("ANIMATED_FLASH")} Volume (24h)`,
+      value: total_volume
+        ? `$${formatBigNumber(total_volume[CURRENCY])}`
+        : "N/A",
       inline: true,
     },
     {
@@ -313,6 +312,13 @@ export async function renderSingle(
       inline: true,
     },
     {
+      name: `${getEmoji("ANIMATED_FLASH")} Liquidity`,
+      value: pair.liquidity_usd
+        ? `$${formatBigNumber(pair.liquidity_usd)}`
+        : "N/A",
+      inline: true,
+    },
+    {
       name: `${getEmoji("CLOCK")} Age`,
       value: age,
       inline: true,
@@ -320,6 +326,11 @@ export async function renderSingle(
     {
       name: `${getEmoji("WEB")} Chain`,
       value: chain,
+      inline: true,
+    },
+    {
+      name: `${getEmoji("WEB")} Contract Renounced`,
+      value: renounced,
       inline: true,
     },
     ...(hasPlatforms && coin.asset_platform_id
