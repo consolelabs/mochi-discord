@@ -1,3 +1,10 @@
+## [6.46.11](https://github.com/consolelabs/mochi-discord/compare/v6.46.10...v6.46.11) (2024-04-15)
+
+
+### Bug Fixes
+
+* **profile:** render profile in dm cmd ([#1649](https://github.com/consolelabs/mochi-discord/issues/1649)) ([95fbf49](https://github.com/consolelabs/mochi-discord/commit/95fbf49adb6bcb76689ad9865da34f0c885cf646))
+
 ## [6.46.11-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.10...v6.46.11-rc.1) (2024-04-15)
 
 
