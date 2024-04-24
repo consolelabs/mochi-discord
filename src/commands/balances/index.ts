@@ -22,6 +22,12 @@ const slashCmd: SlashCommand = {
           .setDescription("expand view, default view is compact")
           .setRequired(false),
       )
+      .addBooleanOption((opt) =>
+        opt
+          .setName("all")
+          .setDescription("show all balances from Mochi and associated wallets")
+          .setRequired(false),
+      )
   },
   run: balanceSlash,
   help: () =>
