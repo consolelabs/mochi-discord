@@ -1,3 +1,10 @@
+# [6.47.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.0-rc.1...v6.47.0-rc.2) (2024-04-24)
+
+
+### Features
+
+* balance - all option ([#1651](https://github.com/consolelabs/mochi-discord/issues/1651)) ([08eb2a9](https://github.com/consolelabs/mochi-discord/commit/08eb2a95091a2707867f54bc9fc9957dab78e61d))
+
 # [6.47.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.11...v6.47.0-rc.1) (2024-04-23)
 
 
