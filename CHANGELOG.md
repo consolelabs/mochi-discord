@@ -1,3 +1,10 @@
+# [6.47.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.11...v6.47.0-rc.1) (2024-04-23)
+
+
+### Features
+
+* ticker - add liquidity and contract renounced ([#1650](https://github.com/consolelabs/mochi-discord/issues/1650)) ([d34d115](https://github.com/consolelabs/mochi-discord/commit/d34d115e7eabb03d89421dc4c28bdc5c95bf19e7))
+
 ## [6.46.11](https://github.com/consolelabs/mochi-discord/compare/v6.46.10...v6.46.11) (2024-04-15)
 
 

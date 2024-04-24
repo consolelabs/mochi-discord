@@ -206,9 +206,10 @@ const run = async (i: CommandInteraction) => {
   const view = i.options.getBoolean("expand", false)
     ? BalanceView.Expand
     : BalanceView.Compact
+  const showAll = i.options.getBoolean("all", false) || false
   const { context, msgOpts } = await renderBalances(i.user.id, {
     interaction: i,
-    type: BalanceType.Offchain,
+    type: showAll ? BalanceType.All : BalanceType.Offchain,
     address: "",
     view,
   })

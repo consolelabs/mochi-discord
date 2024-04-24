@@ -8,6 +8,7 @@ import { getChartColorConfig } from "ui/canvas/color"
 import { drawRectangle } from "ui/canvas/draw"
 import { getChance } from "utils/common"
 import { ChartViewTimeOption } from "./processor"
+import { time } from "cron"
 
 export async function renderHistoricalMarketChart({
   coinId,
@@ -21,7 +22,7 @@ export async function renderHistoricalMarketChart({
   isDominanceChart: boolean
 }) {
   const currency = "usd"
-  const { ok, data } = await defi.getHistoricalMarketData({
+  const { ok, data: historicalData } = await defi.getHistoricalMarketData({
     coinId,
     currency,
     days,
@@ -32,7 +33,8 @@ export async function renderHistoricalMarketChart({
     community.updateQuestProgress({ userId: discordId, action: "ticker" })
   }
   if (!ok) return null
-  const { times, prices, from, to } = data
+  const { times, prices, from, to } = historicalData
+  const { data, labels } = customizeChart({ times, prices, days })
 
   // draw chart
   const chartLabel = `${
@@ -42,8 +44,8 @@ export async function renderHistoricalMarketChart({
   } | ${from} - ${to}`
   const chart = await renderChartImage({
     chartLabel,
-    labels: times,
-    data: prices,
+    labels,
+    data,
     colorConfig: getChartColorConfig(coinId),
   })
   if (!getChance(20)) return new MessageAttachment(chart, "chart.png")
@@ -81,6 +83,47 @@ export async function renderHistoricalMarketChart({
   ctx.drawImage(rightObj, container.x.to - 130, container.y.to - 230, 130, 230)
 
   return new MessageAttachment(canvas.toBuffer(), "chart.png")
+}
+
+// customize chart data and labels if data time range >= 30d
+// which results chart latest date with 3x normal range
+// e.g. ticker chart 30d, 30 data points -> 29 lines
+//      -> customizeChart() = 31 lines, last date takes 3 lines
+function customizeChart({
+  times,
+  prices,
+  days,
+}: {
+  times: string[]
+  prices: number[]
+  days: number
+}) {
+  if (days < 30 || prices.length < 30) {
+    return { labels: times, data: prices }
+  }
+
+  // get last 3 unique dates
+  const endDateIdx = times.length - 1
+  const endDate = times[endDateIdx]
+  const reversedTimes = Object.assign([], times).reverse()
+  const startDate = reversedTimes.find((t) => t !== endDate)
+  if (!startDate) {
+    return { labels: times, data: prices }
+  }
+  const startDateIdx = times.indexOf(startDate)
+  const nrOfInsertPts = Math.ceil(times.length * 0.05)
+  const data: number[] | null[] = Object.assign([], prices)
+  const labels = Object.assign([], times)
+  Array(endDateIdx - startDateIdx + nrOfInsertPts)
+    .fill(0)
+    .forEach((_, idx) => {
+      const insertIdx = startDateIdx + idx
+      const isNewPoint = insertIdx + 1 >= endDateIdx
+      data.splice(insertIdx + 1, isNewPoint ? 0 : 1, null)
+      labels.splice(insertIdx + 1, isNewPoint ? 0 : 1, "")
+    })
+
+  return { data, labels }
 }
 
 export async function renderCompareTokenChart({
