@@ -233,7 +233,7 @@ export async function renderSingle(
 
   // age
   const icoDate = (coin as any)?.ico_data?.ico_start_date
-  const renounced = (coin as any)?.ownership_renounced ? "Y" : "N"
+  const renounced = (coin as any)?.ownership_renounced ? "Yes" : "No"
   const diff = moment.duration(
     moment(moment.now()).diff(moment(icoDate || pair?.created_at)),
   )

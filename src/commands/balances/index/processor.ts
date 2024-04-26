@@ -349,7 +349,7 @@ async function getTxns(
     })
   }
 
-  if (type === BalanceType.Offchain) {
+  if (type === BalanceType.Offchain || type === BalanceType.All) {
     return data
   }
 
