@@ -1,86 +1,74 @@
 # [6.47.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.0-rc.1...v6.47.0-rc.2) (2024-04-24)
 
-
 ### Features
 
-* balance - all option ([#1651](https://github.com/consolelabs/mochi-discord/issues/1651)) ([08eb2a9](https://github.com/consolelabs/mochi-discord/commit/08eb2a95091a2707867f54bc9fc9957dab78e61d))
+- balance - all option ([#1651](https://github.com/consolelabs/mochi-discord/issues/1651)) ([08eb2a9](https://github.com/consolelabs/mochi-discord/commit/08eb2a95091a2707867f54bc9fc9957dab78e61d))
 
 # [6.47.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.11...v6.47.0-rc.1) (2024-04-23)
 
-
 ### Features
 
-* ticker - add liquidity and contract renounced ([#1650](https://github.com/consolelabs/mochi-discord/issues/1650)) ([d34d115](https://github.com/consolelabs/mochi-discord/commit/d34d115e7eabb03d89421dc4c28bdc5c95bf19e7))
+- ticker - add liquidity and contract renounced ([#1650](https://github.com/consolelabs/mochi-discord/issues/1650)) ([d34d115](https://github.com/consolelabs/mochi-discord/commit/d34d115e7eabb03d89421dc4c28bdc5c95bf19e7))
 
 ## [6.46.11](https://github.com/consolelabs/mochi-discord/compare/v6.46.10...v6.46.11) (2024-04-15)
 
-
 ### Bug Fixes
 
-* **profile:** render profile in dm cmd ([#1649](https://github.com/consolelabs/mochi-discord/issues/1649)) ([95fbf49](https://github.com/consolelabs/mochi-discord/commit/95fbf49adb6bcb76689ad9865da34f0c885cf646))
+- **profile:** render profile in dm cmd ([#1649](https://github.com/consolelabs/mochi-discord/issues/1649)) ([95fbf49](https://github.com/consolelabs/mochi-discord/commit/95fbf49adb6bcb76689ad9865da34f0c885cf646))
 
 ## [6.46.11-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.10...v6.46.11-rc.1) (2024-04-15)
 
-
 ### Bug Fixes
 
-* **profile:** render profile in dm cmd ([#1649](https://github.com/consolelabs/mochi-discord/issues/1649)) ([95fbf49](https://github.com/consolelabs/mochi-discord/commit/95fbf49adb6bcb76689ad9865da34f0c885cf646))
+- **profile:** render profile in dm cmd ([#1649](https://github.com/consolelabs/mochi-discord/issues/1649)) ([95fbf49](https://github.com/consolelabs/mochi-discord/commit/95fbf49adb6bcb76689ad9865da34f0c885cf646))
 
 ## [6.46.10](https://github.com/consolelabs/mochi-discord/compare/v6.46.9...v6.46.10) (2024-04-09)
 
-
 ### Bug Fixes
 
-* **profile:** render top 3 roles of user in profile cmd ([#1648](https://github.com/consolelabs/mochi-discord/issues/1648)) ([5cc661e](https://github.com/consolelabs/mochi-discord/commit/5cc661eb1f5ae628e2c7ce206336e25865bb3480))
+- **profile:** render top 3 roles of user in profile cmd ([#1648](https://github.com/consolelabs/mochi-discord/issues/1648)) ([5cc661e](https://github.com/consolelabs/mochi-discord/commit/5cc661eb1f5ae628e2c7ce206336e25865bb3480))
 
 ## [6.46.9-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.46.9-rc.1...v6.46.9-rc.2) (2024-04-09)
 
-
 ### Bug Fixes
 
-* **profile:** render top 3 roles of user in profile cmd ([#1648](https://github.com/consolelabs/mochi-discord/issues/1648)) ([5cc661e](https://github.com/consolelabs/mochi-discord/commit/5cc661eb1f5ae628e2c7ce206336e25865bb3480))
+- **profile:** render top 3 roles of user in profile cmd ([#1648](https://github.com/consolelabs/mochi-discord/issues/1648)) ([5cc661e](https://github.com/consolelabs/mochi-discord/commit/5cc661eb1f5ae628e2c7ce206336e25865bb3480))
 
 ## [6.46.9](https://github.com/consolelabs/mochi-discord/compare/v6.46.8...v6.46.9) (2024-04-03)
 
-
 ### Bug Fixes
 
-* support add base token ([#1647](https://github.com/consolelabs/mochi-discord/issues/1647)) ([2d13152](https://github.com/consolelabs/mochi-discord/commit/2d1315282301b953e943727d43f817d44bd6db12))
+- support add base token ([#1647](https://github.com/consolelabs/mochi-discord/issues/1647)) ([2d13152](https://github.com/consolelabs/mochi-discord/commit/2d1315282301b953e943727d43f817d44bd6db12))
 
 ## [6.46.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.7...v6.46.8-rc.1) (2024-04-01)
 
-
 ### Bug Fixes
 
-* **ticker:** fdv type error ([#1646](https://github.com/consolelabs/mochi-discord/issues/1646)) ([9a8286c](https://github.com/consolelabs/mochi-discord/commit/9a8286cdaf7d30dbaaaf89b720f597f60528ea7c))
+- **ticker:** fdv type error ([#1646](https://github.com/consolelabs/mochi-discord/issues/1646)) ([9a8286c](https://github.com/consolelabs/mochi-discord/commit/9a8286cdaf7d30dbaaaf89b720f597f60528ea7c))
 
 ## [6.46.7](https://github.com/consolelabs/mochi-discord/compare/v6.46.6...v6.46.7) (2024-04-01)
 
-
 ### Bug Fixes
 
-* register global command ([#1645](https://github.com/consolelabs/mochi-discord/issues/1645)) ([4051c3e](https://github.com/consolelabs/mochi-discord/commit/4051c3e35576e6fdc2492df53f2988e6d2fb98a5))
+- register global command ([#1645](https://github.com/consolelabs/mochi-discord/issues/1645)) ([4051c3e](https://github.com/consolelabs/mochi-discord/commit/4051c3e35576e6fdc2492df53f2988e6d2fb98a5))
 
 ## [6.46.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.6...v6.46.7-rc.1) (2024-04-01)
 
-
 ### Bug Fixes
 
-* register global command ([#1645](https://github.com/consolelabs/mochi-discord/issues/1645)) ([4051c3e](https://github.com/consolelabs/mochi-discord/commit/4051c3e35576e6fdc2492df53f2988e6d2fb98a5))
+- register global command ([#1645](https://github.com/consolelabs/mochi-discord/issues/1645)) ([4051c3e](https://github.com/consolelabs/mochi-discord/commit/4051c3e35576e6fdc2492df53f2988e6d2fb98a5))
 
 ## [6.46.6](https://github.com/consolelabs/mochi-discord/compare/v6.46.5...v6.46.6) (2024-03-29)
 
-
 ### Bug Fixes
 
-* update ticker layout ([#1644](https://github.com/consolelabs/mochi-discord/issues/1644)) ([b8167f4](https://github.com/consolelabs/mochi-discord/commit/b8167f419b9e3b2bc5822446989f0c655a95f287))
+- update ticker layout ([#1644](https://github.com/consolelabs/mochi-discord/issues/1644)) ([b8167f4](https://github.com/consolelabs/mochi-discord/commit/b8167f419b9e3b2bc5822446989f0c655a95f287))
 
 ## [6.46.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.5...v6.46.6-rc.1) (2024-03-29)
 
-
 ### Bug Fixes
 
-* update ticker layout ([#1644](https://github.com/consolelabs/mochi-discord/issues/1644)) ([b8167f4](https://github.com/consolelabs/mochi-discord/commit/b8167f419b9e3b2bc5822446989f0c655a95f287))
+- update ticker layout ([#1644](https://github.com/consolelabs/mochi-discord/issues/1644)) ([b8167f4](https://github.com/consolelabs/mochi-discord/commit/b8167f419b9e3b2bc5822446989f0c655a95f287))
 
 ## [6.46.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.46.4...v6.46.5-rc.1) (2024-03-28)
 
