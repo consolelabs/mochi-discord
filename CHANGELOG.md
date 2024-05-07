@@ -1,3 +1,10 @@
+## [6.47.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.0...v6.47.1-rc.1) (2024-04-26)
+
+
+### Bug Fixes
+
+* ticker and bals (all) ([#1652](https://github.com/consolelabs/mochi-discord/issues/1652)) ([8cafe83](https://github.com/consolelabs/mochi-discord/commit/8cafe831105ca92ed2934050fdf7d27c2dbb7b0b))
+
 # [6.47.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.0-rc.1...v6.47.0-rc.2) (2024-04-24)
 
 ### Features
