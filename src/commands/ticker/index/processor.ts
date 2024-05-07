@@ -25,6 +25,7 @@ import {
   TokenEmojiKey,
   getEmojiURL,
   shortenHashOrAddress,
+  defaultEmojis,
 } from "utils/common"
 import {
   renderCompareTokenChart,
@@ -229,11 +230,13 @@ export async function renderSingle(
       ...tickers.sort((a, b) => b.volume_usd_24h - a.volume_usd_24h),
     ],
     (ticker: any) => ticker.market.name,
-  ).map((ticker) => `[${ticker.market.name}](${ticker.trade_url})`)
+  )
+    .filter((ticker) => Boolean(ticker.trade_url))
+    .map((ticker) => `[${ticker.market.name}](${ticker.trade_url})`)
 
   // age
   const icoDate = (coin as any)?.ico_data?.ico_start_date
-  const renounced = (coin as any)?.ownership_renounced ? "Yes" : "No"
+  const renounced = (coin as any)?.ownership_renounced
   const diff = moment.duration(
     moment(moment.now()).diff(moment(icoDate || pair?.created_at)),
   )
@@ -329,9 +332,11 @@ export async function renderSingle(
       inline: true,
     },
     {
-      name: `${getEmoji("WEB")} Contract Renounced`,
-      value: renounced,
-      inline: true,
+      name: `\u200B`,
+      value: `**Renounced ${
+        renounced ? defaultEmojis.CHECK : defaultEmojis.X
+      }**`,
+      inline: false,
     },
     ...(hasPlatforms && coin.asset_platform_id
       ? [
