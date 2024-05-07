@@ -1,3 +1,10 @@
+## [6.47.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.1-rc.1...v6.47.1-rc.2) (2024-05-07)
+
+
+### Bug Fixes
+
+* ticker and wlv ([#1653](https://github.com/consolelabs/mochi-discord/issues/1653)) ([6c2c690](https://github.com/consolelabs/mochi-discord/commit/6c2c69002ac2e7d21540232a5ac8138efaec6280))
+
 ## [6.47.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.0...v6.47.1-rc.1) (2024-04-26)
 
 
