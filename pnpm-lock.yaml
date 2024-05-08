@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.0.11
     version: 1.0.11(@solana/web3.js@1.73.2)
   '@consolelabs/mochi-formatter':
-    specifier: ^20.0.8
-    version: 20.0.8(@consolelabs/mochi-rest@5.3.5)(ioredis@5.3.2)
+    specifier: ^20.0.9
+    version: 20.0.9(@consolelabs/mochi-rest@5.3.5)(ioredis@5.3.2)
   '@consolelabs/mochi-rest':
     specifier: ^5.3.5
     version: 5.3.5
@@ -747,8 +747,8 @@ packages:
     dev: true
     optional: true
 
-  /@consolelabs/mochi-formatter@20.0.8(@consolelabs/mochi-rest@5.3.5)(ioredis@5.3.2):
-    resolution: {integrity: sha512-emlxTPtToXEx4JdHX887lhJqg/M026UvZz9NA+M6mWyhD+FPg5c1J8H+tAp/+LES6kqgyeBPWOeqt4Y1s7I7lQ==}
+  /@consolelabs/mochi-formatter@20.0.9(@consolelabs/mochi-rest@5.3.5)(ioredis@5.3.2):
+    resolution: {integrity: sha512-YdXtoHYF5T5FZzIZZ/JX+y0jEdhqexryJxsrur2d5DcCz0gaq7LwtxGpNuVuOfMCDl30sEEQzsz3T3AiFUbAGw==}
     peerDependencies:
       '@consolelabs/mochi-rest': ^5.3.5
       ioredis: ^5.x.x
@@ -3652,7 +3652,7 @@ packages:
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
     engines: {node: '>=14'}
     peerDependencies:
-      typescript: '>=4.9.5'
+      typescript: 4.7.4
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -4958,6 +4958,7 @@ packages:
   /iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
     dependencies:
       safer-buffer: 2.1.2
     dev: false
@@ -7031,6 +7032,7 @@ packages:
   /node-gyp-build@4.8.0:
     resolution: {integrity: sha512-u6fs2AEUljNho3EYTJNBfImO5QTo/J/1Etd+NVdCj7qWKUSN/bSLkZwhDv7I+w/MSC6qJ4cknepkAYykDdK8og==}
     hasBin: true
+    requiresBuild: true
     dev: false
 
   /node-int64@0.4.0:
@@ -8858,7 +8860,7 @@ packages:
       '@types/jest': ^27.0.0
       babel-jest: '>=27.0.0 <28'
       jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
+      typescript: 4.7.4
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -8890,7 +8892,7 @@ packages:
     engines: {node: ^14.13.1 || ^16 || >=18}
     hasBin: true
     peerDependencies:
-      typescript: ^4.3.5 || ^5.0.0
+      typescript: 4.7.4
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -8922,7 +8924,7 @@ packages:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: 4.7.4
     dependencies:
       tslib: 1.14.1
       typescript: 4.7.4
@@ -9247,7 +9249,7 @@ packages:
       meow: ^9.0.0
       optionator: ^0.9.1
       stylelint: '>=13'
-      typescript: '*'
+      typescript: 4.7.4
       vite: '>=2.0.0'
       vls: '*'
       vti: '*'
