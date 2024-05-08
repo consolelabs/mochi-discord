@@ -285,15 +285,13 @@ class Defi extends Fetcher {
     )
   }
 
-  async getDexTxns(userId: string, platform: string) {
+  async getCexTxns(userId: string, platform: string, type: string) {
     // TODO: remove after we support another dex
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    platform = "binance"
-
-    // TODO: implement later
-    return {
-      ok: true,
-    }
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${userId}/${type.toLowerCase()}/${platform.toLowerCase()}/spot_txns`,
+      { query: { page: 0, size: 5, status: "FILLED" } },
+    )
   }
 
   async trackWallet(body: {

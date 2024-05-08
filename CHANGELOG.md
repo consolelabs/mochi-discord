@@ -1,3 +1,10 @@
+## [6.47.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.1...v6.47.2-rc.1) (2024-05-08)
+
+
+### Bug Fixes
+
+* **binancespottxns:** add binance spot txns ([#1654](https://github.com/consolelabs/mochi-discord/issues/1654)) ([982f7ba](https://github.com/consolelabs/mochi-discord/commit/982f7baf8d4ccd459aba80e619ee35ea3b4b43c5))
+
 ## [6.47.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.1-rc.1...v6.47.1-rc.2) (2024-05-07)
 
 

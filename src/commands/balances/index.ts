@@ -9,6 +9,8 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import balanceSlash from "./index/slash"
 import { SlashCommandBuilder } from "@discordjs/builders"
 
+const balanceTypeChoices = ["all", "cex", "offchain"]
+
 const slashCmd: SlashCommand = {
   name: "balances",
   category: "Defi",
@@ -22,11 +24,12 @@ const slashCmd: SlashCommand = {
           .setDescription("expand view, default view is compact")
           .setRequired(false),
       )
-      .addBooleanOption((opt) =>
+      .addStringOption((opt) =>
         opt
-          .setName("all")
-          .setDescription("show all balances from Mochi and associated wallets")
-          .setRequired(false),
+          .setName("type")
+          .setDescription("show balances from Mochi and associated wallets")
+          .setRequired(false)
+          .addChoices(balanceTypeChoices.map((c) => [c, c.toLowerCase()])),
       )
   },
   run: balanceSlash,
