@@ -313,8 +313,8 @@ const txnsFetcher: Record<
     mochiPay.getListTx(profileId, { status: "success" }),
   [BalanceType.Onchain]: (profileId, _, address, type) =>
     defi.getWalletTxns(profileId, address, type),
-  [BalanceType.Cex]: (profile_id, platform) =>
-    defi.getDexTxns(profile_id, platform),
+  [BalanceType.Cex]: (profile_id, platform, type) =>
+    defi.getCexTxns(profile_id, "binance", "cexs"),
   [BalanceType.All]: (profileId) =>
     mochiPay.getListTx(profileId, { status: "success" }),
 }
@@ -327,10 +327,6 @@ async function getTxns(
   address: string,
   addressType = "evm",
 ) {
-  // TODO: implement later
-  if (type === BalanceType.Cex) {
-    return []
-  }
   const fetcher = txnsFetcher[type]
   const { data, ok, curl, status, error } = await fetcher(
     profileId,
@@ -347,6 +343,9 @@ async function getTxns(
       status,
       error,
     })
+  }
+  if (type === BalanceType.Cex) {
+    return data
   }
 
   if (type === BalanceType.Offchain || type === BalanceType.All) {
@@ -725,6 +724,14 @@ async function switchView(
       embed.addFields(lendingField)
     }
 
+    const { field: spotTxnsField } = buildSpotTxnsField(
+      "Spot transactions",
+      txns,
+    )
+    if (spotTxnsField) {
+      embed.addFields(spotTxnsField)
+    }
+
     totalWorth = cexTotal
   }
 
@@ -745,20 +752,21 @@ async function switchView(
       }`,
     },
   ])
-
-  const { text: txnRow } = await UI.components.txns({
-    txns: txns ?? [], // txns maybe null
-    on: Platform.Discord,
-    top: 5,
-    profileId,
-  })
-  embed.addFields([
-    {
-      name: "Recent Transactions",
-      value: txnRow,
-      inline: false,
-    },
-  ])
+  if (balanceType !== BalanceType.Cex) {
+    const { text: txnRow } = await UI.components.txns({
+      txns: txns ?? [], // txns maybe null
+      on: Platform.Discord,
+      top: 5,
+      profileId,
+    })
+    embed.addFields([
+      {
+        name: "Recent Transactions",
+        value: txnRow,
+        inline: false,
+      },
+    ])
+  }
 
   if (emptyText) {
     embed.setDescription(`${emptyText}${embed.description}`)
@@ -983,6 +991,39 @@ function buildFutureField(title: string, future: any[]) {
     separator: [` ${APPROX} `],
   }).joined
 
+  return {
+    total,
+    field: {
+      name: `\n${title}`,
+      value,
+      inline: false,
+    },
+  }
+}
+
+function buildSpotTxnsField(title: string, spotTxns: any[]) {
+  let total = 0
+  const tnxs = spotTxns.map((txn) => {
+    let amount = formatTokenDigit(txn.executedQty)
+    if (txn.side === "BUY") {
+      amount = "+ " + amount
+    } else if (txn.side === "SELL") {
+      amount = "- " + amount
+    }
+    const date = new Date(txn.created_at)
+    const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
+    return {
+      time: t,
+      asset: txn.symbol,
+      amount: amount,
+      usd: `$${formatUsdDigit(txn.price * txn.executedQty)}`,
+    }
+  })
+  const value = formatDataTable(tnxs, {
+    cols: ["amount", "asset", "usd"],
+    rowAfterFormatter: (f, i) => `${tnxs[i].time} ${f}`,
+    separator: [` `, ` ${APPROX} `],
+  }).joined
   return {
     total,
     field: {
