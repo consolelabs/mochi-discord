@@ -344,11 +344,12 @@ async function getTxns(
       error,
     })
   }
-  if (type === BalanceType.Cex) {
-    return data
-  }
 
-  if (type === BalanceType.Offchain || type === BalanceType.All) {
+  if (
+    type === BalanceType.Offchain ||
+    type === BalanceType.All ||
+    type === BalanceType.Cex
+  ) {
     return data
   }
 
@@ -440,7 +441,25 @@ export function formatView(
     amount: string
   }[],
   page: number,
+  earns?: { amount: number; price: number; reward: number; symbol: string }[],
 ) {
+  if (earns) {
+    // Add earnings to balances
+    earns.forEach((earn) => {
+      balances.push({
+        token: {
+          name: "USDT (earn)",
+          symbol: "USDT",
+          address: "",
+          decimal: 1,
+          price: 1,
+          chain: {},
+          native: false,
+        },
+        amount: (earn.amount * earn.price * 10).toString(),
+      })
+    })
+  }
   let totalWorth = 0
   const isDuplicateSymbol = (s: string) =>
     balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
@@ -448,7 +467,15 @@ export function formatView(
     const formattedBal = balances
       .map((balance) => {
         const { token, amount } = balance
-        const { symbol, chain: _chain, decimal, price, native, address } = token
+        const {
+          name,
+          symbol,
+          chain: _chain,
+          decimal,
+          price,
+          native,
+          address,
+        } = token
         const tokenVal = convertString(amount, decimal)
         const usdVal = price * tokenVal
         const value = formatTokenDigit(tokenVal.toString())
@@ -467,7 +494,7 @@ export function formatView(
             chain,
           }
 
-        const text = `${value} ${symbol}`
+        const text = `${value} ${name.includes("(earn)") ? name : symbol}`
         totalWorth += usdVal
 
         return {
@@ -598,7 +625,13 @@ async function switchView(
       totalWorth: _totalWorth,
       text,
       totalPage: _totalPage,
-    } = formatView("compact", "filter-dust", balances.data, page)
+    } = formatView(
+      "compact",
+      "filter-dust",
+      balances.data,
+      page,
+      balances.simple,
+    )
     totalWorth = _totalWorth
     totalPage = _totalPage
 
@@ -617,7 +650,13 @@ async function switchView(
       totalWorth: _totalWorth,
       fields = [],
       totalPage: _totalPage,
-    } = formatView("expand", "filter-dust", balances.data, page)
+    } = formatView(
+      "expand",
+      "filter-dust",
+      balances.data,
+      page,
+      balances.simple,
+    )
     totalWorth = _totalWorth
     totalPage = _totalPage
 
