@@ -1,3 +1,10 @@
+## [6.47.4](https://github.com/consolelabs/mochi-discord/compare/v6.47.3...v6.47.4) (2024-05-09)
+
+
+### Bug Fixes
+
+* **binancespottxns:** add binance earn usdt to spot ([#1656](https://github.com/consolelabs/mochi-discord/issues/1656)) ([78dbd7e](https://github.com/consolelabs/mochi-discord/commit/78dbd7e42f6723050f881c29f9672a152459714e))
+
 ## [6.47.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.3...v6.47.4-rc.1) (2024-05-09)
 
 
