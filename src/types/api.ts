@@ -968,6 +968,7 @@ export interface RequestTransferV2Request {
   sender: string
   theme_id?: number
   token: string
+  token_id?: string
   transfer_type: "transfer" | "airdrop"
 }
 
@@ -1501,6 +1502,7 @@ export interface ResponseGetCoinResponse {
   developer_data?: any
   genesis_date?: any
   hashing_algorithm?: any
+  ico_data?: ResponseICOData
   id?: string
   image?: ResponseCoinImage
   links?: any
@@ -1508,7 +1510,8 @@ export interface ResponseGetCoinResponse {
   market_cap_rank?: number
   market_data?: ResponseMarketData
   name?: string
-  platforms?: any
+  ownership_renounced?: boolean
+  platforms?: Record<string, string>
   sentiment_votes_down_percentage?: number
   sentiment_votes_up_percentage?: number
   symbol?: string
@@ -1832,6 +1835,11 @@ export interface ResponseGuildConfigTipRangeResponse {
   updated_at?: string
 }
 
+export interface ResponseICOData {
+  ico_end_date?: string
+  ico_start_date?: string
+}
+
 export interface ResponseIndexerChain {
   chain_id?: number
   is_evm?: boolean
@@ -2091,6 +2099,7 @@ export interface ResponseMarketData {
   fdv_to_tvl_ratio?: any
   fully_diluted_valuation?: Record<string, number>
   high_24h?: Record<string, number>
+  last_updated?: string
   low_24h?: Record<string, number>
   market_cap?: Record<string, number>
   market_cap_change_24h_in_currency?: Record<string, number>
@@ -2409,9 +2418,21 @@ export interface ResponseSwapRouteResponseData {
 export interface ResponseTickerData {
   base?: string
   coin_id?: string
+  converted_last?: Record<string, number>
+  converted_volume?: Record<string, number>
   last?: number
+  market?: ResponseTickerMarketData
   target?: string
   target_coin_id?: string
+  trade_url?: string
+  trust_score?: string
+  volume?: number
+}
+
+export interface ResponseTickerMarketData {
+  has_trading_incentive?: boolean
+  identifier?: string
+  name?: string
 }
 
 export interface ResponseToggleActivityConfigResponse {

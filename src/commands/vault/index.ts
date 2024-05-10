@@ -11,6 +11,8 @@ import infoSlash from "./info/slash"
 import addSlash from "./add/slash"
 import removeSlash from "./remove/slash"
 import transferSlash from "./transfer/slash"
+import keySlash from "./key/slash"
+import viewSlash from "./view/slash"
 import {
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
@@ -26,6 +28,8 @@ const slashActions: Record<string, SlashCommand> = {
   add: addSlash,
   remove: removeSlash,
   transfer: transferSlash,
+  key: keySlash,
+  view: viewSlash,
 }
 
 const slashCmd: SlashCommand = {
@@ -55,6 +59,8 @@ const slashCmd: SlashCommand = {
         .addSubcommand(<SlashCommandSubcommandBuilder>thresholdSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>channelSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>addSlash.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>keySlash.prepare())
+        .addSubcommand(<SlashCommandSubcommandBuilder>viewSlash.prepare())
         .addSubcommand(<SlashCommandSubcommandBuilder>removeSlash.prepare()),
     )
     data.addSubcommand(<SlashCommandSubcommandBuilder>transferSlash.prepare())

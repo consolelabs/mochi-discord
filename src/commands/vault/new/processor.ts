@@ -17,6 +17,13 @@ export async function runCreateVault({
     throw new GuildIdNotFoundError({ message: i })
   }
   const profileId = await getProfileIdByDiscord(i.user.id)
+  const type = i.options.getString("type", false) || "spot"
+
+  if (type === "trading") {
+    return {
+      messageOptions: { content: "create trading vault" },
+    }
+  }
 
   const { data, status, originalError } = await config.createVault({
     guild_id: guildId,

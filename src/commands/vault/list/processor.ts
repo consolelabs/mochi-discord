@@ -21,6 +21,7 @@ import { runGetVaultDetail } from "../info/processor"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import profile from "adapters/profile"
 import { ModelVault } from "types/api"
+import { faker } from "@faker-js/faker"
 
 export function formatVaults(
   vaults: Array<ModelVault & { total?: string }>,
@@ -36,13 +37,31 @@ export function formatVaults(
         shortenHashOrAddress(v.wallet_address ?? "", 3),
       threshold: `${v.threshold ?? 0}%`,
       balance: v.total?.toString() ? `$${v.total.toString()}` : "",
+      // @ts-ignore
+      type: v.type === "trading" ? "trading" : "spot",
     })),
     {
       cols: ["name", "address", "threshold", "balance"],
-      rowAfterFormatter: (f) =>
-        `${getEmoji("ANIMATED_VAULT", true)}${f}${getEmoji("CASH")}`,
+      rowAfterFormatter: (f, i) =>
+        // MOCK
+        `${getEmoji(
+          "type" in vaults[i] ? "ANIMATED_STAR" : "ANIMATED_VAULT",
+        )}${f}${getEmoji("CASH")}`,
     },
   ).joined
+}
+
+function mockData(data: Array<any>) {
+  data.push({
+    name: "podtown",
+    wallet_address: faker.finance.ethereumAddress(),
+    total: faker.finance.amount({ dec: 2, min: 0 }),
+    threshold: 50,
+    type: "trading",
+    discord_guild: {
+      name: "",
+    },
+  })
 }
 
 export async function runVaultList(interaction: CommandInteraction) {
@@ -50,6 +69,9 @@ export async function runVaultList(interaction: CommandInteraction) {
   const data = interaction.guildId
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
+
+  // MOCK
+  mockData(data)
 
   if (!data.length) {
     throw new InternalError({
@@ -70,7 +92,19 @@ export async function runVaultList(interaction: CommandInteraction) {
     true,
   )} View detail of the vault ${await getSlashCommand("vault info")}\n\n`
 
-  description += formatVaults(data, interaction.guildId || "")
+  description += "**Spot**\n"
+  description += formatVaults(
+    // @ts-ignore
+    data.filter((d) => d.type !== "trading"),
+    interaction.guildId || "",
+  )
+  description += "\n\n"
+  description += "**Trading**\n"
+  description += formatVaults(
+    // @ts-ignore
+    data.filter((d) => d.type === "trading"),
+    interaction.guildId || "",
+  )
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,
