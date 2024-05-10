@@ -74,6 +74,12 @@ class MochiAPI extends Fetcher {
     )
     return response.json()
   }
+
+  public async getBinanceAverageCost(profileId: string) {
+    return await this.jsonFetch(
+      `${API_BASE_URL}/users/${profileId}/cexs/binance/average-costs`,
+    )
+  }
 }
 
 export default new MochiAPI()

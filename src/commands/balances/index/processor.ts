@@ -55,6 +55,7 @@ import { getProfileIdByDiscord } from "utils/profile"
 import { paginationButtons } from "utils/router"
 import api from "api"
 import UI, { Platform } from "@consolelabs/mochi-formatter"
+import mochiApi from "adapters/mochi-api"
 
 export enum BalanceType {
   Offchain = 1,
@@ -442,6 +443,7 @@ export function formatView(
   }[],
   page: number,
   earns?: { amount: number; price: number; reward: number; symbol: string }[],
+  binanceAvgCosts?: Record<string, string>,
 ) {
   if (earns) {
     // Add earnings to balances
@@ -494,7 +496,11 @@ export function formatView(
             chain,
           }
 
-        const text = `${value} ${name.includes("(earn)") ? name : symbol}`
+        let text = `${value} ${name.includes("(earn)") ? name : symbol}`
+        if (binanceAvgCosts && binanceAvgCosts[symbol.toUpperCase()]) {
+          const avgCost = binanceAvgCosts[symbol.toUpperCase()]
+          text += ` (avg $${formatUsdDigit(avgCost)})`
+        }
         totalWorth += usdVal
 
         return {
@@ -607,8 +613,12 @@ async function switchView(
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase()),
   )
+  const { data: avg } = await mochiApi.getBinanceAverageCost(profileId)
+  let averageCosts: Record<string, string> = {}
+  avg?.forEach((d: { symbol: string; average_cost: string }) => {
+    averageCosts[d.symbol] = d.average_cost
+  })
   isOwnWallet = isOwnWallet && !isViewingOther
-
   const embed = composeEmbedMessage(null, {
     author: [props.title, props.emoji],
     color: msgColors.SUCCESS,
@@ -631,6 +641,7 @@ async function switchView(
       balances.data,
       page,
       balances.simple,
+      averageCosts,
     )
     totalWorth = _totalWorth
     totalPage = _totalPage
