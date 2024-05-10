@@ -1,3 +1,10 @@
+# [6.48.0](https://github.com/consolelabs/mochi-discord/compare/v6.47.4...v6.48.0) (2024-05-10)
+
+
+### Features
+
+* add binance avg cost ([#1657](https://github.com/consolelabs/mochi-discord/issues/1657)) ([787ba4d](https://github.com/consolelabs/mochi-discord/commit/787ba4d60dc470447acfe8955ea93caf155e19d7))
+
 ## [6.47.4](https://github.com/consolelabs/mochi-discord/compare/v6.47.3...v6.47.4) (2024-05-09)
 
 
