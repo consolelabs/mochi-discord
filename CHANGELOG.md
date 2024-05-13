@@ -1,3 +1,10 @@
+## [6.48.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.0...v6.48.1) (2024-05-13)
+
+
+### Bug Fixes
+
+* **balance:** change format view binance spot bal with avg cost ([#1659](https://github.com/consolelabs/mochi-discord/issues/1659)) ([2485924](https://github.com/consolelabs/mochi-discord/commit/24859248c3a46bc786da3ce53d565c0c3d32ffcd))
+
 ## [6.48.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.0...v6.48.1-rc.1) (2024-05-13)
 
 
