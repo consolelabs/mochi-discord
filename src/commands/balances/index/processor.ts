@@ -494,12 +494,22 @@ export function formatView(
             usdVal: 0,
             usdWorth: 0,
             chain,
+            avgCost: "",
           }
 
         let text = `${value} ${name.includes("(earn)") ? name : symbol}`
+        let avgCost = ""
         if (binanceAvgCosts && binanceAvgCosts[symbol.toUpperCase()]) {
-          const avgCost = binanceAvgCosts[symbol.toUpperCase()]
-          text += ` (avg $${formatUsdDigit(avgCost)})`
+          let avgPrice = parseFloat(binanceAvgCosts[symbol.toUpperCase()])
+          let currentPrice = usdVal / tokenVal
+          let percentChange = ((currentPrice - avgPrice) / avgPrice) * 100
+          let percentChangeFormatted =
+            percentChange > 0
+              ? `(+${formatPercentDigit(percentChange)}%)`
+              : `(${formatPercentDigit(percentChange)}%)`
+          avgCost = `| avg $${formatUsdDigit(avgPrice)} -> $${formatUsdDigit(
+            currentPrice,
+          )} ${percentChangeFormatted}`
         }
         totalWorth += usdVal
 
@@ -511,6 +521,7 @@ export function formatView(
           ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
             ? { chain }
             : {}),
+          avgCost,
         }
       })
       .sort((a, b) => {
@@ -522,12 +533,14 @@ export function formatView(
       (paginated[page] ?? []).map((b) => ({
         balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
         usd: `$${b.usdWorth}`,
+        avgCost: b.avgCost ? b.avgCost : "",
       })),
       {
-        cols: ["balance", "usd"],
-        separator: [` ${APPROX} `],
+        cols: ["balance", "usd", "avgCost"],
         rowAfterFormatter: (formatted, i) =>
           `${paginated[page][i].emoji}${formatted}`,
+        separator: [` ${APPROX} `, ` `],
+        alignment: ["left", "left", "left"],
       },
     )
     return { totalWorth, text, totalPage: paginated.length }
