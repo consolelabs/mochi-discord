@@ -1,3 +1,10 @@
+# [6.49.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.1...v6.49.0-rc.1) (2024-05-20)
+
+
+### Features
+
+* trading vault ([#1658](https://github.com/consolelabs/mochi-discord/issues/1658)) ([d9b1764](https://github.com/consolelabs/mochi-discord/commit/d9b1764c24d872295121fe906dc7add45e5ca008))
+
 ## [6.48.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.0...v6.48.1) (2024-05-13)
 
 

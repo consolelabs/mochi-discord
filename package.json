@@ -120,5 +120,5 @@
     "node": "18.x"
   },
   "name": "mochi-discord",
-  "version": "6.48.1"
+  "version": "6.49.0-rc.1"
 }
