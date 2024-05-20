@@ -184,37 +184,37 @@ export async function runGetVaultDetail(
     }
 
     const creator = await getDiscordRenderableByProfileId(profileId)
-    const key = faker.git.commitSha()
+    const key = shortenHashOrAddress(data.metadata.api_key, 5, 5)
     const basicInfo = [
       `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${data.name}\``,
       `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${creator}`,
       `${getEmoji("CALENDAR")}\`Created. \` ${formatDate(
         new Date(data.created_at),
       )}`,
-      `${getEmoji("ANIMATED_BADGE_1")}\`Tier. \` Gold`,
+      `${getEmoji("ANIMATED_BADGE_1")}\`Tier. \` ${data.metadata.tier.name}`,
       `${getEmoji("CASH")}\`Balance. \`$${formatUsdDigit(
         data.current_assets_in_usd,
       )}`,
-      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key. \` ${key.slice(
-        0,
-        5,
-      )}...${key.slice(-5)}`,
+      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key. \` ${key}`,
     ].join("\n")
 
-    const currentRound = data.investment_rounds.find(
+    const openRound = data.investment_rounds.find(
       (r: any) => r.status === "ongoing",
     )
-    const startRound = moment(new Date(currentRound.start_date))
-    const startRoundDiff = `${startRound.fromNow(true)} ${
-      startRound.isBefore() ? " ago" : " left"
+    const startDate = moment(new Date(openRound.start_date))
+    const startDiff = `${startDate.fromNow(true)} ${
+      startDate.isBefore() ? " ago" : " left"
     }`
+    const openRoundPnlPerc =
+      (openRound.metadata.realized_pnl * 100) /
+      openRound.metadata.initial_balance
     const roundInfo = [
       `**Round info**`,
       `${getEmoji("CALENDAR")} \`Start. \` ${formatDate(
-        startRound.toDate(),
-      )}, ${startRoundDiff}`,
-      `🟢 \`Acc. PnL. \` 0%`,
-      `🏎️ \`Rounds. \` ${currentRound.metadata.no}`,
+        startDate.toDate(),
+      )}, ${startDiff}`,
+      `🟢 \`Acc. PnL. \` ${utils.formatPercentDigit(openRoundPnlPerc)}`,
+      `🏎️ \`Rounds. \` ${openRound.metadata.no}`,
       `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(
         data.metadata.total_fee,
       )}`,
@@ -224,33 +224,53 @@ export async function runGetVaultDetail(
       "**Vault equity**",
       `${getEmoji("CHART")} \`Your share. \` 100%`,
       `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit(
-        currentRound.metadata.vault_equity.claimable,
+        openRound.metadata.vault_equity.claimable,
       )}`,
     ].join("\n")
 
     const openTrades = [
       "**Open trades**",
-      `\`24.05.08\` ${getEmoji(
+      `\`${formatDate(new Date(openRound.end_date))}\` ${getEmoji(
         "ANIMATED_COIN_1",
       )} Init: ${utils.formatUsdPriceDigit(
-        currentRound.metadata.initial_balance,
-      )} 💰 Current: $22 **(:green_circle: 0.22%)**`,
+        openRound.metadata.initial_balance,
+      )} 💰 Current: ${utils.formatUsdPriceDigit(
+        openRound.metadata.realized_pnl,
+      )} **(:${
+        openRoundPnlPerc >= 0 ? "green" : "red"
+      }_circle: ${utils.formatPercentDigit(openRoundPnlPerc)})**`,
     ].join("\n")
 
+    const closedRounds = data.investment_rounds
+      .filter((r: any) => r.status !== "ongoing")
+      .slice(0, 3)
     const closedTrades = [
       "**Closed trades**",
-      `\`24.05.07\` ${getEmoji(
-        "WAVING_HAND",
-      )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
+      closedRounds.map((r: any) => {
+        const percentage =
+          (r.metadata.realized_pnl * 100) / r.metadata.initial_balance
+        return `\`${formatDate(new Date(r.end_date))}\` ${getEmoji(
+          "WAVING_HAND",
+        )} Init: ${utils.formatUsdPriceDigit(
+          r.metadata.initial_balance,
+        )} 💰 PnL: ${utils.formatUsdPriceDigit(
+          r.metadata.realized_pnl ?? 0,
+        )} (:${
+          percentage >= 0 ? "green" : "red"
+        }_circle: ${utils.formatPercentDigit(percentage)})`
+      }),
+      // `\`24.05.07\` ${getEmoji(
+      //   "WAVING_HAND",
+      // )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
     ].join("\n")
 
     const address = [
       "**Vault address**",
       `${getEmoji("EVM")}\`EVM | ${shortenHashOrAddress(
-        faker.finance.ethereumAddress(),
+        data.evm_wallet_address,
       )}\``,
       `${getEmoji("SOL")}\`SOL | ${shortenHashOrAddress(
-        faker.finance.ethereumAddress(),
+        data.solana_wallet_address,
       )}\``,
     ].join("\n")
 
