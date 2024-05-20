@@ -9,23 +9,44 @@ import { composeEmbedMessage } from "ui/discord/embed"
 import { chainTypes } from "utils/chain"
 import { equalIgnoreCase } from "utils/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
-import { MachineConfig, route } from "utils/router"
+import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-import { runGetVaultDetail } from "./processor"
+import { runGetVaultDetail, vaultReport, vaultRounds } from "./processor"
 
-const machineConfig: MachineConfig = {
+const machineConfig: (n: string) => MachineConfig = (vaultName) => ({
   id: "vault-info",
   initial: "vaultInfo",
   context: {
+    button: {
+      vaultReport,
+      vaultInfo: (i) => runGetVaultDetail(vaultName, i),
+      vaultRounds,
+    },
+    select: {
+      vaultInfo: (i) => runGetVaultDetail(vaultName, i),
+    },
     ephemeral: {
       DEPOSIT: true,
     },
   },
   states: {
+    vaultRounds: {
+      on: {
+        [RouterSpecialAction.BACK]: "vaultInfo",
+        SELECT_ROUND: "vaultInfo",
+      },
+    },
+    vaultReport: {
+      on: {
+        [RouterSpecialAction.BACK]: "vaultInfo",
+      },
+    },
     vaultInfo: {
       on: {
+        ROUNDS: "vaultRounds",
+        REPORT: "vaultReport",
         DEPOSIT: {
           target: "vaultInfo",
           actions: {
@@ -35,7 +56,7 @@ const machineConfig: MachineConfig = {
       },
     },
   },
-}
+})
 
 const command: SlashCommand = {
   name: "info",
@@ -60,23 +81,24 @@ const command: SlashCommand = {
     const focusedValue = i.options.getFocused()
     const data = await config.vaultList(i.guildId, true)
 
-    await i.respond(
-      data
-        .filter((d: any) =>
-          d.name.toLowerCase().includes(focusedValue.toLowerCase()),
-        )
-        .map((d: any) => ({ name: d.name, value: d.name })),
-    )
+    const options = data
+      .filter((d: any) =>
+        d.name.toLowerCase().includes(focusedValue.toLowerCase()),
+      )
+      .map((d: any) => ({ name: d.name, value: d.name }))
+
+    // MOCK
+    options.push({ name: "podtown", value: "podtown" })
+
+    await i.respond(options)
   },
   run: async function (interaction: CommandInteraction) {
-    const { context, msgOpts } = await runGetVaultDetail(
-      interaction.options.getString("name", true),
-      interaction,
-    )
+    const vaultName = interaction.options.getString("name", true)
+    const { context, msgOpts } = await runGetVaultDetail(vaultName, interaction)
 
     const reply = (await interaction.editReply(msgOpts)) as Message
 
-    route(reply, interaction, machineConfig, {
+    route(reply, interaction, machineConfig(vaultName), {
       actions: {
         showVaultDeposit: async (_, event) => {
           if (

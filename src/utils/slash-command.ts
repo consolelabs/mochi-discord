@@ -64,6 +64,7 @@ export async function registerCommand() {
       body,
     })
     .catch(console.log)
+  // fs.writeFile("./test.json", JSON.stringify(res))
   console.log("Successfully deployed commands!")
 }
 

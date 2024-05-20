@@ -9,7 +9,7 @@ const command: SlashCommand = {
   name: "new",
   category: "Config",
   prepare: () => {
-    const choices = ["50", "66", "75", "100"]
+    const thresholdChoices = ["50", "66", "75", "100"]
     return new SlashCommandSubcommandBuilder()
       .setName("new")
       .setDescription("Set vault for guild")
@@ -24,7 +24,17 @@ const command: SlashCommand = {
           .setName("threshold")
           .setDescription("enter threshold")
           .setRequired(true)
-        choices.forEach((choice) => o.addChoice(choice + "%", choice))
+        thresholdChoices.forEach((choice) => o.addChoice(choice + "%", choice))
+        return o
+      })
+      .addStringOption((option) => {
+        const o = option
+          .setName("type")
+          .setDescription("what is the type of this vault")
+          .setRequired(false)
+        o.addChoice("spot", "spot")
+        o.addChoice("trading", "trading")
+
         return o
       })
   },
