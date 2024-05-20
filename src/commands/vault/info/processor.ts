@@ -23,8 +23,14 @@ import {
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 import { formatUsdDigit } from "utils/defi"
-import { getDiscordRenderableByProfileId } from "utils/profile"
+import {
+  getDiscordRenderableByProfileId,
+  getProfileIdByDiscord,
+} from "utils/profile"
 import { faker } from "@faker-js/faker"
+import mochiPay from "adapters/mochi-pay"
+import moment from "moment"
+import { utils } from "@consolelabs/mochi-formatter"
 
 function formatDate(d: Date) {
   return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`
@@ -150,24 +156,44 @@ export async function vaultReport(interaction: ButtonInteraction) {
 }
 
 export async function runGetVaultDetail(
-  vaultName: string,
+  selectedVault: string,
   interaction: OriginalMessage,
+  vaultType = "spot",
 ) {
-  // MOCK
-  if (vaultName === "podtown") {
+  // trading vault
+  if (vaultType === "trading" && "user" in interaction) {
+    const profileId = await getProfileIdByDiscord(interaction.user.id)
+    const {
+      data,
+      ok,
+      curl,
+      error,
+      originalError,
+      log,
+      status = 500,
+    } = await mochiPay.getEarningVault(profileId, selectedVault)
+    if (!ok) {
+      if (status === 400 && originalError) {
+        throw new InternalError({
+          msgOrInteraction: interaction,
+          title: "Command error",
+          description: originalError,
+        })
+      }
+      throw new APIError({ curl, error, description: log, status })
+    }
+
+    const creator = await getDiscordRenderableByProfileId(profileId)
     const key = faker.git.commitSha()
     const basicInfo = [
-      `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${vaultName}\``,
-      `${getEmoji(
-        "ANIMATED_VAULT_KEY",
-        true,
-      )}\`Creator. \`<@463379262620041226>`,
+      `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${data.name}\``,
+      `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${creator}`,
       `${getEmoji("CALENDAR")}\`Created. \` ${formatDate(
-        faker.date.anytime(),
+        new Date(data.created_at),
       )}`,
       `${getEmoji("ANIMATED_BADGE_1")}\`Tier. \` Gold`,
       `${getEmoji("CASH")}\`Balance. \`$${formatUsdDigit(
-        String(faker.finance.amount({ min: 0, dec: 0 })) || "0",
+        data.current_assets_in_usd,
       )}`,
       `${getEmoji("ANIMATED_VAULT_KEY")}\`Key. \` ${key.slice(
         0,
@@ -175,25 +201,40 @@ export async function runGetVaultDetail(
       )}...${key.slice(-5)}`,
     ].join("\n")
 
+    const currentRound = data.investment_rounds.find(
+      (r: any) => r.status === "ongoing",
+    )
+    const startRound = moment(new Date(currentRound.start_date))
+    const startRoundDiff = `${startRound.fromNow(true)} ${
+      startRound.isBefore() ? " ago" : " left"
+    }`
     const roundInfo = [
       `**Round info**`,
-      `${getEmoji("CALENDAR")} \`Start. \` 24.04.26, 77 days 15 hours left`,
+      `${getEmoji("CALENDAR")} \`Start. \` ${formatDate(
+        startRound.toDate(),
+      )}, ${startRoundDiff}`,
       `🟢 \`Acc. PnL. \` 0%`,
-      `🏎️ \`Rounds. \` 0`,
-      `🎫 \`Total fee. \` $0`,
+      `🏎️ \`Rounds. \` ${currentRound.metadata.no}`,
+      `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(
+        data.metadata.total_fee,
+      )}`,
     ].join("\n")
 
     const vaultEquity = [
       "**Vault equity**",
-      `${getEmoji("CHART")} \`Your share. \` 2.3%`,
-      `${getEmoji("MONEY")} \`Claimable amount. \` $102`,
+      `${getEmoji("CHART")} \`Your share. \` 100%`,
+      `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit(
+        currentRound.metadata.vault_equity.claimable,
+      )}`,
     ].join("\n")
 
     const openTrades = [
       "**Open trades**",
       `\`24.05.08\` ${getEmoji(
         "ANIMATED_COIN_1",
-      )} Init: $10,410 💰 Current: $22 **(:green_circle: 0.22%)**`,
+      )} Init: ${utils.formatUsdPriceDigit(
+        currentRound.metadata.initial_balance,
+      )} 💰 Current: $22 **(:green_circle: 0.22%)**`,
     ].join("\n")
 
     const closedTrades = [
@@ -251,6 +292,7 @@ export async function runGetVaultDetail(
     }
   }
 
+  // spot vault
   const {
     data,
     ok,
@@ -259,7 +301,7 @@ export async function runGetVaultDetail(
     originalError,
     log,
     status = 500,
-  } = await config.getVaultDetail(vaultName, interaction.guildId || "")
+  } = await config.getVaultDetail(selectedVault, interaction.guildId || "")
   if (!ok) {
     if (status === 400 && originalError) {
       throw new InternalError({
@@ -325,7 +367,7 @@ export async function runGetVaultDetail(
 
   const creator = data.treasurer.find((t: any) => t.role === "creator") ?? ""
   const basicInfo = [
-    `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${vaultName}\``,
+    `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${selectedVault}\``,
     `${getEmoji("CHECK")}\`Approve threshold. ${data.threshold ?? 0}%\``,
     `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${
       creator.user_discord_id ? `<@${creator.user_discord_id}>` : ""

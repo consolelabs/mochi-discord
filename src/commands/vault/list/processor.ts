@@ -22,6 +22,8 @@ import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import profile from "adapters/profile"
 import { ModelVault } from "types/api"
 import { faker } from "@faker-js/faker"
+import mochiPay from "adapters/mochi-pay"
+import { formatUsdDigit } from "utils/defi"
 
 export function formatVaults(
   vaults: Array<ModelVault & { total?: string }>,
@@ -66,14 +68,25 @@ function mockData(data: Array<any>) {
 
 export async function runVaultList(interaction: CommandInteraction) {
   const userProfile = await profile.getByDiscord(interaction.user.id)
-  const data = interaction.guildId
+  const spotVaults = interaction.guildId
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
 
-  // MOCK
-  mockData(data)
+  const tradingVaults = (await mochiPay.listEarningVaults(userProfile.id)).map(
+    (v: any) => ({
+      id: v.id,
+      name: v.name,
+      wallet_address: faker.finance.ethereumAddress(),
+      total: formatUsdDigit(v.current_assets_in_usd),
+      threshold: 100,
+      type: "trading",
+      discord_guild: { name: "" },
+    }),
+  )
 
-  if (!data.length) {
+  const data = [...spotVaults, ...tradingVaults]
+
+  if (!spotVaults.length && !tradingVaults.length) {
     throw new InternalError({
       msgOrInteraction: interaction,
       title: "Empty list vault",
@@ -84,7 +97,7 @@ export async function runVaultList(interaction: CommandInteraction) {
     })
   }
 
-  const vaults = data.filter((v: any) => v.discord_guild.name).slice(0, 9)
+  // const vaults = data.filter((v: any) => v.discord_guild.name).slice(0, 9)
   let description = ""
 
   description += `${getEmoji(
@@ -112,17 +125,25 @@ export async function runVaultList(interaction: CommandInteraction) {
     color: msgColors.BLUE,
   })
 
-  const options = interaction.guildId
-    ? vaults.map((v: any, i: number) => ({
+  let spotOpts = interaction.guildId
+    ? spotVaults.map((v: any, i: number) => ({
         emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
         label: v.name,
         value: v.name,
       }))
-    : vaults.map((v: any, i: number) => ({
+    : spotVaults.map((v: any, i: number) => ({
         emoji: getEmoji(`NUM_${i + 1}` as EmojiKey),
         label: `${v.name} - ${v.discord_guild?.name}`,
         value: `${v.name} - ${v.discord_guild?.id}`,
       }))
+
+  const tradingOpts = tradingVaults.map((v: any, i: number) => ({
+    emoji: getEmoji(`NUM_${spotOpts.length + i + 1}` as EmojiKey),
+    label: v.name,
+    value: `trading_${v.id}`,
+  }))
+
+  const options = [...spotOpts, ...tradingOpts]
 
   const components = [
     new MessageActionRow().addComponents(
@@ -144,10 +165,15 @@ export async function runVaultList(interaction: CommandInteraction) {
     ...msgOpts,
   })) as Message
 
-  collectSelection(reply, interaction.user, components)
+  collectSelection(reply, interaction.user, components, userProfile.id)
 }
 
-function collectSelection(reply: Message, author: User, components: any) {
+function collectSelection(
+  reply: Message,
+  author: User,
+  components: any,
+  profileId: string,
+) {
   reply
     .createMessageComponentCollector({
       componentType: "SELECT_MENU",
@@ -159,11 +185,12 @@ function collectSelection(reply: Message, author: User, components: any) {
         if (!i.deferred) {
           await i.deferUpdate().catch(() => null)
         }
-        const selectedVault = i.guildId
-          ? i.values[0]
-          : i.values[0].split(" - ")[0]
-        i.guildId = i.guildId ? i.guildId : i.values[0].split(" - ")[1]
-        const { msgOpts } = await runGetVaultDetail(selectedVault, i)
+
+        const [vaultType, selectedVault] = i.values[0].startsWith("trading_")
+          ? i.values[0].split("_")
+          : ["spot", i.values[0].split(" - ")[0]]
+        i.guildId = i.guildId || i.values[0].split(" - ")[1]
+        const { msgOpts } = await runGetVaultDetail(selectedVault, i, vaultType)
 
         msgOpts.components = [
           new MessageActionRow().addComponents(
