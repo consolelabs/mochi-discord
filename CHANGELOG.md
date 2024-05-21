@@ -1,3 +1,10 @@
+# [6.49.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.3...v6.49.0-rc.4) (2024-05-21)
+
+
+### Bug Fixes
+
+* update usd format for watch list view ([#1662](https://github.com/consolelabs/mochi-discord/issues/1662)) ([be3db6f](https://github.com/consolelabs/mochi-discord/commit/be3db6fb20fef75565621881939631a4d9bfd02a))
+
 # [6.49.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.2...v6.49.0-rc.3) (2024-05-21)
 
 
