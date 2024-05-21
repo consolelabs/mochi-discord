@@ -35,7 +35,8 @@ const command: SlashCommand = {
     const focusedValue = i.options.getFocused()
     // do not fetch amount because
     // we need to respond within 3 seconds (discord api is amazing ¯\_(ツ)_/¯)
-    const { wallets } = await profile.getUserWallets(i.user.id)
+    let userId = i.user.id
+    const { wallets } = await profile.getUserWallets(userId)
 
     const options = await Promise.all(
       [...wallets]
