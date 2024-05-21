@@ -1,3 +1,10 @@
+# [6.49.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.2...v6.49.0-rc.3) (2024-05-21)
+
+
+### Bug Fixes
+
+* add momentjs ([#1661](https://github.com/consolelabs/mochi-discord/issues/1661)) ([db13fa4](https://github.com/consolelabs/mochi-discord/commit/db13fa4ef30b708c9e3a8a370251df2f73343d74))
+
 # [6.49.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.1...v6.49.0-rc.2) (2024-05-20)
 
 
