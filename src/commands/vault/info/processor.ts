@@ -1,7 +1,12 @@
 import config from "adapters/config"
 import CacheManager from "cache/node-cache"
 import { formatView, getButtons } from "commands/balances/index/processor"
-import { MessageActionRow, MessageButton } from "discord.js"
+import {
+  ButtonInteraction,
+  MessageActionRow,
+  MessageButton,
+  MessageSelectMenu,
+} from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
 import { composeEmbedMessage2 } from "ui/discord/embed"
@@ -18,12 +23,296 @@ import {
 } from "utils/common"
 import { HOMEPAGE_URL } from "utils/constants"
 import { formatUsdDigit } from "utils/defi"
-import { getDiscordRenderableByProfileId } from "utils/profile"
+import {
+  getDiscordRenderableByProfileId,
+  getProfileIdByDiscord,
+} from "utils/profile"
+import { faker } from "@faker-js/faker"
+import mochiPay from "adapters/mochi-pay"
+import moment from "moment"
+import { utils } from "@consolelabs/mochi-formatter"
+
+function formatDate(d: Date) {
+  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`
+}
+
+const rounds = [
+  {
+    id: faker.string.uuid(),
+    start_date: faker.date.anytime(),
+    end_date: faker.date.anytime(),
+    initial: faker.finance.amount({ autoFormat: true, symbol: "", dec: 0 }),
+    realized_pl: faker.number.float({ min: -100, fractionDigits: 2 }),
+    trade_count: faker.number.int({ min: 1, max: 20 }),
+    claimed: faker.finance.amount({ min: 0, dec: 0 }),
+  },
+  {
+    id: faker.string.uuid(),
+    start_date: faker.date.anytime(),
+    end_date: faker.date.anytime(),
+    initial: faker.finance.amount({ autoFormat: true, symbol: "", dec: 0 }),
+    realized_pl: faker.number.float({ min: -100, fractionDigits: 2 }),
+    trade_count: faker.number.int({ min: 1, max: 20 }),
+    claimed: faker.finance.amount({ min: 0, dec: 0 }),
+  },
+  {
+    id: faker.string.uuid(),
+    start_date: faker.date.anytime(),
+    end_date: faker.date.anytime(),
+    initial: faker.finance.amount({ autoFormat: true, symbol: "", dec: 0 }),
+    realized_pl: faker.number.float({ min: -100, fractionDigits: 2 }),
+    trade_count: faker.number.int({ min: 1, max: 20 }),
+    claimed: faker.finance.amount({ min: 0, dec: 0 }),
+  },
+]
+
+export async function vaultRounds(interaction: ButtonInteraction) {
+  const embed = composeEmbedMessage2(interaction as any, {
+    color: msgColors.BLUE,
+    author: ["All rounds", getEmojiURL(emojis.CALENDAR)],
+    description: rounds
+      .map((r, i) =>
+        [
+          `${getEmoji(`NUM_${i + 1}` as any)} **${formatDate(
+            r.start_date,
+          )} - ${formatDate(r.end_date)}**`,
+          `${getEmoji("ANIMATED_COIN_1")} Init: $${r.initial}, 💰 Realized: $${
+            r.realized_pl
+          }, total of ${r.trade_count} trade(s)`,
+          `You claimed **$${r.claimed}** this round`,
+        ].join("\n"),
+      )
+      .join("\n\n"),
+  })
+
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .addOptions(
+              rounds.map((r, i) => ({
+                label: `${formatDate(r.start_date)} - ${formatDate(
+                  r.end_date,
+                )}`,
+                value: r.id,
+                emoji: getEmoji(`NUM_${i + 1}` as any),
+              })),
+            )
+            .setPlaceholder("Select a round")
+            .setCustomId("select_round"),
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Claim all")
+            .setStyle("SECONDARY")
+            .setCustomId("claim")
+            .setEmoji("<:FeelsGood:1177549805048836126>"),
+        ),
+      ],
+    },
+  }
+}
+
+export async function vaultReport(interaction: ButtonInteraction) {
+  const basicInfo = [
+    `<:Look:1150701811536248865> \`Positions. \` Open 1 / Close 9`,
+    `${getEmoji("CASH")} \`Init. \` $11,023.61`,
+    `:dart: \`PnL. \` -$586.16 (:red_circle: -5.32%)`,
+  ].join("\n")
+
+  const openTrades = [
+    "**Open trades**",
+    `\`24.05.08\` ${getEmoji(
+      "ANIMATED_COIN_1",
+    )} Init: $10,410 💰 Current: $22 **(:green_circle: 0.22%)**`,
+  ].join("\n")
+
+  const closedTrades = [
+    "**Closed trades**",
+    `\`24.05.07\` ${getEmoji(
+      "WAVING_HAND",
+    )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
+    `\`24.05.07\` ${getEmoji(
+      "WAVING_HAND",
+    )} Init: $10,785 💰 PnL: -$131 (:red_circle: -1.22%)`,
+    `\`24.05.07\` ${getEmoji(
+      "WAVING_HAND",
+    )} Init: $10,802 💰 PnL: -$17 (:red_circle: -0.16%)`,
+  ].join("\n")
+
+  const embed = composeEmbedMessage2(interaction as any, {
+    color: msgColors.BLUE,
+    author: ["Trading vault report", getEmojiURL(emojis.ANIMATED_DIAMOND)],
+    description: `${basicInfo}\n\n${openTrades}\n\n${closedTrades}`,
+  })
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [],
+    },
+  }
+}
 
 export async function runGetVaultDetail(
-  vaultName: string,
+  selectedVault: string,
   interaction: OriginalMessage,
+  vaultType = "spot",
 ) {
+  // trading vault
+  if (vaultType === "trading" && "user" in interaction) {
+    const profileId = await getProfileIdByDiscord(interaction.user.id)
+    const {
+      data,
+      ok,
+      curl,
+      error,
+      originalError,
+      log,
+      status = 500,
+    } = await mochiPay.getEarningVault(profileId, selectedVault)
+    if (!ok) {
+      if (status === 400 && originalError) {
+        throw new InternalError({
+          msgOrInteraction: interaction,
+          title: "Command error",
+          description: originalError,
+        })
+      }
+      throw new APIError({ curl, error, description: log, status })
+    }
+
+    const creator = await getDiscordRenderableByProfileId(profileId)
+    const key = shortenHashOrAddress(data.metadata.api_key, 5, 5)
+    const basicInfo = [
+      `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${data.name}\``,
+      `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${creator}`,
+      `${getEmoji("CALENDAR")}\`Created. \` ${formatDate(
+        new Date(data.created_at),
+      )}`,
+      `${getEmoji("ANIMATED_BADGE_1")}\`Tier. \` ${data.metadata.tier.name}`,
+      `${getEmoji("CASH")}\`Balance. \`$${formatUsdDigit(
+        data.current_assets_in_usd,
+      )}`,
+      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key. \` ${key}`,
+    ].join("\n")
+
+    const openRound = data.investment_rounds.find(
+      (r: any) => r.status === "ongoing",
+    )
+    const startDate = moment(new Date(openRound.start_date))
+    const startDiff = `${startDate.fromNow(true)} ${
+      startDate.isBefore() ? " ago" : " left"
+    }`
+    const openRoundPnlPerc =
+      (openRound.metadata.realized_pnl * 100) /
+      openRound.metadata.initial_balance
+    const roundInfo = [
+      `**Round info**`,
+      `${getEmoji("CALENDAR")} \`Start. \` ${formatDate(
+        startDate.toDate(),
+      )}, ${startDiff}`,
+      `🟢 \`Acc. PnL. \` ${utils.formatPercentDigit(openRoundPnlPerc)}`,
+      `🏎️ \`Rounds. \` ${openRound.metadata.no}`,
+      `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(
+        data.metadata.total_fee,
+      )}`,
+    ].join("\n")
+
+    const vaultEquity = [
+      "**Vault equity**",
+      `${getEmoji("CHART")} \`Your share. \` 100%`,
+      `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit(
+        openRound.metadata.vault_equity.claimable,
+      )}`,
+    ].join("\n")
+
+    const openTrades = [
+      "**Open trades**",
+      `\`${formatDate(new Date(openRound.end_date))}\` ${getEmoji(
+        "ANIMATED_COIN_1",
+      )} Init: ${utils.formatUsdPriceDigit(
+        openRound.metadata.initial_balance,
+      )} 💰 Current: ${utils.formatUsdPriceDigit(
+        openRound.metadata.realized_pnl,
+      )} **(:${
+        openRoundPnlPerc >= 0 ? "green" : "red"
+      }_circle: ${utils.formatPercentDigit(openRoundPnlPerc)})**`,
+    ].join("\n")
+
+    const closedRounds = data.investment_rounds
+      .filter((r: any) => r.status !== "ongoing")
+      .slice(0, 3)
+    const closedTrades = [
+      "**Closed trades**",
+      closedRounds.map((r: any) => {
+        const percentage =
+          (r.metadata.realized_pnl * 100) / r.metadata.initial_balance
+        return `\`${formatDate(new Date(r.end_date))}\` ${getEmoji(
+          "WAVING_HAND",
+        )} Init: ${utils.formatUsdPriceDigit(
+          r.metadata.initial_balance,
+        )} 💰 PnL: ${utils.formatUsdPriceDigit(
+          r.metadata.realized_pnl ?? 0,
+        )} (:${
+          percentage >= 0 ? "green" : "red"
+        }_circle: ${utils.formatPercentDigit(percentage)})`
+      }),
+      // `\`24.05.07\` ${getEmoji(
+      //   "WAVING_HAND",
+      // )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
+    ].join("\n")
+
+    const address = [
+      "**Vault address**",
+      `${getEmoji("EVM")}\`EVM | ${shortenHashOrAddress(
+        data.evm_wallet_address,
+      )}\``,
+      `${getEmoji("SOL")}\`SOL | ${shortenHashOrAddress(
+        data.solana_wallet_address,
+      )}\``,
+    ].join("\n")
+
+    const embed = composeEmbedMessage2(interaction as any, {
+      color: msgColors.BLUE,
+      author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
+      description: `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundInfo}\n\n${openTrades}\n\n${closedTrades}`,
+    })
+
+    return {
+      context: {
+        deposit: {
+          evm: faker.finance.ethereumAddress(),
+          sol: faker.finance.ethereumAddress(),
+        },
+      },
+      msgOpts: {
+        embeds: [embed],
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setLabel("Claim")
+              .setStyle("SECONDARY")
+              .setCustomId("claim")
+              .setEmoji("<:FeelsGood:1177549805048836126>"),
+            new MessageButton()
+              .setLabel("Report")
+              .setEmoji(getEmoji("CHART"))
+              .setStyle("SECONDARY")
+              .setCustomId("report"),
+            new MessageButton()
+              .setLabel("All rounds")
+              .setEmoji(getEmoji("CALENDAR"))
+              .setStyle("SECONDARY")
+              .setCustomId("rounds"),
+          ),
+        ],
+      },
+    }
+  }
+
+  // spot vault
   const {
     data,
     ok,
@@ -32,7 +321,7 @@ export async function runGetVaultDetail(
     originalError,
     log,
     status = 500,
-  } = await config.getVaultDetail(vaultName, interaction.guildId || "")
+  } = await config.getVaultDetail(selectedVault, interaction.guildId || "")
   if (!ok) {
     if (status === 400 && originalError) {
       throw new InternalError({
@@ -98,7 +387,7 @@ export async function runGetVaultDetail(
 
   const creator = data.treasurer.find((t: any) => t.role === "creator") ?? ""
   const basicInfo = [
-    `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${vaultName}\``,
+    `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${selectedVault}\``,
     `${getEmoji("CHECK")}\`Approve threshold. ${data.threshold ?? 0}%\``,
     `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${
       creator.user_discord_id ? `<@${creator.user_discord_id}>` : ""
@@ -308,7 +597,7 @@ export async function buildRecentTxFields(data: any) {
   ]
 }
 
-function buildTreasurerFields(data: any): any {
+export function buildTreasurerFields(data: any): any {
   let valueTreasurer = ""
   for (let i = 0; i < data.treasurer.length; i++) {
     const treasurer = data.treasurer[i]

@@ -340,6 +340,23 @@ class MochiPay extends Fetcher {
     }
     return data
   }
+
+  async listEarningVaults(profileId: string): Promise<any> {
+    const { data: res, ok } = await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults`,
+    )
+    let data = []
+    if (ok) {
+      data = res as any
+    }
+    return data
+  }
+
+  async getEarningVault(profileId: string, vaultId: string): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults/${vaultId}`,
+    )
+  }
 }
 
 export default new MochiPay()
