@@ -528,7 +528,6 @@ export function formatView(
         return b.usdVal - a.usdVal
       })
       .filter((b) => b.text)
-    console.log(formattedBal[0])
     const paginated = chunk(formattedBal, PAGE_SIZE)
     const { joined: text } = formatDataTable(
       (paginated[page] ?? []).map((b) => ({
