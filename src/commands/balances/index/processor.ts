@@ -518,7 +518,7 @@ export function formatView(
           text,
           usdWorth,
           usdVal,
-          ...(chain && !native && isDuplicateSymbol(symbol.toUpperCase())
+          ...(chain && isDuplicateSymbol(symbol.toUpperCase())
             ? { chain }
             : {}),
           avgCost,
@@ -528,6 +528,7 @@ export function formatView(
         return b.usdVal - a.usdVal
       })
       .filter((b) => b.text)
+    console.log(formattedBal[0])
     const paginated = chunk(formattedBal, PAGE_SIZE)
     const { joined: text } = formatDataTable(
       (paginated[page] ?? []).map((b) => ({
@@ -626,11 +627,17 @@ async function switchView(
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase()),
   )
+
+  // get list token average cost of user on binance
   const { data: avg } = await mochiApi.getBinanceAverageCost(profileId)
   let averageCosts: Record<string, string> = {}
-  avg?.forEach((d: { symbol: string; average_cost: string }) => {
-    averageCosts[d.symbol] = d.average_cost
-  })
+  // just get average cost if rendering cex wallet
+  if (balanceType === BalanceType.Cex) {
+    avg?.forEach((d: { symbol: string; average_cost: string }) => {
+      averageCosts[d.symbol] = d.average_cost
+    })
+  }
+
   isOwnWallet = isOwnWallet && !isViewingOther
   const embed = composeEmbedMessage(null, {
     author: [props.title, props.emoji],
