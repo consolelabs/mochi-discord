@@ -56,6 +56,9 @@ export class BotBaseError extends Error {
       }
     } else {
       this.reply = async (...args) => {
+        if (message && !message.deferred) {
+          await message.deferReply().catch(() => null)
+        }
         await message?.editReply(...args).catch(() => null)
       }
     }
