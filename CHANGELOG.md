@@ -1,3 +1,10 @@
+## [6.49.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.1...v6.49.2) (2024-05-22)
+
+
+### Bug Fixes
+
+* wla exist error msg ([#1664](https://github.com/consolelabs/mochi-discord/issues/1664)) ([99ce002](https://github.com/consolelabs/mochi-discord/commit/99ce0026759ead68557e6a67e2ea0f219402f604))
+
 ## [6.49.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.1...v6.49.2-rc.1) (2024-05-22)
 
 
