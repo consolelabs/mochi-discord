@@ -1,3 +1,10 @@
+## [6.49.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.0...v6.49.1) (2024-05-22)
+
+
+### Bug Fixes
+
+* show balance of native token on different chains ([#1663](https://github.com/consolelabs/mochi-discord/issues/1663)) ([09f843a](https://github.com/consolelabs/mochi-discord/commit/09f843a1205fcda5425c064a06d659f2965cb77a))
+
 ## [6.49.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.0...v6.49.1-rc.1) (2024-05-22)
 
 
