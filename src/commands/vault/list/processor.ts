@@ -23,7 +23,7 @@ import profile from "adapters/profile"
 import { ModelVault } from "types/api"
 import { faker } from "@faker-js/faker"
 import mochiPay from "adapters/mochi-pay"
-import { formatUsdDigit } from "utils/defi"
+import { utils } from "@consolelabs/mochi-formatter"
 
 export function formatVaults(
   vaults: Array<ModelVault & { total?: string }>,
@@ -76,8 +76,8 @@ export async function runVaultList(interaction: CommandInteraction) {
     (v: any) => ({
       id: v.id,
       name: v.name,
-      wallet_address: faker.finance.ethereumAddress(),
-      total: formatUsdDigit(v.current_assets_in_usd),
+      wallet_address: v.evm_wallet_address,
+      total: utils.formatUsdPriceDigit(v.account.balance),
       threshold: 100,
       type: "trading",
       discord_guild: { name: "" },
