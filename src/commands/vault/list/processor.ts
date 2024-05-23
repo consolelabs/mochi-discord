@@ -72,17 +72,17 @@ export async function runVaultList(interaction: CommandInteraction) {
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
 
-  const tradingVaults = (await mochiPay.listEarningVaults(userProfile.id)).map(
-    (v: any) => ({
-      id: v.id,
-      name: v.name,
-      wallet_address: v.evm_wallet_address,
-      total: utils.formatUsdPriceDigit(v.account.balance),
-      threshold: 100,
-      type: "trading",
-      discord_guild: { name: "" },
-    }),
-  )
+  const tradingVaults = (
+    (await mochiPay.listEarningVaults(userProfile.id)) || []
+  ).map((v: any) => ({
+    id: v.id,
+    name: v.name,
+    wallet_address: v.evm_wallet_address,
+    total: utils.formatUsdPriceDigit(v.account.balance),
+    threshold: 100,
+    type: "trading",
+    discord_guild: { name: "" },
+  }))
 
   const data = [...spotVaults, ...tradingVaults]
 
@@ -111,13 +111,16 @@ export async function runVaultList(interaction: CommandInteraction) {
     data.filter((d) => d.type !== "trading"),
     interaction.guildId || "",
   )
-  description += "\n\n"
-  description += "**Trading**\n"
-  description += formatVaults(
-    // @ts-ignore
-    data.filter((d) => d.type === "trading"),
-    interaction.guildId || "",
-  )
+
+  if (tradingVaults.length > 0) {
+    description += "\n\n"
+    description += "**Trading**\n"
+    description += formatVaults(
+      // @ts-ignore
+      data.filter((d) => d.type === "trading"),
+      interaction.guildId || "",
+    )
+  }
 
   const embed = composeEmbedMessage(null, {
     title: `${getEmoji("MOCHI_CIRCLE")} Vault List`,
