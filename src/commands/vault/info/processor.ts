@@ -186,14 +186,16 @@ export async function runGetVaultDetail(
     const creator = await getDiscordRenderableByProfileId(profileId)
     const { trade_rounds: rounds, account } = data
     const basicInfo = [
-      `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${data.name}\``,
+      `${getEmoji("ANIMATED_VAULT", true)}\`Name.    \` ${data.name}`,
       `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${creator}`,
       `${getEmoji("CALENDAR")}\`Created. \` ${formatDate(
         new Date(data.created_at),
       )}`,
-      `${getEmoji("ANIMATED_BADGE_1")}\`Tier. \` ${account.tier.name}`,
-      `${getEmoji("CASH")}\`Balance. \`$${formatUsdDigit(account.balance)}`,
-      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key. \` ${account.api_key}`,
+      `${getEmoji("ANIMATED_BADGE_1")}\`Tier.    \` ${account.tier.name}`,
+      `${getEmoji("CASH")}\`Balance. \`${utils.formatUsdPriceDigit(
+        account.balance,
+      )}`,
+      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key.     \` ${account.api_key}`,
     ].join("\n")
 
     const openRound = rounds.find((r: any) => r.status === 1)
@@ -204,19 +206,19 @@ export async function runGetVaultDetail(
 
     const roundFields = [
       `**Round info**`,
-      `${getEmoji("CALENDAR")} \`Start. \` ${formatDate(
+      `${getEmoji("CALENDAR")} \`Start.     \` ${formatDate(
         startDate.toDate(),
       )}, ${startDiff}`,
-      `🟢 \`Acc. PnL. \` ${utils.formatUsdPriceDigit(
+      `🟢 \`Acc. PnL.  \` ${utils.formatUsdPriceDigit(
         account.accumulative_pnl,
       )} (${utils.formatPercentDigit(account.accumulative_pl * 100)})`,
-      `🏎️ \`Rounds. \` ${openRound.no}`,
+      `🏎️ \`Rounds.    \` ${openRound.no}`,
       `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(openRound.fee)}`,
     ].join("\n")
 
     const vaultEquity = [
       "**Vault equity**",
-      `${getEmoji("CHART")} \`Your share. \` 100%`,
+      `${getEmoji("CHART")} \`Your share.       \` 100%`,
       `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit(
         account.claimable,
       )}`,
@@ -246,9 +248,6 @@ export async function runGetVaultDetail(
             r.pnl_percentage >= 0 ? "green" : "red"
           }_circle: ${utils.formatPercentDigit(r.pnl_percentage)})`,
       ),
-      // `\`24.05.07\` ${getEmoji(
-      //   "WAVING_HAND",
-      // )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
     ].join("\n")
 
     const address = [
@@ -261,12 +260,13 @@ export async function runGetVaultDetail(
       )}\``,
     ].join("\n")
 
+    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}\n\n${
+      closedRounds.length ? closedTrades : ""
+    }`
     const embed = composeEmbedMessage2(interaction as any, {
       color: msgColors.BLUE,
       author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-      description: `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}\n\n${
-        closedTrades.length > 1 ? closedTrades : ""
-      }`,
+      description,
     })
 
     return {
