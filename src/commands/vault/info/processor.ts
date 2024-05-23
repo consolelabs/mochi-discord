@@ -184,84 +184,70 @@ export async function runGetVaultDetail(
     }
 
     const creator = await getDiscordRenderableByProfileId(profileId)
-    const key = shortenHashOrAddress(data.metadata.api_key, 5, 5)
+    const { trade_rounds: rounds, account } = data
     const basicInfo = [
-      `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${data.name}\``,
+      `${getEmoji("ANIMATED_VAULT", true)}\`Name.    \` ${data.name}`,
       `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${creator}`,
       `${getEmoji("CALENDAR")}\`Created. \` ${formatDate(
         new Date(data.created_at),
       )}`,
-      `${getEmoji("ANIMATED_BADGE_1")}\`Tier. \` ${data.metadata.tier.name}`,
-      `${getEmoji("CASH")}\`Balance. \`$${formatUsdDigit(
-        data.current_assets_in_usd,
+      `${getEmoji("ANIMATED_BADGE_1")}\`Tier.    \` ${account.tier.name}`,
+      `${getEmoji("CASH")}\`Balance. \`${utils.formatUsdPriceDigit(
+        account.balance,
       )}`,
-      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key. \` ${key}`,
+      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key.     \` ${account.api_key}`,
     ].join("\n")
 
-    const openRound = data.investment_rounds.find(
-      (r: any) => r.status === "ongoing",
-    )
+    const openRound = rounds.find((r: any) => r.status === 1)
     const startDate = moment(new Date(openRound.start_date))
     const startDiff = `${startDate.fromNow(true)} ${
       startDate.isBefore() ? " ago" : " left"
     }`
-    const openRoundPnlPerc =
-      (openRound.metadata.realized_pnl * 100) /
-      openRound.metadata.initial_balance
-    const roundInfo = [
+
+    const roundFields = [
       `**Round info**`,
-      `${getEmoji("CALENDAR")} \`Start. \` ${formatDate(
+      `${getEmoji("CALENDAR")} \`Start.     \` ${formatDate(
         startDate.toDate(),
       )}, ${startDiff}`,
-      `🟢 \`Acc. PnL. \` ${utils.formatPercentDigit(openRoundPnlPerc)}`,
-      `🏎️ \`Rounds. \` ${openRound.metadata.no}`,
-      `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(
-        data.metadata.total_fee,
-      )}`,
+      `🟢 \`Acc. PnL.  \` ${utils.formatUsdPriceDigit(
+        account.accumulative_pnl,
+      )} (${utils.formatPercentDigit(account.accumulative_pl * 100)})`,
+      `🏎️ \`Rounds.    \` ${openRound.no}`,
+      `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(openRound.fee)}`,
     ].join("\n")
 
     const vaultEquity = [
       "**Vault equity**",
-      `${getEmoji("CHART")} \`Your share. \` 100%`,
+      `${getEmoji("CHART")} \`Your share.       \` 100%`,
       `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit(
-        openRound.metadata.vault_equity.claimable,
+        account.claimable,
       )}`,
     ].join("\n")
 
     const openTrades = [
       "**Open trades**",
-      `\`${formatDate(new Date(openRound.end_date))}\` ${getEmoji(
+      `\`${formatDate(new Date(openRound.start_date))}\` ${getEmoji(
         "ANIMATED_COIN_1",
       )} Init: ${utils.formatUsdPriceDigit(
-        openRound.metadata.initial_balance,
-      )} 💰 Current: ${utils.formatUsdPriceDigit(
-        openRound.metadata.realized_pnl,
-      )} **(:${
-        openRoundPnlPerc >= 0 ? "green" : "red"
-      }_circle: ${utils.formatPercentDigit(openRoundPnlPerc)})**`,
+        openRound.initial_balance,
+      )} 💰 Current: ${utils.formatUsdPriceDigit(openRound.realized_pnl)} **(:${
+        openRound.pnl_percentage >= 0 ? "green" : "red"
+      }_circle: ${utils.formatPercentDigit(openRound.pnl_percentage)})**`,
     ].join("\n")
 
-    const closedRounds = data.investment_rounds
-      .filter((r: any) => r.status !== "ongoing")
-      .slice(0, 3)
+    const closedRounds = rounds.filter((r: any) => r.status === 0).slice(0, 3)
     const closedTrades = [
       "**Closed trades**",
-      closedRounds.map((r: any) => {
-        const percentage =
-          (r.metadata.realized_pnl * 100) / r.metadata.initial_balance
-        return `\`${formatDate(new Date(r.end_date))}\` ${getEmoji(
-          "WAVING_HAND",
-        )} Init: ${utils.formatUsdPriceDigit(
-          r.metadata.initial_balance,
-        )} 💰 PnL: ${utils.formatUsdPriceDigit(
-          r.metadata.realized_pnl ?? 0,
-        )} (:${
-          percentage >= 0 ? "green" : "red"
-        }_circle: ${utils.formatPercentDigit(percentage)})`
-      }),
-      // `\`24.05.07\` ${getEmoji(
-      //   "WAVING_HAND",
-      // )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
+      ...closedRounds.map(
+        (r: any) =>
+          `\`${formatDate(new Date(r.start_date))}\` ${getEmoji(
+            "WAVING_HAND",
+          )} Init: ${utils.formatUsdPriceDigit(
+            r.initial_balance,
+          )} 💰 PnL: ${utils.formatUsdPriceDigit(r.realized_pnl ?? 0)} (:${
+            r.pnl_percentage >= 0 ? "green" : "red"
+          }_circle: ${utils.formatPercentDigit(r.pnl_percentage)})`,
+      ),
     ].join("\n")
 
     const address = [
@@ -274,17 +260,20 @@ export async function runGetVaultDetail(
       )}\``,
     ].join("\n")
 
+    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}\n\n${
+      closedRounds.length ? closedTrades : ""
+    }`
     const embed = composeEmbedMessage2(interaction as any, {
       color: msgColors.BLUE,
       author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-      description: `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundInfo}\n\n${openTrades}\n\n${closedTrades}`,
+      description,
     })
 
     return {
       context: {
         deposit: {
-          evm: faker.finance.ethereumAddress(),
-          sol: faker.finance.ethereumAddress(),
+          evm: data.evm_wallet_address,
+          sol: data.solana_wallet_address,
         },
       },
       msgOpts: {
