@@ -1,3 +1,10 @@
+## [6.49.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.3-rc.1...v6.49.3-rc.2) (2024-05-23)
+
+
+### Bug Fixes
+
+* vault detail format ([#1666](https://github.com/consolelabs/mochi-discord/issues/1666)) ([e348e1a](https://github.com/consolelabs/mochi-discord/commit/e348e1a6ed1dcce02734362c637cd0aa9e55f8ec))
+
 ## [6.49.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.2...v6.49.3-rc.1) (2024-05-22)
 
 
