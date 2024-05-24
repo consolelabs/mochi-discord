@@ -201,12 +201,13 @@ export async function renderSingle(
     token_address: coin.contract_address,
     symbol: coin.symbol,
   })
+
   const pair = dexScreenerData?.pairs?.[0]
   const maxSupply = max_supply || total_supply
   const fdv = maxSupply
     ? `$${formatBigNumber((current_price?.[CURRENCY] ?? 0) * maxSupply)}`
     : pair?.fdv
-    ? `$${formatBigNumber(pair.fdv)}`
+    ? `$${formatBigNumber(pair?.fdv)}`
     : "N/A"
 
   // exchange platforms
@@ -222,8 +223,8 @@ export async function renderSingle(
         ? [
             {
               market: { name: "Dex Screener" },
-              trade_url: pair.url.dexscreener,
-              volume_usd_24h: pair.volume_usd_24h,
+              trade_url: pair?.url.dexscreener,
+              volume_usd_24h: pair?.volume_usd_24h,
             },
           ]
         : []),
@@ -316,8 +317,8 @@ export async function renderSingle(
     },
     {
       name: `${getEmoji("ANIMATED_FLASH")} Liquidity`,
-      value: pair.liquidity_usd
-        ? `$${formatBigNumber(pair.liquidity_usd)}`
+      value: pair?.liquidity_usd
+        ? `$${formatBigNumber(pair?.liquidity_usd)}`
         : "N/A",
       inline: true,
     },
