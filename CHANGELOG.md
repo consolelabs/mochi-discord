@@ -1,3 +1,10 @@
+## [6.49.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.3...v6.49.4-rc.1) (2024-05-24)
+
+
+### Bug Fixes
+
+* **ticker:** update logic when data undefined ([#1667](https://github.com/consolelabs/mochi-discord/issues/1667)) ([f39827d](https://github.com/consolelabs/mochi-discord/commit/f39827d261b84e851e237e0095d465ac94d288ad))
+
 ## [6.49.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.2...v6.49.3) (2024-05-23)
 
 
