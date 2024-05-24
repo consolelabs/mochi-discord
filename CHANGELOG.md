@@ -1,3 +1,10 @@
+## [6.49.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.4...v6.49.5-rc.1) (2024-05-24)
+
+
+### Bug Fixes
+
+* **balance:** support deposit and wd tx in bal type cex ([#1668](https://github.com/consolelabs/mochi-discord/issues/1668)) ([50ad001](https://github.com/consolelabs/mochi-discord/commit/50ad001c64baea5d70df0580b0f50683751c4219))
+
 ## [6.49.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.3...v6.49.4) (2024-05-24)
 
 
