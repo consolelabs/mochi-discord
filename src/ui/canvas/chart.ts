@@ -51,8 +51,10 @@ export async function renderChartImage({
         size: 16,
       },
       color: colorConfig.borderColor,
-      callback: (value: string | number) =>
-        utils.formatDigit({ value, subscript: true }),
+      callback: (value: string | number) => {
+        const n = Number(String(value).replaceAll(",", "")).toFixed(4)
+        return utils.formatDigit({ value: n, subscript: true })
+      },
     },
     grid: {
       borderColor: colorConfig.borderColor,
