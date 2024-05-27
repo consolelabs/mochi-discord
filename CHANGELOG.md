@@ -1,3 +1,10 @@
+## [6.49.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.1...v6.49.6-rc.2) (2024-05-27)
+
+
+### Bug Fixes
+
+* ticker chart - y-axis number format ([#1670](https://github.com/consolelabs/mochi-discord/issues/1670)) ([770fb8e](https://github.com/consolelabs/mochi-discord/commit/770fb8eaf7f7a5cf5afd9ef1aceb994d142f91f3))
+
 ## [6.49.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.5...v6.49.6-rc.1) (2024-05-27)
 
 
