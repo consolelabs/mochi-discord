@@ -33,7 +33,7 @@ import moment from "moment"
 import { utils } from "@consolelabs/mochi-formatter"
 
 function formatDate(d: Date) {
-  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`
+  return `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`
 }
 
 const rounds = [
@@ -184,71 +184,93 @@ export async function runGetVaultDetail(
     }
 
     const creator = await getDiscordRenderableByProfileId(profileId)
-    const { trade_rounds: rounds, account } = data
+    const { account, investor_report: report } = data
+    const { open_trades, close_trades } = report
     const basicInfo = [
       `${getEmoji("ANIMATED_VAULT", true)}\`Name.    \` ${data.name}`,
       `${getEmoji("ANIMATED_VAULT_KEY", true)}\`Creator. \`${creator}`,
       `${getEmoji("CALENDAR")}\`Created. \` ${formatDate(
         new Date(data.created_at),
       )}`,
-      `${getEmoji("ANIMATED_BADGE_1")}\`Tier.    \` ${account.tier.name}`,
-      `${getEmoji("CASH")}\`Balance. \`${utils.formatUsdPriceDigit(
-        account.balance,
+      `${getEmoji("ANIMATED_BADGE_1")}\`Tier.    \` ${report.account_tier}`,
+      `${getEmoji("CASH")}\`Balance. \`${utils.formatUsdPriceDigit({
+        value: report.current_balance,
+        shorten: false,
+      })}`,
+      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key.     \` ${shortenHashOrAddress(
+        report.account_id,
+        5,
+        5,
       )}`,
-      `${getEmoji("ANIMATED_VAULT_KEY")}\`Key.     \` ${account.api_key}`,
     ].join("\n")
 
-    const openRound = rounds.find((r: any) => r.status === 1)
-    const startDate = moment(new Date(openRound.start_date))
-    const startDiff = `${startDate.fromNow(true)} ${
-      startDate.isBefore() ? " ago" : " left"
-    }`
+    const getPnlIcon = (n: number) =>
+      n >= 0 ? ":green_circle:" : ":red_circle:"
 
+    const startRound = moment(new Date(report.opened_trade_round_time))
     const roundFields = [
       `**Round info**`,
-      `${getEmoji("CALENDAR")} \`Start.     \` ${formatDate(
-        startDate.toDate(),
-      )}, ${startDiff}`,
-      `🟢 \`Acc. PnL.  \` ${utils.formatUsdPriceDigit(
-        account.accumulative_pnl,
-      )} (${utils.formatPercentDigit(account.accumulative_pl * 100)})`,
-      `🏎️ \`Rounds.    \` ${openRound.no}`,
-      `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit(openRound.fee)}`,
+      `${getEmoji("CALENDAR")} \`Date.      \` ${formatDate(
+        startRound.toDate(),
+      )}, ${report.remaining}`,
+      `${getPnlIcon(
+        report.total_pnl,
+      )} \`Acc. PnL.  \` ${utils.formatUsdPriceDigit({
+        value: report.total_pnl,
+        shorten: false,
+      })} (${utils.formatPercentDigit(report.total_realized_pl * 100)})`,
+      `🏎️ \`Rounds.    \` ${report.trade_round_no}`,
+      `🎫 \`Total fee. \` ${utils.formatUsdPriceDigit({
+        value: report.total_fee,
+        shorten: false,
+      })}`,
     ].join("\n")
 
     const vaultEquity = [
       "**Vault equity**",
       `${getEmoji("CHART")} \`Your share.       \` 100%`,
-      `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit(
-        account.claimable,
-      )}`,
+      `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
+        value: report.vault_equity.claimable,
+        shorten: false,
+      })}`,
     ].join("\n")
 
-    const openTrades = [
-      "**Open trades**",
-      `\`${formatDate(new Date(openRound.start_date))}\` ${getEmoji(
-        "ANIMATED_COIN_1",
-      )} Init: ${utils.formatUsdPriceDigit(
-        openRound.initial_balance,
-      )} 💰 Current: ${utils.formatUsdPriceDigit(openRound.realized_pnl)} **(:${
-        openRound.pnl_percentage >= 0 ? "green" : "red"
-      }_circle: ${utils.formatPercentDigit(openRound.pnl_percentage)})**`,
-    ].join("\n")
+    const openTrades = open_trades
+      ? [
+          `**Open trades (${report.total_open_trade})**`,
+          `\`${formatDate(new Date(open_trades.opened_time))}\` ${getEmoji(
+            "ANIMATED_COIN_1",
+          )} Init: ${utils.formatUsdPriceDigit({
+            value: open_trades.initial_balance,
+            shorten: false,
+          })} 💰 Current: ${utils.formatUsdPriceDigit({
+            value: open_trades.unrealized_pnl,
+            shorten: false,
+          })} **(${getPnlIcon(
+            open_trades.unrealized_pl,
+          )} ${utils.formatPercentDigit(open_trades.unrealized_pl * 100)})**`,
+        ].join("\n")
+      : ""
 
-    const closedRounds = rounds.filter((r: any) => r.status === 0).slice(0, 3)
-    const closedTrades = [
-      "**Closed trades**",
-      ...closedRounds.map(
-        (r: any) =>
-          `\`${formatDate(new Date(r.start_date))}\` ${getEmoji(
-            "WAVING_HAND",
-          )} Init: ${utils.formatUsdPriceDigit(
-            r.initial_balance,
-          )} 💰 PnL: ${utils.formatUsdPriceDigit(r.realized_pnl ?? 0)} (:${
-            r.pnl_percentage >= 0 ? "green" : "red"
-          }_circle: ${utils.formatPercentDigit(r.pnl_percentage)})`,
-      ),
-    ].join("\n")
+    const closeTrades = close_trades?.length
+      ? [
+          `**Closed trades (${report.total_closed_trade})**`,
+          ...close_trades.slice(0, 5).map(
+            (t: any) =>
+              `\`${formatDate(new Date(t.closed_time))}\` ${getEmoji(
+                "WAVING_HAND",
+              )} Init: ${utils.formatUsdPriceDigit({
+                value: t.initial_balance,
+                shorten: false,
+              })} 💰 PnL: ${utils.formatUsdPriceDigit({
+                value: t.realized_pnl ?? 0,
+                shorten: false,
+              })} (${getPnlIcon(t.realized_pl)} ${utils.formatPercentDigit(
+                t.realized_pl * 100,
+              )})`,
+          ),
+        ].join("\n")
+      : ""
 
     const address = [
       "**Vault address**",
@@ -260,9 +282,7 @@ export async function runGetVaultDetail(
       )}\``,
     ].join("\n")
 
-    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}\n\n${
-      closedRounds.length ? closedTrades : ""
-    }`
+    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}\n\n${closeTrades}`
     const embed = composeEmbedMessage2(interaction as any, {
       color: msgColors.BLUE,
       author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
