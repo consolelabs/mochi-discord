@@ -1,3 +1,10 @@
+## [6.49.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.2...v6.49.6-rc.3) (2024-05-28)
+
+
+### Bug Fixes
+
+* trading vault detail - small tweak ([#1671](https://github.com/consolelabs/mochi-discord/issues/1671)) ([2a7ded0](https://github.com/consolelabs/mochi-discord/commit/2a7ded0e4a5455d7239f8b8a5a1640996fde5300))
+
 ## [6.49.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.1...v6.49.6-rc.2) (2024-05-27)
 
 
