@@ -793,7 +793,7 @@ export async function run(
       days: ChartViewTimeOption.M1,
     })
 
-  const [baseCoinRaw, targetCoin] = await Promise.all(
+  const [baseCoinRaw, targetCoinRaw] = await Promise.all(
     [baseQ, targetQ].filter(Boolean).map(async (symbol) => {
       const { ticker, isDominanceChart } = parseQuery(symbol)
       const { data: coins } = await CacheManager.get({
@@ -874,6 +874,7 @@ export async function run(
 
   const baseCoin = baseCoinRaw[0]
   const listCoins = baseCoinRaw[1]
+  const targetCoin = targetCoinRaw?.[0]
 
   const type = parseQuery(baseQ).isDominanceChart
     ? ChartType.Dominance
@@ -892,7 +893,9 @@ export async function run(
 
   if (
     isCompare &&
-    [baseQ, targetQ].map(parseQuery).every((isDominance) => !isDominance)
+    [baseQ, targetQ]
+      .map(parseQuery)
+      .every(({ isDominanceChart }) => !isDominanceChart)
   ) {
     return renderPair(interaction, {
       baseCoin,
