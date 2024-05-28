@@ -1,3 +1,10 @@
+## [6.49.6-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.3...v6.49.6-rc.4) (2024-05-28)
+
+
+### Bug Fixes
+
+* ticker compare ([#1672](https://github.com/consolelabs/mochi-discord/issues/1672)) ([84fb590](https://github.com/consolelabs/mochi-discord/commit/84fb59058d9abf41597805cb9ab58e56569c87c4))
+
 ## [6.49.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.2...v6.49.6-rc.3) (2024-05-28)
 
 
