@@ -33,7 +33,7 @@ import moment from "moment"
 import { utils } from "@consolelabs/mochi-formatter"
 
 function formatDate(d: Date) {
-  return `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`
+  return `${d.getUTCDate()}.${d.getUTCMonth() + 1}.${d.getUTCFullYear()}`
 }
 
 const rounds = [
@@ -230,7 +230,7 @@ export async function runGetVaultDetail(
       "**Vault equity**",
       `${getEmoji("CHART")} \`Your share.       \` 100%`,
       `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
-        value: report.vault_equity.claimable,
+        value: Math.max(report.vault_equity.claimable, 0),
         shorten: false,
       })}`,
     ].join("\n")
@@ -246,9 +246,9 @@ export async function runGetVaultDetail(
           })} 💰 Current: ${utils.formatUsdPriceDigit({
             value: open_trades.unrealized_pnl,
             shorten: false,
-          })} **(${getPnlIcon(
+          })} (${getPnlIcon(
             open_trades.unrealized_pl,
-          )} ${utils.formatPercentDigit(open_trades.unrealized_pl * 100)})**`,
+          )} ${utils.formatPercentDigit(open_trades.unrealized_pl * 100)})`,
         ].join("\n")
       : ""
 
