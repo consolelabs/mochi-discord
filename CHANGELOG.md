@@ -1,3 +1,31 @@
+## [6.49.6-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.3...v6.49.6-rc.4) (2024-05-28)
+
+
+### Bug Fixes
+
+* ticker compare ([#1672](https://github.com/consolelabs/mochi-discord/issues/1672)) ([84fb590](https://github.com/consolelabs/mochi-discord/commit/84fb59058d9abf41597805cb9ab58e56569c87c4))
+
+## [6.49.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.2...v6.49.6-rc.3) (2024-05-28)
+
+
+### Bug Fixes
+
+* trading vault detail - small tweak ([#1671](https://github.com/consolelabs/mochi-discord/issues/1671)) ([2a7ded0](https://github.com/consolelabs/mochi-discord/commit/2a7ded0e4a5455d7239f8b8a5a1640996fde5300))
+
+## [6.49.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.1...v6.49.6-rc.2) (2024-05-27)
+
+
+### Bug Fixes
+
+* ticker chart - y-axis number format ([#1670](https://github.com/consolelabs/mochi-discord/issues/1670)) ([770fb8e](https://github.com/consolelabs/mochi-discord/commit/770fb8eaf7f7a5cf5afd9ef1aceb994d142f91f3))
+
+## [6.49.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.5...v6.49.6-rc.1) (2024-05-27)
+
+
+### Bug Fixes
+
+* trading vault detail - adapt data changes ([#1669](https://github.com/consolelabs/mochi-discord/issues/1669)) ([0942c7f](https://github.com/consolelabs/mochi-discord/commit/0942c7f181eb312c15ae7599cd0c95cf6edf6f87))
+
 ## [6.49.5](https://github.com/consolelabs/mochi-discord/compare/v6.49.4...v6.49.5) (2024-05-24)
 
 
