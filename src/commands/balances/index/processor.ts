@@ -54,7 +54,7 @@ import {
 import { getProfileIdByDiscord } from "utils/profile"
 import { paginationButtons } from "utils/router"
 import api from "api"
-import UI, { Platform } from "@consolelabs/mochi-formatter"
+import UI, { Platform, utils } from "@consolelabs/mochi-formatter"
 import mochiApi from "adapters/mochi-api"
 
 export enum BalanceType {
@@ -1072,7 +1072,8 @@ function buildFutureField(title: string, future: any[]) {
 
 function buildSpotTxnsField(title: string, spotTxns: any[]) {
   let total = 0
-  const tnxs = spotTxns.map((txn) => {
+  let largest = 0
+  const txns = spotTxns.map((txn) => {
     let amount = formatTokenDigit(txn.executedQty)
     if (txn.side === "BUY" || txn.side === "DEPOSIT") {
       amount = "+ " + amount
@@ -1084,19 +1085,31 @@ function buildSpotTxnsField(title: string, spotTxns: any[]) {
       date.getTime() + date.getTimezoneOffset() * 60 * 1000,
     )
 
-    const t = `<t:${Math.floor(utcDate.getTime() / 1000)}:R>`
-    return {
-      time: t,
+    const t = utils.time.relativeShort(date)
+    const result = {
+      emoji: getEmoji(txn.symbol),
+      time: `${t}`,
       asset: txn.symbol,
-      amount: amount,
+      amount: amount + " " + txn.symbol,
       usd: `$${formatUsdDigit(txn.price * txn.executedQty)}`,
     }
+
+    largest = Math.max(largest, result.amount.length)
+
+    return result
   })
-  const value = formatDataTable(tnxs, {
-    cols: ["amount", "asset", "usd"],
-    rowAfterFormatter: (f, i) => `${tnxs[i].time} ${f}`,
-    separator: [` `, ` ${APPROX} `],
-  }).joined
+
+  txns.forEach((tx) => {
+    tx.amount = `${tx.emoji}\`${tx.amount}${" ".repeat(
+      largest - tx.amount.length,
+    )}\``
+  })
+  const value = utils.mdTable(txns, {
+    cols: ["time", "amount", "usd"],
+    separator: [` | `, ` ${APPROX} `],
+    alignment: ["left", "left", "right"],
+    wrapCol: [true, false, true],
+  })
   return {
     total,
     field: {
