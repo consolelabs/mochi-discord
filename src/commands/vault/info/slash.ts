@@ -87,9 +87,6 @@ const command: SlashCommand = {
       )
       .map((d: any) => ({ name: d.name, value: d.name }))
 
-    // MOCK
-    options.push({ name: "podtown", value: "podtown" })
-
     await i.respond(options)
   },
   run: async function (interaction: CommandInteraction) {
