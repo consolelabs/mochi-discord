@@ -1,3 +1,10 @@
+## [6.49.8](https://github.com/consolelabs/mochi-discord/compare/v6.49.7...v6.49.8) (2024-05-29)
+
+
+### Bug Fixes
+
+* **balance:** fix render spot tx for bal type cex ([#1674](https://github.com/consolelabs/mochi-discord/issues/1674)) ([af0a308](https://github.com/consolelabs/mochi-discord/commit/af0a3080fa449ab18847b1124ccabbeb3f7b3e58))
+
 ## [6.49.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.7...v6.49.8-rc.1) (2024-05-29)
 
 
