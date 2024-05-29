@@ -1072,7 +1072,6 @@ function buildFutureField(title: string, future: any[]) {
 
 function buildSpotTxnsField(title: string, spotTxns: any[]) {
   let total = 0
-  let largest = 0
   const txns = spotTxns.map((txn) => {
     let amount = formatTokenDigit(txn.executedQty)
     if (txn.side === "BUY" || txn.side === "DEPOSIT") {
@@ -1085,30 +1084,23 @@ function buildSpotTxnsField(title: string, spotTxns: any[]) {
       date.getTime() + date.getTimezoneOffset() * 60 * 1000,
     )
 
-    const t = utils.time.relativeShort(date)
+    const t = utils.time.relativeShort(utcDate)
+    const usdValue = formatUsdDigit(txn.priceInUsd * txn.executedQty)
     const result = {
-      emoji: getEmoji(txn.symbol),
       time: `${t}`,
-      asset: txn.symbol,
-      amount: amount + " " + txn.symbol,
-      usd: `$${formatUsdDigit(txn.price * txn.executedQty)}`,
+      text:
+        usdValue !== "0"
+          ? `${getEmoji(txn.symbol)}${amount} ${txn.symbol} ($${usdValue})`
+          : `${getEmoji(txn.symbol)}${amount} ${txn.symbol}`,
     }
-
-    largest = Math.max(largest, result.amount.length)
-
     return result
   })
 
-  txns.forEach((tx) => {
-    tx.amount = `${tx.emoji}\`${tx.amount}${" ".repeat(
-      largest - tx.amount.length,
-    )}\``
-  })
   const value = utils.mdTable(txns, {
-    cols: ["time", "amount", "usd"],
+    cols: ["time", "text"],
     separator: [` | `, ` ${APPROX} `],
-    alignment: ["left", "left", "right"],
-    wrapCol: [true, false, true],
+    alignment: ["left", "left"],
+    wrapCol: [true, false],
   })
   return {
     total,
