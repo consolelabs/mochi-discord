@@ -1075,9 +1075,9 @@ function buildSpotTxnsField(title: string, spotTxns: any[]) {
   const txns = spotTxns.map((txn) => {
     let amount = formatTokenDigit(txn.executedQty)
     if (txn.side === "BUY" || txn.side === "DEPOSIT") {
-      amount = "+ " + amount
+      amount = "+" + amount
     } else if (txn.side === "SELL" || txn.side === "WITHDRAW") {
-      amount = "- " + amount
+      amount = "-" + amount
     }
     const date = new Date(txn.created_at)
     const utcDate = new Date(
@@ -1090,8 +1090,8 @@ function buildSpotTxnsField(title: string, spotTxns: any[]) {
       time: `${t}`,
       text:
         usdValue !== "0"
-          ? `${getEmoji(txn.symbol)}${amount} ${txn.symbol} ($${usdValue})`
-          : `${getEmoji(txn.symbol)}${amount} ${txn.symbol}`,
+          ? `${getEmoji(txn.symbol)} ${amount} ${txn.symbol} ($${usdValue})`
+          : `${getEmoji(txn.symbol)} ${amount} ${txn.symbol}`,
     }
     return result
   })
