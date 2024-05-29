@@ -1,3 +1,10 @@
+## [6.49.7](https://github.com/consolelabs/mochi-discord/compare/v6.49.6...v6.49.7) (2024-05-29)
+
+
+### Bug Fixes
+
+* **balance:** change format render binance spot tx ([#1673](https://github.com/consolelabs/mochi-discord/issues/1673)) ([e0f8649](https://github.com/consolelabs/mochi-discord/commit/e0f86491e34b69cbdbd0f32d2289b84a4f7850d5))
+
 ## [6.49.6](https://github.com/consolelabs/mochi-discord/compare/v6.49.5...v6.49.6) (2024-05-28)
 
 
