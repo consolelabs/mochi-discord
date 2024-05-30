@@ -1,3 +1,10 @@
+# [6.50.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.9...v6.50.0-rc.1) (2024-05-30)
+
+
+### Features
+
+* /bal dca ([ce2b4e9](https://github.com/consolelabs/mochi-discord/commit/ce2b4e9ad58606fc9877f7f0cd12b6dcc83c5d51))
+
 ## [6.49.9](https://github.com/consolelabs/mochi-discord/compare/v6.49.8...v6.49.9) (2024-05-29)
 
 
