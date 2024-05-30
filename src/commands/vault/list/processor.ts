@@ -17,7 +17,7 @@ import {
 } from "utils/common"
 import { getSlashCommand } from "utils/commands"
 import { wrapError } from "utils/wrap-error"
-import { runGetVaultDetail } from "../info/processor"
+import { handleVaultRounds, runGetVaultDetail } from "../info/processor"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import profile from "adapters/profile"
 import { ModelVault } from "types/api"
@@ -194,6 +194,7 @@ function collectSelection(
         const { msgOpts } = await runGetVaultDetail(selectedVault, i, vaultType)
 
         msgOpts.components = [
+          ...msgOpts.components,
           new MessageActionRow().addComponents(
             new MessageButton()
               .setLabel("Back")
@@ -214,7 +215,15 @@ function collectSelection(
               if (!i.deferred) {
                 await i.deferUpdate().catch(() => null)
               }
-              i.editReply({ embeds: reply.embeds, components })
+              if (i.customId === "rounds") {
+                const { msgOpts } = await handleVaultRounds(selectedVault, i)
+                i.editReply({
+                  embeds: msgOpts.embeds,
+                  components: msgOpts.components,
+                })
+              } else {
+                i.editReply({ embeds: reply.embeds, components })
+              }
             })
           })
       })
