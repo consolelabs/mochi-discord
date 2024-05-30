@@ -21,7 +21,7 @@ import {
   shortenHashOrAddress,
   TokenEmojiKey,
 } from "utils/common"
-import { HOMEPAGE_URL } from "utils/constants"
+import { HOMEPAGE_URL, VERTICAL_BAR } from "utils/constants"
 import { formatUsdDigit } from "utils/defi"
 import {
   getDiscordRenderableByProfileId,
@@ -470,7 +470,7 @@ CacheManager.init({
 
 async function formatRecentTransaction(tx: any) {
   const date = new Date(tx.date)
-  const t = `<t:${Math.floor(date.getTime() / 1000)}:R>`
+  const t = utils.time.relativeShort(date)
   const amount = ["+", "-"].includes(tx.amount?.split("")[0])
     ? tx.amount.slice(1)
     : tx.amount
@@ -479,7 +479,7 @@ async function formatRecentTransaction(tx: any) {
   switch (tx.action) {
     case "Received": {
       const profileId = tx.target
-      let from = `\`${shortenHashOrAddress(profileId)}\``
+      let from = `${await getDiscordRenderableByProfileId(profileId)}`
       if (!profileId) {
         from = ""
       } else if (!isAddress(profileId).valid) {
@@ -490,27 +490,36 @@ async function formatRecentTransaction(tx: any) {
         })
       }
 
-      return `${t} ${tokenEmoji} +${amount} ${token}${
-        from ? ` from ${from}` : ""
-      }\n`
+      return {
+        time: t,
+        text: `${tokenEmoji} +${amount} ${token}${from ? ` from ${from}` : ""}`,
+      }
     }
     case "Add":
-      return `${t} ${getEmoji("TREASURER_ADD")} Add <@${
-        tx.target
-      }> as vault treasurer\n`
+      return {
+        time: t,
+        text: `${getEmoji("TREASURER_ADD")} Add <@${
+          tx.target
+        }> as vault treasurer `,
+      }
     case "Remove":
-      return `${t} ${getEmoji("TREASURER_REMOVE")} Remove <@${
-        tx.target
-      }> from the vault\n`
+      return {
+        time: t,
+        text: `${getEmoji("TREASURER_REMOVE")} Remove <@${
+          tx.target
+        }> from the vault`,
+      }
     case "Config threshold":
-      return `${t} ${getEmoji(
-        "ANIMATED_VAULT_KEY",
-        true,
-      )} Set the threshold to ${tx.threshold}% for vault\n`
+      return {
+        time: t,
+        text: `${getEmoji("ANIMATED_VAULT_KEY", true)} Set the threshold to ${
+          tx.threshold
+        }% for vault`,
+      }
     case "Sent":
     case "Transfer": {
       const profileId = tx.target
-      let to = `\`${shortenHashOrAddress(profileId)}\``
+      let to = `${await getDiscordRenderableByProfileId(profileId)}\``
       if (!profileId) {
         to = ""
       } else if (!isAddress(profileId).valid) {
@@ -521,7 +530,10 @@ async function formatRecentTransaction(tx: any) {
         })
       }
 
-      return `${t} ${tokenEmoji} -${amount} ${token}${to ? ` to ${to}` : ""}\n`
+      return {
+        time: t,
+        text: `${tokenEmoji} -${amount} ${token}${to ? ` to ${to}` : ""}`,
+      }
     }
     case "Swap": {
       const fromToken = tx.from_token.toUpperCase()
@@ -529,7 +541,10 @@ async function formatRecentTransaction(tx: any) {
       const toToken = tx.to_token.toUpperCase()
       const toTokenEmoji = getEmojiToken(toToken)
       const emojiSwap = getEmoji("SWAP_ROUTE")
-      return `${t} ${fromTokenEmoji} -${tx.amount_in} ${fromToken} ${emojiSwap} ${toTokenEmoji} +${tx.amount_out} ${toToken}\n`
+      return {
+        time: t,
+        text: `${fromTokenEmoji} -${tx.amount_in} ${fromToken} ${emojiSwap} ${toTokenEmoji} +${tx.amount_out} ${toToken}`,
+      }
     }
   }
 }
@@ -596,11 +611,18 @@ export async function buildRecentTxFields(data: any) {
       )
       .map((tx: any) => formatRecentTransaction(tx)),
   )
+
   if (!formatted.length) return []
+  const value = utils.mdTable(formatted, {
+    cols: ["time", "text"],
+    alignment: ["left", "left"],
+    separator: [VERTICAL_BAR],
+    wrapCol: [true, false],
+  })
   return [
     {
       name: `Recent Transactions`,
-      value: formatted.join(""),
+      value: value,
       inline: false,
     },
   ]

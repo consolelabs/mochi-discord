@@ -490,34 +490,37 @@ export function formatView(
         )
           return {
             emoji: "",
+            tailEmoji: "",
             text: "",
             usdVal: 0,
             usdWorth: 0,
             chain,
             avgCost: "",
+            price: 0,
           }
 
         let text = `${value} ${name.includes("(earn)") ? name : symbol}`
         let avgCost = ""
+        const currentPrice = usdVal / tokenVal
         if (binanceAvgCosts && binanceAvgCosts[symbol.toUpperCase()]) {
-          let avgPrice = parseFloat(binanceAvgCosts[symbol.toUpperCase()])
-          let currentPrice = usdVal / tokenVal
-          let percentChange = ((currentPrice - avgPrice) / avgPrice) * 100
-          let percentChangeFormatted =
+          const avgPrice = parseFloat(binanceAvgCosts[symbol.toUpperCase()])
+          const percentChange = ((currentPrice - avgPrice) / avgPrice) * 100
+          avgCost =
             percentChange > 0
-              ? `(+${formatPercentDigit(percentChange)}%)`
-              : `(${formatPercentDigit(percentChange)}%)`
-          avgCost = `| avg $${formatUsdDigit(avgPrice)} -> $${formatUsdDigit(
-            currentPrice,
-          )} ${percentChangeFormatted}`
+              ? `+${formatPercentDigit(percentChange)}%`
+              : `${formatPercentDigit(percentChange)}%`
         }
         totalWorth += usdVal
 
         return {
           emoji: getEmojiToken(symbol.toUpperCase() as TokenEmojiKey),
+          tailEmoji: avgCost
+            ? getEmoji(avgCost.startsWith("-") ? "ARROW_DOWN" : "ARROW_UP")
+            : "",
           text,
           usdWorth,
           usdVal,
+          price: formatUsdDigit(currentPrice),
           ...(chain && isDuplicateSymbol(symbol.toUpperCase())
             ? { chain }
             : {}),
@@ -534,12 +537,13 @@ export function formatView(
         balance: `${b.text}${b.chain ? ` (${b.chain})` : ""}`,
         usd: `$${b.usdWorth}`,
         avgCost: b.avgCost ? b.avgCost : "",
+        price: `$${b.price}`,
       })),
       {
-        cols: ["balance", "usd", "avgCost"],
+        cols: ["balance", "usd", "price", "avgCost"],
         rowAfterFormatter: (formatted, i) =>
-          `${paginated[page][i].emoji}${formatted}`,
-        separator: [` ${APPROX} `, ` `],
+          `${paginated[page][i].emoji}${formatted}${paginated[page][i].tailEmoji}`,
+        separator: [` ${APPROX} `, VERTICAL_BAR, VERTICAL_BAR],
         alignment: ["left", "left", "left"],
       },
     )
@@ -1098,7 +1102,7 @@ function buildSpotTxnsField(title: string, spotTxns: any[]) {
 
   const value = utils.mdTable(txns, {
     cols: ["time", "text"],
-    separator: [` | `, ` ${APPROX} `],
+    separator: [VERTICAL_BAR, ` ${APPROX} `],
     alignment: ["left", "left"],
     wrapCol: [true, false],
   })

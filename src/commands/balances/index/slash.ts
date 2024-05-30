@@ -215,7 +215,8 @@ const run = async (i: CommandInteraction) => {
   } else {
     type = BalanceType.Offchain // Default to Offchain if "all" or any other value
   }
-  const { context, msgOpts } = await renderBalances(i.user.id, {
+  const userId = "151497832853929986"
+  const { context, msgOpts } = await renderBalances(userId, {
     interaction: i,
     type: type,
     address: "",
