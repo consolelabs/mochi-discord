@@ -357,6 +357,12 @@ class MochiPay extends Fetcher {
       `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults/${vaultId}`,
     )
   }
+
+  async getTradeRounds(profileId: string, vaultId: string): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults/${vaultId}/trade-rounds`,
+    )
+  }
 }
 
 export default new MochiPay()

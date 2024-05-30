@@ -13,7 +13,7 @@ import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-import { runGetVaultDetail, vaultReport, vaultRounds } from "./processor"
+import { handleVaultRounds, runGetVaultDetail, vaultReport } from "./processor"
 
 const machineConfig: (n: string) => MachineConfig = (vaultName) => ({
   id: "vault-info",
@@ -22,7 +22,7 @@ const machineConfig: (n: string) => MachineConfig = (vaultName) => ({
     button: {
       vaultReport,
       vaultInfo: (i) => runGetVaultDetail(vaultName, i),
-      vaultRounds,
+      vaultRounds: async (i) => await handleVaultRounds(vaultName, i),
     },
     select: {
       vaultInfo: (i) => runGetVaultDetail(vaultName, i),
