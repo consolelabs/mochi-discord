@@ -1098,7 +1098,7 @@ function buildSpotTxnsField(title: string, spotTxns: any[]) {
 
   const value = utils.mdTable(txns, {
     cols: ["time", "text"],
-    separator: [` | `, ` ${APPROX} `],
+    separator: [VERTICAL_BAR, ` ${APPROX} `],
     alignment: ["left", "left"],
     wrapCol: [true, false],
   })
