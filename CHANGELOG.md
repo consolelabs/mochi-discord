@@ -1,3 +1,10 @@
+# [6.50.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.50.0-rc.1...v6.50.0-rc.2) (2024-05-30)
+
+
+### Bug Fixes
+
+* **vault:** fix render vault info ([#1676](https://github.com/consolelabs/mochi-discord/issues/1676)) ([c1f7cc8](https://github.com/consolelabs/mochi-discord/commit/c1f7cc80ad06902a46c4e931d3bd1e6449fb459d))
+
 # [6.50.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.9...v6.50.0-rc.1) (2024-05-30)
 
 
