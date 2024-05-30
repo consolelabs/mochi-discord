@@ -44,7 +44,6 @@ export function formatVaults(
     {
       cols: ["name", "address", "threshold", "balance"],
       rowAfterFormatter: (f, i) =>
-        // MOCK
         `${getEmoji(
           "type" in vaults[i] ? "ANIMATED_STAR" : "ANIMATED_VAULT",
         )}${f}${getEmoji("CASH")}`,
