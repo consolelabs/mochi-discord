@@ -1,3 +1,10 @@
+## [6.50.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.50.0...v6.50.1-rc.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* remove hardcode ([ff2a283](https://github.com/consolelabs/mochi-discord/commit/ff2a2832f6b5cdd7f8b548e4e7e30db1d9913e0f))
+
 # [6.50.0](https://github.com/consolelabs/mochi-discord/compare/v6.49.9...v6.50.0) (2024-05-30)
 
 
