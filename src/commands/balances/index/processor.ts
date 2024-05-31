@@ -443,7 +443,7 @@ export function formatView(
   }[],
   page: number,
   earns?: { amount: number; price: number; reward: number; symbol: string }[],
-  binanceAvgCosts?: Record<string, string>,
+  avgCosts?: Record<string, string>,
 ) {
   if (earns) {
     // Add earnings to balances
@@ -502,8 +502,8 @@ export function formatView(
         let text = `${value} ${name.includes("(earn)") ? name : symbol}`
         let avgCost = ""
         const currentPrice = usdVal / tokenVal
-        if (binanceAvgCosts && binanceAvgCosts[symbol.toUpperCase()]) {
-          const avgPrice = parseFloat(binanceAvgCosts[symbol.toUpperCase()])
+        if (avgCosts && avgCosts[symbol.toUpperCase()]) {
+          const avgPrice = parseFloat(avgCosts[symbol.toUpperCase()])
           const percentChange = ((currentPrice - avgPrice) / avgPrice) * 100
           avgCost =
             percentChange > 0
@@ -632,12 +632,19 @@ async function switchView(
   )
 
   // get list token average cost of user on binance
-  const { data: avg } = await mochiApi.getBinanceAverageCost(profileId)
   let averageCosts: Record<string, string> = {}
   // just get average cost if rendering cex wallet
   if (balanceType === BalanceType.Cex) {
+    const { data: avg } = await mochiApi.getBinanceAverageCost(profileId)
     avg?.forEach((d: { symbol: string; average_cost: string }) => {
       averageCosts[d.symbol] = d.average_cost
+    })
+  }
+
+  if (balanceType === BalanceType.Onchain && props.address != "") {
+    const { data: avg } = await mochiApi.getOnchainAverageCost(props.address)
+    avg?.forEach((d: { symbol: string; average_cost: number }) => {
+      averageCosts[d.symbol] = formatUsdDigit(d.average_cost)
     })
   }
 
