@@ -1,3 +1,10 @@
+# [6.51.0](https://github.com/consolelabs/mochi-discord/compare/v6.50.2...v6.51.0) (2024-05-31)
+
+
+### Features
+
+* onchain asset avg cost ([#1678](https://github.com/consolelabs/mochi-discord/issues/1678)) ([dd35380](https://github.com/consolelabs/mochi-discord/commit/dd35380d8bbb01f90812eb38016ef938e71983a7))
+
 ## [6.50.2](https://github.com/consolelabs/mochi-discord/compare/v6.50.1...v6.50.2) (2024-05-31)
 
 
