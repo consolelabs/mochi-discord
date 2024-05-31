@@ -1,3 +1,17 @@
+## [6.50.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.50.2-rc.1...v6.50.2-rc.2) (2024-05-31)
+
+
+### Bug Fixes
+
+* vault equity ([f5e84b5](https://github.com/consolelabs/mochi-discord/commit/f5e84b5ca12d5e866fd51041516b70e4132cd4de))
+
+## [6.50.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.50.1...v6.50.2-rc.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* **vault:** render all rounds ui ([#1677](https://github.com/consolelabs/mochi-discord/issues/1677)) ([3e8a7dd](https://github.com/consolelabs/mochi-discord/commit/3e8a7dd48e4dd65bf75a4ae074c50ec28fcc6d4e))
+
 ## [6.50.1](https://github.com/consolelabs/mochi-discord/compare/v6.50.0...v6.50.1) (2024-05-30)
 
 

@@ -36,50 +36,48 @@ function formatDate(d: Date) {
   return `${d.getUTCDate()}.${d.getUTCMonth() + 1}.${d.getUTCFullYear()}`
 }
 
-const rounds = [
-  {
-    id: faker.string.uuid(),
-    start_date: faker.date.anytime(),
-    end_date: faker.date.anytime(),
-    initial: faker.finance.amount({ autoFormat: true, symbol: "", dec: 0 }),
-    realized_pl: faker.number.float({ min: -100, fractionDigits: 2 }),
-    trade_count: faker.number.int({ min: 1, max: 20 }),
-    claimed: faker.finance.amount({ min: 0, dec: 0 }),
-  },
-  {
-    id: faker.string.uuid(),
-    start_date: faker.date.anytime(),
-    end_date: faker.date.anytime(),
-    initial: faker.finance.amount({ autoFormat: true, symbol: "", dec: 0 }),
-    realized_pl: faker.number.float({ min: -100, fractionDigits: 2 }),
-    trade_count: faker.number.int({ min: 1, max: 20 }),
-    claimed: faker.finance.amount({ min: 0, dec: 0 }),
-  },
-  {
-    id: faker.string.uuid(),
-    start_date: faker.date.anytime(),
-    end_date: faker.date.anytime(),
-    initial: faker.finance.amount({ autoFormat: true, symbol: "", dec: 0 }),
-    realized_pl: faker.number.float({ min: -100, fractionDigits: 2 }),
-    trade_count: faker.number.int({ min: 1, max: 20 }),
-    claimed: faker.finance.amount({ min: 0, dec: 0 }),
-  },
-]
+export async function handleVaultRounds(
+  vaultId: string,
+  interaction: ButtonInteraction,
+) {
+  const profileId = await getProfileIdByDiscord(interaction.user.id)
+  const {
+    data,
+    ok,
+    curl,
+    error,
+    originalError,
+    log,
+    status = 500,
+  } = await mochiPay.getTradeRounds(profileId, vaultId)
+  if (!ok) {
+    if (status === 400 && originalError) {
+      throw new InternalError({
+        msgOrInteraction: interaction,
+        title: "Command error",
+        description: originalError,
+      })
+    }
+    throw new APIError({ curl, error, description: log, status })
+  }
 
-export async function vaultRounds(interaction: ButtonInteraction) {
   const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
     author: ["All rounds", getEmojiURL(emojis.CALENDAR)],
-    description: rounds
-      .map((r, i) =>
+    description: data
+      ?.map((r: any, i: number) =>
         [
           `${getEmoji(`NUM_${i + 1}` as any)} **${formatDate(
-            r.start_date,
-          )} - ${formatDate(r.end_date)}**`,
-          `${getEmoji("ANIMATED_COIN_1")} Init: $${r.initial}, 💰 Realized: $${
-            r.realized_pl
-          }, total of ${r.trade_count} trade(s)`,
-          `You claimed **$${r.claimed}** this round`,
+            new Date(r?.start_date),
+          )} - ${formatDate(new Date(r?.end_date))}**`,
+          `${getEmoji("ANIMATED_COIN_1")} Init: $${utils.formatUsdPriceDigit({
+            value: r?.initial_balance ?? 0,
+            shorten: false,
+          })}, 💰 Realized: $${utils.formatUsdPriceDigit({
+            value: r?.realized_pnl ?? 0,
+            shorten: false,
+          })}, total of ${r?.trade_count ?? 0} trade(s)`,
+          `You claimed **$${r?.claimed ?? 0}** this round`,
         ].join("\n"),
       )
       .join("\n\n"),
@@ -92,11 +90,11 @@ export async function vaultRounds(interaction: ButtonInteraction) {
         new MessageActionRow().addComponents(
           new MessageSelectMenu()
             .addOptions(
-              rounds.map((r, i) => ({
-                label: `${formatDate(r.start_date)} - ${formatDate(
-                  r.end_date,
+              data?.map((r: any, i: number) => ({
+                label: `${formatDate(new Date(r?.start_date))} - ${formatDate(
+                  new Date(r?.end_date),
                 )}`,
-                value: r.id,
+                value: r?.id,
                 emoji: getEmoji(`NUM_${i + 1}` as any),
               })),
             )
@@ -108,7 +106,8 @@ export async function vaultRounds(interaction: ButtonInteraction) {
             .setLabel("Claim all")
             .setStyle("SECONDARY")
             .setCustomId("claim")
-            .setEmoji("<:FeelsGood:1177549805048836126>"),
+            .setEmoji("<:FeelsGood:1177549805048836126>")
+            .setDisabled(true),
         ),
       ],
     },
@@ -155,6 +154,16 @@ export async function vaultReport(interaction: ButtonInteraction) {
   }
 }
 
+function getVaultEquityEmoji(percent: string | number = 0) {
+  const p = Number(percent)
+  if (p <= 20) return "🦀"
+  if (p <= 50) return "🐙"
+  if (p <= 70) return "🐬"
+  if (p <= 90) return "🦈"
+
+  return "🐳"
+}
+
 export async function runGetVaultDetail(
   selectedVault: string,
   interaction: OriginalMessage,
@@ -193,7 +202,7 @@ export async function runGetVaultDetail(
         new Date(data.created_at),
       )}`,
       `${getEmoji("ANIMATED_BADGE_1")}\`Tier.    \` ${report.account_tier}`,
-      `${getEmoji("CASH")}\`Balance. \`${utils.formatUsdPriceDigit({
+      `${getEmoji("CASH")}\`Balance. \` ${utils.formatUsdPriceDigit({
         value: report.current_balance,
         shorten: false,
       })}`,
@@ -228,9 +237,19 @@ export async function runGetVaultDetail(
 
     const vaultEquity = [
       "**Vault equity**",
-      `${getEmoji("CHART")} \`Your share.       \` 100%`,
-      `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
-        value: Math.max(report.vault_equity.claimable, 0),
+      `${getVaultEquityEmoji(
+        report.vault_equity.stake_percent,
+      )} \`Your share.       \` ${utils.formatPercentDigit(
+        Number(report.vault_equity.stake_percent),
+      )}`,
+      `${getEmoji("GIFT")} \`Floating profit.  \` ${utils.formatUsdPriceDigit({
+        value: Number(report.vault_equity.floating_profit ?? 0),
+        shorten: false,
+      })}`,
+      `${getEmoji(
+        "ANIMATED_PARTY_POPPER",
+      )} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
+        value: Number(report.vault_equity.claimable ?? 0),
         shorten: false,
       })}`,
     ].join("\n")
