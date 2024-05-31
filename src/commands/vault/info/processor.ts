@@ -154,6 +154,16 @@ export async function vaultReport(interaction: ButtonInteraction) {
   }
 }
 
+function getVaultEquityEmoji(percent: string | number = 0) {
+  const p = Number(percent)
+  if (p <= 20) return "🦀"
+  if (p <= 50) return "🐙"
+  if (p <= 70) return "🐬"
+  if (p <= 90) return "🦈"
+
+  return "🐳"
+}
+
 export async function runGetVaultDetail(
   selectedVault: string,
   interaction: OriginalMessage,
@@ -192,7 +202,7 @@ export async function runGetVaultDetail(
         new Date(data.created_at),
       )}`,
       `${getEmoji("ANIMATED_BADGE_1")}\`Tier.    \` ${report.account_tier}`,
-      `${getEmoji("CASH")}\`Balance. \`${utils.formatUsdPriceDigit({
+      `${getEmoji("CASH")}\`Balance. \` ${utils.formatUsdPriceDigit({
         value: report.current_balance,
         shorten: false,
       })}`,
@@ -227,9 +237,19 @@ export async function runGetVaultDetail(
 
     const vaultEquity = [
       "**Vault equity**",
-      `${getEmoji("CHART")} \`Your share.       \` 100%`,
-      `${getEmoji("MONEY")} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
-        value: Math.max(report.vault_equity.claimable, 0),
+      `${getVaultEquityEmoji(
+        report.vault_equity.stake_percent,
+      )} \`Your share.       \` ${utils.formatPercentDigit(
+        Number(report.vault_equity.stake_percent),
+      )}`,
+      `${getEmoji("GIFT")} \`Floating profit.  \` ${utils.formatUsdPriceDigit({
+        value: Number(report.vault_equity.floating_profit ?? 0),
+        shorten: false,
+      })}`,
+      `${getEmoji(
+        "ANIMATED_PARTY_POPPER",
+      )} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
+        value: Number(report.vault_equity.claimable ?? 0),
         shorten: false,
       })}`,
     ].join("\n")
