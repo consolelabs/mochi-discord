@@ -528,8 +528,15 @@ export function formatView(
         }
       })
       .sort((a, b) => {
-        return b.usdVal - a.usdVal
+        if (b.avgCost && a.avgCost && b.avgCost.startsWith("+")) return 1
+        if (b.avgCost && a.avgCost && a.avgCost.startsWith("+")) return -1
+        if (!b.avgCost && a.avgCost) return 1
+        if (b.avgCost && !a.avgCost) return -1
+        return -1
       })
+      // .sort((a, b) => {
+      //   return b.usdVal - a.usdVal
+      // })
       .filter((b) => b.text)
     const paginated = chunk(formattedBal, PAGE_SIZE)
     const { joined: text } = formatDataTable(
@@ -540,10 +547,10 @@ export function formatView(
         price: `$${b.price}`,
       })),
       {
-        cols: ["balance", "usd", "price", "avgCost"],
+        cols: ["balance", "usd", "avgCost"],
         rowAfterFormatter: (formatted, i) =>
           `${paginated[page][i].emoji}${formatted}${paginated[page][i].tailEmoji}`,
-        separator: [` ${APPROX} `, VERTICAL_BAR, VERTICAL_BAR],
+        separator: [VERTICAL_BAR, VERTICAL_BAR],
         alignment: ["left", "left", "left"],
       },
     )
