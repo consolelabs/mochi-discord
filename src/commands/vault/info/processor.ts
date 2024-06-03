@@ -119,45 +119,29 @@ export async function handleVaultRounds(
   }
 }
 
-export async function vaultReport(interaction: ButtonInteraction, data: any) {
+export async function vaultReport(
+  interaction: ButtonInteraction,
+  report: any,
+  vaultId: string,
+) {
   const basicInfo = [
-    `<:Look:1150701811536248865> \`Positions. \` Open ${data.total_open_trade} / Close ${data.total_closed_trade}`,
+    `<:Look:1150701811536248865> \`Positions. \` Open ${report.total_open_trade} / Close ${report.total_closed_trade}`,
     `${getEmoji("CASH")} \`Init. \` ${utils.formatUsdPriceDigit({
-      value: data.first_initial_balance,
+      value: report.first_initial_balance,
       shorten: false,
     })}`,
     `:dart: \`PnL. \` ${utils.formatUsdPriceDigit({
-      value: data.total_pnl,
+      value: report.total_pnl,
       shorten: false,
-    })} (${getPnlIcon(data.total_pnl)} ${utils.formatPercentDigit(
-      data.total_realized_pl * 100,
+    })} (${getPnlIcon(report.total_pnl)} ${utils.formatPercentDigit(
+      report.total_realized_pl * 100,
     )})`,
   ].join("\n")
 
-  // const openTrades = [
-  //   "**Open trades**",
-  //   `\`24.05.08\` ${getEmoji(
-  //     "ANIMATED_COIN_1",
-  //   )} Init: $10,410 💰 Current: $22 **(:green_circle: 0.22%)**`,
-  // ].join("\n")
-
-  // const closedTrades = [
-  //   "**Closed trades**",
-  //   `\`24.05.07\` ${getEmoji(
-  //     "WAVING_HAND",
-  //   )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
-  //   `\`24.05.07\` ${getEmoji(
-  //     "WAVING_HAND",
-  //   )} Init: $10,785 💰 PnL: -$131 (:red_circle: -1.22%)`,
-  //   `\`24.05.07\` ${getEmoji(
-  //     "WAVING_HAND",
-  //   )} Init: $10,802 💰 PnL: -$17 (:red_circle: -0.16%)`,
-  // ].join("\n")
-
-  const { open_trades, close_trades } = data
+  const { open_trades, close_trades } = report
   const openTrades = open_trades
     ? [
-        `**Open trades (${data.total_open_trade})**`,
+        `**Open trades (${report.total_open_trade})**`,
         `\`${formatDate(new Date(open_trades.opened_time))}\` ${getEmoji(
           "ANIMATED_COIN_1",
         )} Init: ${utils.formatUsdPriceDigit({
@@ -174,7 +158,7 @@ export async function vaultReport(interaction: ButtonInteraction, data: any) {
 
   const closeTrades = close_trades?.length
     ? [
-        `**Closed trades (${data.total_closed_trade})**`,
+        `**Closed trades (${report.total_closed_trade})**`,
         ...close_trades.slice(0, 5).map(
           (t: any) =>
             `\`${formatDate(new Date(t.closed_time))}\` ${getEmoji(
@@ -198,6 +182,7 @@ export async function vaultReport(interaction: ButtonInteraction, data: any) {
     description: `${basicInfo}\n\n${openTrades}${closeTrades}`,
   })
   return {
+    context: { vaultId, vaultType: "trading" },
     msgOpts: {
       embeds: [embed],
       components: [],
