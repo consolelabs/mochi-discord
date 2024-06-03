@@ -1,3 +1,10 @@
+# [6.52.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.2...v6.52.0-rc.3) (2024-06-03)
+
+
+### Bug Fixes
+
+* vault report - back btn interaction ([#1681](https://github.com/consolelabs/mochi-discord/issues/1681)) ([a9a80a0](https://github.com/consolelabs/mochi-discord/commit/a9a80a0cb20031df8373084182a92f2892d9c39c))
+
 # [6.52.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.1...v6.52.0-rc.2) (2024-06-03)
 
 
