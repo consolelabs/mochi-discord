@@ -11,7 +11,7 @@ import mochiPay from "adapters/mochi-pay"
 const command: SlashCommand = {
   name: "view",
   category: "Config",
-  onlyAdministrator: true,
+  // onlyAdministrator: true,
   prepare: () => {
     return new SlashCommandSubcommandBuilder()
       .setName("view")
@@ -43,7 +43,7 @@ const command: SlashCommand = {
         .filter((d: any) =>
           d.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
-        .map((d: any) => ({ name: d.name, value: `spot_${d.name}` })),
+        .map((d: any) => ({ name: d.name, value: `spot_${d.id}` })),
       ...tradingVaults
         .filter((v: any) =>
           v.name.toLowerCase().includes(focusedValue.toLowerCase()),
@@ -54,9 +54,13 @@ const command: SlashCommand = {
     await i.respond(options)
   },
   run: async function (interaction: CommandInteraction) {
+    const arg = interaction.options.getString("name", true)
+    const [vaultType, vaultId] = arg.split("_", 2)
     return run({
       i: interaction,
       guildId: interaction.guildId ?? undefined,
+      vaultId,
+      vaultType,
     })
   },
   help: async (interaction: CommandInteraction) => ({
