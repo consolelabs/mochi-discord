@@ -1,3 +1,10 @@
+# [6.52.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.51.0...v6.52.0-rc.1) (2024-06-03)
+
+
+### Features
+
+* vault commands flow ([#1679](https://github.com/consolelabs/mochi-discord/issues/1679)) ([5e1e371](https://github.com/consolelabs/mochi-discord/commit/5e1e3712c0ad59f83185e630605d3bcf94afab69))
+
 # [6.51.0](https://github.com/consolelabs/mochi-discord/compare/v6.50.2...v6.51.0) (2024-05-31)
 
 
