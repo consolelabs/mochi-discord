@@ -27,7 +27,6 @@ import {
   getDiscordRenderableByProfileId,
   getProfileIdByDiscord,
 } from "utils/profile"
-import { faker } from "@faker-js/faker"
 import mochiPay from "adapters/mochi-pay"
 import moment from "moment"
 import { utils } from "@consolelabs/mochi-formatter"
