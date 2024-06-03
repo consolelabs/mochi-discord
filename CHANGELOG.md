@@ -1,3 +1,10 @@
+# [6.52.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.3...v6.52.0-rc.4) (2024-06-03)
+
+
+### Bug Fixes
+
+* update select vault for profile ([#1682](https://github.com/consolelabs/mochi-discord/issues/1682)) ([5458938](https://github.com/consolelabs/mochi-discord/commit/5458938bcf258af750e296c6afbae27390ce9fba))
+
 # [6.52.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.2...v6.52.0-rc.3) (2024-06-03)
 
 
