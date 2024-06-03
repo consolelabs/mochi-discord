@@ -1,3 +1,10 @@
+# [6.52.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.4...v6.52.0-rc.5) (2024-06-03)
+
+
+### Features
+
+* trading vault config view ([#1683](https://github.com/consolelabs/mochi-discord/issues/1683)) ([99d3c64](https://github.com/consolelabs/mochi-discord/commit/99d3c640cd0e6d39a310e7263eb4e3034429af6d))
+
 # [6.52.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.3...v6.52.0-rc.4) (2024-06-03)
 
 
