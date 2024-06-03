@@ -28,7 +28,8 @@ export const machineConfig: (
   context: {
     button: {
       vaultReport: (i, _ev, ctx) => {
-        return vaultReport(i, ctx.report)
+        const { report, vaultId } = ctx
+        return vaultReport(i, report, vaultId)
       },
       vaultInfo: (i, _ev, ctx) => {
         const { vaultId, vaultType } = ctx
