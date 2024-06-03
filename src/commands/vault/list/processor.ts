@@ -1,23 +1,19 @@
 import config from "adapters/config"
 import {
+  ButtonInteraction,
   CommandInteraction,
-  Message,
   MessageActionRow,
-  MessageButton,
   MessageSelectMenu,
   User,
 } from "discord.js"
 import { InternalError } from "errors"
 import {
-  authorFilter,
   EmojiKey,
   getEmoji,
   msgColors,
   shortenHashOrAddress,
 } from "utils/common"
 import { getSlashCommand } from "utils/commands"
-import { wrapError } from "utils/wrap-error"
-import { handleVaultRounds, runGetVaultDetail } from "../info/processor"
 import { composeEmbedMessage, formatDataTable } from "ui/discord/embed"
 import profile from "adapters/profile"
 import { ModelVault } from "types/api"
@@ -64,14 +60,16 @@ function mockData(data: Array<any>) {
   })
 }
 
-export async function runVaultList(interaction: CommandInteraction) {
+export async function runVaultList(
+  interaction: CommandInteraction | ButtonInteraction,
+) {
   const userProfile = await profile.getByDiscord(interaction.user.id)
   const spotVaults = interaction.guildId
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
 
   const tradingVaults = (
-    (await mochiPay.listEarningVaults(userProfile.id)) || []
+    await mochiPay.listEarningVaults(userProfile.id, true)
   ).map((v: any) => ({
     id: v.id,
     name: v.name,
@@ -160,77 +158,8 @@ export async function runVaultList(interaction: CommandInteraction) {
     components,
   }
 
-  const reply = (await interaction.followUp({
-    ephemeral: true,
-    fetchReply: true,
-    ...msgOpts,
-  })) as Message
-
-  collectSelection(reply, interaction.user, components, userProfile.id)
-}
-
-function collectSelection(
-  reply: Message,
-  author: User,
-  components: any,
-  profileId: string,
-) {
-  reply
-    .createMessageComponentCollector({
-      componentType: "SELECT_MENU",
-      filter: authorFilter(author.id),
-      time: 300000,
-    })
-    .on("collect", (i) => {
-      wrapError(reply, async () => {
-        if (!i.deferred) {
-          await i.deferUpdate().catch(() => null)
-        }
-
-        const [vaultType, selectedVault] = i.values[0].startsWith("trading_")
-          ? i.values[0].split("_")
-          : ["spot", i.values[0].split(" - ")[0]]
-        i.guildId = i.guildId || i.values[0].split(" - ")[1]
-        const { msgOpts } = await runGetVaultDetail(selectedVault, i, vaultType)
-
-        msgOpts.components = [
-          ...msgOpts.components,
-          new MessageActionRow().addComponents(
-            new MessageButton()
-              .setLabel("Back")
-              .setStyle("SECONDARY")
-              .setCustomId("back"),
-          ),
-        ] as any
-        const edited = (await i.editReply(msgOpts)) as Message
-
-        edited
-          .createMessageComponentCollector({
-            filter: authorFilter(author.id),
-            componentType: "BUTTON",
-            time: 300000,
-          })
-          .on("collect", (i) => {
-            wrapError(edited, async () => {
-              if (!i.deferred) {
-                await i.deferUpdate().catch(() => null)
-              }
-              if (i.customId === "rounds") {
-                const { msgOpts } = await handleVaultRounds(selectedVault, i)
-                i.editReply({
-                  embeds: msgOpts.embeds,
-                  components: msgOpts.components,
-                })
-              } else {
-                i.editReply({ embeds: reply.embeds, components })
-              }
-            })
-          })
-      })
-    })
-    .on("end", () => {
-      wrapError(reply, async () => {
-        await reply.edit({ components: [] }).catch(() => null)
-      })
-    })
+  return {
+    msgOpts,
+    initial: "vaultList",
+  }
 }
