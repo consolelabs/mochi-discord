@@ -39,3 +39,23 @@ export async function getDiscordRenderableByProfileId(profileId: string) {
 
   return `<@${discord.platform_identifier}>`
 }
+
+export async function getDiscordIdByProfileId(profileId: string) {
+  const pf = await profile.getById(profileId)
+  if (pf.err) {
+    throw new APIError({
+      description: `[getDiscordIdByProfileId] API error with status ${pf.status_code}`,
+      curl: "",
+      status: pf.status ?? 500,
+      error: pf.error,
+    })
+  }
+
+  const discord = pf.associated_accounts.find((aa: any) =>
+    equalIgnoreCase(aa.platform, "discord"),
+  )
+
+  if (!discord) return pf.profile_name
+
+  return discord.platform_identifier
+}

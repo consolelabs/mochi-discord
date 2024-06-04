@@ -39,7 +39,11 @@ const machineConfig: (target: Target) => MachineConfig = (target) => ({
       addWallet: (i) => handleWalletAddition(i),
     },
     select: {
-      vault: async (i) => await runGetVaultDetail(i.values[0].split("_")[1], i),
+      vault: async (i) =>
+        await runGetVaultDetail({
+          interaction: i,
+          selectedVault: i.values[0].split("_")[1],
+        }),
     },
     // indicates this action to result in ephemeral response
     ephemeral: {

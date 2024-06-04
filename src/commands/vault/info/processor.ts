@@ -27,14 +27,14 @@ import {
   getDiscordRenderableByProfileId,
   getProfileIdByDiscord,
 } from "utils/profile"
-import { faker } from "@faker-js/faker"
 import mochiPay from "adapters/mochi-pay"
 import moment from "moment"
 import { utils } from "@consolelabs/mochi-formatter"
 
-function formatDate(d: Date) {
-  return `${d.getUTCDate()}.${d.getUTCMonth() + 1}.${d.getUTCFullYear()}`
-}
+const getPnlIcon = (n: number) => (n >= 0 ? ":green_circle:" : ":red_circle:")
+
+const formatDate = (d: Date) =>
+  `${d.getUTCDate()}.${d.getUTCMonth() + 1}.${d.getUTCFullYear()}`
 
 export async function handleVaultRounds(
   vaultId: string,
@@ -84,6 +84,10 @@ export async function handleVaultRounds(
   })
 
   return {
+    context: {
+      vaultId,
+      vaultType: "trading",
+    },
     msgOpts: {
       embeds: [embed],
       components: [
@@ -114,39 +118,70 @@ export async function handleVaultRounds(
   }
 }
 
-export async function vaultReport(interaction: ButtonInteraction) {
+export async function vaultReport(
+  interaction: ButtonInteraction,
+  report: any,
+  vaultId: string,
+) {
   const basicInfo = [
-    `<:Look:1150701811536248865> \`Positions. \` Open 1 / Close 9`,
-    `${getEmoji("CASH")} \`Init. \` $11,023.61`,
-    `:dart: \`PnL. \` -$586.16 (:red_circle: -5.32%)`,
+    `<:Look:1150701811536248865> \`Positions. \` Open ${report.total_open_trade} / Close ${report.total_closed_trade}`,
+    `${getEmoji("CASH")} \`Init. \` ${utils.formatUsdPriceDigit({
+      value: report.first_initial_balance,
+      shorten: false,
+    })}`,
+    `:dart: \`PnL. \` ${utils.formatUsdPriceDigit({
+      value: report.total_pnl,
+      shorten: false,
+    })} (${getPnlIcon(report.total_pnl)} ${utils.formatPercentDigit(
+      report.total_realized_pl * 100,
+    )})`,
   ].join("\n")
 
-  const openTrades = [
-    "**Open trades**",
-    `\`24.05.08\` ${getEmoji(
-      "ANIMATED_COIN_1",
-    )} Init: $10,410 💰 Current: $22 **(:green_circle: 0.22%)**`,
-  ].join("\n")
+  const { open_trades, close_trades } = report
+  const openTrades = open_trades
+    ? [
+        `**Open trades (${report.total_open_trade})**`,
+        `\`${formatDate(new Date(open_trades.opened_time))}\` ${getEmoji(
+          "ANIMATED_COIN_1",
+        )} Init: ${utils.formatUsdPriceDigit({
+          value: open_trades.initial_balance,
+          shorten: false,
+        })} 💰 Current: ${utils.formatUsdPriceDigit({
+          value: open_trades.unrealized_pnl,
+          shorten: false,
+        })} (${getPnlIcon(
+          open_trades.unrealized_pl,
+        )} ${utils.formatPercentDigit(open_trades.unrealized_pl * 100)})`,
+      ].join("\n") + "\n\n"
+    : ""
 
-  const closedTrades = [
-    "**Closed trades**",
-    `\`24.05.07\` ${getEmoji(
-      "WAVING_HAND",
-    )} Init: $10,653 💰 PnL: -$247 (:red_circle: -2.32%)`,
-    `\`24.05.07\` ${getEmoji(
-      "WAVING_HAND",
-    )} Init: $10,785 💰 PnL: -$131 (:red_circle: -1.22%)`,
-    `\`24.05.07\` ${getEmoji(
-      "WAVING_HAND",
-    )} Init: $10,802 💰 PnL: -$17 (:red_circle: -0.16%)`,
-  ].join("\n")
+  const closeTrades = close_trades?.length
+    ? [
+        `**Closed trades (${report.total_closed_trade})**`,
+        ...close_trades.slice(0, 5).map(
+          (t: any) =>
+            `\`${formatDate(new Date(t.closed_time))}\` ${getEmoji(
+              "WAVING_HAND",
+            )} Init: ${utils.formatUsdPriceDigit({
+              value: t.initial_balance,
+              shorten: false,
+            })} 💰 PnL: ${utils.formatUsdPriceDigit({
+              value: t.realized_pnl ?? 0,
+              shorten: false,
+            })} (${getPnlIcon(t.realized_pl)} ${utils.formatPercentDigit(
+              t.realized_pl * 100,
+            )})`,
+        ),
+      ].join("\n")
+    : ""
 
   const embed = composeEmbedMessage2(interaction as any, {
     color: msgColors.BLUE,
     author: ["Trading vault report", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-    description: `${basicInfo}\n\n${openTrades}\n\n${closedTrades}`,
+    description: `${basicInfo}\n\n${openTrades}${closeTrades}`,
   })
   return {
+    context: { vaultId, vaultType: "trading" },
     msgOpts: {
       embeds: [embed],
       components: [],
@@ -164,11 +199,17 @@ function getVaultEquityEmoji(percent: string | number = 0) {
   return "🐳"
 }
 
-export async function runGetVaultDetail(
-  selectedVault: string,
-  interaction: OriginalMessage,
+export async function runGetVaultDetail({
+  interaction,
+  selectedVault,
   vaultType = "spot",
-) {
+  roundId,
+}: {
+  interaction: OriginalMessage
+  selectedVault: string
+  vaultType?: string
+  roundId?: string
+}) {
   // trading vault
   if (vaultType === "trading" && "user" in interaction) {
     const profileId = await getProfileIdByDiscord(interaction.user.id)
@@ -180,7 +221,7 @@ export async function runGetVaultDetail(
       originalError,
       log,
       status = 500,
-    } = await mochiPay.getEarningVault(profileId, selectedVault)
+    } = await mochiPay.getEarningVault(profileId, selectedVault, { roundId })
     if (!ok) {
       if (status === 400 && originalError) {
         throw new InternalError({
@@ -193,7 +234,7 @@ export async function runGetVaultDetail(
     }
 
     const creator = await getDiscordRenderableByProfileId(profileId)
-    const { account, investor_report: report } = data
+    const { investor_report: report } = data
     const { open_trades, close_trades } = report
     const basicInfo = [
       `${getEmoji("ANIMATED_VAULT", true)}\`Name.    \` ${data.name}`,
@@ -212,9 +253,6 @@ export async function runGetVaultDetail(
         5,
       )}`,
     ].join("\n")
-
-    const getPnlIcon = (n: number) =>
-      n >= 0 ? ":green_circle:" : ":red_circle:"
 
     const startRound = moment(new Date(report.opened_trade_round_time))
     const roundFields = [
@@ -268,7 +306,7 @@ export async function runGetVaultDetail(
           })} (${getPnlIcon(
             open_trades.unrealized_pl,
           )} ${utils.formatPercentDigit(open_trades.unrealized_pl * 100)})`,
-        ].join("\n")
+        ].join("\n") + "\n\n"
       : ""
 
     const closeTrades = close_trades?.length
@@ -301,7 +339,7 @@ export async function runGetVaultDetail(
       )}\``,
     ].join("\n")
 
-    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}\n\n${closeTrades}`
+    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}${closeTrades}`
     const embed = composeEmbedMessage2(interaction as any, {
       color: msgColors.BLUE,
       author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
@@ -314,6 +352,8 @@ export async function runGetVaultDetail(
           evm: data.evm_wallet_address,
           sol: data.solana_wallet_address,
         },
+        vaultId: selectedVault,
+        report,
       },
       msgOpts: {
         embeds: [embed],
