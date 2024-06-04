@@ -139,8 +139,10 @@ const command: SlashCommand = {
         )
         .map((d: any) => ({ name: d.name, value: `spot_${d.name}` })),
       ...tradingVaults
-        .filter((v: any) =>
-          v.name.toLowerCase().includes(focusedValue.toLowerCase()),
+        .filter(
+          (v: any) =>
+            v.name != "" &&
+            v.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
         .map((v: any) => ({ name: v.name, value: `trading_${v.id}` })),
     ]

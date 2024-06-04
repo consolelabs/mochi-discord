@@ -68,17 +68,17 @@ export async function runVaultList(
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
 
-  const tradingVaults = (
-    await mochiPay.listEarningVaults(userProfile.id, true)
-  ).map((v: any) => ({
-    id: v.id,
-    name: v.name,
-    wallet_address: v.evm_wallet_address,
-    total: v.investor_report.current_balance,
-    threshold: 100,
-    type: "trading",
-    discord_guild: { name: "" },
-  }))
+  const tradingVaults = (await mochiPay.listEarningVaults(userProfile.id, true))
+    .filter((v: any) => v.id != "00000000-0000-0000-0000-000000000000")
+    .map((v: any) => ({
+      id: v.id,
+      name: v.name,
+      wallet_address: v.evm_wallet_address,
+      total: v.investor_report.current_balance,
+      threshold: 100,
+      type: "trading",
+      discord_guild: { name: "" },
+    }))
 
   const data = [...spotVaults, ...tradingVaults]
 
