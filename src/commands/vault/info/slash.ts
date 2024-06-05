@@ -120,15 +120,10 @@ const command: SlashCommand = {
       )
   },
   autocomplete: async function (i) {
-    if (!i.guildId) {
-      await i.respond([])
-      return
-    }
     const focusedValue = i.options.getFocused()
-    // const data = await config.vaultList(i.guildId, true)
     const userProfile = await profile.getByDiscord(i.user.id)
     const [spotVaults, tradingVaults] = await Promise.all([
-      config.vaultList(i.guildId, true),
+      i.guildId ? config.vaultList(i.guildId, true) : [],
       mochiPay.listEarningVaults(userProfile.id),
     ])
 
