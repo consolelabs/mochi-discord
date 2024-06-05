@@ -1319,11 +1319,6 @@ export function getButtons() {
       .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
       .setCustomId(`deposit`)
       .setLabel("Deposit"),
-    new MessageButton()
-      .setStyle("SECONDARY")
-      .setCustomId(`view_invest`)
-      .setEmoji(getEmoji("BANK"))
-      .setLabel("Invest"),
   ]
 }
 

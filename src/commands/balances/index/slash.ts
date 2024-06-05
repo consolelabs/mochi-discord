@@ -56,10 +56,6 @@ export const machineConfig: (
           txns: ctx.txns,
         })
       },
-      invest: async (i) => {
-        const tokens = await getBalanceTokens(i)
-        return renderInvestHome(i, 0, tokens)
-      },
       earn: (i) => {
         return renderEarnHome(i.user, EarnView.Airdrop)
       },
@@ -143,7 +139,6 @@ export const machineConfig: (
     balance: {
       on: {
         TOGGLE_SHOW_FULL_EARN: "balance",
-        VIEW_INVEST: "invest",
         VIEW_EARN: "earn",
         UNLINK_WALLET: "walletUnlink",
         VIEW_PORTFOLIO: "balance",
@@ -169,12 +164,6 @@ export const machineConfig: (
       on: {
         VIEW_WALLET: "balance",
       },
-    },
-    invest: {
-      on: {
-        [RouterSpecialAction.BACK]: "balance",
-      },
-      ...investMachineConfig,
     },
     earn: {
       on: {
