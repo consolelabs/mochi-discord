@@ -362,7 +362,10 @@ async function getTxns(
           d.successful &&
           d.actions?.some(
             (a: any) =>
-              a.native_transfer || equalIgnoreCase(a.name, "Transfer"),
+              a.native_transfer ||
+              (equalIgnoreCase(a.name, "Transfer") &&
+                a.unit?.length >= 3 &&
+                a.unit?.length <= 6),
           ),
       )
       .map((d: any) => {
