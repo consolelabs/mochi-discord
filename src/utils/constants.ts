@@ -60,7 +60,7 @@ export const VALID_BOOST_MESSAGE_TYPES = [
 ]
 
 // usd
-export const MIN_DUST = 0.001
+export const MIN_DUST = 3
 
 export const HOMEPAGE_URL = process.env.HOMEPAGE_URL || "https://mochi.gg"
 export const MOCHI_DOC_URL = "https://docs.mochi.gg"
