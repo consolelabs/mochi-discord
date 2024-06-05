@@ -372,9 +372,6 @@ async function getTxns(
         if (isValidRoninAddress(address)) {
           address = `0x${address.slice(6)}`
         }
-        d.actions?.forEach((action: any) => {
-          action.amount = formatTokenDigit(action.amount)
-        })
         return d
       })
       .filter(Boolean)
