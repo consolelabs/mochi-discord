@@ -155,10 +155,40 @@ export async function vaultReport(
       ].join("\n") + "\n\n"
     : ""
 
-  const closeTrades = close_trades?.length
+  const description = composeTradesDescription({
+    description: `${basicInfo}\n\n${openTrades}`,
+    trades: close_trades,
+    total: report.total_closed_trade,
+  })
+  const embed = composeEmbedMessage2(interaction as any, {
+    color: msgColors.BLUE,
+    author: ["Trading vault report", getEmojiURL(emojis.ANIMATED_DIAMOND)],
+    description,
+  })
+  return {
+    context: { vaultId, vaultType: "trading" },
+    msgOpts: {
+      embeds: [embed],
+      components: [],
+    },
+  }
+}
+
+function composeTradesDescription({
+  description,
+  trades,
+  total,
+}: {
+  description: string
+  trades: any[]
+  total: number
+}) {
+  // Discord embed description is limited to 4096 characters
+  const MAX_CHARS = 4096
+  const closeTrades = trades?.length
     ? [
-        `**Closed trades (${report.total_closed_trade})**`,
-        ...close_trades.slice(0, 5).map(
+        `**Closed trades (${total})**`,
+        ...trades.map(
           (t: any) =>
             `\`${formatDate(new Date(t.closed_time))}\` ${getEmoji(
               "WAVING_HAND",
@@ -175,18 +205,27 @@ export async function vaultReport(
       ].join("\n")
     : ""
 
-  const embed = composeEmbedMessage2(interaction as any, {
-    color: msgColors.BLUE,
-    author: ["Trading vault report", getEmojiURL(emojis.ANIMATED_DIAMOND)],
-    description: `${basicInfo}\n\n${openTrades}${closeTrades}`,
-  })
-  return {
-    context: { vaultId, vaultType: "trading" },
-    msgOpts: {
-      embeds: [embed],
-      components: [],
-    },
+  const final = `${description}${closeTrades}`
+  const allRenderable = final.length <= MAX_CHARS && trades.length === total
+  // all closed trades can be rendereable without exceeding limit
+  if (allRenderable) {
+    return final
   }
+
+  // can render only portion of closed trades, add sub text (e.g. and 2 more trades ...)
+  if (final.length <= MAX_CHARS) {
+    const unrenderableTrades = total - trades.length
+    const alternative = `${final}\n_... and ${unrenderableTrades} more ${
+      unrenderableTrades > 1 ? "trades" : "trade"
+    } ..._`
+    if (alternative.length <= MAX_CHARS) return alternative
+  }
+
+  return composeTradesDescription({
+    description,
+    trades: trades.slice(0, -1),
+    total,
+  })
 }
 
 function getVaultEquityEmoji(percent: string | number = 0) {
@@ -309,26 +348,6 @@ export async function runGetVaultDetail({
         ].join("\n") + "\n\n"
       : ""
 
-    const closeTrades = close_trades?.length
-      ? [
-          `**Closed trades (${report.total_closed_trade})**`,
-          ...close_trades.slice(0, 5).map(
-            (t: any) =>
-              `\`${formatDate(new Date(t.closed_time))}\` ${getEmoji(
-                "WAVING_HAND",
-              )} Init: ${utils.formatUsdPriceDigit({
-                value: t.initial_balance,
-                shorten: false,
-              })} 💰 PnL: ${utils.formatUsdPriceDigit({
-                value: t.realized_pnl ?? 0,
-                shorten: false,
-              })} (${getPnlIcon(t.realized_pl)} ${utils.formatPercentDigit(
-                t.realized_pl * 100,
-              )})`,
-          ),
-        ].join("\n")
-      : ""
-
     const address = [
       "**Vault address**",
       `${getEmoji("EVM")}\`EVM | ${shortenHashOrAddress(
@@ -339,7 +358,11 @@ export async function runGetVaultDetail({
       )}\``,
     ].join("\n")
 
-    const description = `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}${closeTrades}`
+    const description = composeTradesDescription({
+      description: `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}`,
+      trades: close_trades,
+      total: report.total_closed_trade,
+    })
     const embed = composeEmbedMessage2(interaction as any, {
       color: msgColors.BLUE,
       author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
