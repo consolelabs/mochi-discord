@@ -1,4 +1,11 @@
-## [6.52.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.1...v6.52.2) (2024-06-05)
+## [6.52.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.2...v6.52.3-rc.1) (2024-06-05)
+
+
+### Bug Fixes
+
+* **balances:** fix format number in onchain tx ([#1687](https://github.com/consolelabs/mochi-discord/issues/1687)) ([0a00ee9](https://github.com/consolelabs/mochi-discord/commit/0a00ee9818668a5491c769e57976336f5712af18))
+
+## [6.52.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.1...v6.52.2-rc.1) (2024-06-05)
 
 
 ### Bug Fixes
