@@ -1,3 +1,10 @@
+## [6.52.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.4...v6.52.5-rc.1) (2024-06-05)
+
+
+### Bug Fixes
+
+* trading vault - render full closed trades ([#1690](https://github.com/consolelabs/mochi-discord/issues/1690)) ([6a61af4](https://github.com/consolelabs/mochi-discord/commit/6a61af4f807cc65cb4d0a27d9ac8205a2b581b25))
+
 ## [6.52.4](https://github.com/consolelabs/mochi-discord/compare/v6.52.3...v6.52.4) (2024-06-05)
 
 ### Bug Fixes
