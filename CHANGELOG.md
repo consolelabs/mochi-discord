@@ -1,3 +1,10 @@
+## [6.52.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.1-rc.1...v6.52.1-rc.2) (2024-06-05)
+
+
+### Bug Fixes
+
+* **balance:** filter spam tx when render onchain bal ([#1686](https://github.com/consolelabs/mochi-discord/issues/1686)) ([121f527](https://github.com/consolelabs/mochi-discord/commit/121f527b93fe442415985e61ad1c64197d14166c))
+
 ## [6.52.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.0...v6.52.1-rc.1) (2024-06-05)
 
 
