@@ -45,8 +45,6 @@ import config from "adapters/config"
 import { formatVaults } from "commands/vault/list/processor"
 import { getSlashCommand } from "utils/commands"
 import { chunk } from "lodash"
-import mochiPay from "adapters/mochi-pay"
-import { composeInvestPortfolio } from "commands/invest/portfolio/processor"
 import api from "../../../api"
 import mochiApi from "../../../adapters/mochi-api"
 
@@ -130,7 +128,6 @@ async function compose(
     socials,
     walletsRes,
     balances,
-    investPortResp,
     paginationRes,
   ] = await Promise.all([
     profile.getUserProfile(i.guildId ?? "", dataProfile.id),
@@ -138,7 +135,6 @@ async function compose(
     profile.getUserSocials(target.id),
     profile.getUserWallets(target.id, false),
     getBalances(dataProfile.id, target.id, BalanceType.Offchain, i, "", ""),
-    mochiPay.getKrystalEarnPortfolio({ profile_id: dataProfile.id }),
     profile.getUserActivities(dataProfile.id, {
       actions: ["9", "10"],
       status: "new",
@@ -153,9 +149,6 @@ async function compose(
   if (!i.guildId) {
     vaults = vaultsRes.filter((v) => v.discord_guild?.name).slice(0, 5)
   }
-
-  // Get first 5 invest portfolios
-  const investPortfolios = investPortResp.data?.slice(0, 5) ?? []
 
   const {
     onchainTotal,
@@ -257,15 +250,6 @@ async function compose(
       }),
     ].join("\n"),
   }).addFields([
-    ...(investPortfolios.length
-      ? [
-          {
-            name: "Invest Portfolios",
-            value: composeInvestPortfolio(investPortfolios),
-            inline: false,
-          },
-        ]
-      : []),
     ...(vaults.length
       ? [
           {
