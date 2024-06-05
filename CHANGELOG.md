@@ -1,3 +1,18 @@
+# [6.52.0](https://github.com/consolelabs/mochi-discord/compare/v6.51.0...v6.52.0) (2024-06-04)
+
+
+### Bug Fixes
+
+* /bal ([e4541bb](https://github.com/consolelabs/mochi-discord/commit/e4541bbfd1a41b5eacc83ce21f08b24e73e16e89))
+* update select vault for profile ([#1682](https://github.com/consolelabs/mochi-discord/issues/1682)) ([5458938](https://github.com/consolelabs/mochi-discord/commit/5458938bcf258af750e296c6afbae27390ce9fba))
+* vault report - back btn interaction ([#1681](https://github.com/consolelabs/mochi-discord/issues/1681)) ([a9a80a0](https://github.com/consolelabs/mochi-discord/commit/a9a80a0cb20031df8373084182a92f2892d9c39c))
+
+
+### Features
+
+* trading vault config view ([#1683](https://github.com/consolelabs/mochi-discord/issues/1683)) ([99d3c64](https://github.com/consolelabs/mochi-discord/commit/99d3c640cd0e6d39a310e7263eb4e3034429af6d))
+* vault commands flow ([#1679](https://github.com/consolelabs/mochi-discord/issues/1679)) ([5e1e371](https://github.com/consolelabs/mochi-discord/commit/5e1e3712c0ad59f83185e630605d3bcf94afab69))
+
 # [6.52.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.4...v6.52.0-rc.5) (2024-06-03)
 
 
