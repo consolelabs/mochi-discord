@@ -1,3 +1,10 @@
+## [6.52.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.1...v6.52.2) (2024-06-05)
+
+
+### Bug Fixes
+
+* parse average cost onchain asset ([#1688](https://github.com/consolelabs/mochi-discord/issues/1688)) ([28351b6](https://github.com/consolelabs/mochi-discord/commit/28351b6494fa2832e0e8b62643929c307b808f2b))
+
 ## [6.52.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.0...v6.52.1) (2024-06-05)
 
 
