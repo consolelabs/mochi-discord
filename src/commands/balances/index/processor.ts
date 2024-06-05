@@ -366,27 +366,13 @@ async function getTxns(
           ),
       )
       .map((d: any) => {
-        const date = d.signed_at
-        const firstAction = d.actions?.find(
-          (a: any) => a.native_transfer || a.name === "Transfer",
-        )
-        if (!firstAction) return
         if (isValidRoninAddress(address)) {
           address = `0x${address.slice(6)}`
         }
-        const target = firstAction.to
-        const action =
-          target.toLowerCase() === address.toLowerCase() ? "Received" : "Sent"
-        const amount = formatTokenDigit(firstAction.amount)
-        const token = firstAction.unit
-
-        return {
-          date,
-          action,
-          target,
-          amount,
-          token,
-        }
+        d.actions?.forEach((action: any) => {
+          action.amount = formatTokenDigit(action.amount)
+        })
+        return d
       })
       .filter(Boolean)
       .slice(0, 5)
