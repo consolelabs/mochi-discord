@@ -640,7 +640,7 @@ async function switchView(
   if (balanceType === BalanceType.Onchain && props.address != "") {
     const { data: avg } = await mochiApi.getOnchainAverageCost(props.address)
     avg?.forEach((d: { symbol: string; average_cost: number }) => {
-      averageCosts[d.symbol] = formatUsdDigit(d.average_cost)
+      averageCosts[d.symbol] = d.average_cost.toString()
     })
   }
 
