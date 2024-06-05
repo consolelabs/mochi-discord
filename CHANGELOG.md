@@ -1,3 +1,10 @@
+## [6.52.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.3...v6.52.4-rc.1) (2024-06-05)
+
+
+### Bug Fixes
+
+* remove krystal earn section ([#1689](https://github.com/consolelabs/mochi-discord/issues/1689)) ([faa713a](https://github.com/consolelabs/mochi-discord/commit/faa713aa9e6ce5cfe70be9c42656c85dae6a2d9e))
+
 ## [6.52.3](https://github.com/consolelabs/mochi-discord/compare/v6.52.2...v6.52.3) (2024-06-05)
 
 
