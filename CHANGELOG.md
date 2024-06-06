@@ -1,441 +1,386 @@
-## [6.52.4](https://github.com/consolelabs/mochi-discord/compare/v6.52.3...v6.52.4) (2024-06-05)
+## [6.52.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.4...v6.52.5-rc.1) (2024-06-05)
 
 
 ### Bug Fixes
 
-* remove krystal earn section ([#1689](https://github.com/consolelabs/mochi-discord/issues/1689)) ([faa713a](https://github.com/consolelabs/mochi-discord/commit/faa713aa9e6ce5cfe70be9c42656c85dae6a2d9e))
+* trading vault - render full closed trades ([#1690](https://github.com/consolelabs/mochi-discord/issues/1690)) ([6a61af4](https://github.com/consolelabs/mochi-discord/commit/6a61af4f807cc65cb4d0a27d9ac8205a2b581b25))
+
+## [6.52.4](https://github.com/consolelabs/mochi-discord/compare/v6.52.3...v6.52.4) (2024-06-05)
+
+### Bug Fixes
+
+- remove krystal earn section ([#1689](https://github.com/consolelabs/mochi-discord/issues/1689)) ([faa713a](https://github.com/consolelabs/mochi-discord/commit/faa713aa9e6ce5cfe70be9c42656c85dae6a2d9e))
 
 ## [6.52.3](https://github.com/consolelabs/mochi-discord/compare/v6.52.2...v6.52.3) (2024-06-05)
 
-
 ### Bug Fixes
 
-* **balances:** fix format number in onchain tx ([#1687](https://github.com/consolelabs/mochi-discord/issues/1687)) ([0a00ee9](https://github.com/consolelabs/mochi-discord/commit/0a00ee9818668a5491c769e57976336f5712af18))
+- **balances:** fix format number in onchain tx ([#1687](https://github.com/consolelabs/mochi-discord/issues/1687)) ([0a00ee9](https://github.com/consolelabs/mochi-discord/commit/0a00ee9818668a5491c769e57976336f5712af18))
 
 ## [6.52.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.2...v6.52.3-rc.1) (2024-06-05)
 
-
 ### Bug Fixes
 
-* **balances:** fix format number in onchain tx ([#1687](https://github.com/consolelabs/mochi-discord/issues/1687)) ([0a00ee9](https://github.com/consolelabs/mochi-discord/commit/0a00ee9818668a5491c769e57976336f5712af18))
+- **balances:** fix format number in onchain tx ([#1687](https://github.com/consolelabs/mochi-discord/issues/1687)) ([0a00ee9](https://github.com/consolelabs/mochi-discord/commit/0a00ee9818668a5491c769e57976336f5712af18))
 
 ## [6.52.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.1...v6.52.2-rc.1) (2024-06-05)
 
-
 ### Bug Fixes
 
-* parse average cost onchain asset ([#1688](https://github.com/consolelabs/mochi-discord/issues/1688)) ([28351b6](https://github.com/consolelabs/mochi-discord/commit/28351b6494fa2832e0e8b62643929c307b808f2b))
+- parse average cost onchain asset ([#1688](https://github.com/consolelabs/mochi-discord/issues/1688)) ([28351b6](https://github.com/consolelabs/mochi-discord/commit/28351b6494fa2832e0e8b62643929c307b808f2b))
 
 ## [6.52.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.0...v6.52.1) (2024-06-05)
 
-
 ### Bug Fixes
 
-* **balance:** filter spam tx when render onchain bal ([#1686](https://github.com/consolelabs/mochi-discord/issues/1686)) ([121f527](https://github.com/consolelabs/mochi-discord/commit/121f527b93fe442415985e61ad1c64197d14166c))
-* **balances:** render recent tx for onchain bals ([#1685](https://github.com/consolelabs/mochi-discord/issues/1685)) ([a8fe15f](https://github.com/consolelabs/mochi-discord/commit/a8fe15fd0c303e4ea2ea8892347856c5c8b3ead7))
+- **balance:** filter spam tx when render onchain bal ([#1686](https://github.com/consolelabs/mochi-discord/issues/1686)) ([121f527](https://github.com/consolelabs/mochi-discord/commit/121f527b93fe442415985e61ad1c64197d14166c))
+- **balances:** render recent tx for onchain bals ([#1685](https://github.com/consolelabs/mochi-discord/issues/1685)) ([a8fe15f](https://github.com/consolelabs/mochi-discord/commit/a8fe15fd0c303e4ea2ea8892347856c5c8b3ead7))
 
 ## [6.52.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.1-rc.1...v6.52.1-rc.2) (2024-06-05)
 
-
 ### Bug Fixes
 
-* **balance:** filter spam tx when render onchain bal ([#1686](https://github.com/consolelabs/mochi-discord/issues/1686)) ([121f527](https://github.com/consolelabs/mochi-discord/commit/121f527b93fe442415985e61ad1c64197d14166c))
+- **balance:** filter spam tx when render onchain bal ([#1686](https://github.com/consolelabs/mochi-discord/issues/1686)) ([121f527](https://github.com/consolelabs/mochi-discord/commit/121f527b93fe442415985e61ad1c64197d14166c))
 
 ## [6.52.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.0...v6.52.1-rc.1) (2024-06-05)
 
-
 ### Bug Fixes
 
-* **balances:** render recent tx for onchain bals ([#1685](https://github.com/consolelabs/mochi-discord/issues/1685)) ([a8fe15f](https://github.com/consolelabs/mochi-discord/commit/a8fe15fd0c303e4ea2ea8892347856c5c8b3ead7))
+- **balances:** render recent tx for onchain bals ([#1685](https://github.com/consolelabs/mochi-discord/issues/1685)) ([a8fe15f](https://github.com/consolelabs/mochi-discord/commit/a8fe15fd0c303e4ea2ea8892347856c5c8b3ead7))
 
 # [6.52.0](https://github.com/consolelabs/mochi-discord/compare/v6.51.0...v6.52.0) (2024-06-04)
 
-
 ### Bug Fixes
 
-* /bal ([e4541bb](https://github.com/consolelabs/mochi-discord/commit/e4541bbfd1a41b5eacc83ce21f08b24e73e16e89))
-* update select vault for profile ([#1682](https://github.com/consolelabs/mochi-discord/issues/1682)) ([5458938](https://github.com/consolelabs/mochi-discord/commit/5458938bcf258af750e296c6afbae27390ce9fba))
-* vault report - back btn interaction ([#1681](https://github.com/consolelabs/mochi-discord/issues/1681)) ([a9a80a0](https://github.com/consolelabs/mochi-discord/commit/a9a80a0cb20031df8373084182a92f2892d9c39c))
-
+- /bal ([e4541bb](https://github.com/consolelabs/mochi-discord/commit/e4541bbfd1a41b5eacc83ce21f08b24e73e16e89))
+- update select vault for profile ([#1682](https://github.com/consolelabs/mochi-discord/issues/1682)) ([5458938](https://github.com/consolelabs/mochi-discord/commit/5458938bcf258af750e296c6afbae27390ce9fba))
+- vault report - back btn interaction ([#1681](https://github.com/consolelabs/mochi-discord/issues/1681)) ([a9a80a0](https://github.com/consolelabs/mochi-discord/commit/a9a80a0cb20031df8373084182a92f2892d9c39c))
 
 ### Features
 
-* trading vault config view ([#1683](https://github.com/consolelabs/mochi-discord/issues/1683)) ([99d3c64](https://github.com/consolelabs/mochi-discord/commit/99d3c640cd0e6d39a310e7263eb4e3034429af6d))
-* vault commands flow ([#1679](https://github.com/consolelabs/mochi-discord/issues/1679)) ([5e1e371](https://github.com/consolelabs/mochi-discord/commit/5e1e3712c0ad59f83185e630605d3bcf94afab69))
+- trading vault config view ([#1683](https://github.com/consolelabs/mochi-discord/issues/1683)) ([99d3c64](https://github.com/consolelabs/mochi-discord/commit/99d3c640cd0e6d39a310e7263eb4e3034429af6d))
+- vault commands flow ([#1679](https://github.com/consolelabs/mochi-discord/issues/1679)) ([5e1e371](https://github.com/consolelabs/mochi-discord/commit/5e1e3712c0ad59f83185e630605d3bcf94afab69))
 
 # [6.52.0-rc.5](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.4...v6.52.0-rc.5) (2024-06-03)
 
-
 ### Features
 
-* trading vault config view ([#1683](https://github.com/consolelabs/mochi-discord/issues/1683)) ([99d3c64](https://github.com/consolelabs/mochi-discord/commit/99d3c640cd0e6d39a310e7263eb4e3034429af6d))
+- trading vault config view ([#1683](https://github.com/consolelabs/mochi-discord/issues/1683)) ([99d3c64](https://github.com/consolelabs/mochi-discord/commit/99d3c640cd0e6d39a310e7263eb4e3034429af6d))
 
 # [6.52.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.3...v6.52.0-rc.4) (2024-06-03)
 
-
 ### Bug Fixes
 
-* update select vault for profile ([#1682](https://github.com/consolelabs/mochi-discord/issues/1682)) ([5458938](https://github.com/consolelabs/mochi-discord/commit/5458938bcf258af750e296c6afbae27390ce9fba))
+- update select vault for profile ([#1682](https://github.com/consolelabs/mochi-discord/issues/1682)) ([5458938](https://github.com/consolelabs/mochi-discord/commit/5458938bcf258af750e296c6afbae27390ce9fba))
 
 # [6.52.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.2...v6.52.0-rc.3) (2024-06-03)
 
-
 ### Bug Fixes
 
-* vault report - back btn interaction ([#1681](https://github.com/consolelabs/mochi-discord/issues/1681)) ([a9a80a0](https://github.com/consolelabs/mochi-discord/commit/a9a80a0cb20031df8373084182a92f2892d9c39c))
+- vault report - back btn interaction ([#1681](https://github.com/consolelabs/mochi-discord/issues/1681)) ([a9a80a0](https://github.com/consolelabs/mochi-discord/commit/a9a80a0cb20031df8373084182a92f2892d9c39c))
 
 # [6.52.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.0-rc.1...v6.52.0-rc.2) (2024-06-03)
 
-
 ### Bug Fixes
 
-* /bal ([e4541bb](https://github.com/consolelabs/mochi-discord/commit/e4541bbfd1a41b5eacc83ce21f08b24e73e16e89))
+- /bal ([e4541bb](https://github.com/consolelabs/mochi-discord/commit/e4541bbfd1a41b5eacc83ce21f08b24e73e16e89))
 
 # [6.52.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.51.0...v6.52.0-rc.1) (2024-06-03)
 
-
 ### Features
 
-* vault commands flow ([#1679](https://github.com/consolelabs/mochi-discord/issues/1679)) ([5e1e371](https://github.com/consolelabs/mochi-discord/commit/5e1e3712c0ad59f83185e630605d3bcf94afab69))
+- vault commands flow ([#1679](https://github.com/consolelabs/mochi-discord/issues/1679)) ([5e1e371](https://github.com/consolelabs/mochi-discord/commit/5e1e3712c0ad59f83185e630605d3bcf94afab69))
 
 # [6.51.0](https://github.com/consolelabs/mochi-discord/compare/v6.50.2...v6.51.0) (2024-05-31)
 
-
 ### Features
 
-* onchain asset avg cost ([#1678](https://github.com/consolelabs/mochi-discord/issues/1678)) ([dd35380](https://github.com/consolelabs/mochi-discord/commit/dd35380d8bbb01f90812eb38016ef938e71983a7))
+- onchain asset avg cost ([#1678](https://github.com/consolelabs/mochi-discord/issues/1678)) ([dd35380](https://github.com/consolelabs/mochi-discord/commit/dd35380d8bbb01f90812eb38016ef938e71983a7))
 
 ## [6.50.2](https://github.com/consolelabs/mochi-discord/compare/v6.50.1...v6.50.2) (2024-05-31)
 
-
 ### Bug Fixes
 
-* vault equity ([f5e84b5](https://github.com/consolelabs/mochi-discord/commit/f5e84b5ca12d5e866fd51041516b70e4132cd4de))
-* **vault:** render all rounds ui ([#1677](https://github.com/consolelabs/mochi-discord/issues/1677)) ([3e8a7dd](https://github.com/consolelabs/mochi-discord/commit/3e8a7dd48e4dd65bf75a4ae074c50ec28fcc6d4e))
+- vault equity ([f5e84b5](https://github.com/consolelabs/mochi-discord/commit/f5e84b5ca12d5e866fd51041516b70e4132cd4de))
+- **vault:** render all rounds ui ([#1677](https://github.com/consolelabs/mochi-discord/issues/1677)) ([3e8a7dd](https://github.com/consolelabs/mochi-discord/commit/3e8a7dd48e4dd65bf75a4ae074c50ec28fcc6d4e))
 
 ## [6.50.2-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.50.2-rc.1...v6.50.2-rc.2) (2024-05-31)
 
-
 ### Bug Fixes
 
-* vault equity ([f5e84b5](https://github.com/consolelabs/mochi-discord/commit/f5e84b5ca12d5e866fd51041516b70e4132cd4de))
+- vault equity ([f5e84b5](https://github.com/consolelabs/mochi-discord/commit/f5e84b5ca12d5e866fd51041516b70e4132cd4de))
 
 ## [6.50.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.50.1...v6.50.2-rc.1) (2024-05-30)
 
-
 ### Bug Fixes
 
-* **vault:** render all rounds ui ([#1677](https://github.com/consolelabs/mochi-discord/issues/1677)) ([3e8a7dd](https://github.com/consolelabs/mochi-discord/commit/3e8a7dd48e4dd65bf75a4ae074c50ec28fcc6d4e))
+- **vault:** render all rounds ui ([#1677](https://github.com/consolelabs/mochi-discord/issues/1677)) ([3e8a7dd](https://github.com/consolelabs/mochi-discord/commit/3e8a7dd48e4dd65bf75a4ae074c50ec28fcc6d4e))
 
 ## [6.50.1](https://github.com/consolelabs/mochi-discord/compare/v6.50.0...v6.50.1) (2024-05-30)
 
-
 ### Bug Fixes
 
-* remove hardcode ([ff2a283](https://github.com/consolelabs/mochi-discord/commit/ff2a2832f6b5cdd7f8b548e4e7e30db1d9913e0f))
+- remove hardcode ([ff2a283](https://github.com/consolelabs/mochi-discord/commit/ff2a2832f6b5cdd7f8b548e4e7e30db1d9913e0f))
 
 ## [6.50.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.50.0...v6.50.1-rc.1) (2024-05-30)
 
-
 ### Bug Fixes
 
-* remove hardcode ([ff2a283](https://github.com/consolelabs/mochi-discord/commit/ff2a2832f6b5cdd7f8b548e4e7e30db1d9913e0f))
+- remove hardcode ([ff2a283](https://github.com/consolelabs/mochi-discord/commit/ff2a2832f6b5cdd7f8b548e4e7e30db1d9913e0f))
 
 # [6.50.0](https://github.com/consolelabs/mochi-discord/compare/v6.49.9...v6.50.0) (2024-05-30)
 
-
 ### Bug Fixes
 
-* **vault:** fix render vault info ([#1676](https://github.com/consolelabs/mochi-discord/issues/1676)) ([c1f7cc8](https://github.com/consolelabs/mochi-discord/commit/c1f7cc80ad06902a46c4e931d3bd1e6449fb459d))
-
+- **vault:** fix render vault info ([#1676](https://github.com/consolelabs/mochi-discord/issues/1676)) ([c1f7cc8](https://github.com/consolelabs/mochi-discord/commit/c1f7cc80ad06902a46c4e931d3bd1e6449fb459d))
 
 ### Features
 
-* /bal dca ([ce2b4e9](https://github.com/consolelabs/mochi-discord/commit/ce2b4e9ad58606fc9877f7f0cd12b6dcc83c5d51))
+- /bal dca ([ce2b4e9](https://github.com/consolelabs/mochi-discord/commit/ce2b4e9ad58606fc9877f7f0cd12b6dcc83c5d51))
 
 # [6.50.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.50.0-rc.1...v6.50.0-rc.2) (2024-05-30)
 
-
 ### Bug Fixes
 
-* **vault:** fix render vault info ([#1676](https://github.com/consolelabs/mochi-discord/issues/1676)) ([c1f7cc8](https://github.com/consolelabs/mochi-discord/commit/c1f7cc80ad06902a46c4e931d3bd1e6449fb459d))
+- **vault:** fix render vault info ([#1676](https://github.com/consolelabs/mochi-discord/issues/1676)) ([c1f7cc8](https://github.com/consolelabs/mochi-discord/commit/c1f7cc80ad06902a46c4e931d3bd1e6449fb459d))
 
 # [6.50.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.9...v6.50.0-rc.1) (2024-05-30)
 
-
 ### Features
 
-* /bal dca ([ce2b4e9](https://github.com/consolelabs/mochi-discord/commit/ce2b4e9ad58606fc9877f7f0cd12b6dcc83c5d51))
+- /bal dca ([ce2b4e9](https://github.com/consolelabs/mochi-discord/commit/ce2b4e9ad58606fc9877f7f0cd12b6dcc83c5d51))
 
 ## [6.49.9](https://github.com/consolelabs/mochi-discord/compare/v6.49.8...v6.49.9) (2024-05-29)
 
-
 ### Bug Fixes
 
-* **balances:** render format spot tx type cex ([#1675](https://github.com/consolelabs/mochi-discord/issues/1675)) ([c911140](https://github.com/consolelabs/mochi-discord/commit/c9111404146b44622805feb07f1fd64acb1b0357))
+- **balances:** render format spot tx type cex ([#1675](https://github.com/consolelabs/mochi-discord/issues/1675)) ([c911140](https://github.com/consolelabs/mochi-discord/commit/c9111404146b44622805feb07f1fd64acb1b0357))
 
 ## [6.49.9-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.8...v6.49.9-rc.1) (2024-05-29)
 
-
 ### Bug Fixes
 
-* **balances:** render format spot tx type cex ([#1675](https://github.com/consolelabs/mochi-discord/issues/1675)) ([c911140](https://github.com/consolelabs/mochi-discord/commit/c9111404146b44622805feb07f1fd64acb1b0357))
+- **balances:** render format spot tx type cex ([#1675](https://github.com/consolelabs/mochi-discord/issues/1675)) ([c911140](https://github.com/consolelabs/mochi-discord/commit/c9111404146b44622805feb07f1fd64acb1b0357))
 
 ## [6.49.8](https://github.com/consolelabs/mochi-discord/compare/v6.49.7...v6.49.8) (2024-05-29)
 
-
 ### Bug Fixes
 
-* **balance:** fix render spot tx for bal type cex ([#1674](https://github.com/consolelabs/mochi-discord/issues/1674)) ([af0a308](https://github.com/consolelabs/mochi-discord/commit/af0a3080fa449ab18847b1124ccabbeb3f7b3e58))
+- **balance:** fix render spot tx for bal type cex ([#1674](https://github.com/consolelabs/mochi-discord/issues/1674)) ([af0a308](https://github.com/consolelabs/mochi-discord/commit/af0a3080fa449ab18847b1124ccabbeb3f7b3e58))
 
 ## [6.49.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.7...v6.49.8-rc.1) (2024-05-29)
 
-
 ### Bug Fixes
 
-* **balance:** fix render spot tx for bal type cex ([#1674](https://github.com/consolelabs/mochi-discord/issues/1674)) ([af0a308](https://github.com/consolelabs/mochi-discord/commit/af0a3080fa449ab18847b1124ccabbeb3f7b3e58))
+- **balance:** fix render spot tx for bal type cex ([#1674](https://github.com/consolelabs/mochi-discord/issues/1674)) ([af0a308](https://github.com/consolelabs/mochi-discord/commit/af0a3080fa449ab18847b1124ccabbeb3f7b3e58))
 
 ## [6.49.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.6...v6.49.7-rc.1) (2024-05-29)
 
-
 ### Bug Fixes
 
-* **balance:** change format render binance spot tx ([#1673](https://github.com/consolelabs/mochi-discord/issues/1673)) ([e0f8649](https://github.com/consolelabs/mochi-discord/commit/e0f86491e34b69cbdbd0f32d2289b84a4f7850d5))
+- **balance:** change format render binance spot tx ([#1673](https://github.com/consolelabs/mochi-discord/issues/1673)) ([e0f8649](https://github.com/consolelabs/mochi-discord/commit/e0f86491e34b69cbdbd0f32d2289b84a4f7850d5))
 
 ## [6.49.6](https://github.com/consolelabs/mochi-discord/compare/v6.49.5...v6.49.6) (2024-05-28)
 
-
 ### Bug Fixes
 
-* ticker chart - y-axis number format ([#1670](https://github.com/consolelabs/mochi-discord/issues/1670)) ([770fb8e](https://github.com/consolelabs/mochi-discord/commit/770fb8eaf7f7a5cf5afd9ef1aceb994d142f91f3))
-* ticker compare ([#1672](https://github.com/consolelabs/mochi-discord/issues/1672)) ([84fb590](https://github.com/consolelabs/mochi-discord/commit/84fb59058d9abf41597805cb9ab58e56569c87c4))
-* trading vault detail - adapt data changes ([#1669](https://github.com/consolelabs/mochi-discord/issues/1669)) ([0942c7f](https://github.com/consolelabs/mochi-discord/commit/0942c7f181eb312c15ae7599cd0c95cf6edf6f87))
-* trading vault detail - small tweak ([#1671](https://github.com/consolelabs/mochi-discord/issues/1671)) ([2a7ded0](https://github.com/consolelabs/mochi-discord/commit/2a7ded0e4a5455d7239f8b8a5a1640996fde5300))
+- ticker chart - y-axis number format ([#1670](https://github.com/consolelabs/mochi-discord/issues/1670)) ([770fb8e](https://github.com/consolelabs/mochi-discord/commit/770fb8eaf7f7a5cf5afd9ef1aceb994d142f91f3))
+- ticker compare ([#1672](https://github.com/consolelabs/mochi-discord/issues/1672)) ([84fb590](https://github.com/consolelabs/mochi-discord/commit/84fb59058d9abf41597805cb9ab58e56569c87c4))
+- trading vault detail - adapt data changes ([#1669](https://github.com/consolelabs/mochi-discord/issues/1669)) ([0942c7f](https://github.com/consolelabs/mochi-discord/commit/0942c7f181eb312c15ae7599cd0c95cf6edf6f87))
+- trading vault detail - small tweak ([#1671](https://github.com/consolelabs/mochi-discord/issues/1671)) ([2a7ded0](https://github.com/consolelabs/mochi-discord/commit/2a7ded0e4a5455d7239f8b8a5a1640996fde5300))
 
 ## [6.49.6-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.3...v6.49.6-rc.4) (2024-05-28)
 
-
 ### Bug Fixes
 
-* ticker compare ([#1672](https://github.com/consolelabs/mochi-discord/issues/1672)) ([84fb590](https://github.com/consolelabs/mochi-discord/commit/84fb59058d9abf41597805cb9ab58e56569c87c4))
+- ticker compare ([#1672](https://github.com/consolelabs/mochi-discord/issues/1672)) ([84fb590](https://github.com/consolelabs/mochi-discord/commit/84fb59058d9abf41597805cb9ab58e56569c87c4))
 
 ## [6.49.6-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.2...v6.49.6-rc.3) (2024-05-28)
 
-
 ### Bug Fixes
 
-* trading vault detail - small tweak ([#1671](https://github.com/consolelabs/mochi-discord/issues/1671)) ([2a7ded0](https://github.com/consolelabs/mochi-discord/commit/2a7ded0e4a5455d7239f8b8a5a1640996fde5300))
+- trading vault detail - small tweak ([#1671](https://github.com/consolelabs/mochi-discord/issues/1671)) ([2a7ded0](https://github.com/consolelabs/mochi-discord/commit/2a7ded0e4a5455d7239f8b8a5a1640996fde5300))
 
 ## [6.49.6-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.6-rc.1...v6.49.6-rc.2) (2024-05-27)
 
-
 ### Bug Fixes
 
-* ticker chart - y-axis number format ([#1670](https://github.com/consolelabs/mochi-discord/issues/1670)) ([770fb8e](https://github.com/consolelabs/mochi-discord/commit/770fb8eaf7f7a5cf5afd9ef1aceb994d142f91f3))
+- ticker chart - y-axis number format ([#1670](https://github.com/consolelabs/mochi-discord/issues/1670)) ([770fb8e](https://github.com/consolelabs/mochi-discord/commit/770fb8eaf7f7a5cf5afd9ef1aceb994d142f91f3))
 
 ## [6.49.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.5...v6.49.6-rc.1) (2024-05-27)
 
-
 ### Bug Fixes
 
-* trading vault detail - adapt data changes ([#1669](https://github.com/consolelabs/mochi-discord/issues/1669)) ([0942c7f](https://github.com/consolelabs/mochi-discord/commit/0942c7f181eb312c15ae7599cd0c95cf6edf6f87))
+- trading vault detail - adapt data changes ([#1669](https://github.com/consolelabs/mochi-discord/issues/1669)) ([0942c7f](https://github.com/consolelabs/mochi-discord/commit/0942c7f181eb312c15ae7599cd0c95cf6edf6f87))
 
 ## [6.49.5](https://github.com/consolelabs/mochi-discord/compare/v6.49.4...v6.49.5) (2024-05-24)
 
-
 ### Bug Fixes
 
-* **balance:** support deposit and wd tx in bal type cex ([#1668](https://github.com/consolelabs/mochi-discord/issues/1668)) ([50ad001](https://github.com/consolelabs/mochi-discord/commit/50ad001c64baea5d70df0580b0f50683751c4219))
+- **balance:** support deposit and wd tx in bal type cex ([#1668](https://github.com/consolelabs/mochi-discord/issues/1668)) ([50ad001](https://github.com/consolelabs/mochi-discord/commit/50ad001c64baea5d70df0580b0f50683751c4219))
 
 ## [6.49.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.4...v6.49.5-rc.1) (2024-05-24)
 
-
 ### Bug Fixes
 
-* **balance:** support deposit and wd tx in bal type cex ([#1668](https://github.com/consolelabs/mochi-discord/issues/1668)) ([50ad001](https://github.com/consolelabs/mochi-discord/commit/50ad001c64baea5d70df0580b0f50683751c4219))
+- **balance:** support deposit and wd tx in bal type cex ([#1668](https://github.com/consolelabs/mochi-discord/issues/1668)) ([50ad001](https://github.com/consolelabs/mochi-discord/commit/50ad001c64baea5d70df0580b0f50683751c4219))
 
 ## [6.49.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.3...v6.49.4) (2024-05-24)
 
-
 ### Bug Fixes
 
-* **ticker:** update logic when data undefined ([#1667](https://github.com/consolelabs/mochi-discord/issues/1667)) ([f39827d](https://github.com/consolelabs/mochi-discord/commit/f39827d261b84e851e237e0095d465ac94d288ad))
+- **ticker:** update logic when data undefined ([#1667](https://github.com/consolelabs/mochi-discord/issues/1667)) ([f39827d](https://github.com/consolelabs/mochi-discord/commit/f39827d261b84e851e237e0095d465ac94d288ad))
 
 ## [6.49.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.3...v6.49.4-rc.1) (2024-05-24)
 
-
 ### Bug Fixes
 
-* **ticker:** update logic when data undefined ([#1667](https://github.com/consolelabs/mochi-discord/issues/1667)) ([f39827d](https://github.com/consolelabs/mochi-discord/commit/f39827d261b84e851e237e0095d465ac94d288ad))
+- **ticker:** update logic when data undefined ([#1667](https://github.com/consolelabs/mochi-discord/issues/1667)) ([f39827d](https://github.com/consolelabs/mochi-discord/commit/f39827d261b84e851e237e0095d465ac94d288ad))
 
 ## [6.49.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.2...v6.49.3) (2024-05-23)
 
-
 ### Bug Fixes
 
-* update vault list data ([#1665](https://github.com/consolelabs/mochi-discord/issues/1665)) ([ec41860](https://github.com/consolelabs/mochi-discord/commit/ec41860ea8e993edb70998caff3a9536131d45c5))
-* vault detail format ([#1666](https://github.com/consolelabs/mochi-discord/issues/1666)) ([e348e1a](https://github.com/consolelabs/mochi-discord/commit/e348e1a6ed1dcce02734362c637cd0aa9e55f8ec))
+- update vault list data ([#1665](https://github.com/consolelabs/mochi-discord/issues/1665)) ([ec41860](https://github.com/consolelabs/mochi-discord/commit/ec41860ea8e993edb70998caff3a9536131d45c5))
+- vault detail format ([#1666](https://github.com/consolelabs/mochi-discord/issues/1666)) ([e348e1a](https://github.com/consolelabs/mochi-discord/commit/e348e1a6ed1dcce02734362c637cd0aa9e55f8ec))
 
 ## [6.49.3-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.3-rc.1...v6.49.3-rc.2) (2024-05-23)
 
-
 ### Bug Fixes
 
-* vault detail format ([#1666](https://github.com/consolelabs/mochi-discord/issues/1666)) ([e348e1a](https://github.com/consolelabs/mochi-discord/commit/e348e1a6ed1dcce02734362c637cd0aa9e55f8ec))
+- vault detail format ([#1666](https://github.com/consolelabs/mochi-discord/issues/1666)) ([e348e1a](https://github.com/consolelabs/mochi-discord/commit/e348e1a6ed1dcce02734362c637cd0aa9e55f8ec))
 
 ## [6.49.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.2...v6.49.3-rc.1) (2024-05-22)
 
-
 ### Bug Fixes
 
-* update vault list data ([#1665](https://github.com/consolelabs/mochi-discord/issues/1665)) ([ec41860](https://github.com/consolelabs/mochi-discord/commit/ec41860ea8e993edb70998caff3a9536131d45c5))
+- update vault list data ([#1665](https://github.com/consolelabs/mochi-discord/issues/1665)) ([ec41860](https://github.com/consolelabs/mochi-discord/commit/ec41860ea8e993edb70998caff3a9536131d45c5))
 
 ## [6.49.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.1...v6.49.2) (2024-05-22)
 
-
 ### Bug Fixes
 
-* wla exist error msg ([#1664](https://github.com/consolelabs/mochi-discord/issues/1664)) ([99ce002](https://github.com/consolelabs/mochi-discord/commit/99ce0026759ead68557e6a67e2ea0f219402f604))
+- wla exist error msg ([#1664](https://github.com/consolelabs/mochi-discord/issues/1664)) ([99ce002](https://github.com/consolelabs/mochi-discord/commit/99ce0026759ead68557e6a67e2ea0f219402f604))
 
 ## [6.49.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.1...v6.49.2-rc.1) (2024-05-22)
 
-
 ### Bug Fixes
 
-* wla exist error msg ([#1664](https://github.com/consolelabs/mochi-discord/issues/1664)) ([99ce002](https://github.com/consolelabs/mochi-discord/commit/99ce0026759ead68557e6a67e2ea0f219402f604))
+- wla exist error msg ([#1664](https://github.com/consolelabs/mochi-discord/issues/1664)) ([99ce002](https://github.com/consolelabs/mochi-discord/commit/99ce0026759ead68557e6a67e2ea0f219402f604))
 
 ## [6.49.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.0...v6.49.1) (2024-05-22)
 
-
 ### Bug Fixes
 
-* show balance of native token on different chains ([#1663](https://github.com/consolelabs/mochi-discord/issues/1663)) ([09f843a](https://github.com/consolelabs/mochi-discord/commit/09f843a1205fcda5425c064a06d659f2965cb77a))
+- show balance of native token on different chains ([#1663](https://github.com/consolelabs/mochi-discord/issues/1663)) ([09f843a](https://github.com/consolelabs/mochi-discord/commit/09f843a1205fcda5425c064a06d659f2965cb77a))
 
 ## [6.49.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.49.0...v6.49.1-rc.1) (2024-05-22)
 
-
 ### Bug Fixes
 
-* show balance of native token on different chains ([#1663](https://github.com/consolelabs/mochi-discord/issues/1663)) ([09f843a](https://github.com/consolelabs/mochi-discord/commit/09f843a1205fcda5425c064a06d659f2965cb77a))
+- show balance of native token on different chains ([#1663](https://github.com/consolelabs/mochi-discord/issues/1663)) ([09f843a](https://github.com/consolelabs/mochi-discord/commit/09f843a1205fcda5425c064a06d659f2965cb77a))
 
 # [6.49.0](https://github.com/consolelabs/mochi-discord/compare/v6.48.1...v6.49.0) (2024-05-21)
 
-
 ### Bug Fixes
 
-* add momentjs ([#1661](https://github.com/consolelabs/mochi-discord/issues/1661)) ([db13fa4](https://github.com/consolelabs/mochi-discord/commit/db13fa4ef30b708c9e3a8a370251df2f73343d74))
-* update usd format for watch list view ([#1662](https://github.com/consolelabs/mochi-discord/issues/1662)) ([be3db6f](https://github.com/consolelabs/mochi-discord/commit/be3db6fb20fef75565621881939631a4d9bfd02a))
-* vault detail render ([#1660](https://github.com/consolelabs/mochi-discord/issues/1660)) ([94c6443](https://github.com/consolelabs/mochi-discord/commit/94c64434c82b3e07d30fd18c862ecad92c6c3359))
-
+- add momentjs ([#1661](https://github.com/consolelabs/mochi-discord/issues/1661)) ([db13fa4](https://github.com/consolelabs/mochi-discord/commit/db13fa4ef30b708c9e3a8a370251df2f73343d74))
+- update usd format for watch list view ([#1662](https://github.com/consolelabs/mochi-discord/issues/1662)) ([be3db6f](https://github.com/consolelabs/mochi-discord/commit/be3db6fb20fef75565621881939631a4d9bfd02a))
+- vault detail render ([#1660](https://github.com/consolelabs/mochi-discord/issues/1660)) ([94c6443](https://github.com/consolelabs/mochi-discord/commit/94c64434c82b3e07d30fd18c862ecad92c6c3359))
 
 ### Features
 
-* trading vault ([#1658](https://github.com/consolelabs/mochi-discord/issues/1658)) ([d9b1764](https://github.com/consolelabs/mochi-discord/commit/d9b1764c24d872295121fe906dc7add45e5ca008))
+- trading vault ([#1658](https://github.com/consolelabs/mochi-discord/issues/1658)) ([d9b1764](https://github.com/consolelabs/mochi-discord/commit/d9b1764c24d872295121fe906dc7add45e5ca008))
 
 # [6.49.0-rc.4](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.3...v6.49.0-rc.4) (2024-05-21)
 
-
 ### Bug Fixes
 
-* update usd format for watch list view ([#1662](https://github.com/consolelabs/mochi-discord/issues/1662)) ([be3db6f](https://github.com/consolelabs/mochi-discord/commit/be3db6fb20fef75565621881939631a4d9bfd02a))
+- update usd format for watch list view ([#1662](https://github.com/consolelabs/mochi-discord/issues/1662)) ([be3db6f](https://github.com/consolelabs/mochi-discord/commit/be3db6fb20fef75565621881939631a4d9bfd02a))
 
 # [6.49.0-rc.3](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.2...v6.49.0-rc.3) (2024-05-21)
 
-
 ### Bug Fixes
 
-* add momentjs ([#1661](https://github.com/consolelabs/mochi-discord/issues/1661)) ([db13fa4](https://github.com/consolelabs/mochi-discord/commit/db13fa4ef30b708c9e3a8a370251df2f73343d74))
+- add momentjs ([#1661](https://github.com/consolelabs/mochi-discord/issues/1661)) ([db13fa4](https://github.com/consolelabs/mochi-discord/commit/db13fa4ef30b708c9e3a8a370251df2f73343d74))
 
 # [6.49.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.49.0-rc.1...v6.49.0-rc.2) (2024-05-20)
 
-
 ### Bug Fixes
 
-* vault detail render ([#1660](https://github.com/consolelabs/mochi-discord/issues/1660)) ([94c6443](https://github.com/consolelabs/mochi-discord/commit/94c64434c82b3e07d30fd18c862ecad92c6c3359))
+- vault detail render ([#1660](https://github.com/consolelabs/mochi-discord/issues/1660)) ([94c6443](https://github.com/consolelabs/mochi-discord/commit/94c64434c82b3e07d30fd18c862ecad92c6c3359))
 
 # [6.49.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.1...v6.49.0-rc.1) (2024-05-20)
 
-
 ### Features
 
-* trading vault ([#1658](https://github.com/consolelabs/mochi-discord/issues/1658)) ([d9b1764](https://github.com/consolelabs/mochi-discord/commit/d9b1764c24d872295121fe906dc7add45e5ca008))
+- trading vault ([#1658](https://github.com/consolelabs/mochi-discord/issues/1658)) ([d9b1764](https://github.com/consolelabs/mochi-discord/commit/d9b1764c24d872295121fe906dc7add45e5ca008))
 
 ## [6.48.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.0...v6.48.1) (2024-05-13)
 
-
 ### Bug Fixes
 
-* **balance:** change format view binance spot bal with avg cost ([#1659](https://github.com/consolelabs/mochi-discord/issues/1659)) ([2485924](https://github.com/consolelabs/mochi-discord/commit/24859248c3a46bc786da3ce53d565c0c3d32ffcd))
+- **balance:** change format view binance spot bal with avg cost ([#1659](https://github.com/consolelabs/mochi-discord/issues/1659)) ([2485924](https://github.com/consolelabs/mochi-discord/commit/24859248c3a46bc786da3ce53d565c0c3d32ffcd))
 
 ## [6.48.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.48.0...v6.48.1-rc.1) (2024-05-13)
 
-
 ### Bug Fixes
 
-* **balance:** change format view binance spot bal with avg cost ([#1659](https://github.com/consolelabs/mochi-discord/issues/1659)) ([2485924](https://github.com/consolelabs/mochi-discord/commit/24859248c3a46bc786da3ce53d565c0c3d32ffcd))
+- **balance:** change format view binance spot bal with avg cost ([#1659](https://github.com/consolelabs/mochi-discord/issues/1659)) ([2485924](https://github.com/consolelabs/mochi-discord/commit/24859248c3a46bc786da3ce53d565c0c3d32ffcd))
 
 # [6.48.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.4...v6.48.0-rc.1) (2024-05-10)
 
-
 ### Features
 
-* add binance avg cost ([#1657](https://github.com/consolelabs/mochi-discord/issues/1657)) ([787ba4d](https://github.com/consolelabs/mochi-discord/commit/787ba4d60dc470447acfe8955ea93caf155e19d7))
+- add binance avg cost ([#1657](https://github.com/consolelabs/mochi-discord/issues/1657)) ([787ba4d](https://github.com/consolelabs/mochi-discord/commit/787ba4d60dc470447acfe8955ea93caf155e19d7))
 
 ## [6.47.4](https://github.com/consolelabs/mochi-discord/compare/v6.47.3...v6.47.4) (2024-05-09)
 
-
 ### Bug Fixes
 
-* **binancespottxns:** add binance earn usdt to spot ([#1656](https://github.com/consolelabs/mochi-discord/issues/1656)) ([78dbd7e](https://github.com/consolelabs/mochi-discord/commit/78dbd7e42f6723050f881c29f9672a152459714e))
+- **binancespottxns:** add binance earn usdt to spot ([#1656](https://github.com/consolelabs/mochi-discord/issues/1656)) ([78dbd7e](https://github.com/consolelabs/mochi-discord/commit/78dbd7e42f6723050f881c29f9672a152459714e))
 
 ## [6.47.4-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.3...v6.47.4-rc.1) (2024-05-09)
 
-
 ### Bug Fixes
 
-* **binancespottxns:** add binance earn usdt to spot ([#1656](https://github.com/consolelabs/mochi-discord/issues/1656)) ([78dbd7e](https://github.com/consolelabs/mochi-discord/commit/78dbd7e42f6723050f881c29f9672a152459714e))
+- **binancespottxns:** add binance earn usdt to spot ([#1656](https://github.com/consolelabs/mochi-discord/issues/1656)) ([78dbd7e](https://github.com/consolelabs/mochi-discord/commit/78dbd7e42f6723050f881c29f9672a152459714e))
 
 ## [6.47.3](https://github.com/consolelabs/mochi-discord/compare/v6.47.2...v6.47.3) (2024-05-08)
 
-
 ### Bug Fixes
 
-* upgrade mochi-formatter ([#1655](https://github.com/consolelabs/mochi-discord/issues/1655)) ([a710df2](https://github.com/consolelabs/mochi-discord/commit/a710df273afa67c0f3287c596de4776828fa8cb3))
+- upgrade mochi-formatter ([#1655](https://github.com/consolelabs/mochi-discord/issues/1655)) ([a710df2](https://github.com/consolelabs/mochi-discord/commit/a710df273afa67c0f3287c596de4776828fa8cb3))
 
 ## [6.47.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.2...v6.47.3-rc.1) (2024-05-08)
 
-
 ### Bug Fixes
 
-* upgrade mochi-formatter ([#1655](https://github.com/consolelabs/mochi-discord/issues/1655)) ([a710df2](https://github.com/consolelabs/mochi-discord/commit/a710df273afa67c0f3287c596de4776828fa8cb3))
+- upgrade mochi-formatter ([#1655](https://github.com/consolelabs/mochi-discord/issues/1655)) ([a710df2](https://github.com/consolelabs/mochi-discord/commit/a710df273afa67c0f3287c596de4776828fa8cb3))
 
 ## [6.47.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.1...v6.47.2) (2024-05-08)
 
-
 ### Bug Fixes
 
-* **binancespottxns:** add binance spot txns ([#1654](https://github.com/consolelabs/mochi-discord/issues/1654)) ([982f7ba](https://github.com/consolelabs/mochi-discord/commit/982f7baf8d4ccd459aba80e619ee35ea3b4b43c5))
+- **binancespottxns:** add binance spot txns ([#1654](https://github.com/consolelabs/mochi-discord/issues/1654)) ([982f7ba](https://github.com/consolelabs/mochi-discord/commit/982f7baf8d4ccd459aba80e619ee35ea3b4b43c5))
 
 ## [6.47.2-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.1...v6.47.2-rc.1) (2024-05-08)
 
-
 ### Bug Fixes
 
-* **binancespottxns:** add binance spot txns ([#1654](https://github.com/consolelabs/mochi-discord/issues/1654)) ([982f7ba](https://github.com/consolelabs/mochi-discord/commit/982f7baf8d4ccd459aba80e619ee35ea3b4b43c5))
+- **binancespottxns:** add binance spot txns ([#1654](https://github.com/consolelabs/mochi-discord/issues/1654)) ([982f7ba](https://github.com/consolelabs/mochi-discord/commit/982f7baf8d4ccd459aba80e619ee35ea3b4b43c5))
 
 ## [6.47.1-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.1-rc.1...v6.47.1-rc.2) (2024-05-07)
 
-
 ### Bug Fixes
 
-* ticker and wlv ([#1653](https://github.com/consolelabs/mochi-discord/issues/1653)) ([6c2c690](https://github.com/consolelabs/mochi-discord/commit/6c2c69002ac2e7d21540232a5ac8138efaec6280))
+- ticker and wlv ([#1653](https://github.com/consolelabs/mochi-discord/issues/1653)) ([6c2c690](https://github.com/consolelabs/mochi-discord/commit/6c2c69002ac2e7d21540232a5ac8138efaec6280))
 
 ## [6.47.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.47.0...v6.47.1-rc.1) (2024-04-26)
 
-
 ### Bug Fixes
 
-* ticker and bals (all) ([#1652](https://github.com/consolelabs/mochi-discord/issues/1652)) ([8cafe83](https://github.com/consolelabs/mochi-discord/commit/8cafe831105ca92ed2934050fdf7d27c2dbb7b0b))
+- ticker and bals (all) ([#1652](https://github.com/consolelabs/mochi-discord/issues/1652)) ([8cafe83](https://github.com/consolelabs/mochi-discord/commit/8cafe831105ca92ed2934050fdf7d27c2dbb7b0b))
 
 # [6.47.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.47.0-rc.1...v6.47.0-rc.2) (2024-04-24)
 
