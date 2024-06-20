@@ -1,3 +1,10 @@
+## [6.52.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.5...v6.52.6-rc.1) (2024-06-20)
+
+
+### Bug Fixes
+
+* **vault:** add chart pnl for trading vault ([#1692](https://github.com/consolelabs/mochi-discord/issues/1692)) ([95bd8d8](https://github.com/consolelabs/mochi-discord/commit/95bd8d8c943a0128783e787617e83bd808e6c6da))
+
 ## [6.52.5](https://github.com/consolelabs/mochi-discord/compare/v6.52.4...v6.52.5) (2024-06-06)
 
 
