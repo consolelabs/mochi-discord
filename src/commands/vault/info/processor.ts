@@ -6,6 +6,7 @@ import {
   MessageActionRow,
   MessageButton,
   MessageSelectMenu,
+  MessageAttachment,
 } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
@@ -30,6 +31,7 @@ import {
 import mochiPay from "adapters/mochi-pay"
 import moment from "moment"
 import { utils } from "@consolelabs/mochi-formatter"
+import { drawLineChart } from "utils/chart"
 
 const getPnlIcon = (n: number) => (n >= 0 ? ":green_circle:" : ":red_circle:")
 
@@ -323,9 +325,7 @@ export async function runGetVaultDetail({
         value: Number(report.vault_equity.floating_profit ?? 0),
         shorten: false,
       })}`,
-      `${getEmoji(
-        "ANIMATED_PARTY_POPPER",
-      )} \`Claimable amount. \` ${utils.formatUsdPriceDigit({
+      `:tada: \`Claimable amount. \` ${utils.formatUsdPriceDigit({
         value: Number(report.vault_equity.claimable ?? 0),
         shorten: false,
       })}`,
@@ -358,6 +358,51 @@ export async function runGetVaultDetail({
       )}\``,
     ].join("\n")
 
+    // add chart Pnl
+    const latestTrade = open_trades ?? close_trades?.[0]
+
+    if (!latestTrade) {
+      throw new InternalError({
+        msgOrInteraction: interaction,
+        title: "No Trading Data",
+        description: originalError,
+      })
+    }
+
+    const dataPnl = await mochiPay.getInvestorPnls(profileId, selectedVault, {
+      trade_set_id: latestTrade.id!,
+    })
+    if (!dataPnl?.length) {
+      throw new InternalError({
+        msgOrInteraction: interaction,
+        title: "No Pnl Data",
+        description: originalError,
+      })
+    }
+
+    // if current minute > 10, pnl snapshot might be outdated
+    const outdatable = new Date().getMinutes() > 10
+    const hasOpenTrade = latestTrade.status === 1
+    if (outdatable && hasOpenTrade) {
+      dataPnl.push({
+        time: new Date().toISOString(),
+        sum_pnl: Number(latestTrade.unrealized_pnl!),
+        account_id: "",
+        account_trade_set_id: undefined,
+        realized_pnl: 0,
+        unrealized_pnl: 0,
+      })
+    }
+
+    // draw chart pnl
+    const labels = dataPnl.map((r: { time: string | undefined }, i: any) =>
+      formatDateTime(r.time),
+    )
+    const buffer = await drawLineChart({
+      title: "PNL (USD)",
+      labels,
+      data: dataPnl.map((r: { sum_pnl: any }) => r.sum_pnl || 0),
+    })
     const description = composeTradesDescription({
       description: `${basicInfo}\n\n${vaultEquity}\n\n${address}\n\n${roundFields}\n\n${openTrades}`,
       trades: close_trades,
@@ -367,6 +412,7 @@ export async function runGetVaultDetail({
       color: msgColors.BLUE,
       author: ["Trading vault info", getEmojiURL(emojis.ANIMATED_DIAMOND)],
       description,
+      image: "attachment://chart_pnl.png",
     })
 
     return {
@@ -380,6 +426,7 @@ export async function runGetVaultDetail({
       },
       msgOpts: {
         embeds: [embed],
+        files: [new MessageAttachment(buffer, "chart_pnl.png")],
         components: [
           new MessageActionRow().addComponents(
             new MessageButton()
@@ -728,4 +775,16 @@ export function buildTreasurerFields(data: any): any {
     ]
   }
   return []
+}
+
+function formatDateTime(s: string | undefined, timeOnly?: boolean) {
+  if (!s) return "N/A"
+  const d = new Date(s)
+  return `${
+    timeOnly
+      ? ""
+      : `${d.toLocaleDateString("en-US", { day: "numeric", month: "short" })}, `
+  }${d
+    .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
+    .replace(" ", "")}`
 }
