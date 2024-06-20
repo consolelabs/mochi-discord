@@ -386,6 +386,22 @@ class MochiPay extends Fetcher {
     }
     return data
   }
+
+  async getInvestorPnls(
+    profileId: string,
+    vaultId: string,
+    query?: { trade_set_id: string },
+  ): Promise<any> {
+    const { ok, data: res } = await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults/${vaultId}/pnl`,
+      { query },
+    )
+    let data = null
+    if (ok) {
+      data = res as any
+    }
+    return data
+  }
 }
 
 export default new MochiPay()
