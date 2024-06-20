@@ -1,9 +1,10 @@
-## [6.52.5-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.52.5-rc.1...v6.52.5-rc.2) (2024-06-06)
+## [6.52.5](https://github.com/consolelabs/mochi-discord/compare/v6.52.4...v6.52.5) (2024-06-06)
 
 
 ### Bug Fixes
 
 * remove invest section ([#1691](https://github.com/consolelabs/mochi-discord/issues/1691)) ([8502265](https://github.com/consolelabs/mochi-discord/commit/8502265514681b89058d0741ed85e3971045ad47))
+* trading vault - render full closed trades ([#1690](https://github.com/consolelabs/mochi-discord/issues/1690)) ([6a61af4](https://github.com/consolelabs/mochi-discord/commit/6a61af4f807cc65cb4d0a27d9ac8205a2b581b25))
 
 ## [6.52.5-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.4...v6.52.5-rc.1) (2024-06-05)
 
