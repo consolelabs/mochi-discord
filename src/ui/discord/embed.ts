@@ -604,12 +604,7 @@ export async function getCommandSuggestion(
   const results = fuzzySet.get(userInput, null, 0.5)
 
   if (!results || results.length == 0) {
-    return {
-      author: ["Mochi is confused", getEmojiURL(emojis.MOCHI_CIRCLE)],
-      description: `Mochi doesn't understand what command you are trying to use.\n${getEmoji(
-        "ANIMATED_POINTING_RIGHT",
-      )} Perhaps you can reference \`${PREFIX}help\` for more info`,
-    }
+    return null
   } else {
     const result = results[0][1]
     const cmd = commands[result]
