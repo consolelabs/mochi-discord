@@ -1,3 +1,10 @@
+## [6.52.7-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.6...v6.52.7-rc.1) (2024-06-27)
+
+
+### Bug Fixes
+
+* ignore unknown cmds ([#1693](https://github.com/consolelabs/mochi-discord/issues/1693)) ([2497186](https://github.com/consolelabs/mochi-discord/commit/2497186b626048704264195102854414200fce30))
+
 ## [6.52.6](https://github.com/consolelabs/mochi-discord/compare/v6.52.5...v6.52.6) (2024-06-20)
 
 
