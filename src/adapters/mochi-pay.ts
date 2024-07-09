@@ -343,11 +343,12 @@ class MochiPay extends Fetcher {
 
   async listEarningVaults(
     profileId: string,
+    guildId: string,
     fetchTradeDetails = false,
   ): Promise<any> {
     const { data: res, ok } = await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults`,
-      { query: { fetchTradeDetails } },
+      { query: { fetchTradeDetails, guildId } },
     )
     let data = []
     if (ok) {
