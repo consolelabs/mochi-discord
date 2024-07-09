@@ -314,21 +314,35 @@ export async function runGetVaultDetail({
       })}`,
     ].join("\n")
 
+    let share = report.vault_equity.stake_percent
+    let claiambleInfo = utils.formatUsdPriceDigit({
+      value: Number(report.vault_equity.claimable ?? 0),
+      shorten: false,
+    })
+    if (report.member_equity) {
+      const { claimable, claimable_usd, token_symbol } = report.member_equity
+      share = report.member_equity.share * 100
+      claiambleInfo = `${utils.formatTokenDigit(
+        claimable,
+      )} ${token_symbol} (≈ ${utils.formatUsdPriceDigit({
+        value: claimable_usd,
+        shorten: false,
+      })})`
+    }
+
     const vaultEquity = [
       "**Vault equity**",
       `${getVaultEquityEmoji(
-        report.vault_equity.stake_percent,
-      )} \`Your share.       \` ${utils.formatPercentDigit(
-        Number(report.vault_equity.stake_percent),
-      )}`,
+        share,
+      )} \`Your share.       \` ${utils.formatPercentDigit({
+        value: Number(share),
+        fractionDigits: 4,
+      })}`,
       `${getEmoji("GIFT")} \`Floating profit.  \` ${utils.formatUsdPriceDigit({
         value: Number(report.vault_equity.floating_profit ?? 0),
         shorten: false,
       })}`,
-      `:tada: \`Claimable amount. \` ${utils.formatUsdPriceDigit({
-        value: Number(report.vault_equity.claimable ?? 0),
-        shorten: false,
-      })}`,
+      `:tada: \`Claimable amount. \` ${claiambleInfo}`,
     ].join("\n")
 
     const openTrades = open_trades
@@ -433,7 +447,8 @@ export async function runGetVaultDetail({
               .setLabel("Claim")
               .setStyle("SECONDARY")
               .setCustomId("claim")
-              .setEmoji("<:FeelsGood:1177549805048836126>"),
+              .setEmoji("<:FeelsGood:1177549805048836126>")
+              .setDisabled(Number(report.vault_equity.claimable ?? 0) > 0),
             new MessageButton()
               .setLabel("Report")
               .setEmoji(getEmoji("CHART"))
