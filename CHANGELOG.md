@@ -1,3 +1,10 @@
+## [6.52.8-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.7...v6.52.8-rc.1) (2024-07-09)
+
+
+### Bug Fixes
+
+* restrict vault cmds ([#1694](https://github.com/consolelabs/mochi-discord/issues/1694)) ([d4b2821](https://github.com/consolelabs/mochi-discord/commit/d4b28212efe48c9ccf4d17dce3d9e76ae66da411))
+
 ## [6.52.7](https://github.com/consolelabs/mochi-discord/compare/v6.52.6...v6.52.7) (2024-06-27)
 
 
