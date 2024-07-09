@@ -35,7 +35,7 @@ const command: SlashCommand = {
     const userProfile = await profile.getByDiscord(i.user.id)
     const [spotVaults, tradingVaults] = await Promise.all([
       config.vaultList(i.guildId, true),
-      mochiPay.listEarningVaults(userProfile.id),
+      mochiPay.listEarningVaults(userProfile.id, i.guildId),
     ])
 
     const options = [
