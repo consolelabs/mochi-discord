@@ -338,10 +338,10 @@ export async function runGetVaultDetail({
         value: Number(share),
         fractionDigits: 4,
       })}`,
-      `${getEmoji("GIFT")} \`Floating profit.  \` ${utils.formatUsdPriceDigit({
-        value: Number(report.vault_equity.floating_profit ?? 0),
-        shorten: false,
-      })}`,
+      // `${getEmoji("GIFT")} \`Floating profit.  \` ${utils.formatUsdPriceDigit({
+      //   value: Number(report.vault_equity.floating_profit ?? 0),
+      //   shorten: false,
+      // })}`,
       `:tada: \`Claimable amount. \` ${claiambleInfo}`,
     ].join("\n")
 
@@ -437,6 +437,8 @@ export async function runGetVaultDetail({
         },
         vaultId: selectedVault,
         report,
+        profileId,
+        vaultName: data.name,
       },
       msgOpts: {
         embeds: [embed],
@@ -448,7 +450,7 @@ export async function runGetVaultDetail({
               .setStyle("SECONDARY")
               .setCustomId("claim")
               .setEmoji("<:FeelsGood:1177549805048836126>")
-              .setDisabled(Number(report.vault_equity.claimable ?? 0) > 0),
+              .setDisabled(Number(report.member_equity?.claimable ?? 0) <= 0),
             new MessageButton()
               .setLabel("Report")
               .setEmoji(getEmoji("CHART"))
@@ -802,4 +804,37 @@ function formatDateTime(s: string | undefined, timeOnly?: boolean) {
   }${d
     .toLocaleTimeString("en-US", { hour12: true, hour: "numeric" })
     .replace(" ", "")}`
+}
+
+export async function vaultClaim({
+  interaction,
+  vaultId,
+  profileId,
+  vaultName,
+}: {
+  interaction: ButtonInteraction
+  vaultId: string
+  profileId: string
+  vaultName: string
+}) {
+  const { ok } = await mochiPay.claimTradingVault({ profileId, vaultId })
+  if (!ok) {
+    throw new InternalError({
+      msgOrInteraction: interaction,
+      title: "Failed to claim",
+    })
+  }
+
+  const embed = composeEmbedMessage2(interaction as any, {
+    title: vaultName,
+    description: "You have claimed successfully",
+  })
+
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [],
+      attachments: [],
+    },
+  }
 }
