@@ -13,7 +13,12 @@ import { MachineConfig, route, RouterSpecialAction } from "utils/router"
 
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-import { handleVaultRounds, runGetVaultDetail, vaultReport } from "./processor"
+import {
+  handleVaultRounds,
+  runGetVaultDetail,
+  vaultClaim,
+  vaultReport,
+} from "./processor"
 import profile from "adapters/profile"
 import mochiPay from "adapters/mochi-pay"
 import { runVaultList } from "commands/vault/list/processor"
@@ -44,6 +49,15 @@ export const machineConfig: (
         return handleVaultRounds(vaultId, i)
       },
       vaultList: (i) => runVaultList(i),
+      vaultClaim: (i, _ev, ctx) => {
+        const { vaultId, profileId, vaultName } = ctx
+        return vaultClaim({
+          vaultName,
+          interaction: i,
+          vaultId,
+          profileId,
+        })
+      },
     },
     select: {
       vaultInfo: async (i, _ev, ctx) => {
@@ -86,6 +100,7 @@ export const machineConfig: (
         [RouterSpecialAction.BACK]: "vaultInfo",
       },
     },
+    vaultClaim: {},
     vaultInfo: {
       on: {
         BACK: [
@@ -93,6 +108,7 @@ export const machineConfig: (
         ],
         ROUNDS: "vaultRounds",
         REPORT: "vaultReport",
+        CLAIM: "vaultClaim",
         DEPOSIT: {
           target: "vaultInfo",
           actions: {

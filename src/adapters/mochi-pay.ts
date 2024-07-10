@@ -5,6 +5,7 @@ import {
 import { Fetcher } from "./fetcher"
 import fetch from "node-fetch"
 import { getKrystalEarnPortfolioResponse } from "types/mochipay"
+import { MOCHI_BOT_SECRET } from "env"
 
 type KrystalStakeRequest = {
   chain_id: number
@@ -402,6 +403,22 @@ class MochiPay extends Fetcher {
       data = res as any
     }
     return data
+  }
+
+  async claimTradingVault({
+    profileId,
+    vaultId,
+  }: {
+    profileId: string
+    vaultId: string
+  }): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults/${vaultId}/claim`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+      },
+    )
   }
 }
 

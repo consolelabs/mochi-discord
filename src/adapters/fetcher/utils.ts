@@ -32,7 +32,10 @@ export function makeLog({
 
 export function attachAuthorization(url: string, options: any) {
   // only attach token for mochi-pay's request atm
-  if (url.startsWith(MOCHI_PAY_API_BASE_URL)) {
+  if (
+    url.startsWith(MOCHI_PAY_API_BASE_URL) &&
+    !options.headers["Authorization"]
+  ) {
     options.headers = {
       ...options.headers,
       Authorization: `Basic ${MOCHI_API_KEY}`,
