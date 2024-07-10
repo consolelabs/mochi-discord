@@ -1,3 +1,10 @@
+# [6.53.0](https://github.com/consolelabs/mochi-discord/compare/v6.52.8...v6.53.0) (2024-07-10)
+
+
+### Features
+
+* earning vault claim ([#1695](https://github.com/consolelabs/mochi-discord/issues/1695)) ([136cc58](https://github.com/consolelabs/mochi-discord/commit/136cc5830745890ef58f3eb1cf628b6a3df8cb37))
+
 # [6.53.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.52.8...v6.53.0-rc.1) (2024-07-10)
 
 
