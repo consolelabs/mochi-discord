@@ -69,7 +69,13 @@ export async function runVaultList(
     : await config.vaultList("", false, userProfile.id)
 
   const tradingVaults = (
-    await mochiPay.listEarningVaults(userProfile.id, true)
+    interaction.guildId
+      ? await mochiPay.listEarningVaults(
+          userProfile.id,
+          interaction.guildId,
+          true,
+        )
+      : []
   ).map((v: any) => ({
     id: v.id,
     name: v.name,

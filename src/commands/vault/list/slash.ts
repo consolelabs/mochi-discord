@@ -4,7 +4,7 @@ import { SlashCommand } from "types/common"
 import { GM_GITBOOK, SLASH_PREFIX } from "utils/constants"
 import { composeEmbedMessage2 } from "ui/discord/embed"
 import { runVaultList } from "./processor"
-import { MachineConfig, route } from "utils/router"
+import { route } from "utils/router"
 import { machineConfig } from "commands/vault/info/slash"
 
 const command: SlashCommand = {
@@ -16,7 +16,7 @@ const command: SlashCommand = {
       .setDescription("Show current vault")
   },
   run: async function (interaction: CommandInteraction) {
-    const { initial, msgOpts } = await runVaultList(interaction)
+    const { msgOpts } = await runVaultList(interaction)
     const reply = (await interaction.editReply(msgOpts)) as Message
 
     route(
