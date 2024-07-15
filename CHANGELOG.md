@@ -1,3 +1,10 @@
+## [6.53.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.53.0...v6.53.1-rc.1) (2024-07-15)
+
+
+### Bug Fixes
+
+* display wallet detail when deposit token to vault ([#1696](https://github.com/consolelabs/mochi-discord/issues/1696)) ([bc39927](https://github.com/consolelabs/mochi-discord/commit/bc39927a074ed207244eafb3e06aa2ec0c1724f0))
+
 # [6.53.0](https://github.com/consolelabs/mochi-discord/compare/v6.52.8...v6.53.0) (2024-07-10)
 
 
