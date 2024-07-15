@@ -191,6 +191,7 @@ const command: SlashCommand = {
                 chainId: 1,
                 chainType: chainTypes.EVM,
                 isNative: true,
+                explorer: "",
               },
               {
                 symbol: "SOL",
@@ -199,6 +200,7 @@ const command: SlashCommand = {
                 chainId: 1,
                 chainType: chainTypes.SOL,
                 isNative: true,
+                explorer: "https://solscan.io",
               },
             ]
             const { context: ctx, msgOpts } = renderListDepositAddress({
@@ -219,12 +221,14 @@ const command: SlashCommand = {
                 },
                 select: {
                   depositDetail: async (i, _ev, ctx) => {
+                    const values = i.values.map((v) => v.split(".")[1])
+
                     return {
                       msgOpts: await depositDetail(
                         i,
                         1,
                         ctx.addresses.find((a: any) =>
-                          equalIgnoreCase(a.address, i.values.at(0)),
+                          equalIgnoreCase(a.address, values.at(0)),
                         ),
                       ),
                     }
