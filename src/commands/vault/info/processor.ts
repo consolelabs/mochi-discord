@@ -184,7 +184,7 @@ function composeTradesDescription({
   description: string
   trades: any[]
   total: number
-}) {
+}): string {
   // Discord embed description is limited to 4096 characters
   const MAX_CHARS = 4096
   const closeTrades = trades?.length
@@ -273,8 +273,9 @@ export async function runGetVaultDetail({
       }
       throw new APIError({ curl, error, description: log, status })
     }
-
-    const creator = await getDiscordRenderableByProfileId(profileId)
+    const creator = await getDiscordRenderableByProfileId(
+      data.creator_profile_id,
+    )
     const { investor_report: report } = data
     const { open_trades, close_trades } = report
     const basicInfo = [
@@ -329,7 +330,6 @@ export async function runGetVaultDetail({
         shorten: false,
       })})`
     }
-
     const vaultEquity = [
       "**Vault equity**",
       `${getVaultEquityEmoji(
@@ -539,7 +539,6 @@ export async function runGetVaultDetail({
     .concat(myNftFields)
     .concat(treasurerFields)
     .concat(recentTxFields)
-
   const creator = data.treasurer.find((t: any) => t.role === "creator") ?? ""
   const basicInfo = [
     `${getEmoji("ANIMATED_VAULT", true)}\`Name. ${selectedVault}\``,
