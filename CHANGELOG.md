@@ -1,3 +1,10 @@
+# [6.54.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.53.1...v6.54.0-rc.1) (2024-07-18)
+
+
+### Features
+
+* list global vaults ([#1697](https://github.com/consolelabs/mochi-discord/issues/1697)) ([0487b8c](https://github.com/consolelabs/mochi-discord/commit/0487b8c984f3fb6588916aee3af771a9285a63dc))
+
 ## [6.53.1](https://github.com/consolelabs/mochi-discord/compare/v6.53.0...v6.53.1) (2024-07-15)
 
 
