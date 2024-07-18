@@ -68,6 +68,18 @@ export async function runVaultList(
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
 
+  const publicTradingVaults = (
+    await mochiPay.listGlobalEarningVault(userProfile.id)
+  ).map((v: any) => ({
+    id: v.id,
+    name: v.name,
+    wallet_address: v.evm_wallet_address,
+    total: v.investor_report.current_balance,
+    threshold: 100,
+    type: "trading",
+    discord_guild: { name: "" },
+  }))
+
   const tradingVaults = (
     interaction.guildId
       ? await mochiPay.listEarningVaults(
@@ -86,9 +98,11 @@ export async function runVaultList(
     discord_guild: { name: "" },
   }))
 
-  const data = [...spotVaults, ...tradingVaults]
-
-  if (!spotVaults.length && !tradingVaults.length) {
+  if (
+    !spotVaults.length &&
+    !tradingVaults.length &&
+    !publicTradingVaults.length
+  ) {
     throw new InternalError({
       msgOrInteraction: interaction,
       title: "Empty list vault",
@@ -110,7 +124,7 @@ export async function runVaultList(
   description += "**Spot**\n"
   description += formatVaults(
     // @ts-ignore
-    data.filter((d) => d.type !== "trading"),
+    spotVaults,
     interaction.guildId || "",
   )
 
@@ -119,7 +133,17 @@ export async function runVaultList(
     description += "**Trading**\n"
     description += formatVaults(
       // @ts-ignore
-      data.filter((d) => d.type === "trading"),
+      tradingVaults,
+      interaction.guildId || "",
+    )
+  }
+
+  if (publicTradingVaults.length > 0) {
+    description += "\n\n"
+    description += "**Public Trading**\n"
+    description += formatVaults(
+      // @ts-ignore
+      publicTradingVaults,
       interaction.guildId || "",
     )
   }
@@ -148,7 +172,13 @@ export async function runVaultList(
     value: `trading_${v.id}`,
   }))
 
-  const options = [...spotOpts, ...tradingOpts]
+  const publicTradingOpts = publicTradingVaults.map((v: any, i: number) => ({
+    emoji: getEmoji(`NUM_${tradingOpts.length + i + 1}` as EmojiKey),
+    label: v.name,
+    value: `trading_${v.id}`,
+  }))
+
+  const options = [...spotOpts, ...tradingOpts, ...publicTradingOpts]
 
   const components = [
     new MessageActionRow().addComponents(
