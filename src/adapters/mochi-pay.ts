@@ -431,6 +431,27 @@ class MochiPay extends Fetcher {
       },
     )
   }
+
+  async depositToEarningVault({
+    profileId,
+    vaultId,
+    amount,
+    tokenId,
+  }: {
+    profileId: string
+    vaultId: string
+    amount: string
+    tokenId: string
+  }): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/syndicates/earning-vaults/${vaultId}/deposit`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+        body: { amount, token_id: tokenId, platform: "discord" },
+      },
+    )
+  }
 }
 
 export default new MochiPay()

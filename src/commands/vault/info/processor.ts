@@ -7,13 +7,16 @@ import {
   MessageButton,
   MessageSelectMenu,
   MessageAttachment,
+  SelectMenuInteraction,
+  MessageComponentInteraction,
 } from "discord.js"
 import { InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors"
-import { composeEmbedMessage2 } from "ui/discord/embed"
+import { composeEmbedMessage, composeEmbedMessage2 } from "ui/discord/embed"
 import {
   EmojiKey,
   emojis,
+  equalIgnoreCase,
   getEmoji,
   getEmojiToken,
   getEmojiURL,
@@ -23,7 +26,7 @@ import {
   TokenEmojiKey,
 } from "utils/common"
 import { HOMEPAGE_URL, VERTICAL_BAR } from "utils/constants"
-import { formatUsdDigit } from "utils/defi"
+import { formatDigit, formatUsdDigit } from "utils/defi"
 import {
   getDiscordRenderableByProfileId,
   getProfileIdByDiscord,
@@ -31,7 +34,19 @@ import {
 import mochiPay from "adapters/mochi-pay"
 import moment from "moment"
 import { utils } from "@consolelabs/mochi-formatter"
+import { utils as etherUtils } from "ethers"
 import { drawLineChart } from "utils/chart"
+import { getBalances, isTokenSupported } from "utils/tip-bot"
+import { getSlashCommand } from "utils/commands"
+import { BigNumber } from "ethers"
+import { checkCommitableOperation } from "commands/withdraw/index/processor"
+import { parseUnits } from "ethers/lib/utils"
+
+type Params = {
+  amount: string
+  balance?: any
+  tokenSymbol?: string
+}
 
 const getPnlIcon = (n: number) => (n >= 0 ? ":green_circle:" : ":red_circle:")
 
@@ -436,6 +451,7 @@ export async function runGetVaultDetail({
           sol: data.solana_wallet_address,
         },
         vaultId: selectedVault,
+        vaultType: "trading",
         report,
         profileId,
         vaultName: data.name,
@@ -461,6 +477,12 @@ export async function runGetVaultDetail({
               .setEmoji(getEmoji("CALENDAR"))
               .setStyle("SECONDARY")
               .setCustomId("rounds"),
+            new MessageButton()
+              .setLabel("Deposit")
+              .setStyle("SECONDARY")
+              .setCustomId("trading_vault_deposit")
+              .setEmoji(getEmoji("MONEY"))
+              .setDisabled(!report.member_equity || !!interaction.ephemeral),
           ),
         ],
       },
@@ -827,6 +849,281 @@ export async function vaultClaim({
   const embed = composeEmbedMessage2(interaction as any, {
     title: vaultName,
     description: "You have claimed successfully",
+  })
+
+  return {
+    msgOpts: {
+      embeds: [embed],
+      components: [],
+      attachments: [],
+    },
+  }
+}
+
+// select deposit token
+export async function depositStep1(interaction: ButtonInteraction, ctx: any) {
+  const balances = await getBalances({ msgOrInteraction: interaction })
+  if (balances.length === 1) {
+    const balance = balances.at(0)
+
+    await isTokenSupported(balance.token.symbol)
+
+    const { msgOpts } = await depositStep2(interaction, {
+      balance,
+      amount: "%0",
+    })
+
+    return {
+      context: {
+        token: balance.token.symbol,
+        tokenObj: balance,
+        amount: "%0",
+      },
+      msgOpts,
+    }
+  }
+
+  if (!balances.length) {
+    return {
+      msgOpts: {
+        embeds: [
+          composeEmbedMessage(null, {
+            description: `${getEmoji(
+              "NO",
+            )} You have no balance. Try ${await getSlashCommand(
+              "deposit",
+            )} first`,
+            color: msgColors.ERROR,
+          }),
+        ],
+      },
+    }
+  }
+
+  // TODO: remove hardcode 1
+  const { text } = formatView("compact", "filter-dust", balances, 0)
+
+  const embed = composeEmbedMessage(null, {
+    author: ["Choose your money source", getEmojiURL(emojis.NFT2)],
+    description: text,
+  }).addFields(renderPreview({}))
+
+  const isDuplicateSymbol = (s: string) =>
+    balances.filter((b: any) => b.token.symbol.toUpperCase() === s).length > 1
+
+  return {
+    context: {
+      ...ctx,
+      depositAmount: "%0",
+    },
+    msgOpts: {
+      attachments: [],
+      embeds: [
+        embed,
+        // ...(!filteredBals.length && filterSymbol
+        //   ? [
+        //       new MessageEmbed({
+        //         description: `${getEmoji("NO")} No token ${getEmojiToken(
+        //           filterSymbol as TokenEmojiKey,
+        //         )} **${filterSymbol}** found in your balance.`,
+        //         color: msgColors.ERROR,
+        //       }),
+        //     ]
+        //   : []),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageSelectMenu()
+            .setPlaceholder("💵 Choose money source (1/2)")
+            .setCustomId("select_token")
+            .setOptions(
+              balances.slice(0, 25).map((b: any) => ({
+                label: `${b.token.symbol}${
+                  isDuplicateSymbol(b.token.symbol)
+                    ? ` (${b.token.chain.symbol})`
+                    : ""
+                }`,
+                value: b.id,
+                emoji: getEmojiToken(b.token.symbol),
+              })),
+            ),
+        ),
+      ],
+    },
+  }
+}
+
+function renderPreview(params: {
+  network?: string
+  token?: string
+  amount?: string
+}) {
+  return {
+    name: "\u200b\nPreview",
+    value: [
+      params.network &&
+        `${getEmoji("SWAP_ROUTE")}\`Network.  \`${params.network}`,
+      `${getEmoji("SWAP_ROUTE")}\`Source.   \`Mochi wallet`,
+      params.token &&
+        `${getEmoji("ANIMATED_COIN_1", true)}\`Token.    \`${params.token}`,
+      params.token &&
+        params.amount &&
+        `${getEmoji("NFT2")}\`Amount.   \`${getEmojiToken(
+          params.token as TokenEmojiKey,
+        )} **${params.amount} ${params.token}**`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    inline: false,
+  }
+}
+
+// select deposit amount
+export async function depositStep2(
+  interaction: MessageComponentInteraction,
+  params: Params,
+) {
+  const balances = await getBalances({ msgOrInteraction: interaction })
+  const balance =
+    params.balance ||
+    balances.find((b: any) => equalIgnoreCase(b.id, params.tokenSymbol))
+
+  let error: string | null = ""
+
+  const tokenAmount = balance.amount
+  const tokenDecimal = balance.token.decimal ?? 0
+
+  const getPercentage = (percent: number) =>
+    BigNumber.from(tokenAmount).mul(percent).div(100).toString()
+  let amount
+
+  const isAll =
+    params.amount === "%100" || equalIgnoreCase(params.amount ?? "", "all")
+  if (params.amount?.startsWith("%") || isAll) {
+    const formatted = etherUtils.formatUnits(
+      getPercentage(
+        params.amount?.toLowerCase() === "all"
+          ? 100
+          : Number(params.amount?.slice(1)),
+      ),
+      tokenDecimal,
+    )
+    amount = formatDigit({
+      value: formatted,
+      fractionDigits: isAll ? 2 : Number(formatted) >= 1000 ? 0 : 2,
+    })
+  } else {
+    let valid
+    ;({ valid, error } = checkCommitableOperation(
+      balance.amount,
+      params.amount ?? "0",
+      balance.token,
+    ))
+
+    if (valid) {
+      amount = formatUsdDigit(params.amount ?? "0")
+    }
+  }
+
+  const { text } = formatView("compact", "filter-dust", [balance], 0)
+  const isNotEmpty = !!text
+  const emptyText = `${getEmoji(
+    "ANIMATED_POINTING_RIGHT",
+    true,
+  )} You have nothing yet, use ${await getSlashCommand(
+    "earn",
+  )} or ${await getSlashCommand("deposit")} `
+
+  const embed = composeEmbedMessage(null, {
+    author: [
+      `How many ${balance.token.symbol} to withdraw ? `,
+      getEmojiURL(emojis.NFT2),
+    ],
+    description: isNotEmpty ? text : emptyText,
+  }).addFields(
+    renderPreview({
+      network: balance.token.chain.name,
+      token: balance.token.symbol,
+      amount: String(error ? 0 : amount),
+    }),
+  )
+
+  return {
+    context: {
+      ...params,
+      token: balance.token.symbol,
+      balance,
+      amount,
+    },
+    msgOpts: {
+      embeds: [
+        embed,
+        ...(error
+          ? [
+              composeEmbedMessage(null, {
+                description: `${getEmoji("NO")} **${error}**`,
+                color: msgColors.ERROR,
+              }),
+            ]
+          : []),
+      ],
+      components: [
+        new MessageActionRow().addComponents(
+          ...[10, 25, 50].map((p) =>
+            new MessageButton()
+              .setLabel(`${p}%`)
+              .setStyle("SECONDARY")
+              .setCustomId(`select_amount_${p}`),
+          ),
+          new MessageButton()
+            .setLabel("All")
+            .setStyle("SECONDARY")
+            .setCustomId(`select_amount_100`),
+          new MessageButton()
+            .setLabel("Custom")
+            .setStyle("SECONDARY")
+            .setCustomId("enter_amount"),
+        ),
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel("Confirm (2/2)")
+            .setCustomId("submit")
+            .setStyle("PRIMARY")
+            .setDisabled(!!error || Number(amount) <= 0),
+        ),
+      ],
+    },
+  }
+}
+
+export async function executeTradingVaultDeposit(
+  i: ButtonInteraction,
+  ctx: any,
+) {
+  const { balance, amount, vaultId, profileId, vaultName } = ctx
+  const { ok, error } = await mochiPay.depositToEarningVault({
+    profileId,
+    vaultId,
+    tokenId: balance.token.id,
+    amount: parseUnits(
+      amount.replaceAll(",", ""),
+      balance.token.decimal,
+    ).toString(),
+  })
+
+  if (!ok) {
+    throw new InternalError({
+      msgOrInteraction: i,
+      title: "Failed to deposit",
+      description: error,
+    })
+  }
+
+  const embed = composeEmbedMessage2(i as any, {
+    author: ["Deposit successfully", getEmojiURL(emojis["MONEY"])],
+    description: `You have deposited ${getEmojiToken(
+      balance.token.symbol,
+    )} **${amount} ${balance.token.symbol}** to vault **${vaultName}**!`,
   })
 
   return {
