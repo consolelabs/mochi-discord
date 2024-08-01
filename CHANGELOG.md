@@ -1,3 +1,10 @@
+# [6.55.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.54.0...v6.55.0-rc.1) (2024-08-01)
+
+
+### Features
+
+* trading vault deposit ([#1698](https://github.com/consolelabs/mochi-discord/issues/1698)) ([cac6f2c](https://github.com/consolelabs/mochi-discord/commit/cac6f2c36708e8ca4df9c8fb114cac3a5e8d0d13))
+
 # [6.54.0](https://github.com/consolelabs/mochi-discord/compare/v6.53.1...v6.54.0) (2024-07-22)
 
 
