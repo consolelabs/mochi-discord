@@ -139,8 +139,8 @@ importers:
         specifier: ^0.13.1
         version: 0.13.1
       rpc-websockets:
-        specifier: 7.11.0
-        version: 7.11.0
+        specifier: 7.10.0
+        version: 7.10.0
       sharp:
         specifier: ^0.30.7
         version: 0.30.7
@@ -4264,10 +4264,6 @@ packages:
 
   rpc-websockets@7.10.0:
     resolution: {integrity: sha512-cemZ6RiDtYZpPiBzYijdOrkQQzmBCmug0E9SdRH2gIUNT15ql4mwCYWIp0VnSZq6Qrw/JkGUygp4PrK1y9KfwQ==}
-
-  rpc-websockets@7.11.0:
-    resolution: {integrity: sha512-IkLYjayPv6Io8C/TdCL5gwgzd1hFz2vmBZrjMw/SPEXo51ETOhnzgS4Qy5GWi2JQN7HKHa66J3+2mv0fgNh/7w==}
-    deprecated: deprecate 7.11.0
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -10172,15 +10168,6 @@ snapshots:
   rpc-websockets@7.10.0:
     dependencies:
       '@babel/runtime': 7.24.1
-      eventemitter3: 4.0.7
-      uuid: 8.3.2
-      ws: 8.12.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-    optionalDependencies:
-      bufferutil: 4.0.8
-      utf-8-validate: 5.0.10
-
-  rpc-websockets@7.11.0:
-    dependencies:
       eventemitter3: 4.0.7
       uuid: 8.3.2
       ws: 8.12.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
