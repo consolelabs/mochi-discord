@@ -1,3 +1,10 @@
+## [6.55.3](https://github.com/consolelabs/mochi-discord/compare/v6.55.2...v6.55.3) (2025-03-18)
+
+
+### Bug Fixes
+
+* update tag ([#1701](https://github.com/consolelabs/mochi-discord/issues/1701)) ([23edee6](https://github.com/consolelabs/mochi-discord/commit/23edee67b5f199100fd61d0b5c63ac91888d386a))
+
 ## [6.55.3-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.55.2...v6.55.3-rc.1) (2025-03-18)
 
 
