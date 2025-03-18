@@ -16,6 +16,7 @@ import {
   Modal,
 } from "discord.js"
 import mochiPay from "adapters/mochi-pay"
+import icy from "adapters/icy"
 import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
@@ -32,7 +33,6 @@ import {
   emojis,
   equalIgnoreCase,
   getAuthor,
-  getEmoji,
   getEmojiToken,
   getEmojiURL,
   shortenHashOrAddress,
@@ -56,7 +56,7 @@ import { UnsupportedTokenError } from "errors/unsupported-token"
 import { RunResult } from "types/common"
 import { TransferPayload } from "types/transfer"
 import { composeDiscordSelectionRow } from "ui/discord/select-menu"
-import { APPROX } from "utils/constants"
+import { APPROX, APPROX2 } from "utils/constants"
 import {
   getProfileIdByDiscord,
   getDiscordRenderableByProfileId,
@@ -268,13 +268,13 @@ async function transfer(
   )
 }
 
-function showSuccesfulResponse(
+async function showSuccesfulResponse(
   interactionId: string,
   payload: any,
   res: any,
   senderStr?: string,
   hashtagTemplate?: any,
-): RunResult<MessageOptions> {
+): Promise<RunResult<MessageOptions>> {
   const users = payload.recipients.map((r: string) => `<@${r}>`).join(", ")
   const isOnline = payload.targets.includes("online")
   const hasRole = payload.targets.some(
@@ -320,9 +320,22 @@ function showSuccesfulResponse(
     res.amount_each * payload.token_price,
   )
 
-  const amountApprox = `(${amountApproxMoniker}${
+  let amountApprox = `(${amountApproxMoniker}${
     amountUsd.startsWith("<") ? "" : APPROX
   } ${amountUsd})`
+
+  if (unitCurrency === "ICY") {
+    const { data: icyInfo, ok } = await icy.getIcyInfo()
+
+    if (ok && icyInfo) {
+      const amountSatoshi = mochiUtils.formatTokenDigit(
+        res.amount_each * Number(icyInfo.icy_satoshi_rate),
+      )
+      amountApprox = `(${amountApproxMoniker}${
+        amountUsd.startsWith("<") ? "" : APPROX
+      } ${getEmojiToken("BTC")} ${amountSatoshi} sat ${APPROX2} ${amountUsd})`
+    }
+  }
 
   let contentMsg = ``
 
