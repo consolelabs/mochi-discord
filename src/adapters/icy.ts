@@ -1,6 +1,6 @@
 import { ICY_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
-import { IcyInfoResponse } from "../types/api"
+import { IcyInfoResponse } from "../types/icy"
 
 class Icy extends Fetcher {
   async getIcyInfo() {
