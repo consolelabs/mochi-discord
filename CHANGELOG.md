@@ -1,3 +1,10 @@
+## [6.55.1-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.55.0...v6.55.1-rc.1) (2025-03-18)
+
+
+### Bug Fixes
+
+* add satoshi convert for tip ([#1699](https://github.com/consolelabs/mochi-discord/issues/1699)) ([52355fc](https://github.com/consolelabs/mochi-discord/commit/52355fcdd5914132ae27f266a20f4d15ae436e55))
+
 # [6.55.0](https://github.com/consolelabs/mochi-discord/compare/v6.54.0...v6.55.0) (2024-08-01)
 
 
