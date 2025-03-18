@@ -8,7 +8,7 @@ generateApi({
   output: path.resolve(process.cwd(), "./src/types/"),
   url:
     process.env.SWAGGER_URL ||
-    "https://api-preview.mochi.console.so/swagger/doc.json",
+    "https://api.mochi.console.so/swagger/doc.json",
   generateClient: false,
   silent: true,
 });
