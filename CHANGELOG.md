@@ -1,3 +1,10 @@
+## [6.55.2](https://github.com/consolelabs/mochi-discord/compare/v6.55.1...v6.55.2) (2025-03-18)
+
+
+### Bug Fixes
+
+* install rpc websocket ([#1700](https://github.com/consolelabs/mochi-discord/issues/1700)) ([6cd353a](https://github.com/consolelabs/mochi-discord/commit/6cd353a06b4cf1d9cc3b9636505bfe6c664dfae5))
+
 ## [6.55.1](https://github.com/consolelabs/mochi-discord/compare/v6.55.0...v6.55.1) (2025-03-18)
 
 
