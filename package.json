@@ -87,6 +87,7 @@
     "qrcode": "^1.5.1",
     "query-string": "^7.1.1",
     "retry": "^0.13.1",
+    "rpc-websockets": "7.11.0",
     "sharp": "^0.30.7",
     "squarify": "^1.1.0",
     "stack-utils": "^2.0.6",
@@ -108,7 +109,8 @@
     "*.{js,ts,md}": "prettier --write"
   },
   "resolutions": {
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "rpc-websockets": "7.10.0"
   },
   "madge": {
     "detectiveOptions": {
