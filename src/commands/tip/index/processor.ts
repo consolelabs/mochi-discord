@@ -17,13 +17,12 @@ import {
 } from "discord.js"
 import mochiPay from "adapters/mochi-pay"
 import icy from "adapters/icy"
-import { GuildIdNotFoundError, InternalError, OriginalMessage } from "errors"
+import { GuildIdNotFoundError, InternalError } from "errors"
 import { APIError } from "errors/api"
 import { DiscordWalletTransferError } from "errors/discord-wallet-transfer"
 import { InsufficientBalanceError } from "errors/insufficient-balance"
 import {
   composeEmbedMessage,
-  composeEmbedMessage2,
   composeInsufficientBalanceEmbed,
   getErrorEmbed,
 } from "ui/discord/embed"
