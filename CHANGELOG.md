@@ -1,3 +1,10 @@
+## [6.55.6-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.55.5...v6.55.6-rc.1) (2025-03-19)
+
+
+### Bug Fixes
+
+* update Dockerfile - manually build canvas ([#1704](https://github.com/consolelabs/mochi-discord/issues/1704)) ([92e5c92](https://github.com/consolelabs/mochi-discord/commit/92e5c9241e72a83e5bb172c4935e67e33b4b828a))
+
 ## [6.55.5](https://github.com/consolelabs/mochi-discord/compare/v6.55.4...v6.55.5) (2025-03-19)
 
 
