@@ -110,7 +110,7 @@
   },
   "resolutions": {
     "typescript": "4.7.4",
-    "rpc-websockets": "7.10.0"
+    "rpc-websockets": "7.11.0"
   },
   "madge": {
     "detectiveOptions": {
@@ -123,5 +123,5 @@
     "node": "18.x"
   },
   "name": "mochi-discord",
-  "version": "6.55.3"
+  "version": "6.55.4-rc.1"
 }
