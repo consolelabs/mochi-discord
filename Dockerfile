@@ -19,6 +19,10 @@ RUN npm install -g pnpm && \
     pnpm install -P && \
     pnpm up '@consolelabs/*' --latest
 
+# Rebuild canvas bindings
+RUN cd node_modules/canvas && \
+    npm rebuild canvas
+
 COPY . .
 
 CMD pnpm start
