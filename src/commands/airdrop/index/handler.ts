@@ -259,7 +259,7 @@ async function checkExpiredAirdrop(
         error,
       } = await defi.transferV2({
         ...payload,
-        sender: await getProfileIdByDiscord(payload.sender),
+        sender: payload.sender,
         recipients: await Promise.all(
           payload.recipients.map((r: string) => getProfileIdByDiscord(r)),
         ),
@@ -315,6 +315,7 @@ function sendAuthorDm(
   const usdEach = usdAmount / participants.length
   const emojis = [
     getEmoji("PROPOSAL"),
+    getEmoji("ANIMATED_MONEY"),
     getEmoji("NFT"),
     getEmoji("NFT"),
     getEmoji("SHARE"),
@@ -341,10 +342,13 @@ function sendAuthorDm(
   const channel = `<#${payload.channel_id}>`
   const info = [
     `${emojis[0]} \`TxID.         \` ${txId}`,
-    `${emojis[1]} \`Total Amount. \` ${totalAmount}`,
-    `${emojis[2]} \`Allocation..  \` ${allocation}`,
-    `${emojis[3]} \`Receiver.     \` ${receiver}`,
-    `${emojis[4]} \`Channel.      \` ${channel}`,
+    ...(payload.vault_name
+      ? [`${emojis[1]} \`Source.       \` Vault ${payload.vault_name}`]
+      : []),
+    `${emojis[2]} \`Total Amount. \` ${totalAmount}`,
+    `${emojis[3]} \`Allocation..  \` ${allocation}`,
+    `${emojis[4]} \`Receiver.     \` ${receiver}`,
+    `${emojis[5]} \`Channel.      \` ${channel}`,
   ]
   const description = info.join("\n")
   const embed = composeEmbedMessage(null, {

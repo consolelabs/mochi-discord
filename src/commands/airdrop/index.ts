@@ -10,6 +10,8 @@ import { thumbnails } from "utils/common"
 import { composeEmbedMessage } from "ui/discord/embed"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import airdropSlash from "./index/slash"
+import mochiPay from "adapters/mochi-pay"
+import { getProfileIdByDiscord } from "utils/profile"
 
 const slashCmd: SlashCommand = {
   name: "airdrop",
@@ -49,6 +51,33 @@ const slashCmd: SlashCommand = {
           .setRequired(false)
           .setDescription("join airdrop by scanning a qrcode"),
       )
+      .addStringOption((opt) =>
+        opt
+          .setName("from_vault")
+          .setDescription("use application vault as airdrop source")
+          .setRequired(false)
+          .setAutocomplete(true),
+      )
+  },
+  autocomplete: async function (i) {
+    const focusedValue = i.options.getFocused()
+    const vaultPid = await getProfileIdByDiscord(i.user.id)
+    const res = await mochiPay.getApplicationVaultsByProfileId(vaultPid)
+    if (!res.ok) {
+      await i.respond([])
+      return
+    }
+
+    await i.respond(
+      res.data
+        .filter((vault: any) =>
+          vault.name.toLowerCase().includes(focusedValue.toLowerCase()),
+        )
+        .map((vault: any) => ({
+          name: vault.name,
+          value: `${vault.vault_profile_id}-${vault.name}`,
+        })),
+    )
   },
   run: async function (interaction: CommandInteraction) {
     if (!interaction.guild || !interaction.guildId) {
