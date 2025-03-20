@@ -1,3 +1,10 @@
+# [6.56.0](https://github.com/consolelabs/mochi-discord/compare/v6.55.6...v6.56.0) (2025-03-20)
+
+
+### Features
+
+* airdrop from vault ([#1705](https://github.com/consolelabs/mochi-discord/issues/1705)) ([4ae1210](https://github.com/consolelabs/mochi-discord/commit/4ae1210ed889aeb0877a1957610df13b98bf595a))
+
 ## [6.55.6](https://github.com/consolelabs/mochi-discord/compare/v6.55.5...v6.55.6) (2025-03-19)
 
 
