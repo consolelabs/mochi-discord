@@ -41,6 +41,7 @@ import { formatDigit } from "../../../utils/defi"
 import { getChannelUrl, reply } from "utils/discord"
 import { confirmationHandler, tokenSelectionHandler } from "./handler"
 import * as processor from "./processor"
+import { getProfileIdByDiscord } from "utils/profile"
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -55,8 +56,17 @@ export async function airdrop(i: CommandInteraction) {
   const { amount, token, duration, entries, all, useQR } =
     await processor.getAirdropArgs(i)
 
+  // extract sender info
+  const fromVault = i.options.getString("from_vault", false) ?? ""
+  const [vaultId, vaultName] = fromVault.split("-")
+  const sender = vaultId || (await getProfileIdByDiscord(i.user.id))
+
   // get sender balances
-  const balances = await getBalances({ msgOrInteraction: i, token })
+  const balances = await getBalances({
+    msgOrInteraction: i,
+    token,
+    profileId: sender,
+  })
 
   // no balance -> reject
   if (!balances.length) {
@@ -71,7 +81,7 @@ export async function airdrop(i: CommandInteraction) {
   const channel_url = await getChannelUrl(i)
 
   const payload: TransferPayload = {
-    sender: i.user.id,
+    sender,
     recipients: [],
     platform: "discord",
     guild_id: i.guildId ?? "",
@@ -84,6 +94,7 @@ export async function airdrop(i: CommandInteraction) {
     channel_name: guildName,
     channel_url,
     channel_avatar: guildAvatar,
+    vault_name: vaultName,
   }
 
   // only one matching token -> proceed to send tip
@@ -257,6 +268,15 @@ function showConfirmation(
       value: opts.useQR ? "Yes" : "No",
       inline: true,
     },
+    ...(payload.vault_name
+      ? [
+          {
+            name: `${getEmoji("ANIMATED_MONEY")} Source`,
+            value: `Vault **${payload.vault_name}**`,
+            inline: true,
+          },
+        ]
+      : []),
   ])
 
   return {

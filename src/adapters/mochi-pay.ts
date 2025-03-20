@@ -452,6 +452,12 @@ class MochiPay extends Fetcher {
       },
     )
   }
+
+  async getApplicationVaultsByProfileId(profileId: string): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/vaults`,
+    )
+  }
 }
 
 export default new MochiPay()
