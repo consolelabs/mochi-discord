@@ -24,6 +24,7 @@ export type TransferPayload = {
   channel_name: string
   channel_url?: string
   channel_avatar?: any
+  vault_name?: string
 }
 
 export type AirdropOptions = {

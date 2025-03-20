@@ -545,15 +545,19 @@ export async function isInTipRange(
 export async function getBalances({
   msgOrInteraction,
   token,
+  profileId = "",
 }: {
   msgOrInteraction: OriginalMessage
   token?: string
+  profileId?: string
 }) {
-  const author = getAuthor(msgOrInteraction)
-  const senderPid = await getProfileIdByDiscord(author.id)
+  if (!profileId) {
+    const author = getAuthor(msgOrInteraction)
+    profileId = await getProfileIdByDiscord(author.id)
+  }
   let balances = []
   const { data, ok } = await mochiPay.getBalances({
-    profileId: senderPid,
+    profileId,
     token,
   })
   if (ok) {
