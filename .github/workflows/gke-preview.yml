@@ -7,7 +7,7 @@ on:
 
 # Environment variables available to all jobs and steps in this workflow
 env:
-  REGISTRY_HOSTNAME: gcr.io
+  REGISTRY_HOSTNAME: asia-southeast1-docker.pkg.dev
   GKE_PROJECT: console-labs-prod
   IMAGE: consolelabs/mochi-discord
   K8S_ENVIRONMENT: preview
