@@ -1,3 +1,15 @@
+# [6.57.0](https://github.com/consolelabs/mochi-discord/compare/v6.56.0...v6.57.0) (2025-06-18)
+
+
+### Bug Fixes
+
+* bump version ([01898a3](https://github.com/consolelabs/mochi-discord/commit/01898a3354c955362eb08ff65c74077aff38be8f))
+
+
+### Features
+
+* vault list - support app vaults ([#1706](https://github.com/consolelabs/mochi-discord/issues/1706)) ([60f7bf5](https://github.com/consolelabs/mochi-discord/commit/60f7bf5ab16d69441e5feb0278c7ee7a210629e1))
+
 # [6.57.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.56.0...v6.57.0-rc.1) (2025-06-18)
 
 
