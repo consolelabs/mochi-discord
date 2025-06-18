@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup Docker
         run: |
-          gcloud auth configure-docker gcr.io
+          gcloud auth configure-docker $REGISTRY_HOSTNAME
 
       # Build & Push the Docker image
       - name: Build & Push
