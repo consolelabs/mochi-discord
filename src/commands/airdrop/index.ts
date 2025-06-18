@@ -62,14 +62,10 @@ const slashCmd: SlashCommand = {
   autocomplete: async function (i) {
     const focusedValue = i.options.getFocused()
     const vaultPid = await getProfileIdByDiscord(i.user.id)
-    const res = await mochiPay.getApplicationVaultsByProfileId(vaultPid)
-    if (!res.ok) {
-      await i.respond([])
-      return
-    }
+    const data = await mochiPay.getApplicationVaultsByProfileId(vaultPid)
 
     await i.respond(
-      res.data
+      data
         .filter((vault: any) =>
           vault.name.toLowerCase().includes(focusedValue.toLowerCase()),
         )
