@@ -60,6 +60,25 @@ function mockData(data: Array<any>) {
   })
 }
 
+function formatAppVaults(vaults: any[]) {
+  return formatDataTable(
+    vaults.map((v) => ({
+      name: `${v.name?.slice(0, 20) ?? ""}${
+        (v.name ?? "").length > 20 ? "..." : ""
+      }`,
+      balance: v.total?.toString() ? `$${v.total.toString()}` : "",
+      type: "application_vault",
+    })),
+    {
+      cols: ["name", "balance"],
+      rowAfterFormatter: (f, i) =>
+        `${getEmoji(
+          "type" in vaults[i] ? "ANIMATED_STAR" : "ANIMATED_VAULT",
+        )}${f}${getEmoji("CASH")}`,
+    },
+  ).joined
+}
+
 export async function runVaultList(
   interaction: CommandInteraction | ButtonInteraction,
 ) {
@@ -67,6 +86,8 @@ export async function runVaultList(
   const spotVaults = interaction.guildId
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
+
+  const appVaults = await mochiPay.getApplicationVaultBalancesByProfile(userProfile.id)
 
   const publicTradingVaults = (
     await mochiPay.listGlobalEarningVault(userProfile.id)
@@ -101,7 +122,8 @@ export async function runVaultList(
   if (
     !spotVaults.length &&
     !tradingVaults.length &&
-    !publicTradingVaults.length
+    !publicTradingVaults.length &&
+    !appVaults.length
   ) {
     throw new InternalError({
       msgOrInteraction: interaction,
@@ -146,6 +168,12 @@ export async function runVaultList(
       publicTradingVaults,
       interaction.guildId || "",
     )
+  }
+
+  if (appVaults.length > 0) {
+    description += "\n\n"
+    description += "**Application Vaults**\n"
+    description += formatAppVaults(appVaults)
   }
 
   const embed = composeEmbedMessage(null, {

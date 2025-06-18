@@ -8,7 +8,7 @@ on:
 # Environment variables available to all jobs and steps in this workflow
 env:
   GITHUB_SHA: ${{ github.sha }}
-  REGISTRY_HOSTNAME: gcr.io
+  REGISTRY_HOSTNAME: asia-southeast1-docker.pkg.dev
   GKE_PROJECT: console-labs-prod
   IMAGE: consolelabs/mochi-discord
   K8S_ENVIRONMENT: dev
@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup Docker
         run: |
-          gcloud auth configure-docker gcr.io
+          gcloud auth configure-docker $REGISTRY_HOSTNAME
 
       # Build & Push the Docker image
       - name: Build & Push

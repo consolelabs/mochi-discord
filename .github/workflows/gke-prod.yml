@@ -7,7 +7,7 @@ on:
 
 # Environment variables available to all jobs and steps in this workflow
 env:
-  REGISTRY_HOSTNAME: gcr.io
+  REGISTRY_HOSTNAME: asia-southeast1-docker.pkg.dev
   GKE_PROJECT: console-labs-prod
   IMAGE: consolelabs/mochi-discord
   K8S_ENVIRONMENT: prod
@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup Docker
         run: |
-          gcloud auth configure-docker gcr.io
+          gcloud auth configure-docker $REGISTRY_HOSTNAME
 
       # Overwrite GITHUB_SHA
       - name: Set SHA
@@ -71,30 +71,30 @@ jobs:
           git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
           git push origin main
 
-  notify:
-    name: Notify
-    needs: setup-build-publish-deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify changelog
-        uses: fjogeleit/http-request-action@v1
-        if: github.event_name == 'release'
-        with:
-          url: "https://chglg.fly.dev/v1/changelog"
-          method: "POST"
-          customHeaders: '{"Content-Type": "application/json"}'
-          timeout: 30000
-          escapeData: "true"
-          data: >-
-            {   
-              "repo": "https://github.com/${{ github.repository }}", 
-              "tag": "${{ github.ref }}",
-              "access_token": "${{ secrets.GH_PAT }}",
-              "app_name": "Discord", 
-              "discord": {
-                "webhook": "${{ secrets.DISCORD_WEBHOOK }}",
-                "footer": {
-                  "icon_url": "https://cdn.discordapp.com/emojis/1039475287169183744.webp?size=44&quality=lossless"
-                }
-              }
-            }
+  # notify:
+  #   name: Notify
+  #   needs: setup-build-publish-deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Notify changelog
+  #       uses: fjogeleit/http-request-action@v1
+  #       if: github.event_name == 'release'
+  #       with:
+  #         url: "https://chglg.fly.dev/v1/changelog"
+  #         method: "POST"
+  #         customHeaders: '{"Content-Type": "application/json"}'
+  #         timeout: 30000
+  #         escapeData: "true"
+  #         data: >-
+  #           {   
+  #             "repo": "https://github.com/${{ github.repository }}", 
+  #             "tag": "${{ github.ref }}",
+  #             "access_token": "${{ secrets.GH_PAT }}",
+  #             "app_name": "Discord", 
+  #             "discord": {
+  #               "webhook": "${{ secrets.DISCORD_WEBHOOK }}",
+  #               "footer": {
+  #                 "icon_url": "https://cdn.discordapp.com/emojis/1039475287169183744.webp?size=44&quality=lossless"
+  #               }
+  #             }
+  #           }
