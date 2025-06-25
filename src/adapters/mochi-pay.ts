@@ -483,6 +483,115 @@ class MochiPay extends Fetcher {
     }
     return result
   }
+
+  // New methods for vault transfer requests
+  async createVaultTransferRequest(params: {
+    profileId: string
+    appId: string
+    vaultId: string
+    targetProfileId: string
+    tokenId: string
+    amount: string
+    reason?: string
+  }): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${params.profileId}/applications/${params.appId}/vaults/${params.vaultId}/transfer-requests`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+        body: {
+          recipient_profile_id: params.targetProfileId,
+          token_id: params.tokenId,
+          token_amount: params.amount,
+          description: params.reason,
+          requester_metadata: {
+            platform: "discord",
+          },
+        },
+      },
+    )
+  }
+
+  async listVaultTransferRequests(params: {
+    profileId: string
+    appId: string
+    vaultId: string
+    status?: string
+    page?: number
+    size?: number
+  }): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${params.profileId}/applications/${params.appId}/vaults/${params.vaultId}/transfer-requests`,
+      {
+        query: {
+          status: params.status,
+          page: params.page || 0,
+          size: params.size || 10,
+        },
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+      },
+    )
+  }
+
+  async approveVaultTransferRequest(params: {
+    profileId: string
+    appId: string
+    vaultId: string
+    requestId: string
+    message?: string
+  }): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${params.profileId}/applications/${params.appId}/vaults/${params.vaultId}/transfer-requests/${params.requestId}/approve`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+        body: {
+          message: params.message,
+          platform: "discord",
+        },
+      },
+    )
+  }
+
+  async rejectVaultTransferRequest(params: {
+    profileId: string
+    appId: string
+    vaultId: string
+    requestId: string
+    reason?: string
+  }): Promise<any> {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${params.profileId}/applications/${params.appId}/vaults/${params.vaultId}/transfer-requests/${params.requestId}/reject`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+        body: {
+          reason: params.reason,
+          platform: "discord",
+        },
+      },
+    )
+  }
+
+  async getApplicationsByProfileId(profileId: string): Promise<any> {
+    const { data, ok } = await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications`,
+      {
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+      },
+    )
+    return ok ? data : []
+  }
+
+  async listVaultsByApplicationId(profileId: string, appId: string): Promise<any> {
+    const { data, ok } = await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/${appId}/vaults`,
+      {
+        headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` },
+      },
+    )
+    return ok ? data : []
+  }
 }
 
 export default new MochiPay()

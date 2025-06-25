@@ -97,6 +97,7 @@ import v from "./v"
 import sync from "./sync"
 import recap from "./recap"
 import feed from "./feed"
+import kudos from "./kudos"
 
 export const slashCommands: Record<string, SlashCommand> = {
   setup: setup.slashCmd,
@@ -118,8 +119,8 @@ export const slashCommands: Record<string, SlashCommand> = {
   tip: tip.slashCmd,
   send: tip.slashCmd,
   shoutout: tip.slashCmd,
-  kudos: tip.slashCmd,
-  kudo: tip.slashCmd,
+  kudos: kudos.slashCmd,
+  kudo: kudos.slashCmd,
   //
   balances: balances.slashCmd,
   balance: balances.slashCmd,
