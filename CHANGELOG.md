@@ -1,3 +1,10 @@
+# [6.58.0-rc.1](https://github.com/consolelabs/mochi-discord/compare/v6.57.0...v6.58.0-rc.1) (2025-06-27)
+
+
+### Features
+
+* kudos cmd ([#1707](https://github.com/consolelabs/mochi-discord/issues/1707)) ([4dbea85](https://github.com/consolelabs/mochi-discord/commit/4dbea85715fd080b52cd6aeb982ff5e013ac6aab))
+
 # [6.57.0](https://github.com/consolelabs/mochi-discord/compare/v6.56.0...v6.57.0) (2025-06-18)
 
 
