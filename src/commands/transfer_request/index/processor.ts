@@ -39,7 +39,7 @@ export async function approveTransferReq(i: ButtonInteraction) {
     requestCode,
   })
   if (!ok) {
-    handleTransferRequestErr(i, status)
+    await handleTransferRequestErr(i, status, "approved")
     return
   }
 
@@ -68,7 +68,7 @@ export async function rejectTransferReq(i: ButtonInteraction) {
     requestCode,
   })
   if (!ok) {
-    handleTransferRequestErr(i, status)
+    await handleTransferRequestErr(i, status, "rejected")
     return
   }
 
@@ -84,8 +84,67 @@ export async function rejectTransferReq(i: ButtonInteraction) {
 async function handleTransferRequestErr(
   i: ButtonInteraction,
   status: number | undefined,
+  action: string,
 ) {
   if (status === 400) {
+    // Check if it's a settled request error by fetching the actual transfer request
+    const [_, requestCode, appId] = i.customId.split("-")
+    
+    try {
+      // Get the actual transfer request status with proper headers
+      const appHeaders = await getMochiApplicationHeaders()
+      const { data: transferRequest } = await mochiPay.getTransferRequestByCode({
+        headers: appHeaders,
+        requestCode,
+        appId,
+      })
+      
+      if (!transferRequest) {
+        throw new Error("Transfer request not found")
+      }
+      
+      const msg = i.message as Message
+      const embed = msg.embeds[0]
+      
+      // Update the original message to show it's settled and remove buttons
+      embed.setAuthor({
+        iconURL: getEmojiURL(emojis.INFO),
+        name: "Transfer Request Settled",
+      })
+      
+      // Use the actual status from the transfer request
+      let settledStatus = "settled"
+      if (transferRequest.status === "success") {
+        settledStatus = "approved"
+      } else if (transferRequest.status === "cancelled") {
+        settledStatus = "rejected"
+      }
+      
+      // Add a field to indicate the request has been settled with proper alignment
+      const description = embed.description
+      embed.description = `${description}\n${emojis.INFO}\`Status.       \`${settledStatus}\n\nThis transfer request has already been settled. You cannot take any further action.`
+      
+      await msg.edit({ embeds: [embed], components: [] })
+      
+      // Send ephemeral reply to the user
+      const replyEmbed = composeEmbedMessage(null, {
+        author: ["Request Already Settled", getEmojiURL(emojis.INFO)],
+        description: `This transfer request has already been settled. You cannot take any further action.`,
+      })
+
+      await i.reply({ embeds: [replyEmbed], ephemeral: true })
+    } catch (fetchError) {
+      // If we can't fetch the transfer request, fall back to generic error
+      const embed = composeEmbedMessage(null, {
+        author: ["Action failed!", getEmojiURL(emojis.REVOKE)],
+        description:
+          "Transfer request is not available at the moment!\nPlease try again later!",
+      })
+
+      await i.reply({ embeds: [embed], ephemeral: true })
+    }
+  } else {
+    // Handle other errors
     const embed = composeEmbedMessage(null, {
       author: ["Action failed!", getEmojiURL(emojis.REVOKE)],
       description:
