@@ -296,6 +296,23 @@ class MochiPay extends Fetcher {
     )
   }
 
+  async getTransferRequestByCode({
+    headers,
+    requestCode,
+    appId = "1",
+  }: {
+    headers: Record<string, string>
+    requestCode: string
+    appId?: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}`,
+      {
+        headers,
+      },
+    )
+  }
+
   public async withdrawV2(body: {
     profileId: string
     tokenId: string
