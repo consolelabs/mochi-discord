@@ -18,7 +18,7 @@ dev:
 RELEASE_BRANCH=master
 BETA_BRANCH=preview
 DEVELOP_BRANCH=develop
-BUMP_VERSION=v6.56.1
+BUMP_VERSION=v0.0.1
 
 .PHONY: release
 release: 

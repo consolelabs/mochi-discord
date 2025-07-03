@@ -18,7 +18,7 @@ jobs:
           node-version: 18
           
       - name: Restore Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pnpm
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
@@ -32,7 +32,7 @@ jobs:
           pnpm i
           
       - name: Save Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pnpm
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}

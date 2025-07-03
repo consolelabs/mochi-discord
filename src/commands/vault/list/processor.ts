@@ -87,7 +87,9 @@ export async function runVaultList(
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
 
-  const appVaults = await mochiPay.getApplicationVaultBalancesByProfile(userProfile.id)
+  const appVaults = await mochiPay.getApplicationVaultBalancesByProfile(
+    userProfile.id,
+  )
 
   const publicTradingVaults = (
     await mochiPay.listGlobalEarningVault(userProfile.id)

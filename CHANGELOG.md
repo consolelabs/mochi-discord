@@ -1,3 +1,11 @@
+# [6.58.0-rc.2](https://github.com/consolelabs/mochi-discord/compare/v6.58.0-rc.1...v6.58.0-rc.2) (2025-07-03)
+
+
+### Bug Fixes
+
+* bump version ([f9e50f5](https://github.com/consolelabs/mochi-discord/commit/f9e50f5fc4bef0e7c271bcf9e5af93f56e5ba599))
+* update kudos cmd ([#1708](https://github.com/consolelabs/mochi-discord/issues/1708)) ([f4a1207](https://github.com/consolelabs/mochi-discord/commit/f4a120773e036b108e9a503acec2777b7757116f))
+
 # [6.58.0](https://github.com/consolelabs/mochi-discord/compare/v6.57.0...v6.58.0) (2025-06-27)
 
 

@@ -296,6 +296,23 @@ class MochiPay extends Fetcher {
     )
   }
 
+  async getTransferRequestByCode({
+    headers,
+    requestCode,
+    appId = "1",
+  }: {
+    headers: Record<string, string>
+    requestCode: string
+    appId?: string
+  }) {
+    return await this.jsonFetch(
+      `${MOCHI_PAY_API_BASE_URL}/applications/${appId}/requests/${requestCode}`,
+      {
+        headers,
+      },
+    )
+  }
+
   public async withdrawV2(body: {
     profileId: string
     tokenId: string
@@ -454,16 +471,20 @@ class MochiPay extends Fetcher {
   }
 
   async getApplicationVaultsByProfileId(profileId: string): Promise<any> {
-    const {data, ok} = await this.jsonFetch(
+    const { data, ok } = await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/vaults`,
     )
     return ok ? data : []
   }
 
-  async getAppVaultBalances(profileId: string, appId: string, vaultId: string): Promise<any> {
-    const {data, ok} = await this.jsonFetch(
+  async getAppVaultBalances(
+    profileId: string,
+    appId: string,
+    vaultId: string,
+  ): Promise<any> {
+    const { data, ok } = await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/${appId}/vaults/${vaultId}/balances`,
-      { headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` } }
+      { headers: { Authorization: `Bearer ${MOCHI_BOT_SECRET}` } },
     )
     return ok ? data : []
   }
@@ -471,11 +492,17 @@ class MochiPay extends Fetcher {
   async getApplicationVaultBalancesByProfile(profileId: string): Promise<any> {
     const vaults = await this.getApplicationVaultsByProfileId(profileId)
 
-
     const result = []
     for (const vault of vaults) {
-      const balances = await this.getAppVaultBalances(profileId, vault.application_id, vault.vault_profile_id)
-      const totalBalance = balances.reduce((acc: number, curr: any) => acc + curr.usd_amount, 0)
+      const balances = await this.getAppVaultBalances(
+        profileId,
+        vault.application_id,
+        vault.vault_profile_id,
+      )
+      const totalBalance = balances.reduce(
+        (acc: number, curr: any) => acc + curr.usd_amount,
+        0,
+      )
       result.push({
         ...vault,
         total: totalBalance,
@@ -583,7 +610,10 @@ class MochiPay extends Fetcher {
     return ok ? data : []
   }
 
-  async listVaultsByApplicationId(profileId: string, appId: string): Promise<any> {
+  async listVaultsByApplicationId(
+    profileId: string,
+    appId: string,
+  ): Promise<any> {
     const { data, ok } = await this.jsonFetch(
       `${MOCHI_PAY_API_BASE_URL}/profiles/${profileId}/applications/${appId}/vaults`,
       {
