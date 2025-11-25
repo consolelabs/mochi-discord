@@ -19,6 +19,7 @@ import profile from "adapters/profile"
 import { ModelVault } from "types/api"
 import { faker } from "@faker-js/faker"
 import mochiPay from "adapters/mochi-pay"
+import { logger } from "logger"
 
 export function formatVaults(
   vaults: Array<ModelVault & { total?: string }>,
@@ -82,15 +83,54 @@ function formatAppVaults(vaults: any[]) {
 export async function runVaultList(
   interaction: CommandInteraction | ButtonInteraction,
 ) {
+  const startTime = Date.now()
+  logger.debug(
+    {
+      userId: interaction.user.id,
+      guildId: interaction.guildId,
+    },
+    "[vault/list] starting runVaultList",
+  )
+
+  let stepStart = Date.now()
   const userProfile = await profile.getByDiscord(interaction.user.id)
+  logger.debug(
+    {
+      userId: interaction.user.id,
+      profileId: userProfile.id,
+      duration: Date.now() - stepStart,
+    },
+    "[vault/list] fetched user profile",
+  )
+
+  stepStart = Date.now()
   const spotVaults = interaction.guildId
     ? await config.vaultList(interaction.guildId)
     : await config.vaultList("", false, userProfile.id)
+  logger.debug(
+    {
+      guildId: interaction.guildId,
+      profileId: userProfile.id,
+      vaultCount: spotVaults.length,
+      duration: Date.now() - stepStart,
+    },
+    "[vault/list] fetched spot vaults",
+  )
 
+  stepStart = Date.now()
   const appVaults = await mochiPay.getApplicationVaultBalancesByProfile(
     userProfile.id,
   )
+  logger.debug(
+    {
+      profileId: userProfile.id,
+      vaultCount: appVaults.length,
+      duration: Date.now() - stepStart,
+    },
+    "[vault/list] fetched app vaults",
+  )
 
+  stepStart = Date.now()
   const publicTradingVaults = (
     await mochiPay.listGlobalEarningVault(userProfile.id)
   ).map((v: any) => ({
@@ -102,7 +142,16 @@ export async function runVaultList(
     type: "trading",
     discord_guild: { name: "" },
   }))
+  logger.debug(
+    {
+      profileId: userProfile.id,
+      vaultCount: publicTradingVaults.length,
+      duration: Date.now() - stepStart,
+    },
+    "[vault/list] fetched public trading vaults",
+  )
 
+  stepStart = Date.now()
   const tradingVaults = (
     interaction.guildId
       ? await mochiPay.listEarningVaults(
@@ -120,6 +169,25 @@ export async function runVaultList(
     type: "trading",
     discord_guild: { name: "" },
   }))
+  logger.debug(
+    {
+      guildId: interaction.guildId,
+      vaultCount: tradingVaults.length,
+      duration: Date.now() - stepStart,
+    },
+    "[vault/list] fetched trading vaults",
+  )
+
+  logger.debug(
+    {
+      totalDuration: Date.now() - startTime,
+      spotVaults: spotVaults.length,
+      appVaults: appVaults.length,
+      publicTradingVaults: publicTradingVaults.length,
+      tradingVaults: tradingVaults.length,
+    },
+    "[vault/list] completed all API calls",
+  )
 
   if (
     !spotVaults.length &&
