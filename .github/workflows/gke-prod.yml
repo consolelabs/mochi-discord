@@ -1,9 +1,9 @@
 name: Build and Deploy to GKE Prod
 
 on:
-  workflow_dispatch:
-  release:
-    types: [released]
+  push:
+    tags:
+      - 'v*.*.*'
 
 # Environment variables available to all jobs and steps in this workflow
 env:
@@ -63,8 +63,8 @@ jobs:
       - name: Update discord version
         run: |
           cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
-          git config user.name jphuc96
-          git config user.email jphuc96@gmail.com
+          git config user.name lmquang
+          git config user.email quanglm.ops@gmail.com
           /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
           cd ../v2
           /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
