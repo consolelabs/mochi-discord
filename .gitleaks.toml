@@ -1,0 +1,21 @@
+# gitleaks config (Console Labs consolidation hardening). Extends defaults; allowlists test
+# fixtures + sample env + dev certs, public Discord snowflake IDs (17-20 digit user/role/guild
+# IDs in bot source, NOT secrets), and mochi-guess.ts (default game token_id; the real API key
+# is env-sourced via MOCHI_GUESS_API_KEY). The gate then fires on REAL leaks.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "test fixtures, sample env, dev certs, public Discord snowflakes, env-sourced adapter"
+paths = [
+  '''.*\.(test|spec)\.(ts|tsx|js|jsx)$''',
+  '''.*/__tests__/.*''',
+  '''.*/testdata/.*''',
+  '''\.env\.(sample|example)$''',
+  '''.*localhost.*\.pem$''',
+  '''.*localhost.*\.key$''',
+  '''src/adapters/mochi-guess\.ts$''',
+]
+regexes = [
+  '''^[0-9]{17,20}$''',
+]
