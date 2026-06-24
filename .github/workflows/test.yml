@@ -5,20 +5,20 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: 18
           
       - name: Restore Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pnpm
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
@@ -32,7 +32,7 @@ jobs:
           pnpm i
           
       - name: Save Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pnpm
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
