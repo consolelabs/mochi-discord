@@ -199,6 +199,11 @@ const balancesFetcher: Record<
   [BalanceType.All]: (profileId) => defi.getAllBalances({ profileId }),
 }
 
+// Guard against a malformed/empty API response: an `ok` response whose data
+// field is null or the wrong shape must degrade to an empty balance, never
+// crash the /bal render with `Cannot read properties of ... (reading 'filter')`.
+const asArray = (x: any): any[] => (Array.isArray(x) ? x : [])
+
 export async function getBalances(
   profileId: string,
   discordId: string,
@@ -218,7 +223,7 @@ export async function getBalances(
       error: res.error,
     })
   }
-  let data,
+  let data: any,
     farming: any,
     staking: any,
     lending: any,
@@ -227,27 +232,27 @@ export async function getBalances(
     future: any,
     pnl = 0
   if (type === BalanceType.Offchain) {
-    data = res.data.filter((i: any) => Boolean(i))
+    data = asArray(res.data).filter((i: any) => Boolean(i))
     pnl = 0
   }
   if (type == BalanceType.All) {
-    data = res.data.summarize.filter((i: any) => Boolean(i))
+    data = asArray(res.data?.summarize).filter((i: any) => Boolean(i))
     pnl = 0
   }
   if (type === BalanceType.Onchain) {
-    data = res.data.balance.filter((i: any) => Boolean(i))
-    pnl = Number(res.data.pnl || 0)
+    data = asArray(res.data?.balance).filter((i: any) => Boolean(i))
+    pnl = Number(res.data?.pnl || 0)
     if (Number.isNaN(pnl)) {
       pnl = 0
     }
-    farming = res.data.farming
-    staking = res.data.staking
-    nfts = res.data.nfts
+    farming = res.data?.farming
+    staking = res.data?.staking
+    nfts = res.data?.nfts
   }
   if (type === BalanceType.Cex) {
-    data = res.data.asset.filter((i: any) => Boolean(i))
+    data = asArray(res.data?.asset).filter((i: any) => Boolean(i))
     pnl = 0
-    const groupedEarn = groupBy(res.data.earn ?? [], (e) => {
+    const groupedEarn = groupBy(res.data?.earn ?? [], (e) => {
       if (e.detail_staking) return "staking"
       if (e.detail_lending) return "lending"
       return "unknown"
@@ -268,7 +273,7 @@ export async function getBalances(
         symbol: e.token.symbol,
       })) ?? []
 
-    if (res.data.simple_earn) {
+    if (res.data?.simple_earn) {
       simple = [
         {
           amount: +res.data.simple_earn.total_amount_in_btc,
@@ -280,7 +285,7 @@ export async function getBalances(
     }
 
     if (
-      res.data.future &&
+      res.data?.future &&
       Array.isArray(res.data.future) &&
       res.data.future.length > 0
     ) {
