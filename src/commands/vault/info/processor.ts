@@ -127,7 +127,7 @@ export async function handleVaultRounds(
             .setLabel("Claim all")
             .setStyle("SECONDARY")
             .setCustomId("claim")
-            .setEmoji("<:FeelsGood:1177549805048836126>")
+            .setEmoji("🎁")
             .setDisabled(true),
         ),
       ],
@@ -465,7 +465,7 @@ export async function runGetVaultDetail({
               .setLabel("Claim")
               .setStyle("SECONDARY")
               .setCustomId("claim")
-              .setEmoji("<:FeelsGood:1177549805048836126>")
+              .setEmoji("🎁")
               .setDisabled(Number(report.member_equity?.claimable ?? 0) <= 0),
             new MessageButton()
               .setLabel("Report")
