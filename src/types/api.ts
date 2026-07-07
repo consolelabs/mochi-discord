@@ -329,6 +329,7 @@ export interface ModelNFTCollection {
   is_verified?: boolean
   name?: string
   symbol?: string
+  total_supply?: number
 }
 
 export interface ModelNFTCollectionDetail {
@@ -611,6 +612,7 @@ export interface ModelUserWalletWatchlistItem {
 
 export interface ModelVault {
   created_at?: string
+  deleted_at?: string
   discord_guild?: ModelDiscordGuild
   guild_id?: string
   id?: number
@@ -1224,10 +1226,6 @@ export interface ResponseBinanceStakingProductPosition {
   type?: string
 }
 
-export interface ResponseChainGasTrackerResponseData {
-  data?: ResponseGasTrackerResponse
-}
-
 export interface ResponseClaimQuestsRewardsResponse {
   data?: ResponseClaimQuestsRewardsResponseData
 }
@@ -1450,20 +1448,6 @@ export interface ResponseDiscordGuildRole {
 
 export interface ResponseFindTokenByContractAddressResponse {
   data?: ResponseToken
-}
-
-export interface ResponseGasTrackerResponse {
-  chain?: string
-  est_fast_time?: string
-  est_propose_time?: string
-  est_safe_time?: string
-  fast_gas_price?: string
-  propose_gas_price?: string
-  safe_gas_price?: string
-}
-
-export interface ResponseGasTrackerResponseData {
-  data?: ResponseGasTrackerResponse[]
 }
 
 export interface ResponseGeneralSettingData {
