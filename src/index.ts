@@ -262,11 +262,37 @@ const EMOJI_FALLBACKS: Record<string, string> = {
   WALLET: "👛",
   WALLET_1: "👛",
   WALLET_2: "👛",
+  // codes MISSING from product-metadata entirely (not just dead): every miss
+  // used to hit getEmoji's fallback, so e.g. numbered wallet rows rendered as
+  // a dead coin. NUM_2 is the only digit the DB actually has.
+  NUM_0: "0️⃣",
+  NUM_1: "1️⃣",
+  NUM_2: "2️⃣",
+  NUM_3: "3️⃣",
+  NUM_4: "4️⃣",
+  NUM_5: "5️⃣",
+  NUM_6: "6️⃣",
+  NUM_7: "7️⃣",
+  NUM_8: "8️⃣",
+  NUM_9: "9️⃣",
+  LINE: "▬",
+  BLANK: "⠀",
+  REPLY: "↳",
+  REPLY_2: "↳",
+  REPLY_3: "↳",
+  MAIL: "📧",
+  NEWS: "📰",
+  TWITTER: "🐦",
+  SWAP: "🔁",
+  CONVERSION: "🔄",
+  WEB: "🌐",
+  NFT: "🖼️",
 }
 const NEUTRAL_EMOJI = "🔹"
 
 // Replace fetched emojis whose custom-emoji id the bot can no longer access
-// (deleted emoji / kicked guild) with a unicode fallback. Runs after every
+// (deleted emoji / kicked guild) with a unicode fallback, and register
+// fallbacks for well-known codes the DB does not have at all. Runs after every
 // fetch and once on ready (guild emoji caches must be populated to judge).
 export function sanitizeEmojis() {
   if (!client.isReady() || !emojis?.size) return
@@ -277,9 +303,15 @@ export function sanitizeEmojis() {
     d.emoji = EMOJI_FALLBACKS[code] ?? NEUTRAL_EMOJI
     replaced++
   }
-  if (replaced) {
+  let added = 0
+  for (const [code, emoji] of Object.entries(EMOJI_FALLBACKS)) {
+    if (emojis.has(code)) continue
+    emojis.set(code, { code, emoji })
+    added++
+  }
+  if (replaced || added) {
     logger.info(
-      `[sanitizeEmojis] replaced ${replaced} dead custom emojis with unicode fallbacks`,
+      `[sanitizeEmojis] replaced ${replaced} dead custom emojis, added ${added} missing codes (unicode fallbacks)`,
     )
   }
 }
