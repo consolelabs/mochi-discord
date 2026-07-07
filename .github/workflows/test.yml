@@ -28,7 +28,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip make build-essential g++ libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev imagemagick
           pip3 install --upgrade pip
-          npm install -g pnpm
+          # Pin pnpm@9: unpinned pulls pnpm@11 which needs Node >=22.13, but this job is node:18
+          # and the lockfile is lockfileVersion 9.0 (same bomb that broke the prod Docker build).
+          npm install -g pnpm@9
           pnpm i
           
       - name: Save Cache
