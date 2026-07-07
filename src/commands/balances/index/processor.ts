@@ -2,6 +2,7 @@ import defi from "adapters/defi"
 import mochiPay from "adapters/mochi-pay"
 import profile from "adapters/profile"
 import { renderWallets } from "commands/profile/index/processor"
+import { logger } from "logger"
 import {
   ButtonInteraction,
   CommandInteraction,
@@ -1178,6 +1179,9 @@ export async function renderBalances(
   ])
   const isViewingOther = interaction.user.id !== discordId
 
+  logger.info(
+    `[/bal] renderBalances: fetched balances+txns, entering switchView`,
+  )
   const { embed, trackingType, isOwnWallet, totalPage } = await switchView(
     view,
     props,
@@ -1190,6 +1194,7 @@ export async function renderBalances(
     page,
     profileId,
   )
+  logger.info(`[/bal] renderBalances: switchView done, returning msgOpts`)
   return {
     context: {
       address,
