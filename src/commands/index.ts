@@ -44,7 +44,6 @@ import deposit from "./deposit"
 import feedback from "./feedback/index"
 import gm from "./gm"
 import help from "./help/index"
-import gas from "./gas"
 import activity from "./activity"
 import inbox from "./inbox"
 import nft from "./nft"
@@ -139,7 +138,6 @@ export const slashCommands: Record<string, SlashCommand> = {
   alert: alert.slashCmd,
   wallet: wallet.slashCmd,
   stats: stats.slashCmd,
-  gas: gas.slashCmd,
   activity: activity.slashCmd,
   inbox: inbox.slashCmd,
   convert: convert.slashCmd,
@@ -190,7 +188,6 @@ export const originalCommands: Record<string, Command> = {
   sales: sales.textCmd,
   feedback: feedback.textCmd,
   alert: alert.textCmd,
-  gas: gas.textCmd,
   proposal: proposal.textCmd,
   // config section
   stats: stats.textCmd,
