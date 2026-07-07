@@ -15,7 +15,9 @@ COPY package.json ./
 COPY pnpm-lock.yaml ./
 
 # Install the dependencies
-RUN npm install -g pnpm && \
+# Pin pnpm to 9.x: pnpm 11 dropped Node <22.13, but this image is node:18, and the
+# lockfile is lockfileVersion 9.0. Unpinned `pnpm` broke every prod build after pnpm@11 shipped.
+RUN npm install -g pnpm@9 && \
     pnpm install -P && \
     pnpm up '@consolelabs/*' --latest
 
