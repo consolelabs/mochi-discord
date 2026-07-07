@@ -1,5 +1,6 @@
 import { DiscordEvent } from "."
 import Discord from "discord.js"
+import { sanitizeEmojis } from "../.."
 import { PREFIX } from "utils/constants"
 import { invites } from "utils/invites"
 import { setTimeout as wait } from "timers/promises"
@@ -18,6 +19,8 @@ const event: DiscordEvent<"ready"> = {
       if (!client.user) return
       logger.info(`Bot [${client.user.username}] is ready`)
       InteractionManager.client = client
+      // guild emoji caches are populated now; sweep out dead custom emojis
+      sanitizeEmojis()
       for (const cache of client.guilds.cache) {
         const guild = cache[1]
         if (guild.members.me?.permissions.has("ADMINISTRATOR")) {

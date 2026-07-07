@@ -191,8 +191,97 @@ export async function fetchEmojis() {
     const data = json.data
     if (data) {
       emojis = new Map(data.map((d: any) => [d.code.toUpperCase(), d]))
+      sanitizeEmojis()
     }
   } catch (e) {}
+}
+
+// Unicode stand-ins for emoji codes whose custom emoji was deleted. Codes not
+// listed here fall back to a neutral dot. Audited 2026-07-07: 186 of 489
+// product-metadata emojis point at deleted guild emojis; 29 of those were used
+// on buttons, where ONE dead emoji.id makes Discord 400 the whole reply
+// (50035) -- that is what took /bal down.
+const EMOJI_FALLBACKS: Record<string, string> = {
+  ANIMATED_ARROW_DOWN: "🔽",
+  ANIMATED_ARROW_UP: "🔼",
+  ANIMATED_BADGE_1: "🏅",
+  ANIMATED_BELL: "🔔",
+  ANIMATED_CHAT: "💬",
+  ANIMATED_CHEST: "🧰",
+  ANIMATED_COIN_1: "🪙",
+  ANIMATED_COIN_2: "🪙",
+  ANIMATED_COIN_3: "🪙",
+  ANIMATED_CROWN: "👑",
+  ANIMATED_DIAMOND: "💎",
+  ANIMATED_FIRE: "🔥",
+  ANIMATED_FLASH: "⚡",
+  ANIMATED_GEM: "💎",
+  ANIMATED_HEART: "❤️",
+  ANIMATED_IDEA: "💡",
+  ANIMATED_MAIL_RECEIVE: "📩",
+  ANIMATED_MAIL_SEND: "📨",
+  ANIMATED_MONEY: "💸",
+  ANIMATED_OPEN_VAULT: "🏦",
+  ANIMATED_PARTY_POPPER: "🎉",
+  ANIMATED_POINTING_DOWN: "👇",
+  ANIMATED_POINTING_RIGHT: "👉",
+  ANIMATED_QUESTION_MARK: "❓",
+  ANIMATED_ROBOT: "🤖",
+  ANIMATED_SHRUGGING: "🤷",
+  ANIMATED_STAR: "⭐",
+  ANIMATED_TOKEN_ADD: "📥",
+  ANIMATED_TROPHY: "🏆",
+  ANIMATED_VAULT: "🏦",
+  ANIMATED_VAULT_KEY: "🔑",
+  ANIMATED_WITHDRAW: "📤",
+  ANIMATED_XP: "✨",
+  APPROVE: "✅",
+  APPROVE_GREY: "☑️",
+  ARROW_DOWN: "↘️",
+  ARROW_UP: "↗️",
+  BELL: "🔔",
+  BIN: "🗑️",
+  BINANCE: "🟡",
+  CASH: "💵",
+  CHART: "📊",
+  CHECK: "✅",
+  CONFIG: "⚙️",
+  GIFT: "🎁",
+  LEAF: "🍃",
+  MAG: "🔍",
+  MOCHI_CIRCLE: "🍡",
+  MONEY: "💰",
+  NFT2: "🖼️",
+  NFTS: "🖼️",
+  PLUS: "➕",
+  PROPOSAL: "📜",
+  QRCODE: "🔳",
+  REVOKE: "⛔",
+  SHARE: "💸",
+  SWAP_ROUTE: "🔁",
+  WALLET: "👛",
+  WALLET_1: "👛",
+  WALLET_2: "👛",
+}
+const NEUTRAL_EMOJI = "🔹"
+
+// Replace fetched emojis whose custom-emoji id the bot can no longer access
+// (deleted emoji / kicked guild) with a unicode fallback. Runs after every
+// fetch and once on ready (guild emoji caches must be populated to judge).
+export function sanitizeEmojis() {
+  if (!client.isReady() || !emojis?.size) return
+  let replaced = 0
+  for (const [code, d] of emojis as Map<string, any>) {
+    const match = /^<a?:[^:]+:(\d+)>$/.exec((d?.emoji ?? "").trim())
+    if (!match || client.emojis.cache.has(match[1])) continue
+    d.emoji = EMOJI_FALLBACKS[code] ?? NEUTRAL_EMOJI
+    replaced++
+  }
+  if (replaced) {
+    logger.info(
+      `[sanitizeEmojis] replaced ${replaced} dead custom emojis with unicode fallbacks`,
+    )
+  }
 }
 
 // cleanup
