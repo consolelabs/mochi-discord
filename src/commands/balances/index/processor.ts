@@ -1318,15 +1318,19 @@ function getGuestWalletButtons(trackingType: string) {
 
 export function getButtons() {
   return [
+    // Unicode emoji here on purpose: the previous custom emojis (SHARE,
+    // ANIMATED_TOKEN_ADD) were deleted from their guild, and one dead
+    // emoji.id makes Discord 400 the WHOLE editReply (50035 Invalid Form
+    // Body), which is what killed /bal for everyone.
     new MessageButton()
       .setStyle("SECONDARY")
-      .setEmoji(getEmoji("SHARE"))
+      .setEmoji("💸")
       .setCustomId(`send`)
       .setLabel("Send (soon)")
       .setDisabled(true),
     new MessageButton()
       .setStyle("SECONDARY")
-      .setEmoji(getEmoji("ANIMATED_TOKEN_ADD", true))
+      .setEmoji("📥")
       .setCustomId(`deposit`)
       .setLabel("Deposit"),
   ]
