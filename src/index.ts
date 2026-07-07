@@ -290,6 +290,23 @@ const EMOJI_FALLBACKS: Record<string, string> = {
 }
 const NEUTRAL_EMOJI = "🔹"
 
+// Codes forced to unicode even when their custom emoji looks valid in the
+// bot's cache: users reported digit rows still rendering as ":icon:" while
+// the cache said the ids were fine, and a keycap carries the same meaning
+// with zero dependency on emoji inventory.
+const FORCE_UNICODE = new Set([
+  "NUM_0",
+  "NUM_1",
+  "NUM_2",
+  "NUM_3",
+  "NUM_4",
+  "NUM_5",
+  "NUM_6",
+  "NUM_7",
+  "NUM_8",
+  "NUM_9",
+])
+
 // Replace fetched emojis whose custom-emoji id the bot can no longer access
 // (deleted emoji / kicked guild) with a unicode fallback, and register
 // fallbacks for well-known codes the DB does not have at all. Runs after every
@@ -299,7 +316,8 @@ export function sanitizeEmojis() {
   let replaced = 0
   for (const [code, d] of emojis as Map<string, any>) {
     const match = /^<a?:[^:]+:(\d+)>$/.exec((d?.emoji ?? "").trim())
-    if (!match || client.emojis.cache.has(match[1])) continue
+    if (!match) continue
+    if (!FORCE_UNICODE.has(code) && client.emojis.cache.has(match[1])) continue
     d.emoji = EMOJI_FALLBACKS[code] ?? NEUTRAL_EMOJI
     replaced++
   }
