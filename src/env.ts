@@ -72,7 +72,6 @@ export const KAFKA_PRODUCER_TOPIC =
   process.env.KAFKA_PRODUCER_TOPIC || "mochiDiscord.dev"
 export const KAFKA_AUDIT_TOPIC = process.env.KAFKA_AUDIT_TOPIC || "testTopic"
 
-
 export const MOCHI_PROFILE_API_SERVER_HOST =
   process.env.MOCHI_PROFILE_API_SERVER_HOST ||
   "https://api.mochi-profile.console.so"

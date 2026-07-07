@@ -210,7 +210,6 @@ class Defi extends Fetcher {
     })
   }
 
-
   async getUserTrackingWallets(userId: string) {
     return await this.jsonFetch<ResponseGetTrackingWalletsResponse>(
       `${API_BASE_URL}/users/${userId}/watchlists/wallets`,
