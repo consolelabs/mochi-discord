@@ -307,17 +307,26 @@ const FORCE_UNICODE = new Set([
   "NUM_9",
 ])
 
-// Replace fetched emojis whose custom-emoji id the bot can no longer access
-// (deleted emoji / kicked guild) with a unicode fallback, and register
-// fallbacks for well-known codes the DB does not have at all. Runs after every
-// fetch and once on ready (guild emoji caches must be populated to judge).
+// Replace fetched emojis the Discord client will not render with a unicode
+// fallback, and register fallbacks for well-known codes the DB does not have
+// at all. Runs after every fetch and once on ready (guild emoji caches must be
+// populated to judge).
+//
+// The discriminator is `available`, NOT mere presence. Root cause of the whole
+// emoji rot: the "Console Labs" guild lost its Nitro boost tier, so a chunk of
+// its emojis flipped to `available: false`. Such an emoji STILL appears in the
+// guild emoji list and its CDN image still 200s, so every presence/CDN check
+// says "alive", but the client refuses to render it (shows `:name:`). We must
+// treat an emoji as dead when it is absent OR its GuildEmoji.available is false.
 export function sanitizeEmojis() {
   if (!client.isReady() || !emojis?.size) return
   let replaced = 0
   for (const [code, d] of emojis as Map<string, any>) {
     const match = /^<a?:[^:]+:(\d+)>$/.exec((d?.emoji ?? "").trim())
     if (!match) continue
-    if (!FORCE_UNICODE.has(code) && client.emojis.cache.has(match[1])) continue
+    const cached = client.emojis.cache.get(match[1])
+    const usable = !!cached && cached.available !== false
+    if (!FORCE_UNICODE.has(code) && usable) continue
     d.emoji = EMOJI_FALLBACKS[code] ?? NEUTRAL_EMOJI
     replaced++
   }
