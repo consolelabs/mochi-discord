@@ -72,7 +72,6 @@ export const KAFKA_PRODUCER_TOPIC =
   process.env.KAFKA_PRODUCER_TOPIC || "mochiDiscord.dev"
 export const KAFKA_AUDIT_TOPIC = process.env.KAFKA_AUDIT_TOPIC || "testTopic"
 
-export const FTMSCAN_API_KEY = process.env.FTMSCAN_API_KEY || ""
 
 export const MOCHI_PROFILE_API_SERVER_HOST =
   process.env.MOCHI_PROFILE_API_SERVER_HOST ||

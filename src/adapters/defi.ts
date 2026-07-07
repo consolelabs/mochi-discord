@@ -1,4 +1,4 @@
-import { FTMSCAN_API_KEY, MOCHI_BOT_SECRET } from "env"
+import { MOCHI_BOT_SECRET } from "env"
 import fetch from "node-fetch"
 import {
   RequestCreateTipConfigNotify,
@@ -10,15 +10,8 @@ import {
   ResponseListMyGuildsResponse,
   ResponseNftWatchlistSuggestResponse,
 } from "types/api"
-import { Coin, CoinComparisionData, CoinPrice, GasPriceData } from "types/defi"
-import {
-  API_BASE_URL,
-  BSCSCAN_API,
-  ETHSCAN_API,
-  FTMSCAN_API,
-  INDEXER_API_BASE_URL,
-  POLYGONSCAN_API,
-} from "utils/constants"
+import { Coin, CoinComparisionData, CoinPrice } from "types/defi"
+import { API_BASE_URL, INDEXER_API_BASE_URL } from "utils/constants"
 import { Fetcher } from "./fetcher"
 
 class Defi extends Fetcher {
@@ -135,24 +128,6 @@ class Defi extends Fetcher {
     )
   }
 
-  async getGasPrice(chain: string) {
-    const gasTrackerUrls: Record<string, string> = {
-      ftm: FTMSCAN_API,
-      bnb: BSCSCAN_API,
-      matic: POLYGONSCAN_API,
-      eth: ETHSCAN_API,
-    }
-    const url = gasTrackerUrls[chain]
-    const query = {
-      module: "gastracker",
-      action: "gasoracle",
-    }
-    return await this.jsonFetch<{ result: GasPriceData }>(url, {
-      query,
-      silent: true,
-    }).catch(() => null)
-  }
-
   async getUserNFTWatchlist({
     profileId,
     page = 0,
@@ -235,17 +210,6 @@ class Defi extends Fetcher {
     })
   }
 
-  async getFtmPrice() {
-    const queries = {
-      module: "stats",
-      action: "ftmprice",
-      apikey: FTMSCAN_API_KEY,
-    }
-    const queryStr = Object.entries(queries)
-      .map(([k, v]) => `${k}=${v}`)
-      .join("&")
-    return await fetch(`${FTMSCAN_API}?${queryStr}`)
-  }
 
   async getUserTrackingWallets(userId: string) {
     return await this.jsonFetch<ResponseGetTrackingWalletsResponse>(
@@ -414,14 +378,6 @@ class Defi extends Fetcher {
         method: "PUT",
       },
     )
-  }
-
-  async getGasTracker() {
-    return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker`)
-  }
-
-  async getChainGasTracker(chain: string) {
-    return await this.jsonFetch(`${API_BASE_URL}/defi/gas-tracker/${chain}`)
   }
 
   async convertToken(body: { from: string; to: string; amount: string }) {
