@@ -237,31 +237,37 @@ const run = async (i: CommandInteraction) => {
     )}ms, calling editReply`,
   )
 
-  // editReply was observed hanging with no error and no APIRequest timeout,
-  // which means the request stalls BEFORE dispatch (route queue / global
-  // rate-limit gate inside discord.js). On timeout, dump the RESTManager state
-  // so the stuck gate is visible in logs.
+  // A minimal PATCH to the same @original route succeeds, so a stuck /bal
+  // reply means Discord rejected THIS payload (embeds/components) and the
+  // rejection was being swallowed silently. Log the full rejection (a 50035
+  // Invalid Form Body names the offending field) plus a payload summary.
   const EDIT_REPLY_TIMEOUT_MS = 10000
-  const reply = (await Promise.race([
-    i.editReply(msgOpts),
-    new Promise((_, reject) =>
-      setTimeout(() => {
-        const rest = (i.client as any).rest
-        const handlers = rest?.handlers
-          ? [...rest.handlers.entries()].map(
-              ([id, h]: [string, any]) =>
-                `${id} inactive=${h.inactive} limited=${h.limited} queued=${h.queue?.remaining}`,
-            )
-          : []
-        logger.error(
-          `[/bal] editReply stuck >${EDIT_REPLY_TIMEOUT_MS}ms. rest state: globalRemaining=${rest?.globalRemaining} globalReset=${rest?.globalReset} globalDelay=${!!rest?.globalDelay} handlers=${handlers.join(
-            " | ",
-          )}`,
-        )
-        reject(new Error(`[/bal] editReply timed out`))
-      }, EDIT_REPLY_TIMEOUT_MS),
-    ),
-  ])) as Message
+  let reply: Message
+  try {
+    reply = (await Promise.race([
+      i.editReply(msgOpts),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`[/bal] editReply timed out`)),
+          EDIT_REPLY_TIMEOUT_MS,
+        ),
+      ),
+    ])) as Message
+  } catch (e: any) {
+    const embed = msgOpts.embeds?.[0] as any
+    logger.error(
+      `[/bal] editReply failed: name=${e?.name} code=${e?.code} httpStatus=${e?.httpStatus} msg=${e?.message} | payload: desc_len=${
+        embed?.description?.length ?? 0
+      } fields=${embed?.fields?.length ?? 0} components=${JSON.stringify(
+        (msgOpts.components ?? []).map((r: any) =>
+          (r.components ?? []).map(
+            (c: any) => `${c.customId}:${c.label}:${c.emoji?.id ?? c.emoji}`,
+          ),
+        ),
+      )}`,
+    )
+    throw e
+  }
   logger.info(`[/bal] editReply done`)
 
   route(reply, i, machineConfig(context, i.member?.user.id))
