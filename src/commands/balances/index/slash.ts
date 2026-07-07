@@ -237,7 +237,31 @@ const run = async (i: CommandInteraction) => {
     )}ms, calling editReply`,
   )
 
-  const reply = (await i.editReply(msgOpts)) as Message
+  // editReply was observed hanging with no error and no APIRequest timeout,
+  // which means the request stalls BEFORE dispatch (route queue / global
+  // rate-limit gate inside discord.js). On timeout, dump the RESTManager state
+  // so the stuck gate is visible in logs.
+  const EDIT_REPLY_TIMEOUT_MS = 10000
+  const reply = (await Promise.race([
+    i.editReply(msgOpts),
+    new Promise((_, reject) =>
+      setTimeout(() => {
+        const rest = (i.client as any).rest
+        const handlers = rest?.handlers
+          ? [...rest.handlers.entries()].map(
+              ([id, h]: [string, any]) =>
+                `${id} inactive=${h.inactive} limited=${h.limited} queued=${h.queue?.remaining}`,
+            )
+          : []
+        logger.error(
+          `[/bal] editReply stuck >${EDIT_REPLY_TIMEOUT_MS}ms. rest state: globalRemaining=${rest?.globalRemaining} globalReset=${rest?.globalReset} globalDelay=${!!rest?.globalDelay} handlers=${handlers.join(
+            " | ",
+          )}`,
+        )
+        reject(new Error(`[/bal] editReply timed out`))
+      }, EDIT_REPLY_TIMEOUT_MS),
+    ),
+  ])) as Message
   logger.info(`[/bal] editReply done`)
 
   route(reply, i, machineConfig(context, i.member?.user.id))
