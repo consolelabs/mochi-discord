@@ -151,47 +151,35 @@ export class Fetcher {
 
     return new Promise((resolve) => {
       let timedout = false
-      // after timeout, if there is still no response from api, use cache instead
+      // Single in-flight request, shared with the cache branch below so a slow
+      // response is never re-fetched a second time.
+      const inflight = this.interalJsonFetch<T>(fullUrl, init)
+
+      // After timeout, try to answer from cache instead. The cache layer sits on
+      // Redis: when Redis is down/flapping (sentinel outage), its commands queue
+      // forever and swr() never settles, so this branch must never be the only
+      // path to resolve() -- that exact shape hung /bal (and every slow GET) on
+      // an infinite "thinking" whenever a cold call crossed the timeout during a
+      // Redis blip. The in-flight request below always resolves us as a backstop.
       const useCache = setTimeout(async () => {
         timedout = true
-
-        const { value } = await swr(
-          cacheKey,
-          async () => await this.interalJsonFetch<T>(fullUrl, init),
-        )
-
-        // const isFromCache = status === "fresh" || status === "stale"
-
-        // if (value.ok) {
-        //   value.cache = {
-        //     status,
-        //     cachedAt,
-        //   }
-        //
-        //   if (isFromCache && !init.silent) {
-        //     logger.info(
-        //       makeLog({
-        //         ok: true,
-        //         method: init.method,
-        //         status: status === "fresh" ? "cache" : "cache/revalidating",
-        //         url: fullUrl,
-        //       })
-        //     )
-        //   }
-        // }
-
-        resolve(value)
+        try {
+          const { value } = await swr(cacheKey, () => inflight)
+          resolve(value)
+        } catch (e) {
+          logger.warn(`[cacheFetch] cache path failed for ${cacheKey}: ${e}`)
+        }
       }, timeoutSeconds * 1000)
 
-      this.interalJsonFetch<T>(fullUrl, init).then((res) => {
-        // within acceptable time -> use resposne from api
+      inflight.then((res) => {
         if (!timedout) {
-          // clear useCache
+          // within acceptable time -> use response from api and update cache
           clearTimeout(useCache)
-          // manually update cache
           swr.persist(cacheKey, res)
-          resolve(res)
         }
+        // Always resolve with the real response (first resolution wins): a late
+        // response must win over a hung/broken cache branch, never be dropped.
+        resolve(res)
       })
     })
   }
