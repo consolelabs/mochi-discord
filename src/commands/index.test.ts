@@ -20,7 +20,9 @@ describe("handlePrefixedCommand", () => {
   })
 
   it("command not found => suggest commands", async () => {
-    mockMessage.content = "$asd 123"
+    // input must fuzzy-match (>=0.5) a surviving text command that has actions,
+    // or getCommandSuggestion correctly returns null and nothing is replied
+    mockMessage.content = "$watchlis 123"
     jest.spyOn(commands, "preauthorizeCommand")
     jest.spyOn(embed_ui, "getCommandSuggestion")
     await commands.handlePrefixedCommand(mockMessage)
@@ -31,7 +33,7 @@ describe("handlePrefixedCommand", () => {
   })
 
   it("help msg for nonexistent command => suggest commands", async () => {
-    mockMessage.content = "$help asd"
+    mockMessage.content = "$help watchlis"
     jest.spyOn(commands, "preauthorizeCommand")
     jest.spyOn(embed_ui, "getCommandSuggestion")
     jest.spyOn(commands_utils, "getCommandMetadata")
@@ -45,7 +47,7 @@ describe("handlePrefixedCommand", () => {
       mockMessage,
     )
     expect(commands_utils.getCommandMetadata).toHaveReturnedWith({
-      commandKey: "asd",
+      commandKey: "watchlis",
       action: undefined,
       isSpecificHelpCommand: true,
     })

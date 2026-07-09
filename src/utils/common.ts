@@ -28,7 +28,7 @@ import {
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
 import { Address } from "@ton/core"
 
-import { emojis as fetchedEmojis } from "../"
+import { emojis as fetchedEmojis } from "emoji-store"
 import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
