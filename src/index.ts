@@ -20,7 +20,8 @@ import { fetchCommandPermissions } from "utils/commands"
 
 export { slashCommands }
 
-export let emojis = new Map()
+import { emojis, setEmojis } from "emoji-store"
+export { emojis } from "emoji-store"
 
 let server: Server | null = null
 let featureData: Record<string, FeatureData>[] = []
@@ -48,7 +49,14 @@ for (const e of events) {
   }
 }
 
-client.login(DISCORD_TOKEN)
+// Boot side-effects are skipped under jest: several modules import this file
+// for its exports (client, emojis, fetchEmojis), and importing the entrypoint
+// must not log the bot in or open connections during tests.
+const IS_TEST = process.env.NODE_ENV === "test"
+
+if (!IS_TEST) {
+  client.login(DISCORD_TOKEN)
+}
 
 process.on("SIGTERM", () => {
   process.exit(0)
@@ -71,6 +79,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 // register slash commands
 ;(async () => {
+  if (IS_TEST) return
   try {
     if (DEV) {
       await registerCommand()
@@ -146,6 +155,7 @@ process.on("unhandledRejection", (reason, promise) => {
   }
 })()
 ;(async () => {
+  if (IS_TEST) return
   try {
     logger.info("Connecting to Kafka.")
     // start queue
@@ -190,7 +200,7 @@ export async function fetchEmojis() {
     const json = await res.json()
     const data = json.data
     if (data) {
-      emojis = new Map(data.map((d: any) => [d.code.toUpperCase(), d]))
+      setEmojis(new Map(data.map((d: any) => [d.code.toUpperCase(), d])))
       sanitizeEmojis()
     }
   } catch (e) {}
@@ -343,17 +353,17 @@ export function sanitizeEmojis() {
   }
 }
 
-// cleanup
-// @ts-ignore
-if (import.meta.hot) {
-  // @ts-ignore
-  import.meta.hot.on("vite:beforeFullReload", async () => {
-    server?.close()
+// cleanup (dev-only vite HMR; kept out of this file so jest never parses import.meta)
+if (process.env.NODE_ENV !== "test") {
+  import("./hot").then(({ onBeforeFullReload }) =>
+    onBeforeFullReload(async () => {
+      server?.close()
 
-    for (const e of events) {
-      client.off(e.name, e.execute as any)
-    }
-  })
+      for (const e of events) {
+        client.off(e.name, e.execute as any)
+      }
+    }),
+  )
 }
 
 export default client
