@@ -624,8 +624,12 @@ async function switchView(
 ) {
   const wallet = await defi.findWallet(profileId, props.address)
   const trackingType = wallet?.data?.type
+  // amounts are only rendered by the Cex branch (totalWorth = cexTotal);
+  // no_fetch_amount=false makes profile-api fetch live balances for every
+  // associated wallet (~15s for wallet-heavy users), blowing the /bal
+  // render time-box, so skip it for Offchain/Onchain/All views
   const { mochiWallets, wallets, cexes, cexTotal } =
-    await profile.getUserWallets(discordId, false)
+    await profile.getUserWallets(discordId, balanceType !== BalanceType.Cex)
   let isOwnWallet = wallets.some((w) =>
     props.address.toLowerCase().includes(w.value.toLowerCase()),
   )
