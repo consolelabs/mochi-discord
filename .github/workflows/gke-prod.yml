@@ -1,17 +1,22 @@
-name: Build and Deploy to GKE Prod
+name: Build and Deploy to Prod
 
 on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
 
-# Environment variables available to all jobs and steps in this workflow
+# ghcr.io push uses the workflow's own GITHUB_TOKEN (no external registry cred).
+# Only the kustomize bump to consolelabs/infrastructure needs the bot PAT.
 env:
-  REGISTRY_HOSTNAME: asia-southeast1-docker.pkg.dev
-  GKE_PROJECT: console-labs-prod
+  REGISTRY: ghcr.io
   IMAGE: consolelabs/mochi-discord
   K8S_ENVIRONMENT: prod
   SHA: ${{ github.sha }}
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   setup-build-publish-deploy:
@@ -19,33 +24,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - id: "auth"
-        name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v0"
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
         with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
-
-      - name: Setup Docker
-        run: |
-          gcloud auth configure-docker $REGISTRY_HOSTNAME
-
-      # Overwrite GITHUB_SHA
+      # Overwrite GITHUB_SHA-derived tag for manual re-runs
       - name: Set SHA
         if: github.event_name == 'workflow_dispatch'
         run: |
           echo "SHA=${GITHUB_SHA}-$(date +%Y%m%d%H%M%S)" >> "$GITHUB_ENV"
+
       # Build & Push the Docker image
       - name: Build & Push
         run: |
-          docker build -t $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME} .   
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME}
-          docker tag $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${GITHUB_REF_NAME} $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
+          docker build -t $REGISTRY/$IMAGE:${GITHUB_REF_NAME} .
+          docker push $REGISTRY/$IMAGE:${GITHUB_REF_NAME}
+          docker tag $REGISTRY/$IMAGE:${GITHUB_REF_NAME} $REGISTRY/$IMAGE:${SHA}
+          docker push $REGISTRY/$IMAGE:${SHA}
 
       # Setup kustomize
       - name: Setup kustomize
@@ -54,47 +54,17 @@ jobs:
           chmod u+x ./kustomize
           mv kustomize /tmp
       - name: Checkout consolelabs/infrastructure
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
         with:
           repository: consolelabs/infrastructure
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.INFRA_BOT_PAT }}
           path: ./infrastructure
           ref: main
       - name: Update discord version
         run: |
           cd ./infrastructure/mochi-discord/$K8S_ENVIRONMENT
-          git config user.name lmquang
-          git config user.email quanglm.ops@gmail.com
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
-          cd ../v2
-          /tmp/kustomize edit set image $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE=$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${SHA}
+          git config user.name "consolelabs-bot"
+          git config user.email "consolelabs-bot@users.noreply.github.com"
+          /tmp/kustomize edit set image $REGISTRY/$IMAGE=$REGISTRY/$IMAGE:${SHA}
           git commit -am "[skip ci] mochi-discord ${K8S_ENVIRONMENT} image update"
           git push origin main
-
-  # notify:
-  #   name: Notify
-  #   needs: setup-build-publish-deploy
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Notify changelog
-  #       uses: fjogeleit/http-request-action@v1
-  #       if: github.event_name == 'release'
-  #       with:
-  #         url: "https://chglg.fly.dev/v1/changelog"
-  #         method: "POST"
-  #         customHeaders: '{"Content-Type": "application/json"}'
-  #         timeout: 30000
-  #         escapeData: "true"
-  #         data: >-
-  #           {   
-  #             "repo": "https://github.com/${{ github.repository }}", 
-  #             "tag": "${{ github.ref }}",
-  #             "access_token": "${{ secrets.GH_PAT }}",
-  #             "app_name": "Discord", 
-  #             "discord": {
-  #               "webhook": "${{ secrets.DISCORD_WEBHOOK }}",
-  #               "footer": {
-  #                 "icon_url": "https://cdn.discordapp.com/emojis/1039475287169183744.webp?size=44&quality=lossless"
-  #               }
-  #             }
-  #           }
