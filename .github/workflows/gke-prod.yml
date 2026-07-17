@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  # semantic-release tags point at its "chore(release): x.y.z [skip ci]"
+  # commit, and [skip ci] suppresses the tag-push event too, so tag pushes
+  # from the Release workflow never auto-deploy. workflow_dispatch is the
+  # working path (also what consolelabs/mochi.js trigger.yaml calls).
+  workflow_dispatch:
 
 # Environment variables available to all jobs and steps in this workflow
 env:
