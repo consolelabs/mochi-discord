@@ -28,7 +28,7 @@ import {
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
 import { Address } from "@ton/core"
 
-import { emojis as fetchedEmojis } from "../"
+import { emojis as fetchedEmojis } from "emoji-store"
 import { DOT, SPACE } from "./constants"
 import {
   marketplaceEmojis,
@@ -566,7 +566,10 @@ export function maskAddress(str: string, minLen?: number) {
 export function getEmoji(
   key: EmojiKey | "",
   _animated?: boolean,
-  fallback = "<a:coin:1093923016691421205>",
+  // unicode on purpose: the old default <a:coin:1093923016691421205> points at
+  // a DELETED emoji, so every getEmoji miss poisoned its payload (Discord
+  // 400s a component that carries a dead emoji id)
+  fallback = "🪙",
 ) {
   return fetchedEmojis?.get(key.toUpperCase())?.emoji ?? fallback
   // const emoji = api.emojis.get(key.toUpperCase())

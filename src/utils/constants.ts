@@ -277,11 +277,6 @@ export const PAY_ME_GITBOOK =
   "https://mochibot.gitbook.io/mochi-bot/functions/crypto-management/pay-me" +
   "&command=pay&action=me"
 
-export const FTMSCAN_API = "https://api.ftmscan.com/api"
-export const BSCSCAN_API = "https://api.bscscan.com/api"
-export const ETHSCAN_API = "https://api.etherscan.io/api"
-export const POLYGONSCAN_API = "https://api.polygonscan.com/api"
-
 export const CHAIN_EXPLORER_BASE_URLS: Record<string, string> = {
   "0": "https://solscan.io",
   "1": "https://etherscan.io",

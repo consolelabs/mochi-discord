@@ -186,7 +186,12 @@ function handleCommandInteraction(interaction: CommandInteraction) {
         })
         return
       }
-      await i.deferReply({ ephemeral: command?.ephemeral }).catch(() => null)
+      // a silently-failed defer leaves the interaction unacknowledged and the
+      // later editReply targeting nothing; log it instead of swallowing
+      await i.deferReply({ ephemeral: command?.ephemeral }).catch((e) => {
+        logger.warn(`[deferReply] failed for /${i.commandName}: ${e}`)
+        return null
+      })
       let subcommand = ""
       let args = ""
       if (interaction.isCommand()) {

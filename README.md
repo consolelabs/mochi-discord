@@ -160,3 +160,23 @@ A big thank to all who contributed to this project!
 If you'd like to contribute, please check out the [contributing guide](CONTRIBUTING.md).
 
 [![Contributing](https://contrib.rocks/image?repo=consolelabs/mochi-discord)](https://github.com/consolelabs/mochi-discord/graphs/contributors)
+
+
+<!-- consolidation-hardening: dev-docs -->
+## Development & docs
+
+This repo was reindexed in the Console Labs org-consolidation hardening pass (2026-06).
+
+- `CLAUDE.md` , guidance for AI agents + humans (stack, conventions, commands).
+- `docs/ARCHITECTURE.md` , what's here and how it fits together.
+- `docs/SECURITY-AUDIT-2026-06-25.md` , secret-scan + dependency baseline.
+- CI: `.github/workflows/security.yml` runs gitleaks + a dependency audit on every PR.
+
+Build / test:
+
+```
+pnpm install
+pnpm test
+```
+
+Secrets come from env / the platform, never hardcoded.

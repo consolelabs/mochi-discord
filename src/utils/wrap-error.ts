@@ -1,6 +1,7 @@
 import { commands } from "commands"
 import { CommandInteraction, Message } from "discord.js"
 import { getCommandMetadata } from "./commands"
+import { logger } from "logger"
 import { Sentry } from "sentry"
 import { version } from "../../package.json"
 import { PRODUCT_NAME } from "./constants"
@@ -24,6 +25,9 @@ export async function wrapError(
   try {
     await func()
   } catch (e: any) {
+    // always leave a trace in pod logs: before this, errors went only to
+    // Sentry and a failing command was invisible in kubectl logs
+    logger.error(`[wrapError] caught: ${e?.name}: ${e?.message}`)
     let commandStr = ""
 
     if (typeof msg === "string") {

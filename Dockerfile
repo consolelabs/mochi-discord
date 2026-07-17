@@ -15,9 +15,19 @@ COPY package.json ./
 COPY pnpm-lock.yaml ./
 
 # Install the dependencies
-RUN npm install -g pnpm && \
+# Pin pnpm to 9.x: pnpm 11 dropped Node <22.13, but this image is node:18, and the
+# lockfile is lockfileVersion 9.0. Unpinned `pnpm` broke every prod build after pnpm@11 shipped.
+RUN npm install -g pnpm@9 && \
     pnpm install -P && \
     pnpm up '@consolelabs/*' --latest
+
+# Hotfix for mochi-formatter <=20.0.11: a stray space in the mochi() profile
+# renderer URL breaks Discord masked links (raw "[label](url)" shows in embeds).
+# Fixed upstream in consolelabs/mochi.js#47; no-op once formatter >=20.0.12 is
+# on npm (npm publish pending, single maintainer), then delete these two lines.
+RUN sed -i 's|${HOMEPAGE} /profile/|${HOMEPAGE}/profile/|g' \
+    node_modules/@consolelabs/mochi-formatter/dist/index.js \
+    node_modules/@consolelabs/mochi-formatter/dist/index.mjs
 
 # Rebuild canvas bindings
 RUN cd node_modules/canvas && \

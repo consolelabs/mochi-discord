@@ -129,3 +129,8 @@ Required:
 - `INDEXER_API_SERVER_HOST`: Indexer API endpoint
 
 See README.md for full list.
+
+## Security / quality (consolidation hardening pass, 2026-06-25, lighter adoption)
+
+- Secret scan: `gitleaks detect -c .gitleaks.toml` (clean after review). Allowlist covers test fixtures, sample env, and public Discord snowflake IDs (user/role/guild IDs are not secrets); `src/adapters/mochi-guess.ts` is allowlisted (its flagged value is a default game `token_id`, not a credential , the real key is env-sourced via `MOCHI_GUESS_API_KEY`).
+- CI (`.github/workflows/security.yml`) runs gitleaks + `pnpm audit` on PRs; Dependabot enabled.

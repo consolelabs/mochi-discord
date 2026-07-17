@@ -20,7 +20,8 @@ import { fetchCommandPermissions } from "utils/commands"
 
 export { slashCommands }
 
-export let emojis = new Map()
+import { emojis, setEmojis } from "emoji-store"
+export { emojis } from "emoji-store"
 
 let server: Server | null = null
 let featureData: Record<string, FeatureData>[] = []
@@ -48,7 +49,14 @@ for (const e of events) {
   }
 }
 
-client.login(DISCORD_TOKEN)
+// Boot side-effects are skipped under jest: several modules import this file
+// for its exports (client, emojis, fetchEmojis), and importing the entrypoint
+// must not log the bot in or open connections during tests.
+const IS_TEST = process.env.NODE_ENV === "test"
+
+if (!IS_TEST) {
+  client.login(DISCORD_TOKEN)
+}
 
 process.on("SIGTERM", () => {
   process.exit(0)
@@ -71,6 +79,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 // register slash commands
 ;(async () => {
+  if (IS_TEST) return
   try {
     if (DEV) {
       await registerCommand()
@@ -146,6 +155,7 @@ process.on("unhandledRejection", (reason, promise) => {
   }
 })()
 ;(async () => {
+  if (IS_TEST) return
   try {
     logger.info("Connecting to Kafka.")
     // start queue
@@ -190,22 +200,170 @@ export async function fetchEmojis() {
     const json = await res.json()
     const data = json.data
     if (data) {
-      emojis = new Map(data.map((d: any) => [d.code.toUpperCase(), d]))
+      setEmojis(new Map(data.map((d: any) => [d.code.toUpperCase(), d])))
+      sanitizeEmojis()
     }
   } catch (e) {}
 }
 
-// cleanup
-// @ts-ignore
-if (import.meta.hot) {
-  // @ts-ignore
-  import.meta.hot.on("vite:beforeFullReload", async () => {
-    server?.close()
+// Unicode stand-ins for emoji codes whose custom emoji was deleted. Codes not
+// listed here fall back to a neutral dot. Audited 2026-07-07: 186 of 489
+// product-metadata emojis point at deleted guild emojis; 29 of those were used
+// on buttons, where ONE dead emoji.id makes Discord 400 the whole reply
+// (50035) -- that is what took /bal down.
+const EMOJI_FALLBACKS: Record<string, string> = {
+  ANIMATED_ARROW_DOWN: "🔽",
+  ANIMATED_ARROW_UP: "🔼",
+  ANIMATED_BADGE_1: "🏅",
+  ANIMATED_BELL: "🔔",
+  ANIMATED_CHAT: "💬",
+  ANIMATED_CHEST: "🧰",
+  ANIMATED_COIN_1: "🪙",
+  ANIMATED_COIN_2: "🪙",
+  ANIMATED_COIN_3: "🪙",
+  ANIMATED_CROWN: "👑",
+  ANIMATED_DIAMOND: "💎",
+  ANIMATED_FIRE: "🔥",
+  ANIMATED_FLASH: "⚡",
+  ANIMATED_GEM: "💎",
+  ANIMATED_HEART: "❤️",
+  ANIMATED_IDEA: "💡",
+  ANIMATED_MAIL_RECEIVE: "📩",
+  ANIMATED_MAIL_SEND: "📨",
+  ANIMATED_MONEY: "💸",
+  ANIMATED_OPEN_VAULT: "🏦",
+  ANIMATED_PARTY_POPPER: "🎉",
+  ANIMATED_POINTING_DOWN: "👇",
+  ANIMATED_POINTING_RIGHT: "👉",
+  ANIMATED_QUESTION_MARK: "❓",
+  ANIMATED_ROBOT: "🤖",
+  ANIMATED_SHRUGGING: "🤷",
+  ANIMATED_STAR: "⭐",
+  ANIMATED_TOKEN_ADD: "📥",
+  ANIMATED_TROPHY: "🏆",
+  ANIMATED_VAULT: "🏦",
+  ANIMATED_VAULT_KEY: "🔑",
+  ANIMATED_WITHDRAW: "📤",
+  ANIMATED_XP: "✨",
+  APPROVE: "✅",
+  APPROVE_GREY: "☑️",
+  ARROW_DOWN: "↘️",
+  ARROW_UP: "↗️",
+  BELL: "🔔",
+  BIN: "🗑️",
+  BINANCE: "🟡",
+  CASH: "💵",
+  CHART: "📊",
+  CHECK: "✅",
+  CONFIG: "⚙️",
+  GIFT: "🎁",
+  LEAF: "🍃",
+  MAG: "🔍",
+  MOCHI_CIRCLE: "🍡",
+  MONEY: "💰",
+  NFT2: "🖼️",
+  NFTS: "🖼️",
+  PLUS: "➕",
+  PROPOSAL: "📜",
+  QRCODE: "🔳",
+  REVOKE: "⛔",
+  SHARE: "💸",
+  SWAP_ROUTE: "🔁",
+  WALLET: "👛",
+  WALLET_1: "👛",
+  WALLET_2: "👛",
+  // codes MISSING from product-metadata entirely (not just dead): every miss
+  // used to hit getEmoji's fallback, so e.g. numbered wallet rows rendered as
+  // a dead coin. NUM_2 is the only digit the DB actually has.
+  NUM_0: "0️⃣",
+  NUM_1: "1️⃣",
+  NUM_2: "2️⃣",
+  NUM_3: "3️⃣",
+  NUM_4: "4️⃣",
+  NUM_5: "5️⃣",
+  NUM_6: "6️⃣",
+  NUM_7: "7️⃣",
+  NUM_8: "8️⃣",
+  NUM_9: "9️⃣",
+  LINE: "▬",
+  BLANK: "⠀",
+  REPLY: "↳",
+  REPLY_2: "↳",
+  REPLY_3: "↳",
+  MAIL: "📧",
+  NEWS: "📰",
+  TWITTER: "🐦",
+  SWAP: "🔁",
+  CONVERSION: "🔄",
+  WEB: "🌐",
+  NFT: "🖼️",
+}
+const NEUTRAL_EMOJI = "🔹"
 
-    for (const e of events) {
-      client.off(e.name, e.execute as any)
-    }
-  })
+// Codes forced to unicode even when their custom emoji looks valid in the
+// bot's cache: users reported digit rows still rendering as ":icon:" while
+// the cache said the ids were fine, and a keycap carries the same meaning
+// with zero dependency on emoji inventory.
+const FORCE_UNICODE = new Set([
+  "NUM_0",
+  "NUM_1",
+  "NUM_2",
+  "NUM_3",
+  "NUM_4",
+  "NUM_5",
+  "NUM_6",
+  "NUM_7",
+  "NUM_8",
+  "NUM_9",
+])
+
+// Replace fetched emojis the Discord client will not render with a unicode
+// fallback, and register fallbacks for well-known codes the DB does not have
+// at all. Runs after every fetch and once on ready (guild emoji caches must be
+// populated to judge).
+//
+// The discriminator is `available`, NOT mere presence. Root cause of the whole
+// emoji rot: the "Console Labs" guild lost its Nitro boost tier, so a chunk of
+// its emojis flipped to `available: false`. Such an emoji STILL appears in the
+// guild emoji list and its CDN image still 200s, so every presence/CDN check
+// says "alive", but the client refuses to render it (shows `:name:`). We must
+// treat an emoji as dead when it is absent OR its GuildEmoji.available is false.
+export function sanitizeEmojis() {
+  if (!client.isReady() || !emojis?.size) return
+  let replaced = 0
+  for (const [code, d] of emojis as Map<string, any>) {
+    const match = /^<a?:[^:]+:(\d+)>$/.exec((d?.emoji ?? "").trim())
+    if (!match) continue
+    const cached = client.emojis.cache.get(match[1])
+    const usable = !!cached && cached.available !== false
+    if (!FORCE_UNICODE.has(code) && usable) continue
+    d.emoji = EMOJI_FALLBACKS[code] ?? NEUTRAL_EMOJI
+    replaced++
+  }
+  let added = 0
+  for (const [code, emoji] of Object.entries(EMOJI_FALLBACKS)) {
+    if (emojis.has(code)) continue
+    emojis.set(code, { code, emoji })
+    added++
+  }
+  if (replaced || added) {
+    logger.info(
+      `[sanitizeEmojis] replaced ${replaced} dead custom emojis, added ${added} missing codes (unicode fallbacks)`,
+    )
+  }
+}
+
+// cleanup (dev-only vite HMR; kept out of this file so jest never parses import.meta)
+if (process.env.NODE_ENV !== "test") {
+  import("./hot").then(({ onBeforeFullReload }) =>
+    onBeforeFullReload(async () => {
+      server?.close()
+
+      for (const e of events) {
+        client.off(e.name, e.execute as any)
+      }
+    }),
+  )
 }
 
 export default client

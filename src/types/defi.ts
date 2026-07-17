@@ -98,13 +98,6 @@ export type CoinMarketItem = {
   sparkline_in_7d: { price: number[] }
 }
 
-export type GasPriceData = {
-  LastBlock: string
-  SafeGasPrice: string
-  ProposeGasPrice: string
-  FastGasPrice: string
-}
-
 export type UserBalances = {
   id: string
   name: string
