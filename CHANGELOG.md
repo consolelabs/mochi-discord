@@ -1,3 +1,10 @@
+## [6.58.18](https://github.com/consolelabs/mochi-discord/compare/v6.58.17...v6.58.18) (2026-07-17)
+
+
+### Bug Fixes
+
+* **docker:** patch formatter dist to unbreak profile masked links ([#1737](https://github.com/consolelabs/mochi-discord/issues/1737)) ([3e9cf4f](https://github.com/consolelabs/mochi-discord/commit/3e9cf4f1cf373a70f03b6d0fe65744777104822e)), closes [consolelabs/mochi.js#47](https://github.com/consolelabs/mochi.js/issues/47)
+
 ## [6.58.1](https://github.com/consolelabs/mochi-discord/compare/v6.58.0...v6.58.1) (2025-07-03)
 
 
